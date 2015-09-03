@@ -37,7 +37,7 @@
     </Task>
   </UsingTask>
 
-  <!-- 
+  <!--
     Needed to avoid the InitialTargets from having an Output which ends up getting
     added to the output references when you have a project to project reference.
   -->
@@ -52,7 +52,7 @@
       <BuildFiles Include="$(PackagesDir)Microsoft.Net.ToolsetCompilers*\build\*" />
       <ToolsFiles Include="$(PackagesDir)Microsoft.Net.ToolsetCompilers*\tools\*" />
     </ItemGroup>
-    
+
     <Copy
       SourceFiles="@(BuildFiles);@(ToolsFiles)"
       DestinationFolder="$(OutputPath)tools"
@@ -66,7 +66,7 @@
       <BuildFiles Include="$(PackagesDir)Microsoft.Net.ToolsetCompilers*\build\*" />
       <ToolsFiles Include="$(PackagesDir)Microsoft.Net.ToolsetCompilers*\tools\*" />
     </ItemGroup>
-    
+
     <Copy
       SourceFiles="@(BuildFiles);@(ToolsFiles)"
       DestinationFolder="$(OutputPath)tools"
@@ -80,31 +80,32 @@
           Outputs="$(ToolsDir)Microsoft.DotNet.Build.Tasks.dll;$(NugetToolPath)">
 
     <DownloadFile FileName="$(NuGetToolPath)"
-                  Address="http://nuget.org/nuget.exe" 
+                  Address="http://nuget.org/nuget.exe"
                   Condition="!Exists('$(NuGetToolPath)') AND '$(OS)' == 'Windows_NT'" />
 
     <Exec Command="curl -sSL --create-dirs -s -o $(NuGetToolPath) https://api.nuget.org/downloads/nuget.exe" Condition="!Exists('$(NuGetToolPath)') AND '$(OS)' != 'Windows_NT'" />
 
     <!-- Restore build tools -->
-    <!-- 
+    <!--
     <Exec Command="$(NugetRestoreCommand) &quot;$(SourceDir).nuget/packages.config&quot;" StandardOutputImportance="Low" />
-    -->    
+    -->
     <Exec Command="$(NugetRestoreCommand) &quot;$(SourceDir).nuget/packages.config&quot;" />
     <Error Condition="'$(ErrorIfBuildToolsRestoredFromIndividualProject)'=='true'"
            Text="The build tools package was just restored and so we cannot continue the build of an individual project because targets from the build tools package were not able to be imported. Please retry the build the individual project again." />
   </Target>
 
   <!-- Get access to the xunit task from the globally-installed location -->
-  <Import Project="packages\xunit.runner.msbuild.2.1.0-beta4-build3109\build\portable-net45+netcore45+wp8+wpa81\xunit.runner.msbuild.props" Condition="Exists('packages\xunit.runner.msbuild.2.1.0-beta4-build3109\build\portable-net45+netcore45+wp8+wpa81\xunit.runner.msbuild.props')" />
+  <!-- <Import Project="packages\xunit.runner.msbuild.2.1.0-beta4-build3109\build\portable-net45+netcore45+wp8+wpa81\xunit.runner.msbuild.props" -->
+  <!--         Condition="Exists('packages\xunit.runner.msbuild.2.1.0-beta4-build3109\build\portable-net45+netcore45+wp8+wpa81\xunit.runner.msbuild.props') AND '$(IsTestProject)" /> -->
 
-  <Target Name="Test"
-          DependsOnTargets="Build"
-          Condition="'$(IsTestProject)' == 'true'">
-    <xunit Assemblies="@(MainAssembly)"
-           ShadowCopy="false" />
-  </Target>
+  <!-- <Target Name="Test" -->
+  <!--         DependsOnTargets="Build" -->
+  <!--         Condition="'$(IsTestProject)' == 'true'"> -->
+  <!--   <xunit Assemblies="@(MainAssembly)" -->
+  <!--          ShadowCopy="false" /> -->
+  <!-- </Target> -->
 
-  <Target Name="BuildAndTest"
-          DependsOnTargets="Build;Test" />
+  <!-- <Target Name="BuildAndTest" -->
+  <!--         DependsOnTargets="Build;Test" /> -->
 
 </Project>
