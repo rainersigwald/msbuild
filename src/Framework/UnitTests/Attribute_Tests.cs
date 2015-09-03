@@ -17,8 +17,7 @@ namespace Microsoft.Build.UnitTests
         [Fact]
         public void RequiredRuntimeAttribute()
         {
-            RequiredRuntimeAttribute attribute =
-                (RequiredRuntimeAttribute)Attribute.GetCustomAttribute(typeof(X), typeof(RequiredRuntimeAttribute));
+            RequiredRuntimeAttribute attribute = typeof(X).GetTypeInfo().GetCustomAttribute<RequiredRuntimeAttribute>();
 
             Assert.Equal("v5", attribute.RuntimeVersion);
         }
@@ -26,16 +25,14 @@ namespace Microsoft.Build.UnitTests
         [Fact]
         public void OutputAttribute()
         {
-            OutputAttribute attribute =
-                (OutputAttribute)Attribute.GetCustomAttribute(typeof(X).GetMember("TestValue2", BindingFlags.NonPublic | BindingFlags.Static)[0], typeof(OutputAttribute));
+            OutputAttribute attribute = typeof(X).GetMember("TestValue2", BindingFlags.NonPublic | BindingFlags.Static)[0].GetCustomAttribute<OutputAttribute>();
             Assert.NotNull(attribute);
         }
 
         [Fact]
         public void RequiredAttribute()
         {
-            RequiredAttribute attribute =
-                (RequiredAttribute)Attribute.GetCustomAttribute(typeof(X).GetMember("TestValue", BindingFlags.NonPublic | BindingFlags.Static)[0], typeof(RequiredAttribute));
+            RequiredAttribute attribute = typeof(X).GetMember("TestValue", BindingFlags.NonPublic | BindingFlags.Static)[0].GetCustomAttribute<RequiredAttribute>();
             Assert.NotNull(attribute);
         }
     }
