@@ -39,7 +39,4 @@
     <Exec Command="$(NugetRestoreCommand) &quot;$(PackagesConfig)&quot;" />
     <Touch Files="$(RestorePackagesSemaphore)" AlwaysCreate="true" />
   </Target>
-
-  <Import Project="$(ToolsDir)\tests.targets"
-          Condition="'$(IsTestProject)' == 'true'" />
 </Project>
