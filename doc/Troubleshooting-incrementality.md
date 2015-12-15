@@ -10,7 +10,11 @@ Unfortunately, sometimes unnecessary rebuilds happen. This document is intended 
 
 MSBuild incrementality is primarily controlled at the target level. Any target that has `Inputs` and `Outputs` attributes defined may be skipped because it is up to date. Generally, a target is up to date if all of its `Outputs` are newer than all of its `Inputs`. However, if there are exactly as many `Outputs` as `Inputs`, the MSBuild engine assumes that each output corresponds to the input that has the same list order. In that case, the target may be *partially* executed--only for the inputs that are newer than their corresponding outputs.   
 
+Naturally, then, there are several ways this can go wrong.
+
 ## Missing target inputs and outputs
+
+The simplest cause of overbuilding is that there is just not attempt at incrementality.  If a `<Target>` does not have *both* `Inputs` and `Outputs` attributes, MSBuild will always execute it. In logs, this shows up as the *absence* of a log entry indicating why a target was built.
 
 ## Tasks that handle incrementality
 
