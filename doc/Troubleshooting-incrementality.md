@@ -14,9 +14,36 @@ Naturally, then, there are several ways this can go wrong.
 
 ## Missing target inputs and outputs
 
-The simplest cause of overbuilding is that there is just not attempt at incrementality.  If a `<Target>` does not have *both* `Inputs` and `Outputs` attributes, MSBuild will always execute it. In logs, this shows up as the *absence* of a log entry indicating why a target was built.
+The simplest cause of overbuilding is that there is just no attempt at incrementality.  If a `<Target>` does not have *both* `Inputs` and `Outputs` attributes, MSBuild will always execute it. In logs, this shows up as the *absence* of a log entry indicating why a target was built.
+
+Keep an eye out for targets that perform pure computational work that doesn't involve running an external tool or producing any output files. Those targets usually run in every build, and since they're quick, there's no need for incremental behavior. Unfortunately, that often means that they show up when investigating slow builds as red herrings. 
 
 ## Tasks that handle incrementality
+
+Tasks that define inputs and outputs obey the !!Find a link!! incremental behavior rules. Logging (at verbosity `detailed` and higher) should indicate what input/output combination caused a build to happen, for example
+```
+Target "Build" in project "C:\work\incremental.proj" (entry point):
+Building target "Build" completely.
+Output file "out.txt" does not exist.
+
+Target "Build" in project "C:\work\incremental.proj" (entry point):
+Building target "Build" completely.
+Input file "in.txt" is newer than output file "out.txt".
+
+Target "Build" in project "C:\work\incremental.proj" (entry point):
+Building target "Build" partially, because some output files are out of date with respect to their input files.
+[Input: Input=in1.txt, Output=in1.out] Output file does not exist.
+Done building target "Build" in project "incremental.proj".
+```
+
+When everything works well, you'll see logging like
+```
+Target "Build" in project "C:\work\incremental.proj" (entry point):
+Skipping target "Build" because all output files are up-to-date with respect to the input files.
+Input files: in.txt
+Output files: out.txt
+Done building target "Build" in project "incremental.proj".
+``` 
 
 ## Following the cascade
 
