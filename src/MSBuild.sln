@@ -58,10 +58,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{144F834D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuildTaskHost", "XMakeCommandLine\MSBuildTaskHost\MSBuildTaskHost.csproj", "{53733ECF-0D81-43DA-B602-2AE9417F614F}"
 EndProject
+<<<<<<< HEAD
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dependency", "..\Samples\Dependency\Dependency.csproj", "{9EAE36C3-50CD-49A6-9CA2-94649125DCD1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskWithDependency", "..\Samples\TaskWithDependency\TaskWithDependency.csproj", "{09EEB69D-817E-4B33-9F61-24FC9DA5B3D4}"
 EndProject
+||||||| merged common ancestors
+=======
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Build.LocalizationTasks", "..\build\LocalizationTasks\Microsoft.Build.LocalizationTasks.csproj", "{06347A6C-32A4-4218-A930-0A22699C726C}"
+EndProject
+>>>>>>> Microsoft/master
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -808,6 +814,7 @@ Global
 		{53733ECF-0D81-43DA-B602-2AE9417F614F}.Release|x64.Build.0 = Release|x64
 		{53733ECF-0D81-43DA-B602-2AE9417F614F}.Release|x86.ActiveCfg = Release|x86
 		{53733ECF-0D81-43DA-B602-2AE9417F614F}.Release|x86.Build.0 = Release|x86
+<<<<<<< HEAD
 		{53733ECF-0D81-43DA-B602-2AE9417F614F}.Release-MONO|Any CPU.ActiveCfg = Release-MONO|Any CPU
 		{53733ECF-0D81-43DA-B602-2AE9417F614F}.Release-MONO|Any CPU.Build.0 = Release-MONO|Any CPU
 		{53733ECF-0D81-43DA-B602-2AE9417F614F}.Release-MONO|x64.ActiveCfg = Release-MONO|x64
@@ -934,6 +941,21 @@ Global
 		{09EEB69D-817E-4B33-9F61-24FC9DA5B3D4}.Release-NetCore-Ubuntu|x64.Build.0 = Release-NetCore|Any CPU
 		{09EEB69D-817E-4B33-9F61-24FC9DA5B3D4}.Release-NetCore-Ubuntu|x86.ActiveCfg = Release-NetCore|Any CPU
 		{09EEB69D-817E-4B33-9F61-24FC9DA5B3D4}.Release-NetCore-Ubuntu|x86.Build.0 = Release-NetCore|Any CPU
+||||||| merged common ancestors
+=======
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Debug|x64.Build.0 = Debug|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Debug|x86.Build.0 = Debug|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Release|x64.ActiveCfg = Release|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Release|x64.Build.0 = Release|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Release|x86.ActiveCfg = Release|Any CPU
+		{06347A6C-32A4-4218-A930-0A22699C726C}.Release|x86.Build.0 = Release|Any CPU
+>>>>>>> Microsoft/master
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
