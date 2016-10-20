@@ -1505,26 +1505,27 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     ======================================================================================
   -->
   <Target Name="_GetProjectReferenceTargetFrameworkProperties" Outputs="%(_MSBuildProjectReferenceExistent.Identity)">
-    <MSBuild
-        Projects="%(_MSBuildProjectReferenceExistent.Identity)"
-        Targets="GetTargetFrameworkProperties"
-        BuildInParallel="$(BuildInParallel)"
-        Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform); ReferringTargetFramework=$(TargetFrameworkMoniker)"
-        ContinueOnError="!$(BuildingProject)"
-        RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove);TargetFramework">
-
-      <Output TaskParameter="TargetOutputs" PropertyName="_ProjectReferenceTargetFrameworkProperties" />
-    </MSBuild>
-
     <ItemGroup>
-      <_MSBuildProjectReferenceExistent Condition="'%(_MSBuildProjectReferenceExistent.Identity)' == '%(Identity)'">
-        <SetTargetFramework>$(_ProjectReferenceTargetFrameworkProperties)</SetTargetFramework>
+      <_MSBuildProjectReferenceExistent>
+        <MSBuildSourceProjectFile>%(FullPath)</MSBuildSourceProjectFile>
       </_MSBuildProjectReferenceExistent>
     </ItemGroup>
 
-    <PropertyGroup>
-      <_ProjectReferenceTargetFrameworkProperties />
-    </PropertyGroup>
+    <MSBuild
+        Projects="@(_MSBuildProjectReferenceExistent)"
+        Targets="GetTargetFrameworkProperties"
+        BuildInParallel="$(BuildInParallel)"
+        Properties="ReferringTargetFramework=$(TargetFrameworkMoniker)"
+        ContinueOnError="!$(BuildingProject)"
+        RemoveProperties="TargetFramework">
+      <Output TaskParameter="TargetOutputs" ItemName="_ProjectReferenceTargetFrameworkConfiguration" />
+    </MSBuild>
+
+    <ItemGroup>
+      <_MSBuildProjectReferenceExistent Condition="'%(MSBuildSourceProjectFile)' != '' and '@(_MSBuildProjectReferenceExistent->'%(FullPath)')' == '@(_ProjectReferenceTargetFrameworkConfiguration->'%(MSBuildSourceProjectFile)')'">
+        <Setting>@(_ProjectReferenceTargetFrameworkConfiguration->'%(Identity)')</Setting>
+      </_MSBuildProjectReferenceExistent>
+    </ItemGroup>
   </Target>
 
   <!--
