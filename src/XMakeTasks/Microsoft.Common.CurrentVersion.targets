@@ -1523,7 +1523,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
     <ItemGroup>
       <_MSBuildProjectReferenceExistent Condition="'%(MSBuildSourceProjectFile)' != '' and '@(_MSBuildProjectReferenceExistent->'%(FullPath)')' == '@(_ProjectReferenceTargetFrameworkConfiguration->'%(MSBuildSourceProjectFile)')'">
-        <Setting>@(_ProjectReferenceTargetFrameworkConfiguration->'%(Identity)')</Setting>
+        <SetTargetFramework>@(_ProjectReferenceTargetFrameworkConfiguration->'%(Identity)')</SetTargetFramework>
       </_MSBuildProjectReferenceExistent>
     </ItemGroup>
   </Target>
