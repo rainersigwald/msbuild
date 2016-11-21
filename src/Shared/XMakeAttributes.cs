@@ -44,6 +44,7 @@ namespace Microsoft.Build.Shared
         internal const string itemName = "ItemName";
         internal const string propertyName = "PropertyName";
         internal const string toolsVersion = "ToolsVersion";
+        internal const string sdks = "sdks";
         internal const string runtime = "Runtime";
         internal const string msbuildRuntime = "MSBuildRuntime";
         internal const string architecture = "Architecture";

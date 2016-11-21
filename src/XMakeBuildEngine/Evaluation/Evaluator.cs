@@ -782,6 +782,11 @@ namespace Microsoft.Build.Evaluation
             DataCollection.CommentMarkProfile(8816, endPass0);
 #endif
 
+            //  Things to do for imports:
+            //  - LoadSingleImport()
+            //  - _data.RecordImport()
+            //  - PerformDepthFirstPass(importedProjectRootElement)
+
             // Pass1: evaluate properties, load imports, and gather everything else
             PerformDepthFirstPass(_projectRootElement);
 
@@ -1179,6 +1184,51 @@ namespace Microsoft.Build.Evaluation
                     }
                 }
             }
+        }
+
+        private void EvaluateProjectSdks(ProjectRootElement currentProjectOrImport)
+        {
+            if (string.IsNullOrEmpty(currentProjectOrImport.Sdks))
+            {
+                return;
+            }
+
+            foreach (var sdk in currentProjectOrImport.Sdks.Split(';').Select(s => s.Trim()))
+            {
+                var sdkPath = ResolveSdk(sdk, currentProjectOrImport.SdksLocation);
+                //  TODO:
+                //  If InitialImports.props exists in sdkPath, call LoadSingleImport() on it and then PerformDepthFirstPass
+                //  If FinalImports.targets exists in sdkPath, add it to a list of SDK targets to be imported at the end of Pass1 in Evaluate()
+
+            }
+        }
+
+        private string ResolveSdk(string sdkSpec, IElementLocation location)
+        {
+            string sdkName;
+            string sdkVersion;
+
+            string[] elements = sdkSpec.Split(new char[] { '/' }, 2);
+
+            //  TODO: Add error message text for InvalidSdkAttribute
+            ProjectErrorUtilities.VerifyThrowInvalidProject(elements.Length == 2, location, "InvalidSdkAttribute");
+
+            sdkName = elements[0];
+            sdkVersion = elements[1];
+
+            var sdksPath =_data.GetProperty(ReservedPropertyNames.msbuildSdksPath);
+            //  TODO: Add error message text.  Also verify whether this should actually be an "Invalid Project" exception - probably not
+            ProjectErrorUtilities.VerifyThrowInvalidProject(sdksPath != null, location, "PropertyMustBeSpecified", ReservedPropertyNames.msbuildSdksPath);
+
+            var sdkPath = Path.Combine(sdksPath.EvaluatedValue, sdkName, sdkVersion, "sdk");
+
+            if (!Directory.Exists(sdkPath))
+            {
+                //  TODO: Add error message text
+                ProjectErrorUtilities.ThrowInvalidProject(location, "SdkNotFound", sdkName);
+            }
+
+            return sdkPath;
         }
 
         /// <summary>
@@ -2361,132 +2411,16 @@ namespace Microsoft.Build.Evaluation
                     ProjectErrorUtilities.ThrowInvalidProject(importLocationInProject, "InvalidAttributeValueWithException", importFileUnescaped, XMakeAttributes.project, XMakeElements.import, ex.Message);
                 }
 
-                // If a file is included twice, or there is a cycle of imports, we ignore all but the first import
-                // and issue a warning to that effect.
-                if (String.Equals(_projectRootElement.FullPath, importFileUnescaped, StringComparison.OrdinalIgnoreCase) /* We are trying to import ourselves */)
+                bool ignoredDuplicateImport;
+                var importedProjectElement = LoadSingleImport(directoryOfImportingFile, importElement, importFileUnescaped, throwOnFileNotExistsError, out ignoredDuplicateImport);
+                if (atleastOneImportIgnored)
                 {
-                    _loggingService.LogWarning(_buildEventContext, null, new BuildEventFileInfo(importLocationInProject), "SelfImport", importFileUnescaped);
                     atleastOneImportIgnored = true;
-
-                    continue;
                 }
-
-                // Circular dependencies (e.g. t0.targets imports t1.targets, t1.targets imports t2.targets and t2.targets imports t0.targets) will be
-                // caught by the check for duplicate imports which is done later in the method. However, if the project load setting requires throwing
-                // on circular imports or recording duplicate-but-not-circular imports, then we need to do exclusive check for circular imports here.
-                if ((_loadSettings & ProjectLoadSettings.RejectCircularImports) != 0 || (_loadSettings & ProjectLoadSettings.RecordDuplicateButNotCircularImports) != 0)
+                if (importedProjectElement != null)
                 {
-                    // Check if this import introduces circularity.
-                    if (IntroducesCircularity(importFileUnescaped, importElement))
-                    {
-                        // Get the full path of the MSBuild file that has this import.
-                        string importedBy = importElement.ContainingProject.FullPath ?? String.Empty;
-
-                        _loggingService.LogWarning(_buildEventContext, null, new BuildEventFileInfo(importLocationInProject), "ImportIntroducesCircularity", importFileUnescaped, importedBy);
-
-                        // Throw exception if the project load settings requires us to stop the evaluation of a project when circular imports are detected.
-                        if ((_loadSettings & ProjectLoadSettings.RejectCircularImports) != 0)
-                        {
-                            ProjectErrorUtilities.ThrowInvalidProject(importLocationInProject, "ImportIntroducesCircularity", importFileUnescaped, importedBy);
-                        }
-
-                        // Ignore this import and no more further processing on it.
-                        atleastOneImportIgnored = true;
-                        continue;
-                    }
+                    imports.Add(importedProjectElement);
                 }
-
-                ProjectImportElement previouslyImportedAt;
-                bool duplicateImport = false;
-
-                if (_importsSeen.TryGetValue(importFileUnescaped, out previouslyImportedAt))
-                {
-                    string parenthesizedProjectLocation = String.Empty;
-
-                    // If neither file involved is the project itself, append its path in square brackets
-                    if (previouslyImportedAt.ContainingProject != _projectRootElement && importElement.ContainingProject != _projectRootElement)
-                    {
-                        parenthesizedProjectLocation = "[" + _projectRootElement.FullPath + "]";
-                    }
-
-                    _loggingService.LogWarning(_buildEventContext, null, new BuildEventFileInfo(importLocationInProject), "DuplicateImport", importFileUnescaped, previouslyImportedAt.Location.LocationString, parenthesizedProjectLocation);
-                    duplicateImport = true;
-                }
-
-                ProjectRootElement importedProjectElement;
-
-                try
-                {
-                    // We take the explicit loaded flag from the project ultimately being evaluated.  The goal being that
-                    // if a project system loaded a user's project, all imports (which would include property sheets and .user file)
-                    // may impact evaluation and should be included in the weak cache without ever being cleared out to avoid
-                    // the project system being exposed to multiple PRE instances for the same file.  We only want to consider
-                    // clearing the weak cache (and therefore setting explicitload=false) for projects the project system never
-                    // was directly interested in (i.e. the ones that were reached for purposes of building a P2P.)
-                    bool explicitlyLoaded = importElement.ContainingProject.IsExplicitlyLoaded;
-                    importedProjectElement = _projectRootElementCache.Get(
-                        importFileUnescaped,
-                        (p, c) => ProjectRootElement.OpenProjectOrSolution(
-                            importFileUnescaped,
-                            new ReadOnlyConvertingDictionary<string, ProjectPropertyInstance, string>(
-                                _data.GlobalPropertiesDictionary,
-                                instance => ((IProperty) instance).EvaluatedValueEscaped),
-                            _data.ExplicitToolsVersion,
-                            _loggingService,
-                            _projectRootElementCache,
-                            _buildEventContext,
-                            explicitlyLoaded),
-                        explicitlyLoaded,
-                        preserveFormatting: false);
-
-                    if (duplicateImport)
-                    {
-                        // Only record the data if we want to record duplicate imports
-                        if ((_loadSettings & ProjectLoadSettings.RecordDuplicateButNotCircularImports) != 0)
-                        {
-                            _data.RecordImportWithDuplicates(importElement, importedProjectElement,
-                                importedProjectElement.Version);
-                        }
-
-                        // Since we have already seen this we need to not continue on in the processing.
-                        atleastOneImportIgnored = true;
-                        continue;
-                    }
-                    else
-                    {
-                        imports.Add(importedProjectElement);
-                    }
-                }
-                catch (InvalidProjectFileException ex) when (ExceptionHandling.IsIoRelatedException(ex.InnerException))
-                {
-                    // The import couldn't be read from disk, or something similar. In that case,
-                    // the error message would be more useful if it pointed to the location in the importing project file instead.
-                    // Perhaps the import tag has a typo in, for example.
-
-                    // There's a specific message for file not existing
-                    if (!File.Exists(importFileUnescaped))
-                    {
-                        if (!throwOnFileNotExistsError ||
-                            (_loadSettings & ProjectLoadSettings.IgnoreMissingImports) != 0)
-                        {
-                            continue;
-                        }
-
-                        ProjectErrorUtilities.ThrowInvalidProject(importLocationInProject, "ImportedProjectNotFound",
-                            importFileUnescaped);
-                    }
-                    else
-                    {
-                        // Otherwise a more generic message, still pointing to the location of the import tag
-                        ProjectErrorUtilities.ThrowInvalidProject(importLocationInProject, "InvalidImportedProjectFile",
-                            importFileUnescaped, ex.InnerException.Message);
-                    }
-                }
-
-                // Because these expressions will never be expanded again, we 
-                // can store the unescaped value. The only purpose of escaping is to 
-                // avoid undesired splitting or expansion.
-                _importsSeen.Add(importFileUnescaped, importElement);
             }
 
             if (imports.Count > 0)
@@ -2512,6 +2446,150 @@ namespace Microsoft.Build.Evaluation
             // (if @throwOnFileNotExistsError==true, then it would have thrown
             //  and we wouldn't be here)
             return LoadImportsResult.TriedToImportButFileNotFound;
+        }
+
+        private ProjectRootElement LoadSingleImport(string directoryOfImportingFile, ProjectImportElement importElement, string normalizedImportPath,
+                                            bool throwOnFileNotExistsError, out bool ignoredDuplicateImport)
+        {
+            ProjectRootElement ret;
+
+            ElementLocation importLocationInProject = importElement.Location;
+            string importFileUnescaped = normalizedImportPath;
+
+            // If a file is included twice, or there is a cycle of imports, we ignore all but the first import
+            // and issue a warning to that effect.
+            if (String.Equals(_projectRootElement.FullPath, importFileUnescaped, StringComparison.OrdinalIgnoreCase) /* We are trying to import ourselves */)
+            {
+                _loggingService.LogWarning(_buildEventContext, null, new BuildEventFileInfo(importLocationInProject), "SelfImport", importFileUnescaped);
+                ignoredDuplicateImport = true;
+
+                return null;
+            }
+
+            // Circular dependencies (e.g. t0.targets imports t1.targets, t1.targets imports t2.targets and t2.targets imports t0.targets) will be
+            // caught by the check for duplicate imports which is done later in the method. However, if the project load setting requires throwing
+            // on circular imports or recording duplicate-but-not-circular imports, then we need to do exclusive check for circular imports here.
+            if ((_loadSettings & ProjectLoadSettings.RejectCircularImports) != 0 || (_loadSettings & ProjectLoadSettings.RecordDuplicateButNotCircularImports) != 0)
+            {
+                // Check if this import introduces circularity.
+                if (IntroducesCircularity(importFileUnescaped, importElement))
+                {
+                    // Get the full path of the MSBuild file that has this import.
+                    string importedBy = importElement.ContainingProject.FullPath ?? String.Empty;
+
+                    _loggingService.LogWarning(_buildEventContext, null, new BuildEventFileInfo(importLocationInProject), "ImportIntroducesCircularity", importFileUnescaped, importedBy);
+
+                    // Throw exception if the project load settings requires us to stop the evaluation of a project when circular imports are detected.
+                    if ((_loadSettings & ProjectLoadSettings.RejectCircularImports) != 0)
+                    {
+                        ProjectErrorUtilities.ThrowInvalidProject(importLocationInProject, "ImportIntroducesCircularity", importFileUnescaped, importedBy);
+                    }
+
+                    // Ignore this import and no more further processing on it.
+                    ignoredDuplicateImport = true;
+                    return null;
+                }
+            }
+
+            ProjectImportElement previouslyImportedAt;
+            bool duplicateImport = false;
+
+            if (_importsSeen.TryGetValue(importFileUnescaped, out previouslyImportedAt))
+            {
+                string parenthesizedProjectLocation = String.Empty;
+
+                // If neither file involved is the project itself, append its path in square brackets
+                if (previouslyImportedAt.ContainingProject != _projectRootElement && importElement.ContainingProject != _projectRootElement)
+                {
+                    parenthesizedProjectLocation = "[" + _projectRootElement.FullPath + "]";
+                }
+
+                _loggingService.LogWarning(_buildEventContext, null, new BuildEventFileInfo(importLocationInProject), "DuplicateImport", importFileUnescaped, previouslyImportedAt.Location.LocationString, parenthesizedProjectLocation);
+                duplicateImport = true;
+            }
+
+            ProjectRootElement importedProjectElement;
+
+            try
+            {
+                // We take the explicit loaded flag from the project ultimately being evaluated.  The goal being that
+                // if a project system loaded a user's project, all imports (which would include property sheets and .user file)
+                // may impact evaluation and should be included in the weak cache without ever being cleared out to avoid
+                // the project system being exposed to multiple PRE instances for the same file.  We only want to consider
+                // clearing the weak cache (and therefore setting explicitload=false) for projects the project system never
+                // was directly interested in (i.e. the ones that were reached for purposes of building a P2P.)
+                bool explicitlyLoaded = importElement.ContainingProject.IsExplicitlyLoaded;
+                importedProjectElement = _projectRootElementCache.Get(
+                    importFileUnescaped,
+                    (p, c) => ProjectRootElement.OpenProjectOrSolution(
+                        importFileUnescaped,
+                        new ReadOnlyConvertingDictionary<string, ProjectPropertyInstance, string>(
+                            _data.GlobalPropertiesDictionary,
+                            instance => ((IProperty)instance).EvaluatedValueEscaped),
+                        _data.ExplicitToolsVersion,
+                        _loggingService,
+                        _projectRootElementCache,
+                        _buildEventContext,
+                        explicitlyLoaded),
+                    explicitlyLoaded,
+                    preserveFormatting: false);
+
+                if (duplicateImport)
+                {
+                    // Only record the data if we want to record duplicate imports
+                    if ((_loadSettings & ProjectLoadSettings.RecordDuplicateButNotCircularImports) != 0)
+                    {
+                        _data.RecordImportWithDuplicates(importElement, importedProjectElement,
+                            importedProjectElement.Version);
+                    }
+
+                    // Since we have already seen this we need to not continue on in the processing.
+                    ignoredDuplicateImport = true;
+                    return null;
+                }
+                else
+                {
+                    ret = importedProjectElement;
+                }
+            }
+            catch (InvalidProjectFileException ex) when (ExceptionHandling.IsIoRelatedException(ex.InnerException))
+            {
+                // The import couldn't be read from disk, or something similar. In that case,
+                // the error message would be more useful if it pointed to the location in the importing project file instead.
+                // Perhaps the import tag has a typo in, for example.
+
+                // There's a specific message for file not existing
+                if (!File.Exists(importFileUnescaped))
+                {
+                    if (!throwOnFileNotExistsError ||
+                        (_loadSettings & ProjectLoadSettings.IgnoreMissingImports) != 0)
+                    {
+                        ignoredDuplicateImport = false;
+                        return null;
+                    }
+
+                    ProjectErrorUtilities.ThrowInvalidProject(importLocationInProject, "ImportedProjectNotFound",
+                        importFileUnescaped);
+                }
+                else
+                {
+                    // Otherwise a more generic message, still pointing to the location of the import tag
+                    ProjectErrorUtilities.ThrowInvalidProject(importLocationInProject, "InvalidImportedProjectFile",
+                        importFileUnescaped, ex.InnerException.Message);
+                }
+
+                //  Should never be reached, but helps the compiler understand that importElement will be assigned at the end
+                ignoredDuplicateImport = false;
+                return null;
+            }
+
+            // Because these expressions will never be expanded again, we 
+            // can store the unescaped value. The only purpose of escaping is to 
+            // avoid undesired splitting or expansion.
+            _importsSeen.Add(importFileUnescaped, importElement);
+
+            ignoredDuplicateImport = false;
+            return ret;
         }
 
         /// <summary>

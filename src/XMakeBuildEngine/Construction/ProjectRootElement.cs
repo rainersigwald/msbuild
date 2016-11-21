@@ -669,6 +669,25 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
+        /// Gets or sets the value of the sdks attribute. If there is no sdks attribute, returns empty string.
+        /// If the value is null or empty, removes the attribute.
+        /// </summary>
+        public string Sdks
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return ProjectXmlUtilities.GetAttributeValue(XmlElement, XMakeAttributes.sdks);
+            }
+            [DebuggerStepThrough]
+            set
+            {
+                ProjectXmlUtilities.SetOrRemoveAttribute(XmlElement, XMakeAttributes.sdks, value);
+                MarkDirty("Set project Sdks {0}", value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the value of ToolsVersion. If there is no ToolsVersion, returns empty string.
         /// If the value is null or empty, removes the attribute.
         /// </summary>
@@ -811,6 +830,11 @@ namespace Microsoft.Build.Construction
         public ElementLocation ToolsVersionLocation
         {
             get { return XmlElement.GetAttributeLocation(XMakeAttributes.toolsVersion); }
+        }
+
+        public ElementLocation SdksLocation
+        {
+            get { return XmlElement.GetAttributeLocation(XMakeAttributes.sdks); }
         }
 
         /// <summary>
