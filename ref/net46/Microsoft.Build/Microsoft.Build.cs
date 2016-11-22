@@ -251,6 +251,8 @@ namespace Microsoft.Build.Construction
         public System.Collections.Generic.ICollection<Microsoft.Build.Construction.ProjectPropertyGroupElement> PropertyGroups { get { throw null; } }
         public System.Collections.Generic.ICollection<Microsoft.Build.Construction.ProjectPropertyGroupElement> PropertyGroupsReversed { get { throw null; } }
         public string RawXml { get { throw null; } }
+        public string Sdks { [System.Diagnostics.DebuggerStepThroughAttribute]get { throw null; } [System.Diagnostics.DebuggerStepThroughAttribute]set { } }
+        public Microsoft.Build.Construction.ElementLocation SdksLocation { get { throw null; } }
         public System.Collections.Generic.ICollection<Microsoft.Build.Construction.ProjectTargetElement> Targets { get { throw null; } }
         public System.DateTime TimeLastChanged { [System.Diagnostics.DebuggerStepThroughAttribute]get { throw null; } }
         public string ToolsVersion { [System.Diagnostics.DebuggerStepThroughAttribute]get { throw null; } [System.Diagnostics.DebuggerStepThroughAttribute]set { } }

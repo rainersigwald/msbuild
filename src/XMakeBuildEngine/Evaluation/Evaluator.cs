@@ -941,6 +941,19 @@ namespace Microsoft.Build.Evaluation
 
         /// <summary>
         /// Evaluate the properties in the passed in XML, into the project.
+        /// In
+        /// Does a depth first traversal into Imports.
+        /// In the process, populates the item, itemdefinition, target, and usingtask lists as well.
+        /// </summary>
+        private void PerformDepthFirstPass(ProjectRootElement rootProjectElement, ImplicitImportList implicitImports)
+        {
+            // pre
+            PerformDepthFirstPass(rootProjectElement);
+            // post
+        }
+
+        /// <summary>
+        /// Evaluate the properties in the passed in XML, into the project.
         /// Does a depth first traversal into Imports.
         /// In the process, populates the item, itemdefinition, target, and usingtask lists as well.
         /// </summary>
