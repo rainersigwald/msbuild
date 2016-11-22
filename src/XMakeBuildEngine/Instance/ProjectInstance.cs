@@ -1227,7 +1227,7 @@ namespace Microsoft.Build.Execution
         /// Record an import opened during evaluation.
         /// Does nothing: not needed for project instances.
         /// </summary>
-        void IEvaluatorData<ProjectPropertyInstance, ProjectItemInstance, ProjectMetadataInstance, ProjectItemDefinitionInstance>.RecordImport(ProjectImportElement importElement, ProjectRootElement import, int versionEvaluated)
+        void IEvaluatorData<ProjectPropertyInstance, ProjectItemInstance, ProjectMetadataInstance, ProjectItemDefinitionInstance>.RecordImport(ProjectElement importElement, ProjectRootElement import, int versionEvaluated)
         {
         }
 
@@ -1235,7 +1235,7 @@ namespace Microsoft.Build.Execution
         /// Record an import opened during evaluation. Include duplicates
         /// Does nothing: not needed for project instances.
         /// </summary>
-        void IEvaluatorData<ProjectPropertyInstance, ProjectItemInstance, ProjectMetadataInstance, ProjectItemDefinitionInstance>.RecordImportWithDuplicates(ProjectImportElement importElement, ProjectRootElement import, int versionEvaluated)
+        void IEvaluatorData<ProjectPropertyInstance, ProjectItemInstance, ProjectMetadataInstance, ProjectItemDefinitionInstance>.RecordImportWithDuplicates(ProjectElement importElement, ProjectRootElement import, int versionEvaluated)
         {
         }
 

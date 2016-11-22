@@ -28,7 +28,7 @@ namespace Microsoft.Build.Evaluation
         /// <summary>
         /// Element doing the import
         /// </summary>
-        private ProjectImportElement _importingElement;
+        private ProjectElement _importingElement;
 
         /// <summary>
         /// One of the files it causes to import
@@ -43,7 +43,7 @@ namespace Microsoft.Build.Evaluation
         /// <summary>
         /// Initializes a new instance of the <see cref="ResolvedImport"/> struct.
         /// </summary>
-        internal ResolvedImport(Project project, ProjectImportElement importingElement, ProjectRootElement importedProject)
+        internal ResolvedImport(Project project, ProjectElement importingElement, ProjectRootElement importedProject)
         {
             ErrorUtilities.VerifyThrowInternalNull(importingElement, "parent");
             ErrorUtilities.VerifyThrowInternalNull(importedProject, "child");
@@ -56,7 +56,7 @@ namespace Microsoft.Build.Evaluation
         /// <summary>
         /// Gets the element doing the import.
         /// </summary>
-        public ProjectImportElement ImportingElement
+        public ProjectElement ImportingElement
         {
             get { return _importingElement; }
         }

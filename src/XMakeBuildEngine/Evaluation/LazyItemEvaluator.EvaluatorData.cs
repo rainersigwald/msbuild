@@ -267,12 +267,12 @@ namespace Microsoft.Build.Evaluation
                 _wrappedData.InitializeForEvaluation(toolsetProvider);
             }
 
-            public void RecordImport(ProjectImportElement importElement, ProjectRootElement import, int versionEvaluated)
+            public void RecordImport(ProjectElement importElement, ProjectRootElement import, int versionEvaluated)
             {
                 _wrappedData.RecordImport(importElement, import, versionEvaluated);
             }
 
-            public void RecordImportWithDuplicates(ProjectImportElement importElement, ProjectRootElement import, int versionEvaluated)
+            public void RecordImportWithDuplicates(ProjectElement importElement, ProjectRootElement import, int versionEvaluated)
             {
                 _wrappedData.RecordImportWithDuplicates(importElement, import, versionEvaluated);
             }

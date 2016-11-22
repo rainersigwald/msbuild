@@ -133,7 +133,7 @@ namespace Microsoft.Build.Evaluation
         /// <summary>
         /// Paths to imports already seen and where they were imported from; used to flag duplicate imports
         /// </summary>
-        private readonly Dictionary<string, ProjectImportElement> _importsSeen;
+        private readonly Dictionary<string, ProjectElement> _importsSeen;
 
         /// <summary>
         /// Depth first collection of InitialTargets strings declared in the main 
@@ -264,7 +264,7 @@ namespace Microsoft.Build.Evaluation
             _itemDefinitionGroupElements = new List<ProjectItemDefinitionGroupElement>();
             _usingTaskElements = new List<Pair<string, ProjectUsingTaskElement>>();
             _targetElements = new List<ProjectTargetElement>();
-            _importsSeen = new Dictionary<string, ProjectImportElement>(StringComparer.OrdinalIgnoreCase);
+            _importsSeen = new Dictionary<string, ProjectElement>(StringComparer.OrdinalIgnoreCase);
             _initialTargetsList = new List<string>();
             _projectSupportsReturnsAttribute = new Dictionary<ProjectRootElement, NGen<bool>>();
             _projectRootElement = projectRootElement;
@@ -777,7 +777,7 @@ namespace Microsoft.Build.Evaluation
 #endif
             string projectFile = String.IsNullOrEmpty(_projectRootElement.ProjectFileLocation.File) ? "(null)" : _projectRootElement.ProjectFileLocation.File;
 
-#if MSBUILDENABLEVSPROFILING 
+#if MSBUILDENABLEVSPROFILING
             string endPass0 = String.Format(CultureInfo.CurrentCulture, "Evaluate Project {0} - End Pass 0 (Initial properties)", projectFile);
             DataCollection.CommentMarkProfile(8816, endPass0);
 #endif
@@ -787,8 +787,9 @@ namespace Microsoft.Build.Evaluation
             //  - _data.RecordImport()
             //  - PerformDepthFirstPass(importedProjectRootElement)
 
+            ImplicitImportList implicitImports = new ImplicitImportList();
             // Pass1: evaluate properties, load imports, and gather everything else
-            PerformDepthFirstPass(_projectRootElement);
+            PerformDepthFirstPass(_projectRootElement, implicitImports);
 
             List<string> initialTargets = new List<string>(_initialTargetsList.Count);
             for (int i = 0; i < _initialTargetsList.Count; i++)
@@ -947,9 +948,21 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         private void PerformDepthFirstPass(ProjectRootElement rootProjectElement, ImplicitImportList implicitImports)
         {
+            bool _;
+
             // pre
+            foreach (var importFolder in implicitImports.ImportPathFolders)
+            {
+                LoadSingleImport(rootProjectElement.DirectoryPath, rootProjectElement, Path.Combine(importFolder, "Sdk.props"), throwOnFileNotExistsError: true, ignoredDuplicateImport: out _);
+            }
+
             PerformDepthFirstPass(rootProjectElement);
+
             // post
+            foreach (var importFolder in implicitImports.ImportPathFolders)
+            {
+                LoadSingleImport(rootProjectElement.DirectoryPath, rootProjectElement, Path.Combine(importFolder, "Sdk.targets"), throwOnFileNotExistsError: true, ignoredDuplicateImport: out _);
+            }
         }
 
         /// <summary>
@@ -2461,7 +2474,7 @@ namespace Microsoft.Build.Evaluation
             return LoadImportsResult.TriedToImportButFileNotFound;
         }
 
-        private ProjectRootElement LoadSingleImport(string directoryOfImportingFile, ProjectImportElement importElement, string normalizedImportPath,
+        private ProjectRootElement LoadSingleImport(string directoryOfImportingFile, ProjectElement importElement, string normalizedImportPath,
                                             bool throwOnFileNotExistsError, out bool ignoredDuplicateImport)
         {
             ProjectRootElement ret;
@@ -2504,7 +2517,7 @@ namespace Microsoft.Build.Evaluation
                 }
             }
 
-            ProjectImportElement previouslyImportedAt;
+            ProjectElement previouslyImportedAt;
             bool duplicateImport = false;
 
             if (_importsSeen.TryGetValue(importFileUnescaped, out previouslyImportedAt))
@@ -2611,7 +2624,7 @@ namespace Microsoft.Build.Evaluation
         /// <param name="importFileUnescaped"> The import that is being added. </param>
         /// <param name="importElement"> The importing element for this import. </param>
         /// <returns> True, if and only if this import introduces a circularity. </returns>
-        private bool IntroducesCircularity(string importFileUnescaped, ProjectImportElement importElement)
+        private bool IntroducesCircularity(string importFileUnescaped, ProjectElement importElement)
         {
             bool foundMatchingAncestor = false;
 

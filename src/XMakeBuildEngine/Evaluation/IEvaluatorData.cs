@@ -271,12 +271,12 @@ namespace Microsoft.Build.Evaluation
         /// <summary>
         /// Record an import opened during evaluation, if appropriate.
         /// </summary>
-        void RecordImport(ProjectImportElement importElement, ProjectRootElement import, int versionEvaluated);
+        void RecordImport(ProjectElement importElement, ProjectRootElement import, int versionEvaluated);
 
         /// <summary>
         /// Record an import opened during evaluation, if appropriate.
         /// </summary>
-        void RecordImportWithDuplicates(ProjectImportElement importElement, ProjectRootElement import, int versionEvaluated);
+        void RecordImportWithDuplicates(ProjectElement importElement, ProjectRootElement import, int versionEvaluated);
 
         /// <summary>
         /// Evaluates the provided string by expanding items and properties,

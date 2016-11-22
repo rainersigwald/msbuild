@@ -610,7 +610,7 @@ namespace Microsoft.Build.Evaluation
                     return true;
                 }
 
-                foreach (Triple<ProjectImportElement, ProjectRootElement, int> triple in _data.ImportClosure)
+                foreach (Triple<ProjectElement, ProjectRootElement, int> triple in _data.ImportClosure)
                 {
                     if (triple.Second.Version != triple.Third || _evaluatedVersion < triple.Third)
                     {
@@ -784,7 +784,7 @@ namespace Microsoft.Build.Evaluation
             {
                 List<ResolvedImport> imports = new List<ResolvedImport>(_data.ImportClosure.Count - 1 /* outer project */);
 
-                foreach (Triple<ProjectImportElement, ProjectRootElement, int> import in _data.ImportClosure)
+                foreach (Triple<ProjectElement, ProjectRootElement, int> import in _data.ImportClosure)
                 {
                     if (import.First != null) // Exclude outer project itself
                     {
@@ -807,7 +807,7 @@ namespace Microsoft.Build.Evaluation
 
                 List<ResolvedImport> imports = new List<ResolvedImport>(_data.ImportClosureWithDuplicates.Count - 1 /* outer project */);
 
-                foreach (Triple<ProjectImportElement, ProjectRootElement, int> import in _data.ImportClosureWithDuplicates)
+                foreach (Triple<ProjectElement, ProjectRootElement, int> import in _data.ImportClosureWithDuplicates)
                 {
                     if (import.First != null) // Exclude outer project itself
                     {
@@ -2479,7 +2479,7 @@ namespace Microsoft.Build.Evaluation
 
             if (_data.ImportClosure != null)
             {
-                foreach (Triple<ProjectImportElement, ProjectRootElement, int> triple in _data.ImportClosure)
+                foreach (Triple<ProjectElement, ProjectRootElement, int> triple in _data.ImportClosure)
                 {
                     highestXmlVersion = (highestXmlVersion < triple.Third) ? triple.Third : highestXmlVersion;
                 }
@@ -3074,7 +3074,7 @@ namespace Microsoft.Build.Evaluation
             /// Complete list of all imports pulled in during evaluation.
             /// This includes the outer project itself.
             /// </summary>
-            internal List<Triple<ProjectImportElement, ProjectRootElement, int>> ImportClosure
+            internal List<Triple<ProjectElement, ProjectRootElement, int>> ImportClosure
             {
                 get;
                 private set;
@@ -3084,7 +3084,7 @@ namespace Microsoft.Build.Evaluation
             /// Complete list of all imports pulled in during evaluation including duplicate imports.
             /// This includes the outer project itself.
             /// </summary>
-            internal List<Triple<ProjectImportElement, ProjectRootElement, int>> ImportClosureWithDuplicates
+            internal List<Triple<ProjectElement, ProjectRootElement, int>> ImportClosureWithDuplicates
             {
                 get;
                 private set;
@@ -3131,8 +3131,8 @@ namespace Microsoft.Build.Evaluation
                 this.Expander = new Expander<ProjectProperty, ProjectItem>(this.Properties, _items);
                 this.ItemDefinitions = new RetrievableEntryHashSet<ProjectItemDefinition>(MSBuildNameIgnoreCaseComparer.Default);
                 this.Targets = new RetrievableEntryHashSet<ProjectTargetInstance>(OrdinalIgnoreCaseKeyedComparer.Instance);
-                this.ImportClosure = new List<Triple<ProjectImportElement, ProjectRootElement, int>>();
-                this.ImportClosureWithDuplicates = new List<Triple<ProjectImportElement, ProjectRootElement, int>>();
+                this.ImportClosure = new List<Triple<ProjectElement, ProjectRootElement, int>>();
+                this.ImportClosureWithDuplicates = new List<Triple<ProjectElement, ProjectRootElement, int>>();
                 this.AllEvaluatedProperties = new List<ProjectProperty>();
                 this.AllEvaluatedItemDefinitionMetadata = new List<ProjectMetadata>();
                 this.AllEvaluatedItems = new List<ProjectItem>();
@@ -3367,18 +3367,18 @@ namespace Microsoft.Build.Evaluation
             /// If they are dirtied, though, they might affect the evaluated project; and that's why we record them. 
             /// Mostly these will be common imports, so they'll be shared anyway.
             /// </remarks>
-            public void RecordImport(ProjectImportElement importElement, ProjectRootElement import, int versionEvaluated)
+            public void RecordImport(ProjectElement importElement, ProjectRootElement import, int versionEvaluated)
             {
-                ImportClosure.Add(new Triple<ProjectImportElement, ProjectRootElement, int>(importElement, import, versionEvaluated));
+                ImportClosure.Add(new Triple<ProjectElement, ProjectRootElement, int>(importElement, import, versionEvaluated));
                 RecordImportWithDuplicates(importElement, import, versionEvaluated);
             }
 
             /// <summary>
             /// Record a duplicate import, possible a duplicate import opened during evaluation.
             /// </summary>
-            public void RecordImportWithDuplicates(ProjectImportElement importElement, ProjectRootElement import, int versionEvaluated)
+            public void RecordImportWithDuplicates(ProjectElement importElement, ProjectRootElement import, int versionEvaluated)
             {
-                ImportClosureWithDuplicates.Add(new Triple<ProjectImportElement, ProjectRootElement, int>(importElement, import, versionEvaluated));
+                ImportClosureWithDuplicates.Add(new Triple<ProjectElement, ProjectRootElement, int>(importElement, import, versionEvaluated));
             }
 
             /// <summary>

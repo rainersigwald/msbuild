@@ -798,7 +798,7 @@ namespace Microsoft.Build.Evaluation
     public partial struct ResolvedImport
     {
         public Microsoft.Build.Construction.ProjectRootElement ImportedProject { get { throw null; } }
-        public Microsoft.Build.Construction.ProjectImportElement ImportingElement { get { throw null; } }
+        public Microsoft.Build.Construction.ProjectElement ImportingElement { get { throw null; } }
         public bool IsImported { get { throw null; } }
     }
     [System.Diagnostics.DebuggerDisplayAttribute("SubToolsetVersion={SubToolsetVersion} #Properties={_properties.Count}")]
