@@ -45,17 +45,18 @@ namespace Microsoft.Build.UnitTests.OM.Construction
         public void ReadInvalidMissingProject()
         {
             Assert.Throws<InvalidProjectFileException>(() =>
-            {
-                string content = @"
+                {
+                    string content = @"
                     <Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
                         <Import/>
                     </Project>
                 ";
 
-                ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
-            }
-           );
+                    ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
+                }
+            );
         }
+
         /// <summary>
         /// Read import with empty project attribute
         /// </summary>
@@ -63,17 +64,18 @@ namespace Microsoft.Build.UnitTests.OM.Construction
         public void ReadInvalidEmptyProject()
         {
             Assert.Throws<InvalidProjectFileException>(() =>
-            {
-                string content = @"
+                {
+                    string content = @"
                     <Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
                         <Import Project=''/>
                     </Project>
                 ";
 
-                ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
-            }
-           );
+                    ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
+                }
+            );
         }
+
         /// <summary>
         /// Read import with unexpected attribute
         /// </summary>
@@ -81,17 +83,18 @@ namespace Microsoft.Build.UnitTests.OM.Construction
         public void ReadInvalidAttribute()
         {
             Assert.Throws<InvalidProjectFileException>(() =>
-            {
-                string content = @"
+                {
+                    string content = @"
                     <Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
                         <Import Project='p' X='Y'/>
                     </Project>
                 ";
 
-                ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
-            }
-           );
+                    ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
+                }
+            );
         }
+
         /// <summary>
         /// Read basic valid imports
         /// </summary>
@@ -129,7 +132,7 @@ namespace Microsoft.Build.UnitTests.OM.Construction
 
             ProjectRootElement project = ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
 
-            ProjectImportElement import = (ProjectImportElement)Helpers.GetFirst(project.Children);
+            ProjectImportElement import = (ProjectImportElement) Helpers.GetFirst(project.Children);
 
             import.Project = "i1b.proj";
             Assert.Equal("i1b.proj", import.Project);
@@ -142,21 +145,22 @@ namespace Microsoft.Build.UnitTests.OM.Construction
         public void SetProjectInvalidEmpty()
         {
             Assert.Throws<ArgumentException>(() =>
-            {
-                string content = @"
+                {
+                    string content = @"
                     <Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
                         <Import Project='i1.proj' />
                     </Project>
                 ";
 
-                ProjectRootElement project = ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
+                    ProjectRootElement project = ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
 
-                ProjectImportElement import = (ProjectImportElement)Helpers.GetFirst(project.Children);
+                    ProjectImportElement import = (ProjectImportElement) Helpers.GetFirst(project.Children);
 
-                import.Project = String.Empty;
-            }
-           );
+                    import.Project = String.Empty;
+                }
+            );
         }
+
         /// <summary>
         /// Setting the project attribute should dirty the project
         /// </summary>
@@ -179,12 +183,12 @@ namespace Microsoft.Build.UnitTests.OM.Construction
                 importProject2.Save(file2);
 
                 string content = String.Format
-                    (
-    @"<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
+                (
+                    @"<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
     <Import Project='{0}'/>
 </Project>",
                     file1
-                    );
+                );
 
                 Project project = new Project(XmlReader.Create(new StringReader(content)));
                 ProjectImportElement import = Helpers.GetFirst(project.Xml.Imports);
@@ -219,12 +223,12 @@ namespace Microsoft.Build.UnitTests.OM.Construction
                 importProject.Save(file);
 
                 string content = String.Format
-                    (
-    @"<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
+                (
+                    @"<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
     <Import Project='{0}'/>
 </Project>",
                     file
-                    );
+                );
 
                 Project project = new Project(XmlReader.Create(new StringReader(content)));
                 ProjectImportElement import = Helpers.GetFirst(project.Xml.Imports);
@@ -253,14 +257,14 @@ namespace Microsoft.Build.UnitTests.OM.Construction
             string projectfile = Path.Combine(testTempPath, "a.proj");
             string targetsFile = Path.Combine(tempPath, "x.targets");
             string projectfileContent = String.Format
-                (
+            (
                 @"
                     <Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
                         <Import Project='{0}'/>
                     </Project>
                 ",
-                 testTempPath + "\\..\\x.targets"
-                 );
+                testTempPath + "\\..\\x.targets"
+            );
             string targetsfileContent = @"
                     <Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' >
                     </Project>
@@ -284,6 +288,48 @@ namespace Microsoft.Build.UnitTests.OM.Construction
                 if (File.Exists(targetsFile))
                 {
                     File.Delete(targetsFile);
+                }
+            }
+        }
+
+        [Fact]
+        public void SdkImportsAreInImportList()
+        {
+            var testSdkRoot = Path.Combine(Path.GetTempPath(), "MSBuildUnitTest");
+            var testSdkDirectory = Path.Combine(testSdkRoot, "MSBuildUnitTestSdk");
+
+            try
+            {
+                Directory.CreateDirectory(testSdkDirectory);
+
+                string sdkPropsPath = Path.Combine(testSdkDirectory, "Sdk.props");
+                string sdkTargetsPath = Path.Combine(testSdkDirectory, "Sdk.targets");
+
+                File.WriteAllText(sdkPropsPath, string.Empty);
+                File.WriteAllText(sdkTargetsPath, string.Empty);
+
+                using (new Helpers.TemporaryEnvironment("MSBUILDMAGICIMPORTDIRECTORY", testSdkRoot))
+                {
+                    string content = @"
+                    <Project Sdk='MSBuildUnitTestSdk' >
+                    </Project>";
+
+                    ProjectRootElement project = ProjectRootElement.Create(XmlReader.Create(new StringReader(content)));
+
+                    List<ProjectImportElement> imports = Helpers.MakeList(project.Imports);
+
+                    Assert.Equal(2, imports.Count);
+                    Assert.Equal(sdkPropsPath, imports[0].Project);
+                    Assert.True(imports[0].Implicit);
+                    Assert.Equal(sdkTargetsPath, imports[1].Project);
+                    Assert.True(imports[1].Implicit);
+                }
+            }
+            finally
+            {
+                if (Directory.Exists(testSdkDirectory))
+                {
+                    FileUtilities.DeleteWithoutTrailingBackslash(testSdkDirectory, true);
                 }
             }
         }
