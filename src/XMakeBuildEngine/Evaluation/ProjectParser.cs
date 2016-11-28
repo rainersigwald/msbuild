@@ -192,33 +192,25 @@ namespace Microsoft.Build.Construction
                 // TODO: don't get root of SDKs from the environment, use a built-in or toolset prop
                 // TODO: version?
                 // TODO: multiples
+                //  TODO: Don't null ref if MSBuildSDKsPath isn't defined
 
-                // TODO: paths should just be Sdk.props/targets; Sdk-aware imports should do the rest of the path.
-                var initialImportPath = Path.Combine(Environment.GetEnvironmentVariable("MSBUILDMAGICIMPORTDIRECTORY"),
-                    element.GetAttribute("Sdk"), "Sdk.props");
-                var finalImportPath = Path.Combine(Environment.GetEnvironmentVariable("MSBUILDMAGICIMPORTDIRECTORY"),
-                    element.GetAttribute("Sdk"), "Sdk.targets");
-
-                if (File.Exists(initialImportPath))
+                //  TODO: Add file existence conditions to the imports
+                //if (File.Exists(initialImportPath))
                 {
                     var implicitImportElement = element.OwnerDocument.CreateElement(XMakeElements.import);
 
-                    // TODO: make this <Import Project="Sdk.props" Sdk="$(SdkName)" />
-                    implicitImportElement.SetAttribute(XMakeAttributes.project,
-                        initialImportPath);
+                    implicitImportElement.SetAttribute(XMakeAttributes.project, "Sdk.props");
                     implicitImportElement.SetAttribute(XMakeAttributes.@implicit, $"Sdk = {element.GetAttribute("Sdk")}");
                     implicitImportElement.SetAttribute(XMakeAttributes.sdk, element.GetAttribute("Sdk"));
 
                     element.PrependChild(implicitImportElement);
                 }
 
-                if (File.Exists(finalImportPath))
+                //if (File.Exists(finalImportPath))
                 {
                     var implicitImportElement = element.OwnerDocument.CreateElement(XMakeElements.import);
 
-                    // TODO: make this <Import Project="Sdk.targets" Sdk="$(SdkName)" />
-                    implicitImportElement.SetAttribute(XMakeAttributes.project,
-                        finalImportPath);
+                    implicitImportElement.SetAttribute(XMakeAttributes.project, "Sdk.targets");
                     implicitImportElement.SetAttribute(XMakeAttributes.@implicit, $"Sdk = {element.GetAttribute("Sdk")}");
                     implicitImportElement.SetAttribute(XMakeAttributes.sdk, element.GetAttribute("Sdk"));
 
