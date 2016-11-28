@@ -1180,6 +1180,34 @@ namespace Microsoft.Build.Evaluation
             }
         }
 
+        private string ResolveSdk(string sdkSpec, IElementLocation location)
+        {
+            string sdkName;
+            string sdkVersion;
+
+            string[] elements = sdkSpec.Split(new char[] { '/' }, 2);
+
+            //  TODO: Add error message text for InvalidSdkAttribute
+            ProjectErrorUtilities.VerifyThrowInvalidProject(elements.Length == 2, location, "InvalidSdkAttribute");
+
+            sdkName = elements[0];
+            sdkVersion = elements[1];
+
+            var sdksPath =_data.GetProperty(ReservedPropertyNames.msbuildSdksPath);
+            //  TODO: Add error message text.  Also verify whether this should actually be an "Invalid Project" exception - probably not
+            ProjectErrorUtilities.VerifyThrowInvalidProject(sdksPath != null, location, "PropertyMustBeSpecified", ReservedPropertyNames.msbuildSdksPath);
+
+            var sdkPath = Path.Combine(sdksPath.EvaluatedValue, sdkName, sdkVersion, "Sdk");
+
+            if (!Directory.Exists(sdkPath))
+            {
+                //  TODO: Add error message text
+                ProjectErrorUtilities.ThrowInvalidProject(location, "SdkNotFound", sdkName);
+            }
+
+            return sdkPath;
+        }
+
         /// <summary>
         /// Evaluate the properties in the propertygroup and set the applicable ones on the data passed in
         /// </summary>
@@ -2323,6 +2351,13 @@ namespace Microsoft.Build.Evaluation
             imports = new List<ProjectRootElement>();
             string[] importFilesEscaped = null;
 
+            string relativeImportBase = directoryOfImportingFile;
+
+            if (!string.IsNullOrEmpty(importElement.Sdk))
+            {
+                relativeImportBase = ResolveSdk(importElement.Sdk, importElement.SdkLocation);
+            }
+
             try
             {
                 // Handle the case of an expression expanding to nothing specially;
@@ -2333,7 +2368,7 @@ namespace Microsoft.Build.Evaluation
                 }
 
                 // Expand the wildcards and provide an alphabetical order list of import statements.
-                importFilesEscaped = EngineFileUtilities.GetFileListEscaped(directoryOfImportingFile, importExpressionEscaped);
+                importFilesEscaped = EngineFileUtilities.GetFileListEscaped(relativeImportBase, importExpressionEscaped);
             }
             catch (Exception ex) when (ExceptionHandling.IsIoRelatedException(ex))
             {
@@ -2347,9 +2382,9 @@ namespace Microsoft.Build.Evaluation
                 // GetFileListEscaped may not return a rooted path, we need to root it. Also if there are no wild cards we still need to get the full path on the filespec.
                 try
                 {
-                    if (directoryOfImportingFile != null && !Path.IsPathRooted(importFileUnescaped))
+                    if (relativeImportBase != null && !Path.IsPathRooted(importFileUnescaped))
                     {
-                        importFileUnescaped = Path.Combine(directoryOfImportingFile, importFileUnescaped);
+                        importFileUnescaped = Path.Combine(relativeImportBase, importFileUnescaped);
                     }
 
                     // Canonicalize to eg., eliminate "\..\"
@@ -2628,6 +2663,7 @@ namespace Microsoft.Build.Evaluation
         {
             if (element is ProjectPropertyGroupElement || element is ProjectImportElement || element is ProjectImportGroupElement)
             {
+                //  TODO: If it's a ProjectImportElement with an Sdk attribute, then resolve the SDK and return its path (don't throw an error if it doesn't exist, though)
                 return element.ContainingProject.DirectoryPath;
             }
             else

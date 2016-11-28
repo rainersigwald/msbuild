@@ -57,6 +57,26 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
+        /// Location of the project attribute
+        /// </summary>
+        /// <remarks>
+        /// For an implicit import, the location points to the Sdk attribute on the Project element.
+        /// </remarks>
+        public ElementLocation ProjectLocation => XmlElement.GetAttributeLocation(XMakeAttributes.project);
+
+        public string Sdk
+        {
+            get { return ProjectXmlUtilities.GetAttributeValue(XmlElement, XMakeAttributes.sdk); }
+            set
+            {
+                ProjectXmlUtilities.SetOrRemoveAttribute(XmlElement, XMakeAttributes.sdk, value);
+                MarkDirty("Set Sdk {0}", value);
+            }
+        }
+
+        public ElementLocation SdkLocation => XmlElement.GetAttributeLocation(XMakeAttributes.sdk);
+
+        /// <summary>
         /// Gets the Implicit state of the element: true if the element was not in the read XML.
         /// </summary>
         // TODO: *should* this be public? if it's not, you can't determine if an import is implicit from the public OM.
@@ -64,15 +84,6 @@ namespace Microsoft.Build.Construction
         {
             get { return XmlElement.HasAttribute(XMakeAttributes.@implicit); }
         }
-
-
-        /// <summary>
-        /// Location of the project attribute
-        /// </summary>
-        /// <remarks>
-        /// For an implicit import, the location points to the Sdk attribute on the Project element.
-        /// </remarks>
-        public ElementLocation ProjectLocation => XmlElement.GetAttributeLocation(XMakeAttributes.project);
 
         /// <summary>
         /// Creates an unparented ProjectImportElement, wrapping an unparented XmlElement.

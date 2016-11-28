@@ -50,6 +50,7 @@ namespace Microsoft.Build.Internal
         internal const string assemblyVersion = "MSBuildAssemblyVersion";
         internal const string osName = "OS";
         internal const string frameworkToolsRoot = "MSBuildFrameworkToolsRoot";
+        internal const string msbuildSdksPath = "MSBuildSDKsPath";
 
         /// <summary>
         /// Lookup for reserved property names
