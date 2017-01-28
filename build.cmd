@@ -21,11 +21,13 @@ set MSBUILD_ARGS=%MSBUILD_ARGS% /fileloggerparameters:Verbosity=diag;LogFile="%M
 if not defined RUNTIME_HOST (
 	set BUILD_COMMAND="%MSBUILD_CUSTOM_PATH%" /nodeReuse:false %MSBUILD_ARGS%
 
-    :: Check prerequisites for full framework build
- 	if not "%VisualStudioVersion%" == "14.0" (
-	    echo Error: build.cmd should be run from a Visual Studio 2015 Command when RUNTIME_HOST is not defined. Prompt.  
-	    echo        Please see https://github.com/Microsoft/msbuild/wiki/Building-Testing-and-Debugging for build instructions.
-	    exit /b 1
+	:: Check that there's a working recent msbuild.exe available.
+	MSBuild.exe /nologo /version | findstr "14.0 15.1" >NUL 2>&1
+	if not "%ERRORLEVEL%" == "0" (
+		echo Error: build.cmd requires a working copy of MSBuild.exe on the PATH.
+		echo        You may wish to run from a "Developer Command Prompt for VS2015".
+		echo        Please see https://github.com/Microsoft/msbuild/wiki/Building-Testing-and-Debugging for build instructions.
+		exit /b 1
 	)
 ) ELSE (
 	set BUILD_COMMAND= "%RUNTIME_HOST%" "%MSBUILD_CUSTOM_PATH%" %MSBUILD_ARGS% /p:"OverrideToolHost=%RUNTIME_HOST%"
