@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="UnitTests\**" />
+    <EmbeddedResource Remove="UnitTests\**" />
+    <None Remove="UnitTests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
     <PackageReference Include="System.Threading.Thread" Version="4.0.0" />
   </ItemGroup>
