@@ -11,12 +11,17 @@
 
   <ItemGroup>
     <Compile Remove="UnitTests\**" />
-    <Compile Remove="XamlTypes\**" />
     <EmbeddedResource Remove="UnitTests\**" />
-    <EmbeddedResource Remove="XamlTypes\**" />
     <None Remove="UnitTests\**" />
+  </ItemGroup>
+
+  <!-- BUGBUG: this should only apply to netstandard, but net46 needs xaml ref -->
+  <ItemGroup Condition="true">
+    <Compile Remove="XamlTypes\**" />
+    <EmbeddedResource Remove="XamlTypes\**" />
     <None Remove="XamlTypes\**" />
   </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
