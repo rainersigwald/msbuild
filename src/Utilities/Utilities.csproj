@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Framework\Framework.csproj" />
+
+    <Compile Include="..\Shared\**\*.cs" Exclude="$(DefaultExcludes)" />
   </ItemGroup>
 
 </Project>
