@@ -754,21 +754,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Framework\Microsoft.Build.Framework.csproj">
-      <Project>{571F09DB-A81A-4444-945C-6F7B530054CD}</Project>
-      <Name>Microsoft.Build.Framework</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Evaluation\LazyItemEvaluator.EvaluatorData.cs" />
     <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{84dad93d-ca34-4f61-ad8a-25299468b277}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
   </ItemGroup>
   <!--
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), dir.targets))\dir.targets" Condition="!$(Configuration.EndsWith('MONO'))"/>
   -->
   <Import Project="..\dir.targets" />
-  <Target Name="CopyImmutableLocal"
-          BeforeTargets="ResolveAssemblyReferences">
+  <Target Name="CopyImmutableLocal" BeforeTargets="ResolveAssemblyReferences">
     <!-- The VSIX installer manifest references System.Collections.Immutable from the Output folder,
          but it won't be placed there by default because NuGet references come in as CopyLocal false.
 

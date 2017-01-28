@@ -7,9 +7,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Build.Utilities", "Utilities\Microsoft.Build.Utilities.csproj", "{828566EE-6F6A-4EF4-98B0-513F7DF9C628}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Build", "XMakeBuildEngine\Microsoft.Build.csproj", "{16CD7635-7CF4-4C62-A77B-CF87D0F09A58}"
-	ProjectSection(ProjectDependencies) = postProject
-		{571F09DB-A81A-4444-945C-6F7B530054CD} = {571F09DB-A81A-4444-945C-6F7B530054CD}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild", "XMakeCommandLine\MSBuild.csproj", "{23C9FD0E-70C5-4F1F-B08A-D2774240FB51}"
 EndProject
