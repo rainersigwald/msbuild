@@ -16,7 +16,7 @@
   <Target Name="Test" />
 
   <Target Name="EnsureDependenciesDeployed"
-          Condition="'$(DeployDependencies)' != 'false'"
+          Condition="false"
           AfterTargets="Build">
     <MSBuild Projects="$(RepoRoot)\targets\DeployDependencies.proj"
              Targets="DeployDependencies"
