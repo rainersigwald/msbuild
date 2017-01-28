@@ -11,8 +11,11 @@
 
   <ItemGroup>
     <Compile Remove="UnitTests\**" />
+    <Compile Remove="XamlTypes\**" />
     <EmbeddedResource Remove="UnitTests\**" />
+    <EmbeddedResource Remove="XamlTypes\**" />
     <None Remove="UnitTests\**" />
+    <None Remove="XamlTypes\**" />
   </ItemGroup>
 
   <ItemGroup>
