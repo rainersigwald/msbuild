@@ -84,10 +84,8 @@
     <DefineConstants>$(DefineConstants);FEATURE_USERINTERACTIVE</DefineConstants>
     <DefineConstants>$(DefineConstants);FEATURE_USERDOMAINNAME</DefineConstants>
     <DefineConstants>$(DefineConstants);FEATURE_VARIOUS_EXCEPTIONS</DefineConstants>
-    <!--
-    BUGBUG: not sure how to reference these in Sdk project
     <DefineConstants>$(DefineConstants);FEATURE_XAML_TYPES</DefineConstants>
-    <FeatureXamlTypes>true</FeatureXamlTypes>-->
+    <FeatureXamlTypes>true</FeatureXamlTypes>
     <DefineConstants>$(DefineConstants);FEATURE_XML_SOURCE_URI</DefineConstants>
     <DefineConstants>$(DefineConstants);FEATURE_XML_LOADPATH</DefineConstants>
     <DefineConstants Condition="'$(MonoBuild)' != 'true'">$(DefineConstants);FEATURE_XML_SCHEMA_VALIDATION</DefineConstants>

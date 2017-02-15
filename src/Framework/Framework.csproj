@@ -17,8 +17,7 @@
     <None Remove="UnitTests\**" />
   </ItemGroup>
 
-  <!-- BUGBUG: this should only apply to netstandard, but net46 needs xaml ref -->
-  <ItemGroup Condition="true">
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
     <Compile Remove="XamlTypes\**" />
     <EmbeddedResource Remove="XamlTypes\**" />
     <None Remove="XamlTypes\**" />
@@ -28,5 +27,7 @@
   <ItemGroup>
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
     <PackageReference Include="System.Threading.Thread" Version="4.0.0" />
+
+    <Reference Include="System.Xaml" Condition="!$(TargetFramework.StartsWith('netstandard'))" />
   </ItemGroup>
 </Project>
