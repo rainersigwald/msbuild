@@ -8,7 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Framework\Framework.csproj" />
 
-    <Compile Condition="'$(NetCoreBuild)' == 'true'" Include="..\Shared\Compat\SafeHandleZeroOrMinusOneIsInvalid.cs">
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Include="..\Shared\Compat\SafeHandleZeroOrMinusOneIsInvalid.cs">
       <Link>Compat\SafeHandleZeroOrMinusOneIsInvalid.cs</Link>
     </Compile>
     <!-- Source Files -->
