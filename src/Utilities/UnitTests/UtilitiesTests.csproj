@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Microsoft.Build.Utilities.UnitTests</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <PublicSign>true</PublicSign>
     <AssemblyOriginatorKeyFile>..\..\..\Tools\Test.snk</AssemblyOriginatorKeyFile>
-    <AssemblyName>Microsoft.Build.Utilities.UnitTests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
