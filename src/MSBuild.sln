@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26127.3
+VisualStudioVersion = 15.0.26205.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Build.Framework", "Framework\Microsoft.Build.Framework.csproj", "{571F09DB-A81A-4444-945C-6F7B530054CD}"
 EndProject
@@ -71,6 +71,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "Framework\UnitTests\UnitTests.csproj", "{908DDDA9-F0C1-490F-9DF8-7EF2398D9926}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "Utilities\Utilities.csproj", "{9E2F5B9A-EB7E-40D3-A50E-2196D3C04FEA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtilitiesTests", "Utilities\UnitTests\UtilitiesTests.csproj", "{082FA796-95B2-4376-854C-46E2E5153902}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -838,6 +840,42 @@ Global
 		{9E2F5B9A-EB7E-40D3-A50E-2196D3C04FEA}.Release-NetCore|x64.Build.0 = Release|x64
 		{9E2F5B9A-EB7E-40D3-A50E-2196D3C04FEA}.Release-NetCore|x86.ActiveCfg = Release|x86
 		{9E2F5B9A-EB7E-40D3-A50E-2196D3C04FEA}.Release-NetCore|x86.Build.0 = Release|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug|x64.ActiveCfg = Debug|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug|x64.Build.0 = Debug|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug|x86.ActiveCfg = Debug|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug|x86.Build.0 = Debug|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-MONO|Any CPU.ActiveCfg = Debug|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-MONO|Any CPU.Build.0 = Debug|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-MONO|x64.ActiveCfg = Debug|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-MONO|x64.Build.0 = Debug|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-MONO|x86.ActiveCfg = Debug|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-MONO|x86.Build.0 = Debug|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-NetCore|Any CPU.ActiveCfg = Debug|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-NetCore|Any CPU.Build.0 = Debug|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-NetCore|x64.ActiveCfg = Debug|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-NetCore|x64.Build.0 = Debug|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-NetCore|x86.ActiveCfg = Debug|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Debug-NetCore|x86.Build.0 = Debug|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release|Any CPU.Build.0 = Release|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release|x64.ActiveCfg = Release|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release|x64.Build.0 = Release|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release|x86.ActiveCfg = Release|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release|x86.Build.0 = Release|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-MONO|Any CPU.ActiveCfg = Release|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-MONO|Any CPU.Build.0 = Release|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-MONO|x64.ActiveCfg = Release|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-MONO|x64.Build.0 = Release|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-MONO|x86.ActiveCfg = Release|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-MONO|x86.Build.0 = Release|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-NetCore|Any CPU.ActiveCfg = Release|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-NetCore|Any CPU.Build.0 = Release|Any CPU
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-NetCore|x64.ActiveCfg = Release|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-NetCore|x64.Build.0 = Release|x64
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-NetCore|x86.ActiveCfg = Release|x86
+		{082FA796-95B2-4376-854C-46E2E5153902}.Release-NetCore|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
