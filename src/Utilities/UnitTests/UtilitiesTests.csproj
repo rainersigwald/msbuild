@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <PublicSign>true</PublicSign>
-    <AssemblyOriginatorKeyFile>MSFT.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\..\Tools\Test.snk</AssemblyOriginatorKeyFile>
     <AssemblyName>Microsoft.Build.Utilities.UnitTests</AssemblyName>
   </PropertyGroup>
 
