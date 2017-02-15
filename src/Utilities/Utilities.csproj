@@ -165,7 +165,7 @@
     <None Remove="UnitTests\**" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="!$(TargetFramework.StartsWith('netstandard')">
     <Reference Include="System.Configuration" />
   </ItemGroup>
 
