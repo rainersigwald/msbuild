@@ -8,6 +8,14 @@
   <ItemGroup>
     <ProjectReference Include="..\Framework\Framework.csproj" />
 
+    <PackageReference Condition="!$(TargetFramework.StartsWith('netstandard'))" Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.2.304-preview5" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.0.1" />
+    <PackageReference Include="System.Diagnostics.Process" Version="4.1.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.1.0" />
+    <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.1.1" />
+    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.0.0" />
+    <PackageReference Include="System.Collections.NonGeneric" Version="4.0.1" />
+
     <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Include="..\Shared\Compat\SafeHandleZeroOrMinusOneIsInvalid.cs">
       <Link>Compat\SafeHandleZeroOrMinusOneIsInvalid.cs</Link>
     </Compile>
