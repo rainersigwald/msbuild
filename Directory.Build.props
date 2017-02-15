@@ -1,6 +1,13 @@
 ﻿<Project>
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);STANDALONEBUILD</DefineConstants>
+
+    <SignAssembly>True</SignAssembly>
+    <PublicSign>true</PublicSign>
+
+    <!-- TODO: these should come from a packageref, not the buildtools magic folder. -->
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\Tools\MSFT.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="$(MSBuildProjectFullPath.Contains('UnitTests'))">$(MSBuildThisFileDirectory)\Tools\Test.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(TargetFramework.StartsWith('net4'))">

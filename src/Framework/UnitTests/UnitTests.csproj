@@ -3,9 +3,6 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.Build.Framework.UnitTests</AssemblyName>
     <TargetFrameworks>net46;netcoreapp1.0</TargetFrameworks>
-    <SignAssembly>True</SignAssembly>
-    <PublicSign>true</PublicSign>
-    <AssemblyOriginatorKeyFile>..\..\..\Tools\Test.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
