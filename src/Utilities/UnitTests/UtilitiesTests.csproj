@@ -3,6 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp1.0</TargetFramework>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>MSFT.snk</AssemblyOriginatorKeyFile>
+    <AssemblyName>Microsoft.Build.Utilities.UnitTests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
