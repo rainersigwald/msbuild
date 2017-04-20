@@ -2,6 +2,9 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);STANDALONEBUILD</DefineConstants>
 
+    <!--TODO: this should come from NB.GV-->
+    <Version>15.1.0</Version>
+
     <SignAssembly>True</SignAssembly>
     <PublicSign>true</PublicSign>
 
