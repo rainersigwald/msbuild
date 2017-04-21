@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\Shared\UnitTests\App.config">
+      <Link>App.config</Link>
+      <SubType>Designer</SubType>
+    </None>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
