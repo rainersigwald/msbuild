@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26419.0
+VisualStudioVersion = 15.0.26507.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Framework", "Framework\Framework.csproj", "{EC716D0B-F56D-46B7-A1B9-FFF84409A72B}"
 EndProject
@@ -16,9 +16,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtilitiesTests", "Utilities
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMakeBuildEngine", "XMakeBuildEngine\XMakeBuildEngine.csproj", "{E9293957-DCA3-487A-B740-BF9920EF6C2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMakeTasks", "XMakeTasks\XMakeTasks.csproj", "{84CD641A-2232-44BE-BEF5-644FE2EF468F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMakeTasks", "XMakeTasks\XMakeTasks.csproj", "{84CD641A-2232-44BE-BEF5-644FE2EF468F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMakeCommandLine", "XMakeCommandLine\XMakeCommandLine.csproj", "{25D59998-C74B-4329-BD9F-C87ADE8C33EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMakeCommandLine", "XMakeCommandLine\XMakeCommandLine.csproj", "{25D59998-C74B-4329-BD9F-C87ADE8C33EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
