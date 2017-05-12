@@ -14,10 +14,10 @@
     <PackageReference Include="microsoft.xunit.netcore.extensions" Version="1.0.0-prerelease-00629-09" />
 
     <!-- TODO: get this from a package -->
-    <Reference Include="Microsoft.Build.Tasks.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" Condition="'$(NetCoreBuild)' != 'true'">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tools\net45\roslyn\tools\Microsoft.Build.Tasks.CodeAnalysis.dll</HintPath>
-    </Reference>
+    <Reference Include="..\..\..\tools\net45\roslyn\tools\Microsoft.Build.Tasks.CodeAnalysis.dll" Condition="'$(NetCoreBuild)' != 'true'" />
+    <Reference Include="..\..\..\tools\Microsoft.Build.Tasks.CodeAnalysis.dll" Condition="'$(NetCoreBuild)' == 'true'" />
+
+    <!--<PackageReference Include="Microsoft.Net.Compilers.Targets.NetCore" Version="0.1.5-dev" Condition="'$(NetCoreBuild)' == 'true'" Imports="dnxcore50" />-->
 
     <ProjectReference Include="..\Utilities.csproj" />
     <ProjectReference Include="..\..\XMakeBuildEngine\XMakeBuildEngine.csproj" />
