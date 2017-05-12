@@ -154,7 +154,7 @@ namespace Microsoft.Build.Shared
             string[] testRunners =
             {
                 "XUNIT", "NUNIT", "MSTEST", "VSTEST", "TASKRUNNER", "VSTESTHOST", "QTAGENT32",
-                "CONCURRENT", "RESHARPER", "MDHOST", "TE.PROCESSHOST"
+                "CONCURRENT", "RESHARPER", "MDHOST", "TE.PROCESSHOST", "TESTHOST.X86"
             };
 
             string[] testAssemblies =
