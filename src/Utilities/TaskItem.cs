@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
@@ -44,7 +45,7 @@ namespace Microsoft.Build.Utilities
         // project file via XML child elements of the item element.  These have
         // no meaning to MSBuild, but tasks may use them.
         // Values are stored in escaped form.
-        private CopyOnWriteDictionary<string, string> _metadata;
+        private ImmutableDictionary<string, string> _metadata;
 
         // cache of the fullpath value
         private string _fullPath;
@@ -102,7 +103,7 @@ namespace Microsoft.Build.Utilities
 
             if (itemMetadata.Count > 0)
             {
-                _metadata = new CopyOnWriteDictionary<string, string>(MSBuildNameIgnoreCaseComparer.Default);
+                var builder = ImmutableDictionary.CreateBuilder<string,string>(MSBuildNameIgnoreCaseComparer.Default);
 
                 foreach (DictionaryEntry singleMetadata in itemMetadata)
                 {
@@ -110,9 +111,11 @@ namespace Microsoft.Build.Utilities
                     string key = (string)singleMetadata.Key;
                     if (!FileUtilities.ItemSpecModifiers.IsDerivableItemSpecModifier(key))
                     {
-                        _metadata[key] = (string)singleMetadata.Value ?? String.Empty;
+                        builder[key] = (string)singleMetadata.Value ?? String.Empty;
                     }
                 }
+
+                _metadata = builder.ToImmutable();
             }
         }
 
@@ -218,7 +221,7 @@ namespace Microsoft.Build.Utilities
         {
             get
             {
-                int count = (_metadata == null) ? 0 : _metadata.Count;
+                int count = _metadata?.Count ?? 0;
                 return (count + FileUtilities.ItemSpecModifiers.All.Length);
             }
         }
@@ -229,7 +232,7 @@ namespace Microsoft.Build.Utilities
         /// another appdomain, as the CLR has implemented remoting policies that disallow accessing 
         /// private fields in remoted items. 
         /// </summary>
-        private CopyOnWriteDictionary<string, string> Metadata
+        private ImmutableDictionary<string, string> Metadata
         {
             get
             {
@@ -258,12 +261,7 @@ namespace Microsoft.Build.Utilities
             ErrorUtilities.VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsItemSpecModifier(metadataName),
                 "Shared.CannotChangeItemSpecModifiers", metadataName);
 
-            if (_metadata == null)
-            {
-                return;
-            }
-
-            _metadata.Remove(metadataName);
+            _metadata?.Remove(metadataName);
         }
 
         /// <summary>
@@ -287,9 +285,8 @@ namespace Microsoft.Build.Utilities
             ErrorUtilities.VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsDerivableItemSpecModifier(metadataName),
                 "Shared.CannotChangeItemSpecModifiers", metadataName);
 
-            _metadata = _metadata ?? new CopyOnWriteDictionary<string, string>(MSBuildNameIgnoreCaseComparer.Default);
-
-            _metadata[metadataName] = metadataValue ?? String.Empty;
+            _metadata = (_metadata ?? ImmutableDictionary.Create<string, string>(MSBuildNameIgnoreCaseComparer.Default))
+                .SetItem(metadataName, metadataValue);
         }
 
         /// <summary>
@@ -334,7 +331,7 @@ namespace Microsoft.Build.Utilities
                 // Avoid a copy if we can
                 if (destinationAsTaskItem != null && destinationAsTaskItem.Metadata == null)
                 {
-                    destinationAsTaskItem.Metadata = _metadata.Clone(); // Copy on write!
+                    destinationAsTaskItem.Metadata = _metadata; // Copy on write!
                 }
                 else
                 {
@@ -492,10 +489,10 @@ namespace Microsoft.Build.Utilities
         {
             if (_metadata == null)
             {
-                return new CopyOnWriteDictionary<string, string>(MSBuildNameIgnoreCaseComparer.Default);
+                return ImmutableDictionary.Create<string, string>(MSBuildNameIgnoreCaseComparer.Default);
             }
 
-            return (IDictionary)_metadata.Clone();
+            return _metadata;
         }
 
         #endregion
