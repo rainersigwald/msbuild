@@ -215,6 +215,13 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
         protected static readonly string s_myLibraries_V1_E_EDllPath = Path.Combine(s_myLibraries_V1_EPath, "E.dll");
         protected static readonly string s_myLibraries_V2_DDllPath = Path.Combine(s_myLibraries_V2Path, "D.dll");
 
+        protected static readonly string s_myLibraries_V1_AlphaDllPath = Path.Combine(s_myLibraries_V1Path, "Alpha.dll");
+        protected static readonly string s_myLibraries_V1_BetaDllPath = Path.Combine(s_myLibraries_V1Path, "Beta.dll");
+        protected static readonly string s_myLibraries_V2_AlphaDllPath = Path.Combine(s_myLibraries_V2Path, "Alpha.dll");
+        protected static readonly string s_myLibraries_V2_BetaDllPath = Path.Combine(s_myLibraries_V2Path, "Beta.dll");
+        protected static readonly string s_myLibraries_V1_DependsOnV1OfAlphaAndBetaDllPath = Path.Combine(s_myLibraries_V1Path, "DependsOnV1OfAlphaAndBeta.dll");
+        protected static readonly string s_myLibraries_V2_DependsOnV2OfAlphaAndBetaDllPath = Path.Combine(s_myLibraries_V2Path, "DependsOnV2OfAlphaAndBeta.dll");
+
         protected static readonly string s_regress454863_ADllPath = Path.Combine(s_rootPathPrefix, "Regress454863", "A.dll");
         protected static readonly string s_regress454863_BDllPath = Path.Combine(s_rootPathPrefix, "Regress454863", "B.dll");
 
@@ -397,6 +404,12 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             s_myLibraries_V1_E_EDllPath,
             @"c:\RogueLibraries\v1\D.dll",
             s_myLibraries_V2_DDllPath,
+            s_myLibraries_V1_AlphaDllPath,
+            s_myLibraries_V1_BetaDllPath,
+            s_myLibraries_V2_AlphaDllPath,
+            s_myLibraries_V2_BetaDllPath,
+            s_myLibraries_V1_DependsOnV1OfAlphaAndBetaDllPath,
+            s_myLibraries_V2_DependsOnV2OfAlphaAndBetaDllPath,
             @"c:\MyStronglyNamed\A.dll",
             @"c:\MyWeaklyNamed\A.dll",
             @"c:\MyInaccessible\A.dll",
@@ -1703,6 +1716,33 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
                 return new AssemblyNameExtension("v5assembly, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null, ProcessorArchitecture=X86");
             }
 
+            if (string.Compare(path, s_myLibraries_V1_AlphaDllPath, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return new AssemblyNameExtension("Alpha, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+            }
+            if (string.Compare(path, s_myLibraries_V1_BetaDllPath, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return new AssemblyNameExtension("Beta, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+            }
+            if (string.Compare(path, s_myLibraries_V2_AlphaDllPath, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return new AssemblyNameExtension("Alpha, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null");
+            }
+            if (string.Compare(path, s_myLibraries_V2_BetaDllPath, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return new AssemblyNameExtension("Beta, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null");
+            }
+
+            if (string.Compare(path, s_myLibraries_V1_DependsOnV1OfAlphaAndBetaDllPath, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return new AssemblyNameExtension("DependsOnV1OfAlphaAndBeta, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
+            }
+
+            if (string.Compare(path, s_myLibraries_V2_DependsOnV2OfAlphaAndBetaDllPath, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return new AssemblyNameExtension("DependsOnV2OfAlphaAndBeta, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
+            }
+
             string defaultName = String.Format("{0}, Version=0.0.0.0, PublicKeyToken=null, Culture=Neutral", Path.GetFileNameWithoutExtension(path));
             return new AssemblyNameExtension(defaultName);
         }
@@ -2400,6 +2440,24 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
                 return new AssemblyNameExtension[]
                 {
                     GetAssemblyName(@"C:\SystemRuntime\System.Runtime.dll")
+                };
+            }
+
+            if (String.Compare(path, s_myLibraries_V1_DependsOnV1OfAlphaAndBetaDllPath, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return new AssemblyNameExtension[]
+                {
+                    new AssemblyNameExtension("Alpha, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new AssemblyNameExtension("Beta, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null")
+                };
+            }
+
+            if (String.Compare(path, s_myLibraries_V2_DependsOnV2OfAlphaAndBetaDllPath, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return new AssemblyNameExtension[]
+                {
+                    new AssemblyNameExtension("Alpha, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new AssemblyNameExtension("Beta, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null")
                 };
             }
 

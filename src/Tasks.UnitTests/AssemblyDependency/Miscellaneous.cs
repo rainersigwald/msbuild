@@ -3769,6 +3769,10 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
 
             bool result = Execute(t);
 
+            Console.WriteLine(e.Log);
+
+            Assert.True(result);
+
             Assert.Equal(1, e.Warnings); // @"Expected one warning."
             e.AssertLogContainsMessageFromResource(AssemblyResources.GetString, "ResolveAssemblyReference.FoundConflicts", "D");
 
@@ -3776,6 +3780,48 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             Assert.Equal(3, t.ResolvedFiles.Length);
             Assert.True(ContainsItem(t.ResolvedFiles, s_myLibraries_V1_DDllPath)); // "Expected to find assembly, but didn't."
         }
+
+        [Fact]
+        public void MultipleConflictsAllWarn()
+        {
+            ResolveAssemblyReference t = new ResolveAssemblyReference();
+
+            MockEngine e = new MockEngine();
+            t.BuildEngine = e;
+
+            t.Assemblies = new ITaskItem[]
+            {
+                new TaskItem("DependsOnV1OfAlphaAndBeta"),
+                new TaskItem("DependsOnV2OfAlphaAndBeta"),
+                new TaskItem("Alpha, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                new TaskItem("Beta, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null")
+            };
+
+            t.AutoUnify = true;
+
+
+            t.SearchPaths = new string[]
+            {
+                s_myLibrariesRootPath, s_myLibraries_V2Path, s_myLibraries_V1Path
+            };
+
+            t.TargetFrameworkDirectories = new string[] { s_myVersion20Path };
+
+            bool result = Execute(t);
+
+            Console.WriteLine(e.Log);
+
+            Assert.True(result);
+
+            e.AssertLogContainsMessageFromResource(AssemblyResources.GetString, "ResolveAssemblyReference.FoundConflicts", "Alpha");
+            e.AssertLogContainsMessageFromResource(AssemblyResources.GetString, "ResolveAssemblyReference.FoundConflicts", "Beta");
+            Assert.Equal(1, e.Warnings); // @"Expected one warning."
+
+            Assert.Equal(0, t.SuggestedRedirects.Length);
+            Assert.Equal(3, t.ResolvedFiles.Length);
+            Assert.True(ContainsItem(t.ResolvedFiles, s_myLibraries_V1_DDllPath)); // "Expected to find assembly, but didn't."
+        }
+
 
         /// <summary>
         /// Same as ConflictWithBackVersionPrimary, except AutoUnify is true.
