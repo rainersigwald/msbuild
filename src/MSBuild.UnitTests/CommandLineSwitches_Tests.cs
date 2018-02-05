@@ -285,7 +285,6 @@ namespace Microsoft.Build.UnitTests
             Assert.True(unquoteParameters);
         }
 
-#if FEATURE_NODE_REUSE
         [Fact]
         public void NodeReuseParametersIdentificationTests()
         {
@@ -324,7 +323,6 @@ namespace Microsoft.Build.UnitTests
             Assert.NotNull(missingParametersErrorMessage);
             Assert.True(unquoteParameters);
         }
-#endif
 
         [Fact]
         public void ProjectSwitchIdentificationTests()
@@ -1138,6 +1136,7 @@ namespace Microsoft.Build.UnitTests
             }
            );
         }
+
         [Fact]
         public void TestHaveAnySwitchesBeenSet()
         {
@@ -1154,7 +1153,6 @@ namespace Microsoft.Build.UnitTests
             Assert.True(switches.HaveAnySwitchesBeenSet());
         }
 
-#if FEATURE_NODE_REUSE
         /// <summary>
         /// /nodereuse:false /nodereuse:true should result in "true"
         /// </summary>
@@ -1176,7 +1174,6 @@ namespace Microsoft.Build.UnitTests
 
             Assert.Equal(false, nodeReuse);
         }
-#endif
 
         /// <summary>
         /// Regress DDB #143341: 
