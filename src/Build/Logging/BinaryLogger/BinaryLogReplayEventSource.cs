@@ -35,6 +35,8 @@ namespace Microsoft.Build.Logging
                 }
 
                 var reader = new BuildEventArgsReader(binaryReader, fileFormatVersion);
+
+                ulong i = 0;
                 while (true)
                 {
                     BuildEventArgs instance = null;
@@ -42,10 +44,11 @@ namespace Microsoft.Build.Logging
                     instance = reader.Read();
                     if (instance == null)
                     {
-                        break;
+                        continue;
                     }
 
                     Dispatch(instance);
+                    i++;
                 }
             }
         }

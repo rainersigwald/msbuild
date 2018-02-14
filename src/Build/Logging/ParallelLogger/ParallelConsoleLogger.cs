@@ -1005,7 +1005,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             if (showOnlyErrors || showOnlyWarnings) return;
 
-            ErrorUtilities.VerifyThrowArgumentNull(e.BuildEventContext, "BuildEventContext");
+            //ErrorUtilities.VerifyThrowArgumentNull(e.BuildEventContext, "BuildEventContext");
             bool print = false;
             bool lightenText = false;
 

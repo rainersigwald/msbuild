@@ -274,8 +274,18 @@ namespace Microsoft.Build.Logging
             var projectId = ReadInt32();
             var targetNames = ReadString();
             var toolsVersion = ReadOptionalString();
-            var propertyList = ReadPropertyList();
-            var itemList = ReadItems();
+
+            ArrayList propertyList = null;
+            IEnumerable itemList = null;
+            try
+            {
+                propertyList = ReadPropertyList();
+                itemList = ReadItems();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ignored Exception: " + ex.Message);
+            }
 
             var e = new ProjectStartedEventArgs(
                 projectId,
@@ -440,6 +450,11 @@ namespace Microsoft.Build.Logging
             var fields = ReadBuildEventArgsFields();
             var importance = (MessageImportance)ReadInt32();
 
+            if (string.IsNullOrEmpty(fields.Message) || fields.BuildEventContext == null)
+            {
+                return null;
+            }
+
             var e = new BuildMessageEventArgs(
                 fields.Subcategory,
                 fields.Code,
@@ -455,6 +470,7 @@ namespace Microsoft.Build.Logging
                 fields.Timestamp);
             e.BuildEventContext = fields.BuildEventContext;
             e.ProjectFile = fields.ProjectFile;
+
             return e;
         }
 
