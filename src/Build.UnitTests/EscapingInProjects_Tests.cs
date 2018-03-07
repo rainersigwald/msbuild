@@ -22,6 +22,7 @@ using FileUtilities = Microsoft.Build.Shared.FileUtilities;
 using InvalidProjectFileException = Microsoft.Build.Exceptions.InvalidProjectFileException;
 using ResourceUtilities = Microsoft.Build.Shared.ResourceUtilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.Build.UnitTests.EscapingInProjects_Tests
 {
@@ -57,6 +58,14 @@ namespace Microsoft.Build.UnitTests.EscapingInProjects_Tests
 
     public class SimpleScenarios : IDisposable
     {
+        private readonly ITestOutputHelper _output;
+        private readonly TestEnvironment _env;
+
+        public SimpleScenarios(ITestOutputHelper output)
+        {
+            _output = output;
+            _env = TestEnvironment.Create(output);
+        }
         /// <summary>
         /// Since we create a project with the same name in many of these tests, and two projects with 
         /// the same name cannot be loaded in a ProjectCollection at the same time, we should unload the
@@ -64,7 +73,14 @@ namespace Microsoft.Build.UnitTests.EscapingInProjects_Tests
         /// </summary>
         public void Dispose()
         {
-            ProjectCollection.GlobalProjectCollection.UnloadAllProjects();
+            try
+            {
+                ProjectCollection.GlobalProjectCollection.UnloadAllProjects();
+            }
+            finally 
+            {
+                _env.Dispose();
+            }
         }
 
         /// <summary>
@@ -151,7 +167,6 @@ namespace Microsoft.Build.UnitTests.EscapingInProjects_Tests
         public void SemicolonInPropertyPassedIntoITaskItemParam_UsingTaskHost()
         {
             MockLogger logger = Helpers.BuildProjectWithNewOMExpectSuccess(String.Format(@"
-
                 <Project ToolsVersion=`msbuilddefaulttoolsversion` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
 
                     <UsingTask TaskName=`Microsoft.Build.UnitTests.EscapingInProjects_Tests.MyTestTask` AssemblyFile=`{0}` TaskFactory=`TaskHostFactory` />
