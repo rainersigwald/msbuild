@@ -64,6 +64,7 @@ namespace Microsoft.Build.UnitTests.EscapingInProjects_Tests
         public SimpleScenarios(ITestOutputHelper output)
         {
             _output = output;
+            _output.WriteLine("Creating TestEnvironment in EscapingInProjects_Tests");
             _env = TestEnvironment.Create(output);
         }
         /// <summary>
@@ -79,6 +80,7 @@ namespace Microsoft.Build.UnitTests.EscapingInProjects_Tests
             }
             finally 
             {
+                _output.WriteLine("Disposing TestEnvironment in EscapingInProjects_Tests");
                 _env.Dispose();
             }
         }

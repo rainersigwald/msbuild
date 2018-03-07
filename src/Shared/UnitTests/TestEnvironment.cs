@@ -325,8 +325,9 @@ namespace Microsoft.Build.UnitTests
 
         public override void AssertInvariant(ITestOutputHelper output)
         {
+            output.WriteLine("Asserting BuildFailureLogInvariant Invariant");
             var newFiles = Directory.GetFiles(Path.GetTempPath(), "MSBuild_*.txt");
-
+            output.WriteLine($"{newFiles.Length} file(s) found ({_originalFiles.Length} existing).");
             int newFilesCount = newFiles.Length;
             if (newFilesCount > _originalFiles.Length)
             {
