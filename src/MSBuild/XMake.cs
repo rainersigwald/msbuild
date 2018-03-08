@@ -923,6 +923,8 @@ namespace Microsoft.Build.CommandLine
 
             bool success = false;
 
+            Exception exceptionFromExecute = null;
+
             ProjectCollection projectCollection = null;
             bool onlyLogCriticalEvents = false;
 
@@ -1122,6 +1124,10 @@ namespace Microsoft.Build.CommandLine
 
                             results = ExecuteBuild(buildManager, request);
                         }
+                        catch (Exception ex)
+                        {
+                            exceptionFromExecute = ex;
+                        }
                         finally
                         {
                             buildManager.EndBuild();
@@ -1129,7 +1135,7 @@ namespace Microsoft.Build.CommandLine
                     }
                     catch (Exception ex)
                     {
-                        exception = ex;
+                        exception = exceptionFromExecute ?? ex;
                         success = false;
                     }
 
