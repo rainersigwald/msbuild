@@ -9,4 +9,4 @@ nuget.exe pack setup\MsBuild.Engine.Corext\MsBuild.Engine.Corext.nuspec -NonInte
 
 md \\fsu\shares\MsEng\MSBuild\raines\dd_558508\%1
 
-robocopy /mt:128 C:\src\msbuild\bin\Release\x64\Windows_NT\Output\ \\fsu\shares\MsEng\MSBuild\raines\dd_558508\%1\ Microsoft.Build*dll Microsoft.Build*pdb MSBuild.dll MSBuild.pdb /xf *unittests*
+robocopy /mt:128 C:\src\msbuild\bin\Release\x64\Windows_NT\Output\ \\fsu\shares\MsEng\MSBuild\raines\dd_558508\%1\ Microsoft.Build*dll Microsoft.Build*pdb MSBuild.dll MSBuild.pdb MSBuild.exe /xf *unittests* /xf Microsoft.Build.Tasks.CodeAnalysis.dll
