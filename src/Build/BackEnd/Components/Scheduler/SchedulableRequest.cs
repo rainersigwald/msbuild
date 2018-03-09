@@ -388,6 +388,7 @@ namespace Microsoft.Build.BackEnd
             BlockingRequestKey key = new BlockingRequestKey(result);
             DisconnectRequestWeAreBlockedBy(key);
             _activeTargetsWhenBlocked = null;
+            BlockingTarget = null;
         }
 
         /// <summary>
