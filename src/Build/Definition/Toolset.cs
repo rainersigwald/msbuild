@@ -701,7 +701,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         internal static string[] GetTaskFiles(DirectoryGetFiles getFiles, ILoggingService loggingServices, BuildEventContext buildEventContext, string taskPattern, string searchPath, string taskFileWarning)
         {
-            string[] defaultTasksFiles = { };
+            string[] defaultTasksFiles = null;
 
             try
             {
@@ -744,8 +744,12 @@ namespace Microsoft.Build.Evaluation
             }
 
             // Sort the file names to give a deterministic order
-            Array.Sort<string>(defaultTasksFiles, StringComparer.OrdinalIgnoreCase);
-            return defaultTasksFiles;
+            if (defaultTasksFiles != null)
+            {
+                Array.Sort<string>(defaultTasksFiles, StringComparer.OrdinalIgnoreCase);
+                return defaultTasksFiles;
+            }
+            return Array.Empty<string>();
         }
 
         /// <summary>
@@ -924,6 +928,7 @@ namespace Microsoft.Build.Evaluation
 
                     reservedProperties.Add(ProjectPropertyInstance.Create(ReservedPropertyNames.toolsPath, EscapingUtilities.Escape(ToolsPath), mayBeReserved: true));
                     reservedProperties.Add(ProjectPropertyInstance.Create(ReservedPropertyNames.assemblyVersion, Constants.AssemblyVersion, mayBeReserved: true));
+                    reservedProperties.Add(ProjectPropertyInstance.Create(ReservedPropertyNames.version, MSBuildAssemblyFileVersion.Instance.MajorMinorBuild, mayBeReserved: true));
 
                     // Add one for the subtoolset version property -- it may or may not be set depending on whether it has already been set by the 
                     // environment or global properties, but it's better to create a dictionary that's one too big than one that's one too small.  

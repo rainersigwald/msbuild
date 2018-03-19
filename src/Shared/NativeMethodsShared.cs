@@ -210,10 +210,6 @@ namespace Microsoft.Build.Shared
             {
                 return CloseHandle(handle);
             }
-
-            [SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Class name is NativeMethodsShared for increased clarity")]
-            [DllImport("KERNEL32.DLL")]
-            private static extern bool CloseHandle(IntPtr hObject);
         }
 
         /// <summary>
@@ -464,20 +460,18 @@ namespace Microsoft.Build.Shared
         /// </remarks>
         internal static int MAX_PATH = 260;
 
+
+        /// <summary>
+        /// Cached value for IsUnixLike (this method is called frequently during evaluation).
+        /// </summary>
+        private static readonly bool s_isUnixLike = IsLinux || IsOSX || IsBSD;
+
         /// <summary>
         /// Gets a flag indicating if we are running under a Unix-like system (Mac, Linux, etc.)
         /// </summary>
         internal static bool IsUnixLike
         {
-            get
-            {
-#if FEATURE_OSVERSION
-                var env = Environment.OSVersion.Platform;
-                return env == PlatformID.MacOSX || env == PlatformID.Unix;
-#else
-                return IsLinux || IsOSX;
-#endif
-            }
+            get { return s_isUnixLike; }
         }
 
         /// <summary>
@@ -485,14 +479,28 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal static bool IsLinux
         {
+#if CLR2COMPATIBILITY
+            get { return false; }
+#else
+            get { return RuntimeInformation.IsOSPlatform(OSPlatform.Linux); }
+#endif
+        }
+
+        /// <summary>
+        /// Gets a flag indicating if we are running under flavor of BSD (NetBSD, OpenBSD, FreeBSD)
+        /// </summary>
+        internal static bool IsBSD
+        {
+#if CLR2COMPATIBILITY
+            get { return false; }
+#else
             get
             {
-#if FEATURE_OSVERSION
-                return Environment.OSVersion.Platform == PlatformID.Unix;
-#else
-                return RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-#endif
+                return RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD")) ||
+                       RuntimeInformation.IsOSPlatform(OSPlatform.Create("NETBSD")) ||
+                       RuntimeInformation.IsOSPlatform(OSPlatform.Create("OPENBSD"));
             }
+#endif
         }
 
         private static readonly object IsMonoLock = new object();
@@ -528,31 +536,36 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal static bool IsWindows
         {
-            get
-            {
-#if FEATURE_OSVERSION
-                return !IsUnixLike;
+#if CLR2COMPATIBILITY
+            get { return true; }
 #else
-                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            get { return RuntimeInformation.IsOSPlatform(OSPlatform.Windows); }
 #endif
-            }
         }
-
+        
+#if MONO
+        private static bool? _isOSX;
+#endif
         /// <summary>
         /// Gets a flag indicating if we are running under Mac OSX
         /// </summary>
         internal static bool IsOSX
         {
+#if MONO
             get
             {
-#if MONO
-                return File.Exists("/usr/lib/libc.dylib");
-#elif FEATURE_OSVERSION
-                return Environment.OSVersion.Platform == PlatformID.MacOSX;
-#else
-                return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-#endif
+                if (!_isOSX.HasValue)
+                {
+                    _isOSX = File.Exists("/usr/lib/libc.dylib");
+                }
+
+                return _isOSX.Value;
             }
+#elif CLR2COMPATIBILITY
+            get { return false; }
+#else
+            get { return RuntimeInformation.IsOSPlatform(OSPlatform.OSX); }
+#endif
         }
 
         /// <summary>
@@ -561,10 +574,7 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal static string OSName
         {
-            get
-            {
-                return IsWindows ? "Windows_NT" : "Unix";
-            }
+            get { return IsWindows ? "Windows_NT" : "Unix"; }
         }
 
         /// <summary>
@@ -573,7 +583,7 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal static string GetOSNameForExtensionsPath()
         {
-            return IsOSX ? "osx" : (IsLinux ? "unix" : "windows");
+            return IsOSX ? "osx" : IsUnixLike ? "unix" : "windows";
         }
 
         /// <summary>
@@ -668,9 +678,9 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal static ProcessorArchitectures ProcessorArchitectureNative => SystemInformation.ProcessorArchitectureTypeNative;
 
-        #endregion
+#endregion
 
-        #region Set Error Mode (copied from BCL)
+#region Set Error Mode (copied from BCL)
 
         private static readonly Version s_threadErrorModeMinOsVersion = new Version(6, 1, 0x1db0);
 
@@ -695,9 +705,9 @@ namespace Microsoft.Build.Shared
         [DllImport("kernel32.dll", EntryPoint = "SetErrorMode", ExactSpelling = true)]
         private static extern int SetErrorMode_VistaAndOlder(int newMode);
 
-        #endregion
+#endregion
 
-        #region Wrapper methods
+#region Wrapper methods
 
         /// <summary>
         /// Really truly non pumping wait.
@@ -1184,9 +1194,9 @@ namespace Microsoft.Build.Shared
             return Directory.GetCurrentDirectory();
         }
 
-        #endregion
+#endregion
 
-        #region PInvoke
+#region PInvoke
 
         /// <summary>
         /// Gets the current OEM code page which is used by console apps
@@ -1360,9 +1370,14 @@ namespace Microsoft.Build.Shared
             out FILETIME lpLastWriteTime
             );
 
-        #endregion
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
 
-        #region Extensions
+        internal static extern bool CloseHandle(IntPtr hObject);
+
+#endregion
+
+#region Extensions
 
         /// <summary>
         /// Waits while pumping APC messages.  This is important if the waiting thread is an STA thread which is potentially
@@ -1402,6 +1417,16 @@ namespace Microsoft.Build.Shared
             int returnValue = CoWaitForMultipleHandles(COWAIT_FLAGS.COWAIT_NONE, timeout, 1, new IntPtr[] { handlePtr }, out waitIndex);
             ErrorUtilities.VerifyThrow(returnValue == 0 || ((uint)returnValue == RPC_S_CALLPENDING && timeout != Timeout.Infinite), "Received {0} from CoWaitForMultipleHandles, but expected 0 (S_OK)", returnValue);
             return returnValue == 0;
+        }
+
+#endregion
+
+#region helper methods
+
+        internal static bool FileExists(string path)
+        {
+            WIN32_FILE_ATTRIBUTE_DATA data = new WIN32_FILE_ATTRIBUTE_DATA();
+            return GetFileAttributesEx(path, 0, ref data);
         }
 
 #endregion

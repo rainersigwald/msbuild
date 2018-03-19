@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using Microsoft.Build.BackEnd;
 using Microsoft.Build.BackEnd.Logging;
+using Microsoft.Build.BackEnd.SdkResolution;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Execution;
@@ -313,8 +314,9 @@ namespace Microsoft.Build.BackEnd
         /// <param name="toolsVersions">The tools version to use for each project.  Must be the same number as there are project files.</param>
         /// <param name="targets">The targets to be built.  Each project will be built with the same targets.</param>
         /// <param name="waitForResults">True to wait for the results </param>
+        /// <param name="skipNonexistentTargets">If set, skip targets that are not defined in the projects to be built.</param>
         /// <returns>True if the requests were satisfied, false if they were aborted.</returns>
-        public async Task<BuildResult[]> BuildProjects(string[] projectFiles, PropertyDictionary<ProjectPropertyInstance>[] properties, string[] toolsVersions, string[] targets, bool waitForResults)
+        public async Task<BuildResult[]> BuildProjects(string[] projectFiles, PropertyDictionary<ProjectPropertyInstance>[] properties, string[] toolsVersions, string[] targets, bool waitForResults, bool skipNonexistentTargets = false)
         {
             VerifyIsNotZombie();
             ErrorUtilities.VerifyThrowArgumentNull(projectFiles, "projectFiles");
@@ -349,9 +351,10 @@ namespace Microsoft.Build.BackEnd
                 // Otherwise let the BuildRequestConfiguration figure out what tools version will be used
                 BuildRequestData data = new BuildRequestData(projectFiles[i], properties[i].ToDictionary(), explicitToolsVersion, targets, null);
 
-                BuildRequestConfiguration config = new BuildRequestConfiguration(data, _componentHost.BuildParameters.DefaultToolsVersion, _componentHost.BuildParameters.GetToolset);
+                BuildRequestConfiguration config = new BuildRequestConfiguration(data, _componentHost.BuildParameters.DefaultToolsVersion);
 
-                requests[i] = new FullyQualifiedBuildRequest(config, targets, waitForResults);
+                requests[i] = new FullyQualifiedBuildRequest(config, targets, waitForResults,
+                    flags: skipNonexistentTargets ? BuildRequestDataFlags.SkipNonexistentTargets : BuildRequestDataFlags.None);
             }
 
             // Send the requests off
@@ -368,14 +371,15 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         /// <param name="blockingGlobalRequestId">The id of the request on which we are blocked.</param>
         /// <param name="blockingTarget">The target on which we are blocked.</param>
-        public async Task BlockOnTargetInProgress(int blockingGlobalRequestId, string blockingTarget)
+        /// <param name="partialBuildResult">A BuildResult with results from an incomplete build request.</param>
+        public async Task BlockOnTargetInProgress(int blockingGlobalRequestId, string blockingTarget, BuildResult partialBuildResult = null)
         {
             VerifyIsNotZombie();
             SaveOperatingEnvironment();
 
             _blockType = BlockType.BlockedOnTargetInProgress;
 
-            RaiseOnBlockedRequest(blockingGlobalRequestId, blockingTarget);
+            RaiseOnBlockedRequest(blockingGlobalRequestId, blockingTarget, partialBuildResult);
 
             WaitHandle[] handles = new WaitHandle[] { _terminateEvent, _continueEvent };
 
@@ -930,7 +934,7 @@ namespace Microsoft.Build.BackEnd
             }
             else
             {
-                results = new BuildResult[] { };
+                results = Array.Empty<BuildResult>();
             }
 
             ErrorUtilities.VerifyThrow(requests.Length == results.Length, "# results != # requests");
@@ -1019,13 +1023,13 @@ namespace Microsoft.Build.BackEnd
         /// <summary>
         /// Invokes the OnBlockedRequest event
         /// </summary>
-        private void RaiseOnBlockedRequest(int blockingGlobalRequestId, string blockingTarget)
+        private void RaiseOnBlockedRequest(int blockingGlobalRequestId, string blockingTarget, BuildResult partialBuildResult = null)
         {
             BuildRequestBlockedDelegate blockedRequestDelegate = OnBuildRequestBlocked;
 
             if (null != blockedRequestDelegate)
             {
-                blockedRequestDelegate(_requestEntry, blockingGlobalRequestId, blockingTarget);
+                blockedRequestDelegate(_requestEntry, blockingGlobalRequestId, blockingTarget, partialBuildResult);
             }
         }
 
@@ -1160,7 +1164,25 @@ namespace Microsoft.Build.BackEnd
 
             string toolsVersionOverride = _requestEntry.RequestConfiguration.ExplicitToolsVersionSpecified ? _requestEntry.RequestConfiguration.ToolsVersion : null;
 
-            return new ProjectInstance(_requestEntry.RequestConfiguration.ProjectFullPath, globalProperties, toolsVersionOverride, _componentHost.BuildParameters, _nodeLoggingContext.LoggingService, _requestEntry.Request.BuildEventContext);
+            // Get the hosted ISdkResolverService.  This returns either the MainNodeSdkResolverService or the OutOfProcNodeSdkResolverService depending on who created the current RequestBuilder
+            ISdkResolverService sdkResolverService = _componentHost.GetComponent(BuildComponentType.SdkResolverService) as ISdkResolverService;
+
+            return new ProjectInstance(
+                _requestEntry.RequestConfiguration.ProjectFullPath,
+                globalProperties,
+                toolsVersionOverride,
+                _componentHost.BuildParameters,
+                _nodeLoggingContext.LoggingService,
+                new BuildEventContext(
+                    _requestEntry.Request.BuildEventContext.SubmissionId,
+                    _nodeLoggingContext.BuildEventContext.NodeId,
+                    BuildEventContext.InvalidEvaluationId,
+                    BuildEventContext.InvalidProjectInstanceId,
+                    BuildEventContext.InvalidProjectContextId,
+                    BuildEventContext.InvalidTargetId,
+                    BuildEventContext.InvalidTaskId),
+                    sdkResolverService,
+                    _requestEntry.Request.SubmissionId);
         }
 
         /// <summary>

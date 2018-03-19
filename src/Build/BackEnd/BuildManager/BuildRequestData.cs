@@ -30,13 +30,13 @@ namespace Microsoft.Build.Execution
         /// <summary>
         /// When this flag is present, the existing ProjectInstance in the build will be replaced by this one.
         /// </summary>
-        ReplaceExistingProjectInstance = 0x1,
+        ReplaceExistingProjectInstance = 1 << 0,
 
         /// <summary>
-        /// When this flag is present, <see cref="BuildResult"/> issued in response to this request will
+        /// When this flag is present, the <see cref="BuildResult"/> issued in response to this request will
         /// include <see cref="BuildResult.ProjectStateAfterBuild"/>.
         /// </summary>
-        ProvideProjectStateAfterBuild = 0x2,
+        ProvideProjectStateAfterBuild = 1 << 1,
 
         /// <summary>
         /// When this flag is present and the project has previously been built on a node whose affinity is
@@ -54,7 +54,28 @@ namespace Microsoft.Build.Execution
         /// request will not re-build that target (nor will any of the project state mutations which previously
         /// occurred as a consequence of building that target be re-applied.)
         /// </remarks>
-        IgnoreExistingProjectState = 0x4,
+        IgnoreExistingProjectState = 1 << 2,
+
+        /// <summary>
+        /// When this flag is present, caches including the <see cref="ProjectRootElementCache"/> will be cleared
+        /// after the build request completes.  This is used when the build request is known to modify a lot of
+        /// state such as restoring packages or generating parts of the import graph.
+        /// </summary>
+        ClearCachesAfterBuild = 1 << 3,
+
+        /// <summary>
+        /// When this flag is present, the top level target(s) in the build request will be skipped if those targets
+        /// are not defined in the Project to build. This only applies to this build request (if another target calls
+        /// the "missing target" at any other point this will still result in an error).
+        /// </summary>
+        SkipNonexistentTargets = 1 << 4,
+
+        /// <summary>
+        /// When this flag is present, the <see cref="BuildResult"/> issued in response to this request will
+        /// include a <see cref="BuildResult.ProjectStateAfterBuild"/> that includes ONLY the
+        /// explicitly-requested properties, items, and metadata.
+        /// </summary>
+        ProvideSubsetOfStateAfterBuild = 1 << 5,
     }
 
     /// <summary>
@@ -125,6 +146,24 @@ namespace Microsoft.Build.Execution
         }
 
         /// <summary>
+        /// Constructs a BuildRequestData for build requests based on project instances.
+        /// </summary>
+        /// <param name="projectInstance">The instance to build.</param>
+        /// <param name="targetsToBuild">The targets to build.</param>
+        /// <param name="hostServices">The host services to use, if any.  May be null.</param>
+        /// <param name="flags">Flags controlling this build request.</param>
+        /// <param name="propertiesToTransfer">The list of properties whose values should be transferred from the project to any out-of-proc node.</param>
+        /// <param name="requestedProjectState">A <see cref="Execution.RequestedProjectState"/> describing properties, items, and metadata that should be returned. Requires setting <see cref="BuildRequestDataFlags.ProvideSubsetOfStateAfterBuild"/>.</param>
+        public BuildRequestData(ProjectInstance projectInstance, string[] targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags, IEnumerable<string> propertiesToTransfer, RequestedProjectState requestedProjectState)
+            : this(projectInstance, targetsToBuild, hostServices, flags, propertiesToTransfer)
+        {
+            ErrorUtilities.VerifyThrowArgumentNull(requestedProjectState, nameof(requestedProjectState));
+
+            this.RequestedProjectState = requestedProjectState;
+        }
+
+
+        /// <summary>
         /// Constructs a BuildRequestData for build requests based on project files.
         /// </summary>
         /// <param name="projectFullPath">The full path to the project file.</param>
@@ -135,6 +174,26 @@ namespace Microsoft.Build.Execution
         public BuildRequestData(string projectFullPath, IDictionary<string, string> globalProperties, string toolsVersion, string[] targetsToBuild, HostServices hostServices)
             : this(projectFullPath, globalProperties, toolsVersion, targetsToBuild, hostServices, BuildRequestDataFlags.None)
         {
+        }
+
+        /// <summary>
+        /// Constructs a BuildRequestData for build requests based on project files.
+        /// </summary>
+        /// <param name="projectFullPath">The full path to the project file.</param>
+        /// <param name="globalProperties">The global properties which should be used during evaluation of the project.  Cannot be null.</param>
+        /// <param name="toolsVersion">The tools version to use for the build.  May be null.</param>
+        /// <param name="targetsToBuild">The targets to build.</param>
+        /// <param name="hostServices">The host services to use.  May be null.</param>
+        /// <param name="flags">The <see cref="BuildRequestDataFlags"/> to use.</param>
+        /// <param name="requestedProjectState">A <see cref="Execution.RequestedProjectState"/> describing properties, items, and metadata that should be returned. Requires setting <see cref="BuildRequestDataFlags.ProvideSubsetOfStateAfterBuild"/>.</param>
+        public BuildRequestData(string projectFullPath, IDictionary<string, string> globalProperties,
+            string toolsVersion, string[] targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags,
+            RequestedProjectState requestedProjectState)
+            : this(projectFullPath, globalProperties, toolsVersion, targetsToBuild, hostServices, flags)
+        {
+            ErrorUtilities.VerifyThrowArgumentNull(requestedProjectState, nameof(requestedProjectState));
+
+            this.RequestedProjectState = requestedProjectState;
         }
 
         /// <summary>
@@ -249,6 +308,16 @@ namespace Microsoft.Build.Execution
         /// Returns a list of properties to transfer out of proc for the build.
         /// </summary>
         public IEnumerable<string> PropertiesToTransfer
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Returns the properties, items, and metadata that will be returned
+        /// by this build.
+        /// </summary>
+        public RequestedProjectState RequestedProjectState
         {
             get;
             private set;

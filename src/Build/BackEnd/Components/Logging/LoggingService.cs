@@ -172,6 +172,11 @@ namespace Microsoft.Build.BackEnd.Logging
         private Lazy<IConfigCache> _configCache;
 
         /// <summary>
+        /// The next project ID to assign when a project evaluation started event is received.
+        /// </summary>
+        private int _nextEvaluationId = 1;
+
+        /// <summary>
         /// The next project ID to assign when a project started event is received.
         /// </summary>
         private int _nextProjectId = 1;
@@ -253,6 +258,7 @@ namespace Microsoft.Build.BackEnd.Logging
 
             // Start the project context id count at the nodeId
             _nextProjectId = nodeId;
+            _nextEvaluationId = nodeId;
 
             string queueCapacityEnvironment = Environment.GetEnvironmentVariable("MSBUILDLOGGINGQUEUECAPACITY");
             if (!String.IsNullOrEmpty(queueCapacityEnvironment))
@@ -325,6 +331,22 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets the next project evaluation id.
+        /// </summary>
+        /// <remarks>This property is thread-safe</remarks>
+        public int NextEvaluationId
+        {
+            get
+            {
+                lock (_lockObject)
+                {
+                    _nextEvaluationId += MaxCPUCount + 2 /* We can create one node more than the maxCPU count (this can happen if either the inproc or out of proc node has not been created yet and the project collection needs to be counted also)*/;
+                    return _nextEvaluationId;
+                }
+            }
         }
 
         /// <summary>
@@ -501,7 +523,13 @@ namespace Microsoft.Build.BackEnd.Logging
                     _filterEventSource.WarningsAsErrorsByProject = new ConcurrentDictionary<int, ISet<string>>();
                 }
 
-                _filterEventSource.WarningsAsErrorsByProject.Add(projectInstanceId, new HashSet<string>(codes, StringComparer.OrdinalIgnoreCase));
+                if (_filterEventSource.WarningsAsErrorsByProject.ContainsKey(projectInstanceId))
+                {
+                    // The same project instance can be built multiple times with different targets.  In this case the codes have already been added
+                    return;
+                }
+
+                _filterEventSource.WarningsAsErrorsByProject[projectInstanceId] = new HashSet<string>(codes, StringComparer.OrdinalIgnoreCase);
             }
         }
 
@@ -514,7 +542,13 @@ namespace Microsoft.Build.BackEnd.Logging
                     _filterEventSource.WarningsAsMessagesByProject = new ConcurrentDictionary<int, ISet<string>>();
                 }
 
-                _filterEventSource.WarningsAsMessagesByProject.Add(projectInstanceId, new HashSet<string>(codes, StringComparer.OrdinalIgnoreCase));
+                if (_filterEventSource.WarningsAsMessagesByProject.ContainsKey(projectInstanceId))
+                {
+                    // The same project instance can be built multiple times with different targets.  In this case the codes have already been added
+                    return;
+                }
+
+                _filterEventSource.WarningsAsMessagesByProject[projectInstanceId] = new HashSet<string>(codes, StringComparer.OrdinalIgnoreCase);
             }
         }
 

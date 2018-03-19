@@ -29,8 +29,9 @@ namespace Microsoft.Build.BackEnd
         /// <param name="toolsVersions">The tools version to use for each project.  Must be the same number as there are project files.</param>
         /// <param name="targets">The targets to be built.  Each project will be built with the same targets.</param>
         /// <param name="waitForResults">True to wait for the results </param>
+        /// <param name="skipNonexistentTargets">If set, skip targets that are not defined in the projects to be built.</param>
         /// <returns>An Task representing the work which will be done.</returns>
-        Task<BuildResult[]> BuildProjects(string[] projectFiles, PropertyDictionary<ProjectPropertyInstance>[] properties, string[] toolsVersions, string[] targets, bool waitForResults);
+        Task<BuildResult[]> BuildProjects(string[] projectFiles, PropertyDictionary<ProjectPropertyInstance>[] properties, string[] toolsVersions, string[] targets, bool waitForResults, bool skipNonexistentTargets = false);
 
         /// <summary>
         /// This method instructs the request builder that the target builder is blocked on a target which is already in progress on the
@@ -38,7 +39,8 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         /// <param name="blockingRequestId">The request on which we are blocked.</param>
         /// <param name="blockingTarget">The target on which we are blocked.</param>
-        Task BlockOnTargetInProgress(int blockingRequestId, string blockingTarget);
+        /// <param name="partialBuildResult">Results so far from the target builder that's blocking</param>
+        Task BlockOnTargetInProgress(int blockingRequestId, string blockingTarget, BuildResult partialBuildResult);
 
         /// <summary>
         /// Instructs the RequestBuilder that it may yield its control of the node.

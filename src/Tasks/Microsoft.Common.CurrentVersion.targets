@@ -75,11 +75,13 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <TargetFrameworkMoniker Condition="'$(TargetFrameworkMoniker)' == '' and '$(TargetFrameworkProfile)' != ''">$(TargetFrameworkIdentifier),Version=$(TargetFrameworkVersion),Profile=$(TargetFrameworkProfile)</TargetFrameworkMoniker>
     <TargetFrameworkMoniker Condition="'$(TargetFrameworkMoniker)' == ''">$(TargetFrameworkIdentifier),Version=$(TargetFrameworkVersion)</TargetFrameworkMoniker>
 
+    <!-- When working off a packaged reference assemblies, do not go to machine-global locations. This property is target-framework-specific, so it cannot be overridden in msbuild.exe.config once and for all. -->
+    <FrameworkPathOverride Condition="'$(EnableFrameworkPathOverride)' != 'false' And '$(FrameworkPathOverride)' == '' And Exists('$(TargetFrameworkRootPath)$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)')">$(TargetFrameworkRootPath)$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)</FrameworkPathOverride>
     <!-- The FrameworkPathOverride is required for the inproc visual basic compiler to initialize when targeting target frameworks less than 4.0. If .net 2.0 is not installed then the property value above will not provide the location
              of mscorlib. This is also true if the build author overrides this property to some other directory which does not contain mscorlib.dll. In the case we cannot find mscorlib.dll at the correct location
              we need to find a directory which does contain mscorlib to allow the inproc compiler to initialize and give us the chance to show certain dialogs in the IDE (which only happen after initialization).-->
-    <FrameworkPathOverride Condition="'$(FrameworkPathOverride)' == ''">$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPathToStandardLibraries($(TargetFrameworkIdentifier), $(TargetFrameworkVersion), $(TargetFrameworkProfile), $(PlatformTarget), $(TargetFrameworkRootPath)))</FrameworkPathOverride>
-    <FrameworkPathOverride Condition="!Exists('$(FrameworkPathOverride)\mscorlib.dll')">$(MSBuildFrameworkToolsPath)</FrameworkPathOverride>
+    <FrameworkPathOverride Condition="'$(EnableFrameworkPathOverride)' != 'false' And '$(FrameworkPathOverride)' == ''">$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPathToStandardLibraries($(TargetFrameworkIdentifier), $(TargetFrameworkVersion), $(TargetFrameworkProfile), $(PlatformTarget), $(TargetFrameworkRootPath)))</FrameworkPathOverride>
+    <FrameworkPathOverride Condition="'$(EnableFrameworkPathOverride)' != 'false' And !Exists('$(FrameworkPathOverride)\mscorlib.dll')">$(MSBuildFrameworkToolsPath)</FrameworkPathOverride>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -322,6 +324,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
   <PropertyGroup>
     <GenerateBindingRedirectsOutputType Condition="'$(OutputType)'=='exe' or '$(OutputType)'=='winexe'">true</GenerateBindingRedirectsOutputType>
+    <!-- It would be a breaking change to automatically turn on binding redirects for existing projects, so turn them on only when opting into a new framework. -->
+    <AutoGenerateBindingRedirects Condition="'$(AutoGenerateBindingRedirects)' == '' and '$(TargetFrameworkIdentifier)' == '.NETFramework' and '$(TargetFrameworkVersion.TrimStart(vV))' >= '4.7.2'">true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AutoUnifyAssemblyReferences)' == ''">
     <AutoUnifyAssemblyReferences>true</AutoUnifyAssemblyReferences>
@@ -347,7 +351,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   </PropertyGroup>
   <PropertyGroup>
     <IntermediateOutputPath Condition="!HasTrailingSlash('$(IntermediateOutputPath)')">$(IntermediateOutputPath)\</IntermediateOutputPath>
-    <_GenerateBindingRedirectsIntermediateAppConfig>$(IntermediateOutputPath)$(MSBuildProjectFile).$(TargetFileName).config</_GenerateBindingRedirectsIntermediateAppConfig>
+    <_GenerateBindingRedirectsIntermediateAppConfig>$(IntermediateOutputPath)$(TargetFileName).config</_GenerateBindingRedirectsIntermediateAppConfig>
   </PropertyGroup>
   <ItemGroup>
     <IntermediateAssembly Include="$(IntermediateOutputPath)$(TargetName)$(TargetExt)"/>
@@ -717,6 +721,34 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   </ItemDefinitionGroup>
 
   <!--
+    Target that allows targets consuming source control confirmation to establish a dependency on targets producing this information.
+
+    Any target that reads SourceRevisionId, PrivateRepositoryUrl, SourceRoot, and other source control properties and items 
+    should depend on this target and be conditioned on '$(SourceControlInformationFeatureSupported)' == 'true'.
+
+    SourceRevisionId property uniquely identifies the source control revision of the repository the project belongs to.
+    For Git repositories this id is a commit hash, for TFVC repositories it's the changeset number, etc.
+
+    PrivateRepositoryUrl property stores the URL of the repository supplied by the CI server or retrieved from source control manager.
+    Targets consuming this property shall not publish its value implicitly as it might inadvertently reveal an internal URL.
+    Instead, they shall only do so if the project sets PublishRepositoryUrl property to true. For example, the NuGet Pack target
+    may include the repository URL in the nuspec file generated for NuGet package produced by the project if PublishRepositoryUrl is true.
+
+    SourceRoot item group lists all source roots that the project source files reside under and their mapping to source control server URLs,
+    if available. This includes both source files under source control as well as source files in source packages. SourceRoot items are 
+    used by compilers to determine path map in deterministic build and by SourceLink provider, which maps local paths to URLs of source files
+    stored on the source control server.
+
+    Source control information provider that sets these properties and items shall execute before this target (by including 
+    InitializeSourceControlInformation in its BeforeTargets) and set source control properties and items that haven't been initialized yet.
+  -->
+  <Target Name="InitializeSourceControlInformation" />
+
+  <PropertyGroup>
+    <SourceControlInformationFeatureSupported>true</SourceControlInformationFeatureSupported>
+  </PropertyGroup>
+
+  <!--
     ***********************************************************************************************
     ***********************************************************************************************
                                                                 Build Section
@@ -729,7 +761,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
                                         _CheckForInvalidConfigurationAndPlatform
 
     This target checks for errors in statically defined properties.  By setting BeforeTargets, we try
-    to ensure that the target runs before any build related targets.  
+    to ensure that the target runs before any build related targets.
     If your target requires this check and is running as a BeforeTargets of one of the first targets
     of $(BuildDependsOn), $(RebuildDependsOn), or $(CleanDependsOn) you will need to set your DependsOn
     to this target.
@@ -1374,6 +1406,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
   <Target
       Name="ResolveReferences"
+      Returns="@(ReferencePath)"
       DependsOnTargets="$(ResolveReferencesDependsOn)"/>
 
   <!--
@@ -1513,17 +1546,26 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     ====================================================================================
                                         _GetProjectReferenceTargetFrameworkProperties
 
-    Builds the GetTargetFrameworkProperties target of all existent project references,
-    passing $(TargetFrameworkMoniker) as $(ReferringTargetFramework) and sets the
-    SetTargetFramework metadata of the project reference to the value that is returned.
-
-    This allows a cross-targeting project to select how it should be configured to
-    build against the most appropriate target for the referring target framework.
+    Builds the GetTargetFrameworks target of all existent project references to get a list
+    of all supported TargetFrameworks of the referenced projects. Calls the
+    GetReferenceNearestTargetFrameworkTask to determine the closest match for each project.
+    This allows a cross-targeting project to select how it should be configured to build
+    against the most appropriate target for the referring target framework.
 
     ======================================================================================
   -->
-  <Target Name="_GetProjectReferenceTargetFrameworkProperties"
-          Outputs="%(_MSBuildProjectReferenceExistent.Identity)">
+  <Target Name="_GetProjectReferenceTargetFrameworkProperties">
+    <!--
+      Select the moniker to send to each project reference  if not already set. NugetTargetMoniker (NTM) is preferred by default over
+      TargetFrameworkMoniker (TFM) because it is required to disambiguate the UWP case where TFM is fixed at .NETCore,Version=v5.0 and
+      has floating NTM=UAP,Version=vX.Y.Z. However, in other cases (classic PCLs), NTM contains multiple values and that will cause the MSBuild
+      invocation below to fail by passing invalid properties. Therefore we do not use the NTM if it contains a semicolon.
+    -->
+    <PropertyGroup Condition="'$(ReferringTargetFrameworkForProjectReferences)' == ''">
+      <ReferringTargetFrameworkForProjectReferences Condition="'$(NugetTargetMoniker)' != '' and !$(NuGetTargetMoniker.Contains(';'))">$(NugetTargetMoniker)</ReferringTargetFrameworkForProjectReferences>
+      <ReferringTargetFrameworkForProjectReferences Condition="'$(NugetTargetMoniker)' == ''">$(TargetFrameworkMoniker)</ReferringTargetFrameworkForProjectReferences>
+    </PropertyGroup>
+
     <!--
       Honor SkipGetTargetFrameworkProperties=true metadata on project references
       to mean that the project reference is known not to target multiple frameworks
@@ -1533,7 +1575,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       than one framework.
    -->
    <ItemGroup>
-      <_MSBuildProjectReferenceExistent Condition="'%(_MSBuildProjectReferenceExistent.SkipGetTargetFrameworkProperties)' == '' and '%(Extension)' == '.vcxproj'">
+      <_MSBuildProjectReferenceExistent Condition="'%(_MSBuildProjectReferenceExistent.SkipGetTargetFrameworkProperties)' == '' and ('%(Extension)' == '.vcxproj' or '%(Extension)' == '.nativeproj')">
         <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
       </_MSBuildProjectReferenceExistent>
    </ItemGroup>
@@ -1546,7 +1588,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
           to unit test the .NETStandard implementation using a .NETFramework caller even though
           there is also a .NETFramework implementation.
 
-       2. As an escape hatch for cases where the compatibility check performed by 
+       2. As an escape hatch for cases where the compatibility check performed by
           GetTargetFrameworkProperties is faulty.
     -->
     <ItemGroup>
@@ -1556,49 +1598,91 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     </ItemGroup>
 
     <!--
-      Select the moniker to send to each project reference  if not already set. NugetTargetMoniker (NTM) is preferred by default over 
-      TargetFrameworkMoniker (TFM) because it is required to disambiguate the UWP case where TFM is fixed at .NETCore,Version=v5.0 and 
-      has floating NTM=UAP,Version=vX.Y.Z. However, in other cases (classic PCLs), NTM contains multiple values and that will cause the MSBuild
-      invocation below to fail by passing invalid properties. Therefore we do not use the NTM if it contains a semicolon.
+       Get reference target framework lists.
+       Note: A future optimization could cache the closest match and set the target framework on
+       this MSBuild task invocation. This would (optimistically) save an evaluation of the referenced
+       project when the answer is the same.
     -->
-    <PropertyGroup Condition="'$(ReferringTargetFrameworkForProjectReferences)' == ''">
-      <ReferringTargetFrameworkForProjectReferences Condition="'$(NugetTargetMoniker)' != '' and !$(NuGetTargetMoniker.Contains(';'))">$(NugetTargetMoniker)</ReferringTargetFrameworkForProjectReferences>
-      <ReferringTargetFrameworkForProjectReferences Condition="'$(NugetTargetMoniker)' == ''">$(TargetFrameworkMoniker)</ReferringTargetFrameworkForProjectReferences>
-    </PropertyGroup>
-
     <MSBuild
-        Projects="%(_MSBuildProjectReferenceExistent.Identity)"
-        Targets="GetTargetFrameworkProperties"
+        Projects="@(_MSBuildProjectReferenceExistent)"
+        Targets="GetTargetFrameworks"
         BuildInParallel="$(BuildInParallel)"
-        Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform); ReferringTargetFramework=$(ReferringTargetFrameworkForProjectReferences)"
+        Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform)"
         ContinueOnError="!$(BuildingProject)"
         RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove);TargetFramework;RuntimeIdentifier"
-        Condition="'%(_MSBuildProjectReferenceExistent.SkipGetTargetFrameworkProperties)' != 'true'">
-
-      <Output TaskParameter="TargetOutputs" PropertyName="_ProjectReferenceTargetFrameworkProperties" />
+        Condition="'%(_MSBuildProjectReferenceExistent.SkipGetTargetFrameworkProperties)' != 'true'"
+        SkipNonexistentTargets="true">
+      <Output TaskParameter="TargetOutputs" ItemName="_ProjectReferenceTargetFrameworkPossibilities" />
     </MSBuild>
 
     <ItemGroup>
-      <_MSBuildProjectReferenceExistent Condition="'%(_MSBuildProjectReferenceExistent.Identity)' == '%(Identity)' and '$(_ProjectReferenceTargetFrameworkProperties)' != ''">
-        <SetTargetFramework>$(_ProjectReferenceTargetFrameworkProperties)</SetTargetFramework>
-
-        <UndefineProperties Condition="$(_ProjectReferenceTargetFrameworkProperties.Contains(`ProjectHasSingleTargetFramework=true`))">%(_MSBuildProjectReferenceExistent.UndefineProperties);TargetFramework;ProjectHasSingleTargetFramework</UndefineProperties>
-        <!-- Unconditionally remove the property that was set as a marker to indicate that for this call we should remove TargetFramework -->
-        <UndefineProperties Condition="!$(_ProjectReferenceTargetFrameworkProperties.Contains(`ProjectHasSingleTargetFramework=true`))">%(_MSBuildProjectReferenceExistent.UndefineProperties);ProjectHasSingleTargetFramework</UndefineProperties>
-      </_MSBuildProjectReferenceExistent>
+      <!--
+        Preserve the ItemSpec value on the _ProjectReferenceTargetFrameworkPossibilities. Because relative paths in another project
+        context would be incorrect, the MSBuild task invocation needs expands the project reference paths in the MSBuild task above.
+        This is generally OK, but if the list is copied the OriginalItemSpec can become the expanded value and cause issues correlating
+        a project reference back to an Item instance.
+      -->
+      <_ProjectReferenceTargetFrameworkPossibilitiesOriginalItemSpec Include="@(_ProjectReferenceTargetFrameworkPossibilities->'%(OriginalItemSpec)')"/>
+      <_ProjectReferenceTargetFrameworkPossibilities Remove="@(_ProjectReferenceTargetFrameworkPossibilities)"  />
+      <_ProjectReferenceTargetFrameworkPossibilities Include="@(_ProjectReferenceTargetFrameworkPossibilitiesOriginalItemSpec)"/>
     </ItemGroup>
+
+    <!-- For each reference, get closest match -->
+    <GetReferenceNearestTargetFrameworkTask AnnotatedProjectReferences="@(_ProjectReferenceTargetFrameworkPossibilities)"
+                                            CurrentProjectTargetFramework="$(ReferringTargetFrameworkForProjectReferences)"
+                                            CurrentProjectName="$(MSBuildProjectName)"
+                                            Condition="'@(_ProjectReferenceTargetFrameworkPossibilities->Count())' != '0' and '$(ReferringTargetFrameworkForProjectReferences)' != ''">
+      <Output ItemName="AnnotatedProjects" TaskParameter="AssignedProjects" />
+    </GetReferenceNearestTargetFrameworkTask>
 
     <ItemGroup>
-      <_MSBuildProjectReferenceExistent Condition="'%(_MSBuildProjectReferenceExistent.Identity)' == '%(Identity)' and '$(_ProjectReferenceTargetFrameworkProperties)' != ''">
-        <UndefineProperties Condition="$(_ProjectReferenceTargetFrameworkProperties.Contains(`ProjectIsRidAgnostic=true`))">%(_MSBuildProjectReferenceExistent.UndefineProperties);RuntimeIdentifier;ProjectIsRidAgnostic</UndefineProperties>
-        <!-- Unconditionally remove the property that was set as a marker to indicate that for this call we should remove RuntimeIdentifier -->
-        <UndefineProperties Condition="!$(_ProjectReferenceTargetFrameworkProperties.Contains(`ProjectIsRidAgnostic=true`))">%(_MSBuildProjectReferenceExistent.UndefineProperties);ProjectIsRidAgnostic</UndefineProperties>
-      </_MSBuildProjectReferenceExistent>
-    </ItemGroup>
+      <!--
+         If the task was skipped or the current TargetFramework is empty, AnnotatedProjects will be empty.
+         In this case, copy _ProjectReferenceTargetFrameworkPossibilities as is. See:
+            https://github.com/dotnet/sdk/issues/416
+      -->
+      <AnnotatedProjects Include="@(_ProjectReferenceTargetFrameworkPossibilities)"
+                         Condition="'$(ReferringTargetFrameworkForProjectReferences)' == ''" />
+      <!-- If the NearestTargetFramework property was set and the project multi-targets, SetTargetFramework must be set. -->
+      <AnnotatedProjects Condition="'@(AnnotatedProjects)' == '%(Identity)' and '%(AnnotatedProjects.NearestTargetFramework)' != '' and '%(AnnotatedProjects.HasSingleTargetFramework)' != 'true'">
+        <SetTargetFramework>TargetFramework=%(AnnotatedProjects.NearestTargetFramework)</SetTargetFramework>
+      </AnnotatedProjects>
 
-    <PropertyGroup>
-      <_ProjectReferenceTargetFrameworkProperties />
-    </PropertyGroup>
+      <!--
+         If the NearestTargetFramework property was not set or the project has a single TargetFramework, we need to Undefine
+         TargetFramework to avoid another project evaluation.
+      -->
+      <AnnotatedProjects Condition="'@(AnnotatedProjects)' == '%(Identity)' and ('%(AnnotatedProjects.NearestTargetFramework)' == '' or '%(AnnotatedProjects.HasSingleTargetFramework)' == 'true')">
+        <UndefineProperties>%(AnnotatedProjects.UndefineProperties);TargetFramework</UndefineProperties>
+      </AnnotatedProjects>
+
+      <!-- If the project is RID agnostic, undefine the RuntimeIdentifier property to avoid another evaluation. -->
+      <AnnotatedProjects Condition="'@(AnnotatedProjects)' == '%(Identity)' and '%(AnnotatedProjects.IsRidAgnostic)' == 'true'">
+        <UndefineProperties>%(AnnotatedProjects.UndefineProperties);RuntimeIdentifier</UndefineProperties>
+      </AnnotatedProjects>
+
+      <!--
+         Remove the items we've touched from _MSBuildProjectReferenceExistent. This will leave all projects where
+         SkipGetTargetFrameworkProperties was set. Then add all AnnotatedProjects back.
+      -->
+      <_MSBuildProjectReferenceExistent Remove="@(_MSBuildProjectReferenceExistent)" Condition="'%(_MSBuildProjectReferenceExistent.SkipGetTargetFrameworkProperties)' != 'true'" />
+      <_MSBuildProjectReferenceExistent Include="@(AnnotatedProjects)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GetTargetFrameworks"
+          Returns="@(_ThisProjectBuildMetadata)">
+    <ItemGroup>
+      <_ThisProjectBuildMetadata Include="$(MSBuildProjectFullPath)">
+        <TargetFrameworks Condition="'$(TargetFrameworks)' != ''">$(TargetFrameworks)</TargetFrameworks>
+        <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">$(TargetFramework)</TargetFrameworks>
+        <HasSingleTargetFramework>true</HasSingleTargetFramework>
+        <HasSingleTargetFramework Condition="'$(IsCrossTargetingBuild)' == 'true'">false</HasSingleTargetFramework>
+        <!-- indicate to caller that project is RID agnostic so that a global property RuntimeIdentifier value can be removed -->
+      <IsRidAgnostic>false</IsRidAgnostic>
+      <IsRidAgnostic Condition=" '$(RuntimeIdentifier)' == '' and '$(RuntimeIdentifiers)' == '' ">true</IsRidAgnostic>
+      </_ThisProjectBuildMetadata>
+    </ItemGroup>
   </Target>
 
   <!--
@@ -1610,7 +1694,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     to build it with the best target for the referring project's
     target framework.
 
-    The referring project's $(TargetFrameworkMoniker) is passed 
+    The referring project's $(TargetFrameworkMoniker) is passed
     in as $(ReferringTargetFramework)
   -->
   <Target Name="GetTargetFrameworkProperties" />
@@ -1626,7 +1710,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
         [OUT]
         @(ProjectReferenceWithConfiguration)   - Project references with apporpriate metadata
-        @(_MSBuildProjectReferenceExistent)    - Subset of @(ProjectReferenceWithConfiguration) that exist 
+        @(_MSBuildProjectReferenceExistent)    - Subset of @(ProjectReferenceWithConfiguration) that exist
                                                  with added SetTargetFramework metadata for cross-targeting
         @(_MSBuildProjectReferenceNonExistent) - Subset of  @(ProjectReferenceWithConfiguration) that do not exist
     ============================================================
@@ -1746,6 +1830,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform); %(_MSBuildProjectReferenceExistent.SetTargetFramework)"
         Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' and '$(BuildingProject)' == 'true' and '@(_MSBuildProjectReferenceExistent)' != ''"
         ContinueOnError="$(ContinueOnError)"
+        SkipNonexistentTargets="true"
         RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)">
 
       <Output TaskParameter="TargetOutputs" ItemName="NativeReference" Condition="'%(_MSBuildProjectReferenceExistent.ReferenceOutputAssembly)' == 'true'"/>
@@ -1834,6 +1919,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       <TargetPathWithTargetPlatformMoniker Include="$(TargetPath)">
         <TargetPlatformMoniker>$(TargetPlatformMoniker)</TargetPlatformMoniker>
         <TargetPlatformIdentifier>$(TargetPlatformIdentifier)</TargetPlatformIdentifier>
+        <TargetFrameworkIdentifier>$(TargetFrameworkIdentifier)</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>$(TargetFrameworkVersion.TrimStart('vV'))</TargetFrameworkVersion>
         <ReferenceAssembly Condition="'$(ProduceReferenceAssembly)' == 'true'">$(TargetRefPath)</ReferenceAssembly>
         <CopyUpToDateMarker>@(CopyUpToDateMarker)</CopyUpToDateMarker>
       </TargetPathWithTargetPlatformMoniker>
@@ -1955,7 +2042,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         expensive to write the newly created cache file.
         -->
     <PropertyGroup>
-      <ResolveAssemblyReferencesStateFile Condition="'$(BuildingProject)'=='true'">$(IntermediateOutputPath)$(MSBuildProjectFile)ResolveAssemblyReference.cache</ResolveAssemblyReferencesStateFile>
+      <ResolveAssemblyReferencesStateFile Condition="'$(DisableRarCache)'!='true' and '$(ResolveAssemblyReferencesStateFile)' == ''">$(IntermediateOutputPath)$(MSBuildProjectFile)AssemblyReference.cache</ResolveAssemblyReferencesStateFile>
     </PropertyGroup>
 
     <!-- Make an App.Config item that exists when AutoUnify is false. -->
@@ -1980,6 +2067,16 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         <Implicit>true</Implicit>
       </Reference>
     </ItemGroup>
+
+    <!--
+      Normally, as an optimization, finding dependencies of references marked with ExternallyResolved=true metadata is skipped.
+      However, skipping that step breaks binding redirect generation when there are conflicting versions within the externally
+      resolved graph.
+    -->
+    <PropertyGroup Condition="'$(FindDependenciesOfExternallyResolvedReferences)' == ''">
+       <FindDependenciesOfExternallyResolvedReferences>false</FindDependenciesOfExternallyResolvedReferences>
+       <FindDependenciesOfExternallyResolvedReferences Condition="'$(AutoGenerateBindingRedirects)' == 'true'">true</FindDependenciesOfExternallyResolvedReferences>
+    </PropertyGroup>
 
     <ResolveAssemblyReference
         Assemblies="@(Reference)"
@@ -2019,6 +2116,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         ResolvedSDKReferences="@(ResolvedSDKReference)"
         WarnOrErrorOnTargetArchitectureMismatch="$(ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch)"
         IgnoreTargetFrameworkAttributeVersionMismatch ="$(ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch)"
+        FindDependenciesOfExternallyResolvedReferences="$(FindDependenciesOfExternallyResolvedReferences)"
         ContinueOnError="$(ContinueOnError)"
         Condition="'@(Reference)'!='' or '@(_ResolvedProjectReferencePaths)'!='' or '@(_ExplicitReference)' != ''"
         >
@@ -2034,6 +2132,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       <Output TaskParameter="SuggestedRedirects" ItemName="SuggestedBindingRedirects"/>
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
       <Output TaskParameter="DependsOnSystemRuntime" PropertyName="DependsOnSystemRuntime"/>
+      <Output TaskParameter="DependsOnNETStandard" PropertyName="_DependsOnNETStandard"/>
     </ResolveAssemblyReference>
   </Target>
 
@@ -2158,6 +2257,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
   <Target
       Name="GetInstalledSDKLocations"
+      Condition="'@(SDKReference)' != ''"
       DependsOnTargets="$(GetInstalledSDKLocationsDependsOn)"
       Returns="@(InstalledSDKLocations)"
       >
@@ -2168,7 +2268,6 @@ Copyright (C) Microsoft Corporation. All rights reserved.
            SDKRegistryRoot="$(SDKReferenceRegistryRoot)"
            TargetPlatformVersion="$(TargetPlatformVersion)"
            TargetPlatformIdentifier="$(TargetPlatformIdentifier)"
-           Condition="'@(SDKReference)' != ''"
            >
       <Output TaskParameter="InstalledSDKs" ItemName="InstalledSDKLocations"/>
     </GetInstalledSDKLocations>
@@ -2180,7 +2279,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
            SDKRegistryRoot="$(SDKReferenceRegistryRoot)"
            TargetPlatformVersion="$(TargetPlatformVersionWindows81)"
            TargetPlatformIdentifier="$(TargetPlatformIdentifierWindows81)"
-           Condition="'@(SDKReference)' != '' and '$(SupportWindows81SDKs)' == 'true' and '$(TargetPlatformIdentifierWindows81)' != '' and '$(TargetPlatformVersionWindows81)' != ''"
+           Condition="'$(SupportWindows81SDKs)' == 'true' and '$(TargetPlatformIdentifierWindows81)' != '' and '$(TargetPlatformVersionWindows81)' != ''"
            WarnWhenNoSDKsFound="false"
            >
       <Output TaskParameter="InstalledSDKs" ItemName="InstalledSDKLocations"/>
@@ -2192,7 +2291,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
            SDKRegistryRoot="$(SDKReferenceRegistryRoot)"
            TargetPlatformVersion="$(TargetPlatformVersionWindowsPhone81)"
            TargetPlatformIdentifier="$(TargetPlatformIdentifierWindowsPhone81)"
-           Condition="'@(SDKReference)' != '' and '$(SupportWindowsPhone81SDKs)' == 'true' and '$(TargetPlatformIdentifierWindowsPhone81)' != '' and '$(TargetPlatformVersionWindowsPhone81)' != ''"
+           Condition="'$(SupportWindowsPhone81SDKs)' == 'true' and '$(TargetPlatformIdentifierWindowsPhone81)' != '' and '$(TargetPlatformVersionWindowsPhone81)' != ''"
            WarnWhenNoSDKsFound="false"
            >
       <Output TaskParameter="InstalledSDKs" ItemName="InstalledSDKLocations"/>
@@ -2390,7 +2489,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <Target Name="ExportWindowsMDFile"
           DependsOnTargets="Compile"
           Condition="'$(ExportWinMDFile)' == 'true'"
-          Inputs="@(IntermediateAssembly);@(DocFileItem);@(_DebugSymbolsIntermediatePath);@(ReferencePath);$(MSBuildAllProjects)"
+          Inputs="@(IntermediateAssembly);@(DocFileItem);@(_DebugSymbolsIntermediatePath);@(ReferencePathWithRefAssemblies);$(MSBuildAllProjects)"
           Outputs="$(_IntermediateWindowsMetadataPath);$(WinMDExpOutputPdb);$(WinMDOutputDocumentationFile)"
   >
 
@@ -2404,7 +2503,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       </PropertyGroup>
 
       <WinMDExp WinMDModule="@(IntermediateAssembly)"
-                References="@(ReferencePath)"
+                References="@(ReferencePathWithRefAssemblies)"
                 DisabledWarnings="$(WinMdExpNoWarn)"
                 InputDocumentationFile="@(DocFileItem)"
                 OutputDocumentationFile="$(WinMDOutputDocumentationFile)"
@@ -2486,7 +2585,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     </ItemGroup>
 
     <PropertyGroup>
-      <DesignTimeResolveAssemblyReferencesStateFile Condition="'$(BuildingProject)'=='true'">$(IntermediateOutputPath)$(MSBuildProjectFile)DesignTimeResolveAssemblyReferences.cache</DesignTimeResolveAssemblyReferencesStateFile>
+      <DesignTimeResolveAssemblyReferencesStateFile Condition="'$(DisableRarCache)'!='true'">$(IntermediateOutputPath)$(MSBuildProjectFile)DesignTimeResolveAssemblyReferences.cache</DesignTimeResolveAssemblyReferencesStateFile>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -2924,7 +3023,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         References="@(ReferencePathWithRefAssemblies)"
         AdditionalInputs="$(MSBuildAllProjects)"
         NeverLockTypeAssemblies="$(GenerateResourceNeverLockTypeAssemblies)"
-        StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).GenerateResource.Cache"
+        StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).GenerateResource.cache"
         StronglyTypedClassName="%(EmbeddedResource.StronglyTypedClassName)"
         StronglyTypedFileName="%(EmbeddedResource.StronglyTypedFileName)"
         StronglyTypedLanguage="%(EmbeddedResource.StronglyTypedLanguage)"
@@ -2954,7 +3053,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         References="@(ReferencePath)"
         AdditionalInputs="$(MSBuildAllProjects)"
         NeverLockTypeAssemblies="$(GenerateResourceNeverLockTypeAssemblies)"
-        StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).GenerateResource.Cache"
+        StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).GenerateResource.cache"
         StronglyTypedClassName="%(EmbeddedResource.StronglyTypedClassName)"
         StronglyTypedFileName="%(EmbeddedResource.StronglyTypedFileName)"
         StronglyTypedLanguage="%(EmbeddedResource.StronglyTypedLanguage)"
@@ -3021,7 +3120,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       Name="CompileLicxFiles"
       Condition="'@(_LicxFile)'!=''"
       DependsOnTargets="$(CompileLicxFilesDependsOn)"
-      Inputs="$(MSBuildAllProjects);@(_LicxFile);@(ReferencePath);@(ReferenceDependencyPaths)"
+      Inputs="$(MSBuildAllProjects);@(_LicxFile);@(ReferencePathWithRefAssemblies);@(ReferenceDependencyPaths)"
       Outputs="$(IntermediateOutputPath)$(TargetFileName).licenses">
 
     <PropertyGroup>
@@ -3033,7 +3132,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         LicenseTarget="$(TargetFileName)"
         OutputDirectory="$(IntermediateOutputPath)"
         OutputLicense="$(IntermediateOutputPath)$(TargetFileName).licenses"
-        ReferencedAssemblies="@(ReferencePath);@(ReferenceDependencyPaths)"
+        ReferencedAssemblies="@(ReferencePathWithRefAssemblies);@(ReferenceDependencyPaths)"
         NoLogo="$(NoLogo)"
         ToolPath="$(LCToolPath)"
         SdkToolsPath="$(TargetFrameworkSDKToolsDirectory)"
@@ -3283,16 +3382,16 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
     Generate a file used to track compiler dependencies between incremental build
     executions. This handles cases where items are added or removed from a glob (e.g.
-    <Compile Include="**\*.cs" />) and can't otherwise be detected with timestamp 
-    comparisons. The file contains a hash of compiler inputs that are known to 
+    <Compile Include="**\*.cs" />) and can't otherwise be detected with timestamp
+    comparisons. The file contains a hash of compiler inputs that are known to
     contribute to incremental build inconsistencies.
     ============================================================
     -->
   <Target Name="_GenerateCompileDependencyCache" DependsOnTargets="ResolveAssemblyReferences">
     <ItemGroup>
       <CustomAdditionalCompileInputs Include="$(IntermediateOutputPath)$(MSBuildProjectFile).CoreCompileInputs.cache" />
-      <CoreCompileCache Include="@(Compile->'%(FullPath)')" />
-      <CoreCompileCache Include="@(ReferencePath->'%(FullPath)')" />
+      <CoreCompileCache Include="@(Compile)" />
+      <CoreCompileCache Include="@(ReferencePath)" />
     </ItemGroup>
 
     <Hash ItemsToHash="@(CoreCompileCache)">
@@ -3492,7 +3591,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   <Target Name="GenerateSatelliteAssemblies"
           Inputs="$(MSBuildAllProjects);@(_SatelliteAssemblyResourceInputs);$(IntermediateOutputPath)$(TargetName)$(TargetExt)"
           Outputs="$(IntermediateOutputPath)%(Culture)\$(TargetName).resources.dll"
-          Condition="'@(_SatelliteAssemblyResourceInputs)' != '' and '$(MSBuildRuntimeType)' != 'Core'">
+          Condition="'@(_SatelliteAssemblyResourceInputs)' != '' and '$(GenerateSatelliteAssembliesForCore)' != 'true'">
 
     <MakeDir
         Directories="@(EmbeddedResource->'$(IntermediateOutputPath)%(Culture)')" />
@@ -4239,7 +4338,9 @@ Copyright (C) Microsoft Corporation. All rights reserved.
          input to projects that reference this one. -->
     <Touch Files="@(CopyUpToDateMarker)"
            AlwaysCreate="true"
-           Condition="'@(ReferencesCopiedInThisBuild)' != ''" />
+           Condition="'@(ReferencesCopiedInThisBuild)' != ''">
+        <Output TaskParameter="TouchedFiles" ItemName="FileWrites" />
+    </Touch>
 
   </Target>
 
@@ -4301,6 +4402,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform); %(_MSBuildProjectReferenceExistent.SetTargetFramework)"
         Condition="'@(_MSBuildProjectReferenceExistent)' != '' and '$(_GetChildProjectCopyToOutputDirectoryItems)' == 'true' and '%(_MSBuildProjectReferenceExistent.Private)' != 'false' and '$(UseCommonOutputDirectory)' != 'true'"
         ContinueOnError="$(ContinueOnError)"
+        SkipNonexistentTargets="true"
         RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)">
 
       <Output TaskParameter="TargetOutputs" ItemName="_AllChildProjectItemsWithTargetPath"/>
@@ -4357,10 +4459,10 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     ============================================================
                                         GetCopyToPublishDirectoryItems
 
-    Default implementation of GetCopyToPublishDirectoryItems for projects that do not 
-    use Microsoft.NET.Sdk. It simply returns whatever GetCopyToOutputDirectoryItems 
-    does with CopyToPublishDirectory implied  by CopyToOutputDirectory, which is the 
-    same as Microsoft.NET.Sdk default when its CopyToPublishDirectory is not used. 
+    Default implementation of GetCopyToPublishDirectoryItems for projects that do not
+    use Microsoft.NET.Sdk. It simply returns whatever GetCopyToOutputDirectoryItems
+    does with CopyToPublishDirectory implied  by CopyToOutputDirectory, which is the
+    same as Microsoft.NET.Sdk default when its CopyToPublishDirectory is not used.
 
     Microsoft.NET.Sdk projects  will override this to allow the publish output to be
     customized independently from the build output.
@@ -4371,7 +4473,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     ============================================================
     -->
     <Target
-      Name="GetCopyToPublishDirectoryItems" 
+      Name="GetCopyToPublishDirectoryItems"
       DependsOnTargets="GetCopyToOutputDirectoryItems"
       Returns="@(AllPublishItemsFullPathWithTargetPath)">
 
@@ -5598,6 +5700,10 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   <!-- Get the resolved SDK reference items -->
   <Target Name="GetResolvedSDKReferences" DependsOnTargets="ResolveSDKReferences" Returns="@(ResolvedSDKReference)"/>
 
+  <!-- Target will return no results by default but will be populated by other targets elsewhere.
+       Needed for certain build environments that import partial sets of targets. -->
+  <Target Name="CollectReferencedNuGetPackages" Returns="@(ReferencedNuGetPackages)"/>
+
   <!--
     ============================================================
                                         PriFilesOutputGroup
@@ -5810,6 +5916,14 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
   <!-- This import is temporary and will be removed once it is moved into the silverlight targets -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.Data.Entity.targets" Condition="'$(TargetFrameworkIdentifier)' == 'Silverlight' and Exists('$(MSBuildToolsPath)\Microsoft.Data.Entity.targets')"/>
+
+  <!-- Import NuGet.targets (required for GetReferenceNearestTargetFrameworkTask and used for Restore functionality) -->
+  <PropertyGroup>
+    <NuGetRestoreTargets Condition="'$(NuGetRestoreTargets)'=='' and '$([MSBuild]::IsRunningFromVisualStudio())'=='true'">$(MSBuildToolsPath32)\..\..\..\Common7\IDE\CommonExtensions\Microsoft\NuGet\NuGet.targets</NuGetRestoreTargets>
+    <NuGetRestoreTargets Condition="'$(NuGetRestoreTargets)'==''">$(MSBuildToolsPath)\NuGet.targets</NuGetRestoreTargets>
+  </PropertyGroup>
+
+  <Import Condition="Exists('$(NuGetRestoreTargets)')" Project="$(NuGetRestoreTargets)" />
 
   <Import Project="$(CustomAfterMicrosoftCommonTargets)" Condition="'$(CustomAfterMicrosoftCommonTargets)' != '' and Exists('$(CustomAfterMicrosoftCommonTargets)')"/>
 

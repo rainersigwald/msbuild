@@ -133,7 +133,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// Perform a bitwise OR on the first and second (first | second) 
+        /// Perform a bitwise OR on the first and second (first | second)
         /// </summary>
         internal static int BitwiseOr(int first, int second)
         {
@@ -141,7 +141,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// Perform a bitwise AND on the first and second (first &amp; second) 
+        /// Perform a bitwise AND on the first and second (first &amp; second)
         /// </summary>
         internal static int BitwiseAnd(int first, int second)
         {
@@ -149,7 +149,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// Perform a bitwise XOR on the first and second (first ^ second) 
+        /// Perform a bitwise XOR on the first and second (first ^ second)
         /// </summary>
         internal static int BitwiseXor(int first, int second)
         {
@@ -157,7 +157,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// Perform a bitwise NOT on the first and second (~first) 
+        /// Perform a bitwise NOT on the first and second (~first)
         /// </summary>
         internal static int BitwiseNot(int first)
         {
@@ -258,14 +258,40 @@ namespace Microsoft.Build.Evaluation
             // We will have either found a result or defaultValue if one wasn't found at this point
             return result;
         }
+
+#else // FEATURE_WIN32_REGISTRY is off, need to mock the function names to let scrips call these property functions and get NULLs rather than fail with errors
+
+        /// <summary>
+        /// Get the value of the registry key and value, default value is null
+        /// </summary>
+        internal static object GetRegistryValue(string keyName, string valueName)
+        {
+            return null; // FEATURE_WIN32_REGISTRY is off, need to mock the function names to let scrips call these property functions and get NULLs rather than fail with errors
+        }
+
+        /// <summary>
+        /// Get the value of the registry key and value
+        /// </summary>
+        internal static object GetRegistryValue(string keyName, string valueName, object defaultValue)
+        {
+            return defaultValue; // FEATURE_WIN32_REGISTRY is off, need to mock the function names to let scrips call these property functions and get NULLs rather than fail with errors
+        }
+
+        /// <summary>
+        /// Get the value of the registry key from one of the RegistryView's specified
+        /// </summary>
+        internal static object GetRegistryValueFromView(string keyName, string valueName, object defaultValue, params object[] views)
+        {
+            return defaultValue; // FEATURE_WIN32_REGISTRY is off, need to mock the function names to let scrips call these property functions and get NULLs rather than fail with errors
+        }
 #endif
 
         /// <summary>
-        /// Given the absolute location of a file, and a disc location, returns relative file path to that disk location. 
+        /// Given the absolute location of a file, and a disc location, returns relative file path to that disk location.
         /// Throws UriFormatException.
         /// </summary>
         /// <param name="basePath">
-        /// The base path we want to relativize to. Must be absolute.  
+        /// The base path we want to relativize to. Must be absolute.
         /// Should <i>not</i> include a filename as the last segment will be interpreted as a directory.
         /// </param>
         /// <param name="path">
@@ -281,59 +307,26 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// Locate a file in either the directory specified or a location in the
-        /// direcorty structure above that directory.
+        /// Searches upward for a directory containing the specified file, beginning in the specified directory.
         /// </summary>
+        /// <param name="startingDirectory">The directory to start the search in.</param>
+        /// <param name="fileName">The name of the file to search for.</param>
+        /// <returns>The full path of the directory containing the file if it is found, otherwise an empty string. </returns>
         internal static string GetDirectoryNameOfFileAbove(string startingDirectory, string fileName)
         {
-            // Canonicalize our starting location
-            string lookInDirectory = Path.GetFullPath(startingDirectory);
-
-            do
-            {
-                // Construct the path that we will use to test against
-                string possibleFileDirectory = Path.Combine(lookInDirectory, fileName);
-
-                // If we successfully locate the file in the directory that we're
-                // looking in, simply return that location. Otherwise we'll
-                // keep moving up the tree.
-                if (File.Exists(possibleFileDirectory))
-                {
-                    // We've found the file, return the directory we found it in
-                    return lookInDirectory;
-                }
-                else
-                {
-                    // GetDirectoryName will return null when we reach the root
-                    // terminating our search
-                    lookInDirectory = Path.GetDirectoryName(lookInDirectory);
-                }
-            }
-            while (lookInDirectory != null);
-
-            // When we didn't find the location, then return an empty string
-            return String.Empty;
+            return FileUtilities.GetDirectoryNameOfFileAbove(startingDirectory, fileName);
         }
 
         /// <summary>
-        /// Searches for a file based on the specified <see cref="IElementLocation"/>.
+        /// Searches upward for the specified file, beginning in the specified <see cref="IElementLocation"/>.
         /// </summary>
-        /// <param name="file">The file to search for.</param>
+        /// <param name="file">The name of the file to search for.</param>
         /// <param name="startingDirectory">An optional directory to start the search in.  The default location is the directory
-        /// of the file containing the property funciton.</param>
+        /// of the file containing the property function.</param>
         /// <returns>The full path of the file if it is found, otherwise an empty string.</returns>
         internal static string GetPathOfFileAbove(string file, string startingDirectory)
         {
-            // This method does not accept a path, only a file name
-            if(file.Any(i => i.Equals(Path.DirectorySeparatorChar) || i.Equals(Path.AltDirectorySeparatorChar)))
-            {
-                ErrorUtilities.ThrowArgument("InvalidGetPathOfFileAboveParameter", file);
-            }
-
-            // Search for a directory that contains that file
-            string directoryName = GetDirectoryNameOfFileAbove(startingDirectory, file);
-
-            return String.IsNullOrWhiteSpace(directoryName) ? String.Empty : NormalizePath(directoryName, file);
+            return FileUtilities.GetPathOfFileAbove(file, startingDirectory);
         }
 
         /// <summary>
@@ -354,7 +347,7 @@ namespace Microsoft.Build.Evaluation
 
         /// <summary>
         /// Returns true if a task host exists that can service the requested runtime and architecture
-        /// values, and false otherwise. 
+        /// values, and false otherwise.
         /// </summary>
         internal static bool DoesTaskHostExist(string runtime, string architecture)
         {
@@ -425,7 +418,7 @@ namespace Microsoft.Build.Evaluation
         /// <returns>A canonicalized full path with the correct directory separators.</returns>
         internal static string NormalizePath(params string[] path)
         {
-            return FileUtilities.NormalizePath(Path.Combine(path));
+            return FileUtilities.NormalizePath(path);
         }
 
         /// <summary>
@@ -445,6 +438,15 @@ namespace Microsoft.Build.Evaluation
         internal static bool IsOsUnixLike()
         {
             return NativeMethodsShared.IsUnixLike;
+        }
+
+        /// <summary>
+        /// True if current OS is a BSD system.
+        /// </summary>
+        /// <returns></returns>
+        internal static bool IsOsBsdLike()
+        {
+            return NativeMethodsShared.IsBSD;
         }
 
         public static string GetCurrentToolsDirectory()
@@ -480,6 +482,11 @@ namespace Microsoft.Build.Evaluation
         public static string GetMSBuildExtensionsPath()
         {
             return BuildEnvironmentHelper.Instance.MSBuildExtensionsPath;
+        }
+
+        public static bool IsRunningFromVisualStudio()
+        {
+            return BuildEnvironmentHelper.Instance.Mode == BuildEnvironmentMode.VisualStudio;
         }
 
         #region Debug only intrinsics

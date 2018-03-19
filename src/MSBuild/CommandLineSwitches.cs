@@ -48,9 +48,6 @@ namespace Microsoft.Build.CommandLine
             OldOM,
 #endif
             DistributedFileLogger,
-#if FEATURE_MSBUILD_DEBUGGER
-            Debugger,
-#endif
             DetailedSummary,
 #if DEBUG
             WaitForDebugger,
@@ -94,9 +91,7 @@ namespace Microsoft.Build.CommandLine
             FileLoggerParameters7,
             FileLoggerParameters8,
             FileLoggerParameters9,
-#if FEATURE_NODE_REUSE
             NodeReuse,
-#endif
             Preprocess,
 #if !FEATURE_NAMED_PIPES_FULL_DUPLEX
             ClientToServerPipeHandle,
@@ -105,7 +100,10 @@ namespace Microsoft.Build.CommandLine
             WarningsAsErrors,
             WarningsAsMessages,
             BinaryLogger,
-            NumberOfParameterizedSwitches
+            Restore,
+            ProfileEvaluation,
+            RestoreProperty,
+            NumberOfParameterizedSwitches,
         }
 
         /// <summary>
@@ -234,9 +232,6 @@ namespace Microsoft.Build.CommandLine
             new ParameterlessSwitchInfo(  new string[] { "oldom" },                         ParameterlessSwitch.OldOM,                 null, null              ),
 #endif
             new ParameterlessSwitchInfo(  new string[] { "distributedfilelogger", "dfl" },  ParameterlessSwitch.DistributedFileLogger, null, null              ),
-#if FEATURE_MSBUILD_DEBUGGER
-            new ParameterlessSwitchInfo(  new string[] { "debug", "d" },                    ParameterlessSwitch.Debugger,              null, "DebuggerEnabled" ),
-#endif
             new ParameterlessSwitchInfo(  new string[] { "detailedsummary", "ds" },         ParameterlessSwitch.DetailedSummary,       null , null             ),
 #if DEBUG
             new ParameterlessSwitchInfo(  new string[] { "waitfordebugger", "wfd" },        ParameterlessSwitch.WaitForDebugger,       null , null             ),
@@ -274,9 +269,7 @@ namespace Microsoft.Build.CommandLine
             new ParameterizedSwitchInfo(  new string[] { "fileloggerparameters7", "flp7" },     ParameterizedSwitch.FileLoggerParameters7,      null,                           false,          "MissingFileLoggerParameterError",     true,   false  ),
             new ParameterizedSwitchInfo(  new string[] { "fileloggerparameters8", "flp8" },     ParameterizedSwitch.FileLoggerParameters8,      null,                           false,          "MissingFileLoggerParameterError",     true,   false  ),
             new ParameterizedSwitchInfo(  new string[] { "fileloggerparameters9", "flp9" },     ParameterizedSwitch.FileLoggerParameters9,      null,                           false,          "MissingFileLoggerParameterError",     true,   false  ),
-#if FEATURE_NODE_REUSE
             new ParameterizedSwitchInfo(  new string[] { "nodereuse", "nr" },                   ParameterizedSwitch.NodeReuse,                  null,                           false,          "MissingNodeReuseParameterError",      true,   false  ),
-#endif
             new ParameterizedSwitchInfo(  new string[] { "preprocess", "pp" },                  ParameterizedSwitch.Preprocess,                 null,                           false,          null,                                  true,   false  ),
 #if !FEATURE_NAMED_PIPES_FULL_DUPLEX
             new ParameterizedSwitchInfo(  new string[] { "clientToServerPipeHandle", "c2s" },   ParameterizedSwitch.ClientToServerPipeHandle,   null,                           false,          null,                                  true,   false  ),
@@ -285,6 +278,9 @@ namespace Microsoft.Build.CommandLine
             new ParameterizedSwitchInfo(  new string[] { "warnaserror", "err" },                ParameterizedSwitch.WarningsAsErrors,           null,                           true,           null,                                  true,   true   ),
             new ParameterizedSwitchInfo(  new string[] { "warnasmessage", "nowarn" },           ParameterizedSwitch.WarningsAsMessages,         null,                           true,           "MissingWarnAsMessageParameterError",  true,   false  ),
             new ParameterizedSwitchInfo(  new string[] { "binarylogger", "bl" },                ParameterizedSwitch.BinaryLogger,               null,                           false,          null,                                  true,   false  ),
+            new ParameterizedSwitchInfo(  new string[] { "restore", "r" },                      ParameterizedSwitch.Restore,                    null,                           false,          null,                                  true,   false  ),
+            new ParameterizedSwitchInfo(  new string[] { "profileevaluation", "prof" },         ParameterizedSwitch.ProfileEvaluation,          null,                           false,          "MissingProfileParameterError",        true,   false  ),
+            new ParameterizedSwitchInfo(  new string[] { "restoreproperty", "rp" },             ParameterizedSwitch.RestoreProperty,            null,                           true,           "MissingRestorePropertyError",         true,   false  ),
         };
 
         /// <summary>
@@ -510,7 +506,7 @@ namespace Microsoft.Build.CommandLine
                     // check if they were all stored successfully i.e. they were all non-empty (after removing quoting, if requested)
                     parametersStored = (emptyParameters == 0);
                 }
-                
+
             }
             else
             {
@@ -683,7 +679,7 @@ namespace Microsoft.Build.CommandLine
             }
             else if (IsParameterlessSwitchSet(parameterlessSwitch))
             {
-                result = new string[] { };
+                result = Array.Empty<string>();
             }
 
             return result;

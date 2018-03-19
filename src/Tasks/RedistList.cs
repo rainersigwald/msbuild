@@ -15,7 +15,6 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-
 namespace Microsoft.Build.Tasks
 {
     /*
@@ -55,6 +54,11 @@ namespace Microsoft.Build.Tasks
         /// AssemblyName to unified assemblyName. We make this kind of call a lot and also will ask for the same name multiple times.
         /// </summary>
         private ConcurrentDictionary<string, AssemblyEntry> _assemblyNameToUnifiedAssemblyName = new ConcurrentDictionary<string, AssemblyEntry>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// AssemblyName to AssemblyNameExtension object. We make this kind of call a lot and also will ask for the same name multiple times.
+        /// </summary>
+        private ConcurrentDictionary<string, AssemblyNameExtension> _assemblyNameToAssemblyNameExtension = new ConcurrentDictionary<string, AssemblyNameExtension>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// When we check to see if an assembly is remapped we should cache the result because we may get asked the same question a number of times.
@@ -159,8 +163,15 @@ namespace Microsoft.Build.Tasks
         public bool IsFrameworkAssembly(string assemblyName)
         {
             AssemblyEntry entry = GetUnifiedAssemblyEntry(assemblyName);
-            if (entry != null && !String.IsNullOrEmpty(entry.RedistName))
-                return entry.RedistName.StartsWith("Microsoft-Windows-CLRCoreComp", StringComparison.OrdinalIgnoreCase);
+            if (entry != null && !String.IsNullOrEmpty(entry.RedistName)){
+                AssemblyNameExtension assembly = GetAssemblyNameExtension(assemblyName);
+
+                // The version of the checking assembly should be lower than the one of the unified assembly
+                if(assembly.Version <= entry.AssemblyNameExtension.Version)
+                    return entry.RedistName.StartsWith("Microsoft-Windows-CLRCoreComp", StringComparison.OrdinalIgnoreCase);
+                else
+                    return false;
+            }
             else
                 return false;
         }
@@ -230,7 +241,7 @@ namespace Microsoft.Build.Tasks
         public static RedistList GetFrameworkList20()
         {
             string frameworkVersion20Path = ToolLocationHelper.GetPathToDotNetFramework(TargetDotNetFrameworkVersion.Version20);
-            string[] redistListPaths = new string[0];
+            string[] redistListPaths = Array.Empty<string>();
             if (frameworkVersion20Path != null)
             {
                 redistListPaths = RedistList.GetRedistListPathsFromDisk(frameworkVersion20Path);
@@ -274,7 +285,7 @@ namespace Microsoft.Build.Tasks
         /// <returns></returns>
         public static RedistList GetRedistListFromPath(string path)
         {
-            string[] redistListPaths = (path == null) ? new string[0] : RedistList.GetRedistListPathsFromDisk(path);
+            string[] redistListPaths = (path == null) ? Array.Empty<string>(): RedistList.GetRedistListPathsFromDisk(path);
 
             AssemblyTableInfo[] assemblyTableInfos = new AssemblyTableInfo[redistListPaths.Length];
 
@@ -292,7 +303,7 @@ namespace Microsoft.Build.Tasks
 
             // On dogfood build machines, v3.5 is not formally installed, so this returns null.
             // We don't use redist lists in this case.            
-            string[] redistListPaths = (referenceAssembliesPath == null) ? new string[0] : RedistList.GetRedistListPathsFromDisk(referenceAssembliesPath);
+            string[] redistListPaths = (referenceAssembliesPath == null) ? Array.Empty<string>(): RedistList.GetRedistListPathsFromDisk(referenceAssembliesPath);
 
             AssemblyTableInfo[] assemblyTableInfos = new AssemblyTableInfo[redistListPaths.Length];
 
@@ -340,7 +351,7 @@ namespace Microsoft.Build.Tasks
                 }
             }
 
-            return new string[0];
+            return Array.Empty<string>();
         }
 
         /// <summary>
@@ -416,7 +427,7 @@ namespace Microsoft.Build.Tasks
                         if (!string.Equals(simpleName, entry.SimpleName, StringComparison.OrdinalIgnoreCase))
                             break;
 
-                        AssemblyNameExtension firstAssembly = new AssemblyNameExtension(assemblyName);
+                        AssemblyNameExtension firstAssembly = GetAssemblyNameExtension(assemblyName);
                         AssemblyNameExtension secondAssembly = entry.AssemblyNameExtension;
 
                         bool matchNotConsideringVersion = firstAssembly.EqualsIgnoreVersion(secondAssembly);
@@ -435,6 +446,11 @@ namespace Microsoft.Build.Tasks
             }
 
             return unifiedEntry;
+        }
+
+        private AssemblyNameExtension GetAssemblyNameExtension(string assemblyName)
+        {
+            return _assemblyNameToAssemblyNameExtension.GetOrAdd(assemblyName, (key) => new AssemblyNameExtension(key));
         }
 
         /// <summary>
@@ -1135,7 +1151,7 @@ namespace Microsoft.Build.Tasks
                 }
             }
 
-            return new string[0];
+            return Array.Empty<string>();
         }
         #endregion
     }

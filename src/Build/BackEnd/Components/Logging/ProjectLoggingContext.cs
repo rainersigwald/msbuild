@@ -83,8 +83,8 @@ namespace Microsoft.Build.BackEnd.Logging
             ProjectPropertyInstanceEnumeratorProxy properties = null;
             ProjectItemInstanceEnumeratorProxy items = null;
 
-            IEnumerable<ProjectPropertyInstance> projectPropertiesEnumerator = projectProperties == null ? Collections.ReadOnlyEmptyList<ProjectPropertyInstance>.Instance : null;
-            IEnumerable<ProjectItemInstance> projectItemsEnumerator = projectItems == null ? Collections.ReadOnlyEmptyList<ProjectItemInstance>.Instance : null;
+            IEnumerable<ProjectPropertyInstance> projectPropertiesEnumerator = projectProperties == null ? Array.Empty<ProjectPropertyInstance>() : null;
+            IEnumerable<ProjectItemInstance> projectItemsEnumerator = projectItems == null ? Array.Empty<ProjectItemInstance>() : null;
 
             string[] propertiesToSerialize = LoggingService.PropertiesToSerialize;
 
@@ -129,7 +129,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 configurationId,
                 parentBuildEventContext,
                 projectFullPath,
-                String.Join(";", targets.ToArray()),
+                String.Join(";", targets),
                 properties,
                 items
                 );
@@ -163,10 +163,10 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <summary>
         /// Log that a target has started
         /// </summary>
-        internal TargetLoggingContext LogTargetBatchStarted(string projectFullPath, ProjectTargetInstance target, string parentTargetName)
+        internal TargetLoggingContext LogTargetBatchStarted(string projectFullPath, ProjectTargetInstance target, string parentTargetName, TargetBuiltReason buildReason)
         {
             ErrorUtilities.VerifyThrow(this.IsValid, "invalid");
-            return new TargetLoggingContext(this, projectFullPath, target, parentTargetName);
+            return new TargetLoggingContext(this, projectFullPath, target, parentTargetName, buildReason);
         }
 
         /// <summary>

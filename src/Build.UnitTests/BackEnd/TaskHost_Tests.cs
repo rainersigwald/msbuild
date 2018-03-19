@@ -1196,7 +1196,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
             /// <summary>
             /// Mock of the BuildProjects method on the callback.
             /// </summary>
-            public Task<BuildResult[]> BuildProjects(string[] projectFiles, PropertyDictionary<ProjectPropertyInstance>[] properties, string[] toolsVersions, string[] targets, bool waitForResults)
+            public Task<BuildResult[]> BuildProjects(string[] projectFiles, PropertyDictionary<ProjectPropertyInstance>[] properties, string[] toolsVersions, string[] targets, bool waitForResults, bool skipNonexistentTargets)
             {
                 return Task<BuildResult[]>.FromResult(_buildResultsToReturn);
             }
@@ -1232,7 +1232,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
             /// <summary>
             /// Mock of the Block on target in progress.
             /// </summary>
-            public Task BlockOnTargetInProgress(int blockingRequestId, string blockingTarget)
+            public Task BlockOnTargetInProgress(int blockingRequestId, string blockingTarget, BuildResult partialBuildResult)
             {
                 throw new NotImplementedException();
             }
@@ -1280,7 +1280,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
             /// <summary>
             /// Not Implemented
             /// </summary>
-            private void MockIRequestBuilderCallback_OnBuildRequestBlocked(BuildRequestEntry sourceEntry, int blockingGlobalRequestId, string blockingTarget)
+            private void MockIRequestBuilderCallback_OnBuildRequestBlocked(BuildRequestEntry sourceEntry, int blockingGlobalRequestId, string blockingTarget, IBuildResults partialBuildResult = null)
             {
                 throw new NotImplementedException();
             }

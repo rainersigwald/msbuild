@@ -47,6 +47,15 @@ namespace Microsoft.Build.Shared
         internal const string WarningsAsMessages = "MSBuildWarningsAsMessages";
 
         /// <summary>
+        /// The name of the environment variable that users can specify to override where NuGet assemblies are loaded from in the NuGetSdkResolver.
+        /// </summary>
+        internal const string NuGetAssemblyPathEnvironmentVariableName = "MSBUILD_NUGET_PATH";
+
+        /// <summary>
+        /// The name of the target to run when a user specifies the /restore command-line argument.
+        /// </summary>
+        internal const string RestoreTargetName = "Restore";
+        /// <summary>
         /// The most current Visual Studio Version known to this version of MSBuild.
         /// </summary>
 #if STANDALONEBUILD
@@ -78,7 +87,7 @@ namespace Microsoft.Build.Shared
         internal const string CurrentAssemblyVersion = Microsoft.VisualStudio.Internal.BrandNames.VSGeneralAssemblyVersion;
 #endif
 
-        internal const string CurrentAssemblyFileVersion = "15.5.0.0";
+        internal const string CurrentAssemblyFileVersion = "15.7.0.0";
 
         /// <summary>
         /// Current version of this MSBuild Engine assembly in the form, e.g, "12.0"

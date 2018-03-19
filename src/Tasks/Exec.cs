@@ -192,7 +192,7 @@ namespace Microsoft.Build.Tasks
         [Output]
         public ITaskItem[] Outputs
         {
-            get { return _outputs ?? new ITaskItem[0]; }
+            get { return _outputs ?? Array.Empty<ITaskItem>(); }
             set { _outputs = value; }
         }
 
@@ -204,7 +204,7 @@ namespace Microsoft.Build.Tasks
         [Output]
         public ITaskItem[] ConsoleOutput
         {
-            get { return !ConsoleToMSBuild ? new ITaskItem[0] : _nonEmptyOutput.ToArray(); }
+            get { return !ConsoleToMSBuild ? Array.Empty<ITaskItem>(): _nonEmptyOutput.ToArray(); }
         }
 
         #endregion
@@ -606,16 +606,20 @@ namespace Microsoft.Build.Tasks
             if (NativeMethodsShared.IsUnixLike)
             {
                 commandLine.AppendSwitch("-c");
-                commandLine.AppendTextUnquoted(" \"\"\"");
+                commandLine.AppendTextUnquoted(" \"");
                 commandLine.AppendTextUnquoted("export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8; . ");
                 commandLine.AppendFileNameIfNotNull(batchFileForCommandLine);
-                commandLine.AppendTextUnquoted("\"\"\"");
+                commandLine.AppendTextUnquoted("\"");
             }
             else
             {
                 if (NativeMethodsShared.IsWindows)
                 {
                     commandLine.AppendSwitch("/Q"); // echo off
+                    if(!Traits.Instance.EscapeHatches.UseAutoRunWhenLaunchingProcessUnderCmd)
+                    {
+                        commandLine.AppendSwitch("/D"); // do not load AutoRun configuration from the registry (perf)
+                    }
                     commandLine.AppendSwitch("/C"); // run then terminate
 
                     // If for some crazy reason the path has a & character and a space in it

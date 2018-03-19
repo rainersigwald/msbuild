@@ -19,7 +19,16 @@ namespace Microsoft.Build.Logging
         // version 2: 
         //   - new BuildEventContext.EvaluationId
         //   - new record kinds: ProjectEvaluationStarted, ProjectEvaluationFinished
-        internal const int FileFormatVersion = 2;
+        // version 3:
+        //   - new ProjectImportedEventArgs.ImportIgnored
+        // version 4:
+        //   - new TargetSkippedEventArgs
+        //   - new TargetStartedEventArgs.BuildReason
+        // version 5:
+        //   - new EvaluationFinished.ProfilerResult
+        // version 6:
+        //   -  Ids and parent ids for the evaluation locations
+        internal const int FileFormatVersion = 6;
 
         private Stream stream;
         private BinaryWriter binaryWriter;
@@ -78,6 +87,22 @@ namespace Microsoft.Build.Logging
 
             try
             {
+                string logDirectory = null;
+                try
+                {
+                    logDirectory = Path.GetDirectoryName(FilePath);
+                }
+                catch (Exception)
+                {
+                    // Directory creation is best-effort; if finding its path fails don't create the directory
+                    // and possibly let the FileStream constructor below report the failure
+                }
+
+                if (logDirectory != null)
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
                 stream = new FileStream(FilePath, FileMode.Create);
 
                 if (CollectProjectImports != ProjectImportsCollectionMode.None)

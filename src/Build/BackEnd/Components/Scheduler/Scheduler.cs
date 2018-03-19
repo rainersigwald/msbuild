@@ -281,10 +281,12 @@ namespace Microsoft.Build.BackEnd
                 if (blocker.YieldAction != YieldAction.None)
                 {
                     TraceScheduler("Request {0} on node {1} is performing yield action {2}.", blocker.BlockedRequestId, nodeId, blocker.YieldAction);
+                    ErrorUtilities.VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
                     HandleYieldAction(parentRequest, blocker);
                 }
                 else if ((blocker.BlockingRequestId == blocker.BlockedRequestId) && blocker.BlockingRequestId != BuildRequest.InvalidGlobalRequestId)
                 {
+                    ErrorUtilities.VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
                     // We are blocked waiting for a transfer of results.                    
                     HandleRequestBlockedOnResultsTransfer(parentRequest, responses);
                 }
@@ -293,6 +295,8 @@ namespace Microsoft.Build.BackEnd
                     // We are blocked by a request executing a target for which we need results.
                     try
                     {
+                        ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should exist");
+
                         HandleRequestBlockedOnInProgressTarget(parentRequest, blocker);
                     }
                     catch (SchedulerCircularDependencyException ex)
@@ -303,6 +307,7 @@ namespace Microsoft.Build.BackEnd
                 }
                 else
                 {
+                    ErrorUtilities.VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
                     // We are blocked by new requests, either top-level or MSBuild task.
                     HandleRequestBlockedByNewRequests(parentRequest, blocker, responses);
                 }
@@ -1495,7 +1500,20 @@ namespace Microsoft.Build.BackEnd
             // it isn't modifying its own state, just running a background process), ready, or still blocked.
             blockingRequest.VerifyOneOfStates(new SchedulableRequestState[] { SchedulableRequestState.Yielding, SchedulableRequestState.Ready, SchedulableRequestState.Blocked });
 
-            blockedRequest.BlockByRequest(blockingRequest, blocker.TargetsInProgress);
+            // detect the case for https://github.com/Microsoft/msbuild/issues/3047
+            // if we have partial results AND blocked and blocking share the same configuration AND are blocked on each other
+            if (blocker.PartialBuildResult !=null &&
+                blockingRequest.BuildRequest.ConfigurationId == blockedRequest.BuildRequest.ConfigurationId &&
+                blockingRequest.RequestsWeAreBlockedBy.Contains(blockedRequest))
+            {
+                // if the blocking request is waiting on a target we have partial results for, preemptively break its dependency
+                if (blocker.PartialBuildResult.HasResultsForTarget(blockingRequest.BlockingTarget))
+                {
+                    blockingRequest.UnblockWithPartialResultForBlockingTarget(blocker.PartialBuildResult);
+                }
+            }
+
+            blockedRequest.BlockByRequest(blockingRequest, blocker.TargetsInProgress, blocker.BlockingTarget);
         }
 
         /// <summary>
@@ -1504,7 +1522,7 @@ namespace Microsoft.Build.BackEnd
         private void HandleRequestBlockedOnResultsTransfer(SchedulableRequest parentRequest, List<ScheduleResponse> responses)
         {
             // Create the new request which will go to the configuration's results node.
-            BuildRequest newRequest = new BuildRequest(parentRequest.BuildRequest.SubmissionId, BuildRequest.ResultsTransferNodeRequestId, parentRequest.BuildRequest.ConfigurationId, new string[0], null, parentRequest.BuildRequest.BuildEventContext, parentRequest.BuildRequest, parentRequest.BuildRequest.BuildRequestDataFlags);
+            BuildRequest newRequest = new BuildRequest(parentRequest.BuildRequest.SubmissionId, BuildRequest.ResultsTransferNodeRequestId, parentRequest.BuildRequest.ConfigurationId, Array.Empty<string>(), null, parentRequest.BuildRequest.BuildEventContext, parentRequest.BuildRequest, parentRequest.BuildRequest.BuildRequestDataFlags);
 
             // Assign a new global request id - always different from any other.
             newRequest.GlobalRequestId = _nextGlobalRequestId;
@@ -2159,7 +2177,7 @@ namespace Microsoft.Build.BackEnd
                 String.Format(CultureInfo.InvariantCulture, "{0:0.000}", request.GetTimeSpentInState(SchedulableRequestState.Executing).TotalSeconds),
                 String.Format(CultureInfo.InvariantCulture, "{0:0.000}", request.GetTimeSpentInState(SchedulableRequestState.Executing).TotalSeconds + request.GetTimeSpentInState(SchedulableRequestState.Blocked).TotalSeconds + request.GetTimeSpentInState(SchedulableRequestState.Ready).TotalSeconds),
                 _configCache[request.BuildRequest.ConfigurationId].ProjectFullPath,
-                String.Join(", ", request.BuildRequest.Targets.ToArray())
+                String.Join(", ", request.BuildRequest.Targets)
             );
 
             List<SchedulableRequest> childRequests = new List<SchedulableRequest>(_schedulingData.GetRequestsByHierarchy(request));

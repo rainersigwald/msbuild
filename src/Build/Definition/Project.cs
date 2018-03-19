@@ -30,7 +30,9 @@ using ILoggingService = Microsoft.Build.BackEnd.Logging.ILoggingService;
 using InvalidProjectFileException = Microsoft.Build.Exceptions.InvalidProjectFileException;
 using ProjectItemFactory = Microsoft.Build.Evaluation.ProjectItem.ProjectItemFactory;
 using System.Globalization;
+using Microsoft.Build.BackEnd.SdkResolution;
 using Microsoft.Build.Globbing;
+using Microsoft.Build.Utilities;
 using EvaluationItemSpec = Microsoft.Build.Evaluation.ItemSpec<Microsoft.Build.Evaluation.ProjectProperty, Microsoft.Build.Evaluation.ProjectItem>;
 using EvaluationItemExpressionFragment = Microsoft.Build.Evaluation.ItemExpressionFragment<Microsoft.Build.Evaluation.ProjectProperty, Microsoft.Build.Evaluation.ProjectItem>;
 
@@ -162,10 +164,13 @@ namespace Microsoft.Build.Evaluation
         /// The items operations that may expand item elements are:
         /// - <see cref="RemoveItem"/>
         /// - <see cref="RemoveItems"/>
+        /// - <see cref="AddItem(string,string, IEnumerable&lt;KeyValuePair&lt;string, string&gt;&gt;)"/>
+        /// - <see cref="AddItemFast(string,string, IEnumerable&lt;KeyValuePair&lt;string, string&gt;&gt;)"/>
         /// - <see cref="ProjectItem.ChangeItemType"/>
         /// - <see cref="ProjectItem.Rename"/>
         /// - <see cref="ProjectItem.RemoveMetadata"/>
-        /// - <see cref="ProjectItem.SetMetadataValue"/>
+        /// - <see cref="ProjectItem.SetMetadataValue(string,string)"/>
+        /// - <see cref="ProjectItem.SetMetadataValue(string,string, bool)"/>
         /// 
         /// When this property is set to true, the previous item operations throw an <exception cref="InvalidOperationException"></exception>
         /// instead of expanding the item element. 
@@ -532,6 +537,8 @@ namespace Microsoft.Build.Evaluation
             UseProjectCollectionSetting
         }
 
+        internal Data TestOnlyGetPrivateData => _data;
+
         /// <summary>
         /// Gets or sets the project collection which contains this project.
         /// Can never be null.
@@ -744,7 +751,14 @@ namespace Microsoft.Build.Evaluation
         {
             [DebuggerStepThrough]
             get
-            { return new ReadOnlyCollection<ProjectItem>(_data.ItemsIgnoringCondition); }
+            {
+                if (!(_data.ShouldEvaluateForDesignTime && _data.CanEvaluateElementsWithFalseConditions))
+                {
+                    ErrorUtilities.ThrowInvalidOperation("OM_NotEvaluatedBecauseShouldEvaluateForDesignTimeIsFalse", nameof(ItemsIgnoringCondition));
+                }
+
+                return new ReadOnlyCollection<ProjectItem>(_data.ItemsIgnoringCondition);
+            }
         }
 
         /// <summary>
@@ -1213,7 +1227,7 @@ namespace Microsoft.Build.Evaluation
 
         private GlobResult BuildGlobResultFromIncludeItem(ProjectItemElement itemElement, IReadOnlyDictionary<string, CumulativeRemoveElementData> removeElementCache)
         {
-            var includeItemspec = new EvaluationItemSpec(itemElement.Include, _data.Expander, itemElement.IncludeLocation);
+            var includeItemspec = new EvaluationItemSpec(itemElement.Include, _data.Expander, itemElement.IncludeLocation, itemElement.ContainingProject.DirectoryPath);
 
             var includeGlobFragments = includeItemspec.Fragments.Where(f => f is GlobFragment).ToImmutableArray();
 
@@ -1230,7 +1244,7 @@ namespace Microsoft.Build.Evaluation
 
             if (!string.IsNullOrEmpty(itemElement.Exclude))
             {
-                var excludeItemspec = new EvaluationItemSpec(itemElement.Exclude, _data.Expander, itemElement.ExcludeLocation);
+                var excludeItemspec = new EvaluationItemSpec(itemElement.Exclude, _data.Expander, itemElement.ExcludeLocation, itemElement.ContainingProject.DirectoryPath);
 
                 excludeFragmentStrings = excludeItemspec.FlattenFragmentsAsStrings().ToImmutableHashSet();
                 excludeGlob = excludeItemspec.ToMSBuildGlob();
@@ -1285,7 +1299,7 @@ namespace Microsoft.Build.Evaluation
                 removeElementCache[itemElement.ItemType] = cumulativeRemoveElementData;
             }
 
-            var removeSpec = new EvaluationItemSpec(itemElement.Remove, _data.Expander, itemElement.RemoveLocation);
+            var removeSpec = new EvaluationItemSpec(itemElement.Remove, _data.Expander, itemElement.RemoveLocation, itemElement.ContainingProject.DirectoryPath);
 
             cumulativeRemoveElementData.AccumulateInformationFromRemoveItemSpec(removeSpec);
         }
@@ -1437,7 +1451,7 @@ namespace Microsoft.Build.Evaluation
                 }
 
                 Provenance provenance;
-                var matchOccurrences = ItemMatchesInItemSpecString(itemToMatch, itemSpec, elementLocation, _data.Expander, out provenance);
+                var matchOccurrences = ItemMatchesInItemSpecString(itemToMatch, itemSpec, elementLocation, itemElement.ContainingProject.DirectoryPath, _data.Expander, out provenance);
                 var result = matchOccurrences > 0 ? Tuple.Create(provenance, matchOccurrences) : null;
 
                 return result?.Item2 > 0
@@ -1479,7 +1493,7 @@ namespace Microsoft.Build.Evaluation
         /// 
         /// The temporary hack is to use the expander to expand the strings, and if any property or item references were encountered, return Provenance.Inconclusive
         /// </summary>
-        private int ItemMatchesInItemSpecString(string itemToMatch, string itemSpec, IElementLocation elementLocation, Expander<ProjectProperty, ProjectItem> expander, out Provenance provenance)
+        private int ItemMatchesInItemSpecString(string itemToMatch, string itemSpec, IElementLocation elementLocation, string projectDirectory, Expander<ProjectProperty, ProjectItem> expander, out Provenance provenance)
         {
             if (string.IsNullOrEmpty(itemSpec))
             {
@@ -1488,7 +1502,7 @@ namespace Microsoft.Build.Evaluation
             }
 
             // expand the properties
-            var expandedItemSpec = new EvaluationItemSpec(itemSpec, expander, elementLocation, expandProperties: true);
+            var expandedItemSpec = new EvaluationItemSpec(itemSpec, expander, elementLocation, projectDirectory, expandProperties: true);
             var numberOfMatches = ItemMatchesInItemSpec(itemToMatch, expandedItemSpec, out provenance);
 
             // Result is inconclusive if properties are present
@@ -2625,7 +2639,9 @@ namespace Microsoft.Build.Evaluation
 
         private void Reevaluate(ILoggingService loggingServiceForEvaluation, ProjectLoadSettings loadSettings)
         {
-            Evaluator<ProjectProperty, ProjectItem, ProjectMetadata, ProjectItemDefinition>.Evaluate(_data, _xml, loadSettings, ProjectCollection.MaxNodeCount, ProjectCollection.EnvironmentProperties, loggingServiceForEvaluation, new ProjectItemFactory(this), _projectCollection, _projectCollection.ProjectRootElementCache, s_buildEventContext, null /* no project instance for debugging */, _projectCollection.SdkResolution);
+            Evaluator<ProjectProperty, ProjectItem, ProjectMetadata, ProjectItemDefinition>.Evaluate(_data, _xml, loadSettings, ProjectCollection.MaxNodeCount, ProjectCollection.EnvironmentProperties, loggingServiceForEvaluation, new ProjectItemFactory(this), _projectCollection, _projectCollection.ProjectRootElementCache, s_buildEventContext, null /* no project instance for debugging */, SdkResolverService.Instance, BuildEventContext.InvalidSubmissionId);
+
+            ErrorUtilities.VerifyThrow(LastEvaluationId != BuildEventContext.InvalidEvaluationId, "Evaluation should produce an evaluation ID");
 
             // We have to do this after evaluation, because evaluation might have changed
             // the imports being pulled in.
@@ -2684,7 +2700,10 @@ namespace Microsoft.Build.Evaluation
                 }
             }
 
-            _data = new Data(this, globalPropertiesCollection, toolsVersion, subToolsetVersion);
+            // For back compat Project based evaluations should, by default, evaluate elements with false conditions
+            var canEvaluateElementsWithFalseConditions = Traits.Instance.EscapeHatches.EvaluateElementsWithFalseConditionInProjectEvaluation ?? !loadSettings.HasFlag(ProjectLoadSettings.DoNotEvaluateElementsWithFalseCondition);
+
+            _data = new Data(this, globalPropertiesCollection, toolsVersion, subToolsetVersion, canEvaluateElementsWithFalseConditions);
 
             _loadSettings = loadSettings;
 
@@ -2914,12 +2933,13 @@ namespace Microsoft.Build.Evaluation
             /// Constructor taking the immutable global properties and tools version.
             /// Tools version may be null.
             /// </summary>
-            internal Data(Project project, PropertyDictionary<ProjectPropertyInstance> globalProperties, string explicitToolsVersion, string explicitSubToolsetVersion)
+            internal Data(Project project, PropertyDictionary<ProjectPropertyInstance> globalProperties, string explicitToolsVersion, string explicitSubToolsetVersion, bool CanEvaluateElementsWithFalseConditions)
             {
                 _project = project;
                 _globalProperties = globalProperties;
                 this.ExplicitToolsVersion = explicitToolsVersion;
                 this.ExplicitSubToolsetVersion = explicitSubToolsetVersion;
+                this.CanEvaluateElementsWithFalseConditions = CanEvaluateElementsWithFalseConditions;
             }
 
             /// <summary>
@@ -2927,10 +2947,9 @@ namespace Microsoft.Build.Evaluation
             /// as well as items respecting condition; and collect
             /// conditioned properties, as well as regular properties
             /// </summary>
-            bool IEvaluatorData<ProjectProperty, ProjectItem, ProjectMetadata, ProjectItemDefinition>.ShouldEvaluateForDesignTime
-            {
-                get { return true; }
-            }
+            public bool ShouldEvaluateForDesignTime => true;
+
+            public bool CanEvaluateElementsWithFalseConditions { get; }
 
             /// <summary>
             /// Collection of all evaluated item definitions, one per item-type
@@ -3288,7 +3307,7 @@ namespace Microsoft.Build.Evaluation
                 _itemsByEvaluatedInclude = new MultiDictionary<string, ProjectItem>(StringComparer.OrdinalIgnoreCase);
                 this.Expander = new Expander<ProjectProperty, ProjectItem>(this.Properties, _items);
                 this.ItemDefinitions = new RetrievableEntryHashSet<ProjectItemDefinition>(MSBuildNameIgnoreCaseComparer.Default);
-                this.Targets = new RetrievableEntryHashSet<ProjectTargetInstance>(OrdinalIgnoreCaseKeyedComparer.Instance);
+                this.Targets = new RetrievableEntryHashSet<ProjectTargetInstance>(StringComparer.OrdinalIgnoreCase);
                 this.ImportClosure = new List<Triple<ProjectImportElement, ProjectRootElement, int>>();
                 this.ImportClosureWithDuplicates = new List<Triple<ProjectImportElement, ProjectRootElement, int>>();
                 this.AllEvaluatedProperties = new List<ProjectProperty>();

@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -24,6 +25,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Internal;
 using Microsoft.Build.BackEnd.Components.Caching;
+using Microsoft.Build.BackEnd.SdkResolution;
 
 namespace Microsoft.Build.Execution
 {
@@ -102,7 +104,7 @@ namespace Microsoft.Build.Execution
         /// <summary>
         /// The queue of packets we have received but which have not yet been processed.
         /// </summary>
-        private Queue<INodePacket> _receivedPackets;
+        private ConcurrentQueue<INodePacket> _receivedPackets;
 
         /// <summary>
         /// The event which is set when we receive packets.
@@ -134,6 +136,11 @@ namespace Microsoft.Build.Execution
         /// </summary>
         private LegacyThreadingData _legacyThreadingData;
 
+        /// <summary>
+        /// The current <see cref="ISdkResolverService"/> instance.
+        /// </summary>
+        private ISdkResolverService _sdkResolverService;
+
 #if !FEATURE_NAMED_PIPES_FULL_DUPLEX
         private string _clientToServerPipeHandle;
         private string _serverToClientPipeHandle;
@@ -162,7 +169,7 @@ namespace Microsoft.Build.Execution
 
             _debugCommunications = (Environment.GetEnvironmentVariable("MSBUILDDEBUGCOMM") == "1");
 
-            _receivedPackets = new Queue<INodePacket>();
+            _receivedPackets = new ConcurrentQueue<INodePacket>();
             _packetReceivedEvent = new AutoResetEvent(false);
             _shutdownEvent = new ManualResetEvent(false);
             _legacyThreadingData = new LegacyThreadingData();
@@ -175,6 +182,13 @@ namespace Microsoft.Build.Execution
             _globalConfigCache = (this as IBuildComponentHost).GetComponent(BuildComponentType.ConfigCache) as IConfigCache;
             _taskHostNodeManager = (this as IBuildComponentHost).GetComponent(BuildComponentType.TaskHostNodeManager) as INodeManager;
 
+            // Create a factory for the out-of-proc SDK resolver service which can pass our SendPacket delegate to be used for sending packets to the main node
+            OutOfProcNodeSdkResolverServiceFactory sdkResolverServiceFactory = new OutOfProcNodeSdkResolverServiceFactory(SendPacket);
+
+            ((IBuildComponentHost) this).RegisterFactory(BuildComponentType.SdkResolverService, sdkResolverServiceFactory.CreateInstance);
+
+            _sdkResolverService = (this as IBuildComponentHost).GetComponent(BuildComponentType.SdkResolverService) as ISdkResolverService;
+            
             if (s_projectRootElementCache == null)
             {
                 s_projectRootElementCache = new ProjectRootElementCache(true /* automatically reload any changes from disk */);
@@ -191,6 +205,8 @@ namespace Microsoft.Build.Execution
             (this as INodePacketFactory).RegisterPacketHandler(NodePacketType.BuildRequestUnblocker, BuildRequestUnblocker.FactoryForDeserialization, this);
             (this as INodePacketFactory).RegisterPacketHandler(NodePacketType.NodeConfiguration, NodeConfiguration.FactoryForDeserialization, this);
             (this as INodePacketFactory).RegisterPacketHandler(NodePacketType.NodeBuildComplete, NodeBuildComplete.FactoryForDeserialization, this);
+
+            (this as INodePacketFactory).RegisterPacketHandler(NodePacketType.ResolveSdkResponse, SdkResolverResponse.FactoryForDeserialization, _sdkResolverService as INodePacketHandler);
         }
 
         /// <summary>
@@ -295,22 +311,8 @@ namespace Microsoft.Build.Execution
                     case 1:
                         INodePacket packet = null;
 
-                        int packetCount = _receivedPackets.Count;
-
-                        while (packetCount > 0)
+                        while (_receivedPackets.TryDequeue(out packet))
                         {
-                            lock (_receivedPackets)
-                            {
-                                if (_receivedPackets.Count > 0)
-                                {
-                                    packet = _receivedPackets.Dequeue();
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-
                             if (packet != null)
                             {
                                 HandlePacket(packet);
@@ -404,11 +406,8 @@ namespace Microsoft.Build.Execution
         /// <param name="packet">The packet.</param>
         void INodePacketHandler.PacketReceived(int node, INodePacket packet)
         {
-            lock (_receivedPackets)
-            {
-                _receivedPackets.Enqueue(packet);
-                _packetReceivedEvent.Set();
-            }
+            _receivedPackets.Enqueue(packet);
+            _packetReceivedEvent.Set();
         }
 
         #endregion
@@ -487,6 +486,9 @@ namespace Microsoft.Build.Execution
                     ((IBuildComponent)_buildRequestEngine).ShutdownComponent();
                 }
             }
+
+            // Signal the SDK resolver service to shutdown
+            ((IBuildComponent)_sdkResolverService).ShutdownComponent();
 
             // Dispose of any build registered objects
             IRegisteredTaskObjectCache objectCache = (IRegisteredTaskObjectCache)(_componentFactories.GetComponent(BuildComponentType.RegisteredTaskObjectCache));
@@ -614,7 +616,7 @@ namespace Microsoft.Build.Execution
         /// <summary>
         /// Callback for logging packets to be sent.
         /// </summary>
-        private void SendLoggingPacket(INodePacket packet)
+        private void SendPacket(INodePacket packet)
         {
             if (_nodeEndpoint.LinkStatus == LinkStatus.Active)
             {
@@ -767,7 +769,7 @@ namespace Microsoft.Build.Execution
 
             _loggingService = _componentFactories.GetComponent(BuildComponentType.LoggingService) as ILoggingService;
 
-            BuildEventArgTransportSink sink = new BuildEventArgTransportSink(SendLoggingPacket);
+            BuildEventArgTransportSink sink = new BuildEventArgTransportSink(SendPacket);
 
             _shutdownException = null;
 

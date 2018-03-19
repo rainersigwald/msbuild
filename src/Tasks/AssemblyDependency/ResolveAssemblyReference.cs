@@ -8,6 +8,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Reflection;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 using Microsoft.Build.Framework;
@@ -20,6 +21,7 @@ using Microsoft.Internal.Performance;
 using FrameworkNameVersioning = System.Runtime.Versioning.FrameworkName;
 using SystemProcessorArchitecture = System.Reflection.ProcessorArchitecture;
 using System.Xml.Linq;
+using Microsoft.Build.Tasks.AssemblyDependency;
 
 namespace Microsoft.Build.Tasks
 {
@@ -33,6 +35,11 @@ namespace Microsoft.Build.Tasks
         /// key assembly used to trigger inclusion of facade references. 
         /// </summary>
         private const string SystemRuntimeAssemblyName = "System.Runtime";
+
+        /// <summary>
+        /// additional key assembly used to trigger inclusion of facade references. 
+        /// </summary>
+        private const string NETStandardAssemblyName = "netstandard";
 
         /// <summary>
         /// Delegate to a method that takes a targetFrameworkDirectory and returns an array of redist or subset list paths
@@ -58,17 +65,17 @@ namespace Microsoft.Build.Tasks
 
         #region Properties
 
-        private ITaskItem[] _assemblyFiles = new TaskItem[0];
-        private ITaskItem[] _assemblyNames = new TaskItem[0];
-        private ITaskItem[] _installedAssemblyTables = new TaskItem[0];
-        private ITaskItem[] _installedAssemblySubsetTables = new TaskItem[0];
-        private ITaskItem[] _fullFrameworkAssemblyTables = new TaskItem[0];
-        private ITaskItem[] _resolvedSDKReferences = new TaskItem[0];
+        private ITaskItem[] _assemblyFiles = Array.Empty<TaskItem>();
+        private ITaskItem[] _assemblyNames = Array.Empty<TaskItem>();
+        private ITaskItem[] _installedAssemblyTables = Array.Empty<TaskItem>();
+        private ITaskItem[] _installedAssemblySubsetTables = Array.Empty<TaskItem>();
+        private ITaskItem[] _fullFrameworkAssemblyTables = Array.Empty<TaskItem>();
+        private ITaskItem[] _resolvedSDKReferences = Array.Empty<TaskItem>();
         private bool _ignoreDefaultInstalledAssemblyTables = false;
         private bool _ignoreDefaultInstalledAssemblySubsetTables = false;
-        private string[] _candidateAssemblyFiles = new string[0];
-        private string[] _targetFrameworkDirectories = new string[0];
-        private string[] _searchPaths = new string[0];
+        private string[] _candidateAssemblyFiles = Array.Empty<string>();
+        private string[] _targetFrameworkDirectories = Array.Empty<string>();
+        private string[] _searchPaths = Array.Empty<string>();
         private string[] _allowedAssemblyExtensions = new string[] { ".winmd", ".dll", ".exe" };
         private string[] _relatedFileExtensions = new string[] { ".pdb", ".xml", ".pri" };
         private string _appConfigFile = null;
@@ -76,16 +83,16 @@ namespace Microsoft.Build.Tasks
         private bool _autoUnify = false;
         private bool _ignoreVersionForFrameworkReferences = false;
         private bool _ignoreTargetFrameworkAttributeVersionMismatch = false;
-        private ITaskItem[] _resolvedFiles = new TaskItem[0];
-        private ITaskItem[] _resolvedDependencyFiles = new TaskItem[0];
-        private ITaskItem[] _relatedFiles = new TaskItem[0];
-        private ITaskItem[] _satelliteFiles = new TaskItem[0];
-        private ITaskItem[] _serializationAssemblyFiles = new TaskItem[0];
-        private ITaskItem[] _scatterFiles = new TaskItem[0];
-        private ITaskItem[] _copyLocalFiles = new TaskItem[0];
-        private ITaskItem[] _suggestedRedirects = new TaskItem[0];
-        private string[] _targetFrameworkSubsets = new string[0];
-        private string[] _fullTargetFrameworkSubsetNames = new string[0];
+        private ITaskItem[] _resolvedFiles = Array.Empty<TaskItem>();
+        private ITaskItem[] _resolvedDependencyFiles = Array.Empty<TaskItem>();
+        private ITaskItem[] _relatedFiles = Array.Empty<TaskItem>();
+        private ITaskItem[] _satelliteFiles = Array.Empty<TaskItem>();
+        private ITaskItem[] _serializationAssemblyFiles = Array.Empty<TaskItem>();
+        private ITaskItem[] _scatterFiles = Array.Empty<TaskItem>();
+        private ITaskItem[] _copyLocalFiles = Array.Empty<TaskItem>();
+        private ITaskItem[] _suggestedRedirects = Array.Empty<TaskItem>();
+        private string[] _targetFrameworkSubsets = Array.Empty<string>();
+        private string[] _fullTargetFrameworkSubsetNames = Array.Empty<string>();
         private string _targetedFrameworkMoniker = String.Empty;
 
         private bool _findDependencies = true;
@@ -101,8 +108,8 @@ namespace Microsoft.Build.Tasks
         private string _targetProcessorArchitecture = null;
 
         private string _profileName = String.Empty;
-        private string[] _fullFrameworkFolders = new string[0];
-        private string[] _latestTargetFrameworkDirectories = new string[0];
+        private string[] _fullFrameworkFolders = Array.Empty<string>();
+        private string[] _latestTargetFrameworkDirectories = Array.Empty<string>();
         private bool _copyLocalDependenciesWhenParentReferenceInGac = true;
         private Dictionary<string, MessageImportance> _showAssemblyFoldersExLocations = new Dictionary<string, MessageImportance>(StringComparer.OrdinalIgnoreCase);
         private bool _logVerboseSearchResults = false;
@@ -156,6 +163,10 @@ namespace Microsoft.Build.Tasks
         ///     string FusionName -- the simple or strong fusion name for this item. If this 
         ///         attribute is present it can save time since the assembly file won't need
         ///         to be opened to get the fusion name.
+        ///     bool ExternallyResolved [default=false] -- indicates that the reference and its
+        ///        dependencies are resolved by an external system (commonly from nuget assets) and
+        ///        so several steps can be skipped as an optimization: finding dependencies, 
+        ///        satellite assemblies, etc.
         /// </summary>
         public ITaskItem[] AssemblyFiles
         {
@@ -197,6 +208,16 @@ namespace Microsoft.Build.Tasks
                 _ignoreTargetFrameworkAttributeVersionMismatch = value;
             }
         }
+
+        /// <summary>
+        /// Force dependencies to be walked even when a reference is marked with ExternallyResolved=true
+        /// metadata.
+        /// </summary>
+        /// <remarks>
+        /// This is used to ensure that we suggest appropriate binding redirects for assembly version
+        /// conflicts within an externally resolved graph.
+        /// </remarks>
+        public bool FindDependenciesOfExternallyResolvedReferences { get; set; }
 
         /// <summary>
         /// List of target framework subset names which will be searched for in the target framework directories
@@ -880,6 +901,17 @@ namespace Microsoft.Build.Tasks
             private set;
         }
 
+        /// <summary>
+        /// Whether the assembly or any of its primary references depends on netstandard
+        /// </summary>
+        [Output]
+        public String DependsOnNETStandard
+        {
+            get;
+            private set;
+        }
+
+
         #endregion
         #region Logging
 
@@ -960,7 +992,6 @@ namespace Microsoft.Build.Tasks
                     if (idealAssemblyRemappings != null)
                     {
                         bool foundAtLeastOneValidBindingRedirect = false;
-                        bool foundAtLeastOneUnresolvableConflict = false;
 
                         var buffer = new StringBuilder();
                         var ns = XNamespace.Get("urn:schemas-microsoft-com:asm.v1");
@@ -972,9 +1003,10 @@ namespace Microsoft.Build.Tasks
                             AssemblyName idealRemappingPartialAssemblyName = idealRemapping.PartialAssemblyName;
                             Reference reference = idealAssemblyRemappingsIdentities[i].reference;
 
+                            AssemblyNameExtension[] conflictVictims = reference.GetConflictVictims();
+
                             for (int j = 0; j < idealRemapping.BindingRedirects.Length; j++)
                             {
-                                AssemblyNameExtension[] conflictVictims = reference.GetConflictVictims();
                                 foreach (AssemblyNameExtension conflictVictim in conflictVictims)
                                 {
                                     // Make note we only output a conflict suggestion if the reference has at 
@@ -1034,11 +1066,13 @@ namespace Microsoft.Build.Tasks
                                         buffer.Append(node.ToString(SaveOptions.DisableFormatting));
                                     }
                                 }
+                            }
 
-                                if (conflictVictims.Length == 0)
-                                {
-                                    foundAtLeastOneUnresolvableConflict = true;
-                                }
+                            if (conflictVictims.Length == 0)
+                            {
+                                // This warning is logged regardless of AutoUnify since it means a conflict existed where the reference
+                                // chosen was not the conflict victor in a version comparison, in other words it was older.
+                                Log.LogWarningWithCodeFromResources("ResolveAssemblyReference.FoundConflicts", idealRemappingPartialAssemblyName.Name);
                             }
                         }
 
@@ -1059,13 +1093,6 @@ namespace Microsoft.Build.Tasks
                             }
                             // else AutoUnify is on and bindingRedirect generation is not supported
                             // we don't warn in this case since the binder will automatically unify these remappings
-                        }
-
-                        if (foundAtLeastOneUnresolvableConflict)
-                        {
-                            // This warning is logged regardless of AutoUnify since it means a conflict existed where the reference
-                            // chosen was not the conflict victor in a version comparison, in other words it was older.
-                            Log.LogWarningWithCodeFromResources("ResolveAssemblyReference.FoundConflicts");
                         }
                     }
 
@@ -2057,6 +2084,7 @@ namespace Microsoft.Build.Tasks
                     getAssemblyName = _cache.CacheDelegate(getAssemblyName);
                     getAssemblyMetadata = _cache.CacheDelegate(getAssemblyMetadata);
                     fileExists = _cache.CacheDelegate(fileExists);
+                    directoryExists = _cache.CacheDelegate(directoryExists);
                     getDirectories = _cache.CacheDelegate(getDirectories);
                     getRuntimeVersion = _cache.CacheDelegate(getRuntimeVersion);
 #endif
@@ -2082,6 +2110,11 @@ namespace Microsoft.Build.Tasks
                     }
 
                     SystemProcessorArchitecture processorArchitecture = TargetProcessorArchitectureToEnumeration(_targetProcessorArchitecture);
+
+                    ConcurrentDictionary<string, AssemblyMetadata> assemblyMetadataCache =
+                        Traits.Instance.EscapeHatches.CacheAssemblyInformation
+                            ? new ConcurrentDictionary<string, AssemblyMetadata>()
+                            : null;
 
                     // Start the table of dependencies with all of the primary references.
                     ReferenceTable dependencyTable = new ReferenceTable
@@ -2123,8 +2156,11 @@ namespace Microsoft.Build.Tasks
                         readMachineTypeFromPEHeader,
                         _warnOrErrorOnTargetArchitectureMismatch,
                         _ignoreTargetFrameworkAttributeVersionMismatch,
-                        _unresolveFrameworkAssembliesFromHigherFrameworks
+                        _unresolveFrameworkAssembliesFromHigherFrameworks,
+                        assemblyMetadataCache
                         );
+
+                    dependencyTable.FindDependenciesOfExternallyResolvedReferences = FindDependenciesOfExternallyResolvedReferences;
 
                     // If AutoUnify, then compute the set of assembly remappings.
                     ArrayList generalResolutionExceptions = new ArrayList();
@@ -2234,21 +2270,36 @@ namespace Microsoft.Build.Tasks
                     }
 
                     bool useSystemRuntime = false;
+                    bool useNetStandard = false;
                     foreach (var reference in dependencyTable.References.Keys)
                     {
                         if (string.Equals(SystemRuntimeAssemblyName, reference.Name, StringComparison.OrdinalIgnoreCase))
                         {
                             useSystemRuntime = true;
+                        }
+                        if (string.Equals(NETStandardAssemblyName, reference.Name, StringComparison.OrdinalIgnoreCase))
+                        {
+                            useNetStandard = true;
+                        }
+                        if (useSystemRuntime && useNetStandard)
+                        {
                             break;
                         }
                     }
 
-                    if (!useSystemRuntime && !FindDependencies)
+                    if ((!useSystemRuntime || !useNetStandard) && (!FindDependencies || dependencyTable.SkippedFindingExternallyResolvedDependencies))
                     {
-                        // when we are not producing the dependency graph look for direct dependencies of primary references.
+                        // when we are not producing the (full) dependency graph look for direct dependencies of primary references
                         foreach (var resolvedReference in dependencyTable.References.Values)
                         {
-                            var rawDependencies = GetDependencies(resolvedReference, fileExists, getAssemblyMetadata);
+                            if (FindDependencies && !resolvedReference.ExternallyResolved)
+                            {
+                                // if we're finding dependencies and a given reference was not marked as ExternallyResolved
+                                // then its use of System.Runtime/.netstandard would already have been identified above.
+                                continue; 
+                            }
+
+                            var rawDependencies = GetDependencies(resolvedReference, fileExists, getAssemblyMetadata, assemblyMetadataCache);
                             if (rawDependencies != null)
                             {
                                 foreach (var dependentReference in rawDependencies)
@@ -2258,10 +2309,15 @@ namespace Microsoft.Build.Tasks
                                         useSystemRuntime = true;
                                         break;
                                     }
+                                    if (string.Equals(NETStandardAssemblyName, dependentReference.Name, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        useNetStandard = true;
+                                        break;
+                                    }
                                 }
                             }
 
-                            if (useSystemRuntime)
+                            if (useSystemRuntime && useNetStandard)
                             {
                                 break;
                             }
@@ -2269,6 +2325,7 @@ namespace Microsoft.Build.Tasks
                     }
 
                     this.DependsOnSystemRuntime = useSystemRuntime.ToString();
+                    this.DependsOnNETStandard = useNetStandard.ToString();
 
 #if FEATURE_BINARY_SERIALIZATION
                     WriteStateFile();
@@ -2363,11 +2420,12 @@ namespace Microsoft.Build.Tasks
         /// <summary>
         /// Returns the raw list of direct dependent assemblies from assembly's metadata.
         /// </summary>
-        /// <param name="fileExists">the delegate to check for the existence of a file.</param>
         /// <param name="resolvedReference">reference we are interested</param>
+        /// <param name="fileExists">the delegate to check for the existence of a file.</param>
         /// <param name="getAssemblyMetadata">the delegate to access assembly metadata</param>
+        /// <param name="assemblyMetadataCache">Cache of pre-extracted assembly metadata.</param>
         /// <returns>list of dependencies</returns>
-        private AssemblyNameExtension[] GetDependencies(Reference resolvedReference, FileExists fileExists, GetAssemblyMetadata getAssemblyMetadata)
+        private AssemblyNameExtension[] GetDependencies(Reference resolvedReference, FileExists fileExists, GetAssemblyMetadata getAssemblyMetadata, ConcurrentDictionary<string, AssemblyMetadata> assemblyMetadataCache)
         {
             AssemblyNameExtension[] result = null;
             if (resolvedReference != null && resolvedReference.IsPrimary && !resolvedReference.IsBadImage)
@@ -2379,7 +2437,7 @@ namespace Microsoft.Build.Tasks
                     // in case of P2P that have not build the reference can be resolved but file does not exist on disk. 
                     if (fileExists(resolvedReference.FullPath))
                     {
-                        getAssemblyMetadata(resolvedReference.FullPath, out result, out scatterFiles, out frameworkName);
+                        getAssemblyMetadata(resolvedReference.FullPath, assemblyMetadataCache, out result, out scatterFiles, out frameworkName);
                     }
                 }
                 catch (Exception e)

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -11,6 +12,7 @@ using System.Runtime.Versioning;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
+using Microsoft.Build.Tasks.AssemblyDependency;
 using Microsoft.Build.Utilities;
 #if (!STANDALONEBUILD)
 using Microsoft.Internal.Performance;
@@ -41,8 +43,13 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private Dictionary<AssemblyNameExtension, Reference> _references = new Dictionary<AssemblyNameExtension, Reference>(AssemblyNameComparer.GenericComparer);
 
+        /// <summary>
+        /// Reference simple names that were resolved by an external entity to RAR.
+        /// </summary>
+        private HashSet<string> _externallyResolvedPrimaryReferences = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>The table of remapped assemblies. Used for Unification.</summary>
-        private DependentAssembly[] _remappedAssemblies = new DependentAssembly[0];
+        private DependentAssembly[] _remappedAssemblies = Array.Empty<DependentAssembly>();
         /// <summary>If true, then search for dependencies.</summary>
         private bool _findDependencies = true;
         /// <summary>
@@ -159,6 +166,8 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private WarnOrErrorOnTargetArchitectureMismatchBehavior _warnOrErrorOnTargetArchitectureMismatch = WarnOrErrorOnTargetArchitectureMismatchBehavior.Warning;
 
+        private readonly ConcurrentDictionary<string, AssemblyMetadata> _assemblyMetadataCache;
+
         /// <summary>
         /// When we exclude an assembly from resolution because it is part of out exclusion list we need to let the user know why this is. 
         /// There can be a number of reasons each for un-resolving a reference, these reasons are encapsulated by a different black list. We need to log a specific message 
@@ -178,7 +187,7 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         /// <param name="findDependencies">If true, then search for dependencies.</param>
         /// <param name="findSatellites">If true, then search for satellite files.</param>
-        /// <param name="findSerializatoinAssemblies">If true, then search for serialization assembly files.</param>
+        /// <param name="findSerializationAssemblies">If true, then search for serialization assembly files.</param>
         /// <param name="findRelatedFiles">If true, then search for related files.</param>
         /// <param name="searchPaths">Paths to search for dependent assemblies on.</param>
         /// <param name="candidateAssemblyFiles">List of literal assembly file names to be considered when SearchPaths has {CandidateAssemblyFiles}.</param>
@@ -193,6 +202,7 @@ namespace Microsoft.Build.Tasks
         /// <param name="getAssemblyMetadata">Delegate used for finding dependencies of a file.</param>
         /// <param name="getRegistrySubKeyNames">Used to get registry subkey names.</param>
         /// <param name="getRegistrySubKeyDefaultValue">Used to get registry default values.</param>
+        /// <param name="assemblyMetadataCache">Cache of metadata already read from paths.</param>
         internal ReferenceTable
         (
             IBuildEngine buildEngine,
@@ -232,8 +242,8 @@ namespace Microsoft.Build.Tasks
             ReadMachineTypeFromPEHeader readMachineTypeFromPEHeader,
             WarnOrErrorOnTargetArchitectureMismatchBehavior warnOrErrorOnTargetArchitectureMismatch,
             bool ignoreFrameworkAttributeVersionMismatch,
-            bool unresolveFrameworkAssembliesFromHigherFrameworks
-        )
+            bool unresolveFrameworkAssembliesFromHigherFrameworks,
+            ConcurrentDictionary<string, AssemblyMetadata> assemblyMetadataCache)
         {
             _buildEngine = buildEngine;
             _log = log;
@@ -266,6 +276,7 @@ namespace Microsoft.Build.Tasks
             _readMachineTypeFromPEHeader = readMachineTypeFromPEHeader;
             _warnOrErrorOnTargetArchitectureMismatch = warnOrErrorOnTargetArchitectureMismatch;
             _ignoreFrameworkAttributeVersionMismatch = ignoreFrameworkAttributeVersionMismatch;
+            _assemblyMetadataCache = assemblyMetadataCache;
 
             // Set condition for when to check assembly version against the target framework version 
             _checkAssemblyVersionAgainstTargetFrameworkVersion = unresolveFrameworkAssembliesFromHigherFrameworks || ((_projectTargetFramework ?? ReferenceTable.s_targetFrameworkVersion_40) <= ReferenceTable.s_targetFrameworkVersion_40);
@@ -349,6 +360,26 @@ namespace Microsoft.Build.Tasks
                 return _listOfExcludedAssemblies;
             }
         }
+
+        /// <summary>
+        /// Indicates that at least one reference was <see cref="Reference.ExternallyResolved"/> and
+        /// we skipped finding its dependencies as a result.
+        /// </summary>
+        /// <remarks>
+        /// This is currently used to perform a shallow search for System.Runtime/netstandard usage
+        /// within the externally resolved graph.
+        /// </remarks>
+        internal bool SkippedFindingExternallyResolvedDependencies { get; private set; }
+
+        /// <summary>
+        /// Force dependencies to be walked even when a reference is marked with ExternallyResolved=true
+        /// metadata.
+        /// </summary>
+        /// <remarks>
+        /// This is currently used to ensure that we suggest appropriate binding redirects for
+        /// assembly version conflicts within an externally resolved graph.
+        /// </remarks>
+        internal bool FindDependenciesOfExternallyResolvedReferences { get; set; }
 
         /// <summary>
         /// Adds a reference to the table.
@@ -695,6 +726,11 @@ namespace Microsoft.Build.Tasks
 
             AddReference(assemblyName, reference);
 
+            if (reference.ExternallyResolved)
+            {
+                _externallyResolvedPrimaryReferences.Add(assemblyName.Name);
+            }
+
             return null;
         }
 
@@ -855,6 +891,11 @@ namespace Microsoft.Build.Tasks
                 }
 
                 AddReference(assemblyName, reference);
+
+                if (reference.ExternallyResolved)
+                {
+                    _externallyResolvedPrimaryReferences.Add(assemblyName.Name);
+                }
             }
             catch (Exception e) when (ExceptionHandling.IsIoRelatedException(e))
             {
@@ -1006,6 +1047,7 @@ namespace Microsoft.Build.Tasks
             _getAssemblyMetadata
             (
                 reference.FullPath,
+                _assemblyMetadataCache,
                 out dependentAssemblies,
                 out scatterFiles,
                 out frameworkName
@@ -1221,7 +1263,7 @@ namespace Microsoft.Build.Tasks
         /// The only time we do not want to do this is if the parent assembly came from the GAC or AssemblyFoldersEx then we want the assembly 
         /// to be found using those resolvers so that our GAC and AssemblyFolders checks later on will work on those assemblies.
         /// </summary>
-        internal static void CalcuateParentAssemblyDirectories(Hashtable parentReferenceFolderHash, List<string> parentReferenceFolders, Reference parentReference)
+        internal static void CalculateParentAssemblyDirectories(Hashtable parentReferenceFolderHash, List<string> parentReferenceFolders, Reference parentReference)
         {
             string parentReferenceFolder = parentReference.DirectoryName;
             string parentReferenceResolvedSearchPath = parentReference.ResolvedSearchPath;
@@ -1274,7 +1316,7 @@ namespace Microsoft.Build.Tasks
             List<string> parentReferenceFolders = new List<string>();
             foreach (Reference parentReference in reference.GetDependees())
             {
-                CalcuateParentAssemblyDirectories(parentReferenceFolderHash, parentReferenceFolders, parentReference);
+                CalculateParentAssemblyDirectories(parentReferenceFolderHash, parentReferenceFolders, parentReference);
             }
 
             // Build the set of resolvers.
@@ -1289,7 +1331,12 @@ namespace Microsoft.Build.Tasks
             }
             else
             {
-                jaggedResolvers.Add(AssemblyResolution.CompileDirectories(parentReferenceFolders, _fileExists, _getAssemblyName, _getRuntimeVersion, _targetedRuntimeVersion));
+                // Do not probe near dependees if the reference is primary and resolved externally. If resolved externally, the search paths should have been specified in such a way to point to the assembly file.
+                if (assemblyName == null || !_externallyResolvedPrimaryReferences.Contains(assemblyName.Name))
+                {
+                    jaggedResolvers.Add(AssemblyResolution.CompileDirectories(parentReferenceFolders, _fileExists, _getAssemblyName, _getRuntimeVersion, _targetedRuntimeVersion));
+                }
+
                 jaggedResolvers.Add(_compiledSearchPaths);
             }
 
@@ -1621,6 +1668,9 @@ namespace Microsoft.Build.Tasks
 #endif
             {
                 _references.Clear();
+                _externallyResolvedPrimaryReferences.Clear();
+                SkippedFindingExternallyResolvedDependencies = false;
+
                 _remappedAssemblies = remappedAssembliesValue;
                 SetPrimaryItems(referenceAssemblyFiles, referenceAssemblyNames, exceptions);
 
@@ -1714,32 +1764,41 @@ namespace Microsoft.Build.Tasks
                         // We do not want to find dependencies of framework assembles, embedded interoptypes or assemblies in sdks.
                         if (!hasFrameworkPath && !reference.EmbedInteropTypes && reference.SDKName.Length == 0)
                         {
-                            // Look for companion files like pdbs and xmls that ride along with 
-                            // assemblies.
-                            if (_findRelatedFiles)
+                            if (!reference.ExternallyResolved)
                             {
-                                FindRelatedFiles(reference);
+                                // Look for companion files like pdbs and xmls that ride along with 
+                                // assemblies.
+                                if (_findRelatedFiles)
+                                {
+                                    FindRelatedFiles(reference);
+                                }
+
+                                // Satellite assemblies are named <CultureDir>\<AppBaseName>.resources.dll
+                                // where <CultureDir> is like 'en', 'fr', etc.
+                                if (_findSatellites)
+                                {
+                                    FindSatellites(reference);
+                                }
+
+                                // Look for serialization assemblies.
+                                if (_findSerializationAssemblies)
+                                {
+                                    FindSerializationAssemblies(reference);
+                                }
                             }
 
-                            // Satellite assemblies are named <CultureDir>\<AppBaseName>.resources.dll
-                            // where <CultureDir> is like 'en', 'fr', etc.
-                            if (_findSatellites)
+                            if (!reference.ExternallyResolved || FindDependenciesOfExternallyResolvedReferences)
                             {
-                                FindSatellites(reference);
+                                // Look for dependent assemblies.
+                                if (_findDependencies)
+                                {
+                                    FindDependenciesAndScatterFiles(reference, newEntries);
+                                }
                             }
-
-                            // Look for serialization assemblies.
-                            if (_findSerializationAssemblies)
+                            else
                             {
-                                FindSerializationAssemblies(reference);
+                                SkippedFindingExternallyResolvedDependencies = true;
                             }
-
-                            // Look for dependent assemblies.
-                            if (_findDependencies)
-                            {
-                                FindDependenciesAndScatterFiles(reference, newEntries);
-                            }
-
 
                             // If something was found, then break out and start fresh.
                             if (newEntries.Count > 0)
@@ -1866,7 +1925,7 @@ namespace Microsoft.Build.Tasks
                     if (entry != null)
                     {
                         // We have found an entry in the redist list that this assembly is a framework assembly of some version
-                        // also one if its parent refernces has specific version set to true, therefore we need to make sure
+                        // also one if its parent references has specific version set to true, therefore we need to make sure
                         // that we do not consider it for conflict resolution.
                         continue;
                     }
@@ -2364,26 +2423,20 @@ namespace Microsoft.Build.Tasks
             {
                 foreach (DependentAssembly remappedAssembly in _remappedAssemblies)
                 {
-                    // First, exclude anything without the simple name match
-                    AssemblyNameExtension comparisonAssembly = new AssemblyNameExtension(remappedAssembly.PartialAssemblyName.CloneIfPossible());
-                    if (assemblyName.CompareBaseNameTo(comparisonAssembly) == 0)
-                    {
-                        // Comparison assembly is a partial name. Give it our version.
-                        comparisonAssembly.ReplaceVersion(assemblyName.Version);
+                    AssemblyName comparisonAssembly = remappedAssembly.AssemblyNameReadOnly;
 
-                        if (assemblyName.Equals(comparisonAssembly))
+                    if (CompareAssembliesIgnoringVersion(assemblyName.AssemblyName, comparisonAssembly))
+                    {
+                        foreach (BindingRedirect bindingRedirect in remappedAssembly.BindingRedirects)
                         {
-                            foreach (BindingRedirect bindingRedirect in remappedAssembly.BindingRedirects)
+                            if (assemblyName.Version >= bindingRedirect.OldVersionLow && assemblyName.Version <= bindingRedirect.OldVersionHigh)
                             {
-                                if (assemblyName.Version >= bindingRedirect.OldVersionLow && assemblyName.Version <= bindingRedirect.OldVersionHigh)
+                                // If the new version is different than the old version, then there is a unification.
+                                if (assemblyName.Version != bindingRedirect.NewVersion)
                                 {
-                                    // If the new version is different than the old version, then there is a unification.
-                                    if (assemblyName.Version != bindingRedirect.NewVersion)
-                                    {
-                                        unifiedVersion = bindingRedirect.NewVersion;
-                                        unificationReason = UnificationReason.BecauseOfBindingRedirect;
-                                        return true;
-                                    }
+                                    unifiedVersion = bindingRedirect.NewVersion;
+                                    unificationReason = UnificationReason.BecauseOfBindingRedirect;
+                                    return true;
                                 }
                             }
                         }
@@ -2416,6 +2469,37 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
+        /// Used to avoid extra allocations from cloning AssemblyNameExtension and AssemblyName
+        /// </summary>
+        private bool CompareAssembliesIgnoringVersion(AssemblyName a, AssemblyName b)
+        {
+            ErrorUtilities.VerifyThrowInternalNull(a, nameof(a));
+            ErrorUtilities.VerifyThrowInternalNull(b, nameof(b));
+
+            if (a == b)
+            {
+                return true;
+            }
+
+            if (0 != String.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!AssemblyNameExtension.CompareCultures(a, b))
+            {
+                return false;
+            }
+
+            if (!AssemblyNameExtension.ComparePublicKeyTokens(a.GetPublicKeyToken(), b.GetPublicKeyToken()))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Return the resulting reference items, dependencies and other files.
         /// </summary>
         /// <param name="primaryFiles">Primary references fully resolved.</param>
@@ -2434,13 +2518,13 @@ namespace Microsoft.Build.Tasks
             out ITaskItem[] copyLocalFiles
         )
         {
-            primaryFiles = new ITaskItem[0];
-            dependencyFiles = new ITaskItem[0];
-            relatedFiles = new ITaskItem[0];
-            satelliteFiles = new ITaskItem[0];
-            serializationAssemblyFiles = new ITaskItem[0];
-            scatterFiles = new ITaskItem[0];
-            copyLocalFiles = new ITaskItem[0];
+            primaryFiles = Array.Empty<ITaskItem>();
+            dependencyFiles = Array.Empty<ITaskItem>();
+            relatedFiles = Array.Empty<ITaskItem>();
+            satelliteFiles = Array.Empty<ITaskItem>();
+            serializationAssemblyFiles = Array.Empty<ITaskItem>();
+            scatterFiles = Array.Empty<ITaskItem>();
+            copyLocalFiles = Array.Empty<ITaskItem>();
 
             ArrayList primaryItems = new ArrayList();
             ArrayList dependencyItems = new ArrayList();
@@ -2511,7 +2595,7 @@ namespace Microsoft.Build.Tasks
             scatterFiles = (ITaskItem[])scatterItems.ToArray(typeof(ITaskItem));
 
             // Sort for stable outputs. (These came from a hashtable, which as undefined enumeration order.)
-            Array.Sort(primaryFiles, TaskItemSpecFilenameComparer.comparer);
+            Array.Sort(primaryFiles, TaskItemSpecFilenameComparer.Comparer);
 
             // Find the copy-local items.
             FindCopyLocalItems(primaryFiles, copyLocalItems);
@@ -2758,7 +2842,7 @@ namespace Microsoft.Build.Tasks
 
                 if (machineType == NativeMethods.IMAGE_FILE_MACHINE_INVALID)
                 {
-                    throw new BadImageFormatException(ResourceUtilities.FormatResourceString("ResolveAssemblyReference.ImplementationDllHasInvalidPEHeader"));
+                    throw new BadImageFormatException(ResourceUtilities.GetResourceString("ResolveAssemblyReference.ImplementationDllHasInvalidPEHeader"));
                 }
 
                 switch (machineType)

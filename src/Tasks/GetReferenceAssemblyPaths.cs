@@ -21,7 +21,6 @@ namespace Microsoft.Build.Tasks
     public class GetReferenceAssemblyPaths : TaskExtension
     {
         #region Data
-        /// <summary>
 #if FEATURE_GAC
         /// <summary>
         /// This is the sentinel assembly for .NET FX 3.5 SP1
@@ -84,7 +83,7 @@ namespace Microsoft.Build.Tasks
                 }
                 else
                 {
-                    return new string[0];
+                    return Array.Empty<string>();
                 }
             }
         }
@@ -106,7 +105,7 @@ namespace Microsoft.Build.Tasks
                 }
                 else
                 {
-                    return new string[0];
+                    return Array.Empty<string>();
                 }
             }
         }
