@@ -50,13 +50,6 @@ namespace Microsoft.Build.Tasks
     [RequiredRuntime("v2.0")]
     public sealed partial class GenerateResource : TaskExtension
     {
-
-#if !FEATURE_CODEDOM
-        private readonly string CSharpLanguageName = "CSharp";
-        private readonly string VisualBasicLanguageName = "VisualBasic";
-#endif
-
-
         #region Fields
 
 #if FEATURE_RESGENCACHE
@@ -1488,16 +1481,12 @@ namespace Microsoft.Build.Tasks
             {
                 if (StronglyTypedFileName == null)
                 {
-#if FEATURE_CODEDOM
                     CodeDomProvider provider = null;
 
                     if (ProcessResourceFiles.TryCreateCodeDomProvider(Log, StronglyTypedLanguage, out provider))
                     {
                         StronglyTypedFileName = ProcessResourceFiles.GenerateDefaultStronglyTypedFilename(provider, OutputResources[0].ItemSpec);
                     }
-#else
-                    StronglyTypedFileName = TryGenerateDefaultStronglyTypedFilename();
-#endif
                 }
             }
             catch (Exception e) when (ExceptionHandling.IsIoRelatedException(e))
@@ -2048,7 +2037,6 @@ namespace Microsoft.Build.Tasks
             {
                 if (StronglyTypedFileName == null)
                 {
-#if FEATURE_CODEDOM
                     CodeDomProvider provider = null;
 
                     if (ProcessResourceFiles.TryCreateCodeDomProvider(Log, StronglyTypedLanguage, out provider))
@@ -2056,34 +2044,11 @@ namespace Microsoft.Build.Tasks
                         StronglyTypedFileName = ProcessResourceFiles.GenerateDefaultStronglyTypedFilename(
                             provider, OutputResources[0].ItemSpec);
                     }
-#else
-                    StronglyTypedFileName = TryGenerateDefaultStronglyTypedFilename();
-#endif
                 }
 
                 _filesWritten.Add(new TaskItem(this.StronglyTypedFileName));
             }
         }
-
-#if !FEATURE_CODEDOM
-        private string TryGenerateDefaultStronglyTypedFilename()
-        {
-            string extension = null;
-            if (StronglyTypedLanguage == CSharpLanguageName)
-            {
-                extension = ".cs";
-            }
-            else if (StronglyTypedLanguage == VisualBasicLanguageName)
-            {
-                extension = ".vb";
-            }
-            if (extension != null)
-            {
-                return Path.ChangeExtension(OutputResources[0].ItemSpec, extension);
-            }
-            return null;
-        }
-#endif
 
 #if FEATURE_RESGENCACHE
         /// <summary>
@@ -3203,7 +3168,6 @@ namespace Microsoft.Build.Tasks
         /// <param name="inputFileName">Input resource filename, for error messages</param>
         private void CreateStronglyTypedResources(ReaderInfo reader, String outFile, String inputFileName, out String sourceFile)
         {
-#if FEATURE_CODEDOM
             CodeDomProvider provider = null;
 
             if (!TryCreateCodeDomProvider(_logger, _stronglyTypedLanguage, out provider))
@@ -3262,13 +3226,8 @@ namespace Microsoft.Build.Tasks
                 // and it should get added to FilesWritten. So set a flag to indicate this.
                 _stronglyTypedResourceSuccessfullyCreated = true;
             }
-#else
-            sourceFile = null;
-            _logger.LogError("Generating strongly typed resource files not currently supported on .NET Core MSBuild");
-#endif
         }
 
-#if FEATURE_CODEDOM
         /// <summary>
         /// If no strongly typed resource class filename was specified, we come up with a default based on the
         /// input file name and the default language extension. 
@@ -3318,7 +3277,6 @@ namespace Microsoft.Build.Tasks
 
             return provider != null;
         }
-#endif
 
 #if FEATURE_RESX_RESOURCE_READER
         /// <summary>
