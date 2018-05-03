@@ -223,10 +223,10 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
         [Fact]
         public void TestSetRuntimeVersion()
         {
-            Version parsedVersion = ResolveAssemblyReference.SetTargetedRuntimeVersion("4.0.21006");
+            Version parsedVersion = ResolveAssemblyReferenceImpl.SetTargetedRuntimeVersion("4.0.21006");
             Assert.True(parsedVersion.Equals(new Version("4.0.21006")));
 
-            parsedVersion = ResolveAssemblyReference.SetTargetedRuntimeVersion("BadVersion");
+            parsedVersion = ResolveAssemblyReferenceImpl.SetTargetedRuntimeVersion("BadVersion");
             Assert.True(parsedVersion.Equals(new Version("2.0.50727")));
         }
 
@@ -6705,7 +6705,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             Hashtable blackList = new Hashtable(StringComparer.OrdinalIgnoreCase);
             blackList[engineAssemblyName.FullName] = null;
             string[] targetFrameworks = new string[] { "Client", "Web" };
-            string subSetName = ResolveAssemblyReference.GenerateSubSetName(targetFrameworks, null);
+            string subSetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(targetFrameworks, null);
 
             referenceTable.MarkReferencesForExclusion(blackList);
             referenceTable.RemoveReferencesMarkedForExclusion(false, subSetName);
@@ -6745,7 +6745,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             Hashtable blackList = new Hashtable(StringComparer.OrdinalIgnoreCase);
             blackList[engineAssemblyName.FullName] = null;
             string[] targetFrameworks = new string[] { "Client", "Web" };
-            string subSetName = ResolveAssemblyReference.GenerateSubSetName(targetFrameworks, null);
+            string subSetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(targetFrameworks, null);
             referenceTable.MarkReferencesForExclusion(blackList);
             referenceTable.RemoveReferencesMarkedForExclusion(false, subSetName);
 
@@ -6765,36 +6765,36 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
         public void TestGenerateFrameworkName()
         {
             string[] targetFrameworks = new string[] { "Client" };
-            Assert.True(string.Equals("Client", ResolveAssemblyReference.GenerateSubSetName(targetFrameworks, null), StringComparison.OrdinalIgnoreCase));
+            Assert.True(string.Equals("Client", ResolveAssemblyReferenceImpl.GenerateSubSetName(targetFrameworks, null), StringComparison.OrdinalIgnoreCase));
 
             targetFrameworks = new string[] { "Client", "Framework" };
-            Assert.True(string.Equals("Client, Framework", ResolveAssemblyReference.GenerateSubSetName(targetFrameworks, null), StringComparison.OrdinalIgnoreCase));
+            Assert.True(string.Equals("Client, Framework", ResolveAssemblyReferenceImpl.GenerateSubSetName(targetFrameworks, null), StringComparison.OrdinalIgnoreCase));
 
             targetFrameworks = new string[0];
-            Assert.True(String.IsNullOrEmpty(ResolveAssemblyReference.GenerateSubSetName(targetFrameworks, null)));
+            Assert.True(String.IsNullOrEmpty(ResolveAssemblyReferenceImpl.GenerateSubSetName(targetFrameworks, null)));
 
             targetFrameworks = null;
-            Assert.True(String.IsNullOrEmpty(ResolveAssemblyReference.GenerateSubSetName(targetFrameworks, null)));
+            Assert.True(String.IsNullOrEmpty(ResolveAssemblyReferenceImpl.GenerateSubSetName(targetFrameworks, null)));
 
             ITaskItem[] installedSubSetTable = new ITaskItem[] { new TaskItem("c:\\foo\\Client.xml") };
-            Assert.True(string.Equals("Client", ResolveAssemblyReference.GenerateSubSetName(null, installedSubSetTable), StringComparison.OrdinalIgnoreCase));
+            Assert.True(string.Equals("Client", ResolveAssemblyReferenceImpl.GenerateSubSetName(null, installedSubSetTable), StringComparison.OrdinalIgnoreCase));
 
             installedSubSetTable = new ITaskItem[] { new TaskItem("c:\\foo\\Client.xml"), new TaskItem("D:\\foo\\bar\\Framework.xml") };
-            Assert.True(string.Equals("Client, Framework", ResolveAssemblyReference.GenerateSubSetName(null, installedSubSetTable), StringComparison.OrdinalIgnoreCase));
+            Assert.True(string.Equals("Client, Framework", ResolveAssemblyReferenceImpl.GenerateSubSetName(null, installedSubSetTable), StringComparison.OrdinalIgnoreCase));
 
             installedSubSetTable = new ITaskItem[] { new TaskItem("c:\\foo\\Client.xml"), new TaskItem("D:\\foo\\bar\\Framework2\\"), new TaskItem("D:\\foo\\bar\\Framework"), new TaskItem("Nothing") };
-            Assert.True(string.Equals("Client, Framework, Nothing", ResolveAssemblyReference.GenerateSubSetName(null, installedSubSetTable), StringComparison.OrdinalIgnoreCase));
+            Assert.True(string.Equals("Client, Framework, Nothing", ResolveAssemblyReferenceImpl.GenerateSubSetName(null, installedSubSetTable), StringComparison.OrdinalIgnoreCase));
 
             installedSubSetTable = new ITaskItem[0];
-            Assert.True(String.IsNullOrEmpty(ResolveAssemblyReference.GenerateSubSetName(null, installedSubSetTable)));
+            Assert.True(String.IsNullOrEmpty(ResolveAssemblyReferenceImpl.GenerateSubSetName(null, installedSubSetTable)));
 
             installedSubSetTable = null;
-            Assert.True(String.IsNullOrEmpty(ResolveAssemblyReference.GenerateSubSetName(null, installedSubSetTable)));
+            Assert.True(String.IsNullOrEmpty(ResolveAssemblyReferenceImpl.GenerateSubSetName(null, installedSubSetTable)));
 
 
             targetFrameworks = new string[] { "Client", "Framework" };
             installedSubSetTable = new ITaskItem[] { new TaskItem("c:\\foo\\Mouse.xml"), new TaskItem("D:\\foo\\bar\\Man.xml") };
-            Assert.True(string.Equals("Client, Framework, Mouse, Man", ResolveAssemblyReference.GenerateSubSetName(targetFrameworks, installedSubSetTable), StringComparison.OrdinalIgnoreCase));
+            Assert.True(string.Equals("Client, Framework, Mouse, Man", ResolveAssemblyReferenceImpl.GenerateSubSetName(targetFrameworks, installedSubSetTable), StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -6825,7 +6825,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             referenceTable.RemoveReferencesMarkedForExclusion(true, String.Empty);
 
             Dictionary<AssemblyNameExtension, Reference> table2 = referenceTable.References;
-            string subSetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { }, null);
+            string subSetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailedToResolveReferenceBecausePrimaryAssemblyInExclusionList", taskItem.ItemSpec, subSetName);
             Assert.False(Object.ReferenceEquals(table, table2)); // "Expected hashtable to be a different instance"
             Assert.Equal(1, table2.Count); // "Expected there to be one elements in the hashtable"
@@ -6870,7 +6870,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             AddReferencesToReferenceTable(referenceTable, engineAssemblyName, dataAssemblyName, sqlclientAssemblyName, xmlAssemblyName, enginePrimaryReference, dataDependencyReference, sqlDependencyReference, xmlPrimaryReference);
             InitializeExclusionList(referenceTable, new AssemblyNameExtension[] { sqlclientAssemblyName }, out blackList);
 
-            string subsetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { "Client" }, null);
+            string subsetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { "Client" }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, sqlclientAssemblyName.FullName, subsetName);
             VerifyReferenceTable(referenceTable, mockEngine, engineAssemblyName, dataAssemblyName, sqlclientAssemblyName, xmlAssemblyName, new string[] { warningMessage });
         }
@@ -6915,7 +6915,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             AddReferencesToReferenceTable(referenceTable, engineAssemblyName, dataAssemblyName, sqlclientAssemblyName, xmlAssemblyName, enginePrimaryReference, dataDependencyReference, sqlDependencyReference, xmlPrimaryReference);
             InitializeExclusionList(referenceTable, new AssemblyNameExtension[] { sqlclientAssemblyName }, out blackList);
 
-            string subsetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { "Client" }, null);
+            string subsetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { "Client" }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, sqlclientAssemblyName.FullName, subsetName);
             VerifyReferenceTable(referenceTable, mockEngine, engineAssemblyName, dataAssemblyName, sqlclientAssemblyName, xmlAssemblyName, new string[] { warningMessage });
         }
@@ -6951,7 +6951,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             AddReferencesToReferenceTable(referenceTable, engineAssemblyName, null, null, xmlAssemblyName, enginePrimaryReference, null, null, xmlPrimaryReference);
 
             InitializeExclusionList(referenceTable, new AssemblyNameExtension[] { xmlAssemblyName }, out blackList);
-            string subsetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { "Client" }, null);
+            string subsetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { "Client" }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, xmlAssemblyName.FullName, subsetName);
             string warningMessage2 = rar.Log.FormatResourceString("ResolveAssemblyReference.FailedToResolveReferenceBecausePrimaryAssemblyInExclusionList", taskItem2.ItemSpec, subsetName);
             mockEngine.AssertLogContains(warningMessage);
@@ -7000,7 +7000,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             InitializeExclusionList(referenceTable, new AssemblyNameExtension[] { dataAssemblyName }, out blackList);
 
 
-            string subsetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { "Client" }, null);
+            string subsetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { "Client" }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, dataAssemblyName.FullName, subsetName);
             string warningMessage2 = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem2.ItemSpec, dataAssemblyName.FullName, subsetName);
             mockEngine.AssertLogContains(warningMessage);
@@ -7052,7 +7052,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
 
             InitializeExclusionList(referenceTable, new AssemblyNameExtension[] { sqlclientAssemblyName }, out blackList);
 
-            string subsetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { "Client" }, null);
+            string subsetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { "Client" }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, sqlclientAssemblyName.FullName, subsetName);
             string warningMessage2 = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem2.ItemSpec, sqlclientAssemblyName.FullName, subsetName);
             VerifyReferenceTable(referenceTable, mockEngine, engineAssemblyName, dataAssemblyName, sqlclientAssemblyName, xmlAssemblyName, new string[] { warningMessage, warningMessage2 });
@@ -7103,7 +7103,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
 
             InitializeExclusionList(referenceTable, new AssemblyNameExtension[] { sqlclientAssemblyName }, out blackList);
 
-            string subsetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { "Client" }, null);
+            string subsetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { "Client" }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, sqlclientAssemblyName.FullName, subsetName);
             string warningMessage2 = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem2.ItemSpec, sqlclientAssemblyName.FullName, subsetName);
             VerifyReferenceTable(referenceTable, mockEngine, engineAssemblyName, dataAssemblyName, sqlclientAssemblyName, xmlAssemblyName, new string[] { warningMessage, warningMessage2 });
@@ -7152,7 +7152,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             InitializeExclusionList(referenceTable, new AssemblyNameExtension[] { sqlclientAssemblyName, dataAssemblyName }, out blackList);
 
 
-            string subsetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { "Client" }, null);
+            string subsetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { "Client" }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, sqlclientAssemblyName.FullName, subsetName);
             string warningMessage2 = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, dataAssemblyName.FullName, subsetName);
             string warningMessage3 = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem2.ItemSpec, dataAssemblyName.FullName, subsetName);
@@ -7221,7 +7221,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
 
             InitializeExclusionList(referenceTable, new AssemblyNameExtension[] { sqlclientAssemblyName, dataAssemblyName }, out blackList);
 
-            string subsetName = ResolveAssemblyReference.GenerateSubSetName(new string[] { "Client" }, null);
+            string subsetName = ResolveAssemblyReferenceImpl.GenerateSubSetName(new string[] { "Client" }, null);
             string warningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem2.ItemSpec, dataAssemblyName.FullName, subsetName);
             string notExpectedwarningMessage = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, dataAssemblyName.FullName, subsetName);
             string notExpectedwarningMessage2 = rar.Log.FormatResourceString("ResolveAssemblyReference.FailBecauseDependentAssemblyInExclusionList", taskItem.ItemSpec, sqlclientAssemblyName.FullName, subsetName);

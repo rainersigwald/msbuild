@@ -2887,12 +2887,12 @@ namespace Microsoft.Build.Tasks
                 {
                     if (_warnOrErrorOnTargetArchitectureMismatch == WarnOrErrorOnTargetArchitectureMismatchBehavior.Error)
                     {
-                        _log.LogErrorWithCodeFromResources("ResolveAssemblyReference.MismatchBetweenTargetedAndReferencedArchOfImplementation", ResolveAssemblyReference.ProcessorArchitectureToString(_targetProcessorArchitecture), ResolveAssemblyReference.ProcessorArchitectureToString(dllArchitecture), dllPath, winmdFile);
+                        _log.LogErrorWithCodeFromResources("ResolveAssemblyReference.MismatchBetweenTargetedAndReferencedArchOfImplementation", ResolveAssemblyReferenceImpl.ProcessorArchitectureToString(_targetProcessorArchitecture), ResolveAssemblyReferenceImpl.ProcessorArchitectureToString(dllArchitecture), dllPath, winmdFile);
                         return false;
                     }
                     else if (_warnOrErrorOnTargetArchitectureMismatch == WarnOrErrorOnTargetArchitectureMismatchBehavior.Warning)
                     {
-                        _log.LogWarningWithCodeFromResources("ResolveAssemblyReference.MismatchBetweenTargetedAndReferencedArchOfImplementation", ResolveAssemblyReference.ProcessorArchitectureToString(_targetProcessorArchitecture), ResolveAssemblyReference.ProcessorArchitectureToString(dllArchitecture), dllPath, winmdFile);
+                        _log.LogWarningWithCodeFromResources("ResolveAssemblyReference.MismatchBetweenTargetedAndReferencedArchOfImplementation", ResolveAssemblyReferenceImpl.ProcessorArchitectureToString(_targetProcessorArchitecture), ResolveAssemblyReferenceImpl.ProcessorArchitectureToString(dllArchitecture), dllPath, winmdFile);
                     }
                 }
 

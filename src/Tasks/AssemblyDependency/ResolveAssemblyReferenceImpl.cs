@@ -29,7 +29,7 @@ namespace Microsoft.Build.Tasks
     /// Given a list of assemblyFiles, determine the closure of all assemblyFiles that
     /// depend on those assemblyFiles including second and nth-order dependencies too.
     /// </summary>
-    public class ResolveAssemblyReference : TaskExtension
+    internal class ResolveAssemblyReferenceImpl : TaskExtension
     {
         /// <summary>
         /// key assembly used to trigger inclusion of facade references. 
@@ -56,7 +56,7 @@ namespace Microsoft.Build.Tasks
         /// <summary>
         /// Construct
         /// </summary>
-        public ResolveAssemblyReference()
+        public ResolveAssemblyReferenceImpl()
         {
         }
 
@@ -873,7 +873,7 @@ namespace Microsoft.Build.Tasks
                                         assemblyIdentityAttributes.Add(new XAttribute("culture", String.IsNullOrEmpty(idealRemappingPartialAssemblyName.CultureName) ? "neutral" : idealRemappingPartialAssemblyName.CultureName));
 
                                         var publicKeyToken = idealRemappingPartialAssemblyName.GetPublicKeyToken();
-                                        assemblyIdentityAttributes.Add(new XAttribute("publicKeyToken", ResolveAssemblyReference.ByteArrayToString(publicKeyToken)));
+                                        assemblyIdentityAttributes.Add(new XAttribute("publicKeyToken", ResolveAssemblyReferenceImpl.ByteArrayToString(publicKeyToken)));
 
                                         var node = new XElement(
                                             ns + "assemblyBinding",

@@ -112,7 +112,7 @@ namespace Microsoft.Build.Tasks
                                         new XElement(
                                             ns + "assemblyIdentity",
                                             new XAttribute("name", redirect.Key.Name),
-                                            new XAttribute("publicKeyToken", ResolveAssemblyReference.ByteArrayToString(redirect.Key.GetPublicKeyToken())),
+                                            new XAttribute("publicKeyToken", ResolveAssemblyReferenceImpl.ByteArrayToString(redirect.Key.GetPublicKeyToken())),
                                             new XAttribute("culture", String.IsNullOrEmpty(redirect.Key.CultureName) ? "neutral" : redirect.Key.CultureName)),
                                         new XElement(
                                             ns + "bindingRedirect",
@@ -200,7 +200,7 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private static bool ByteArrayMatchesString(Byte[] a, string s)
         {
-            return String.Compare(ResolveAssemblyReference.ByteArrayToString(a), s, StringComparison.OrdinalIgnoreCase) != 0;
+            return String.Compare(ResolveAssemblyReferenceImpl.ByteArrayToString(a), s, StringComparison.OrdinalIgnoreCase) != 0;
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Microsoft.Build.Tasks
                                 var attributes = new List<XAttribute>(4);
                                 attributes.Add(new XAttribute("name", newName));
                                 attributes.Add(new XAttribute("culture", String.IsNullOrEmpty(newCulture) ? "neutral" : newCulture));
-                                attributes.Add(new XAttribute("publicKeyToken", ResolveAssemblyReference.ByteArrayToString(newPublicKeyToken)));
+                                attributes.Add(new XAttribute("publicKeyToken", ResolveAssemblyReferenceImpl.ByteArrayToString(newPublicKeyToken)));
                                 if (newProcessorArchitecture != 0)
                                 {
                                     attributes.Add(new XAttribute("processorArchitecture", newProcessorArchitecture.ToString()));
