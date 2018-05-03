@@ -63,9 +63,6 @@ namespace Microsoft.Build.Tasks
         #region Properties
         private ITaskItem[] _installedAssemblySubsetTables = Array.Empty<TaskItem>();
         private ITaskItem[] _fullFrameworkAssemblyTables = Array.Empty<TaskItem>();
-        private bool _ignoreDefaultInstalledAssemblySubsetTables = false;
-        private string[] _relatedFileExtensions = new string[] { ".pdb", ".xml", ".pri" };
-        private bool _ignoreTargetFrameworkAttributeVersionMismatch = false;
         private ITaskItem[] _resolvedFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _resolvedDependencyFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _relatedFiles = Array.Empty<TaskItem>();
@@ -75,9 +72,6 @@ namespace Microsoft.Build.Tasks
         private ITaskItem[] _copyLocalFiles = Array.Empty<TaskItem>();
         private string[] _targetFrameworkSubsets = Array.Empty<string>();
         private string[] _fullTargetFrameworkSubsetNames = Array.Empty<string>();
-        private bool _findDependencies = true;
-        private bool _silent = false;
-        private string _targetedRuntimeVersionRawValue = String.Empty;
         private Version _projectTargetFramework;
         private string _profileName = String.Empty;
         private string[] _fullFrameworkFolders = Array.Empty<string>();
@@ -140,18 +134,7 @@ namespace Microsoft.Build.Tasks
         /// <summary>
         /// Should the framework attribute be ignored when checking to see if an assembly is compatible with the targeted framework.
         /// </summary>
-        public bool IgnoreTargetFrameworkAttributeVersionMismatch
-        {
-            get
-            {
-                return _ignoreTargetFrameworkAttributeVersionMismatch;
-            }
-
-            set
-            {
-                _ignoreTargetFrameworkAttributeVersionMismatch = value;
-            }
-        }
+        public bool IgnoreTargetFrameworkAttributeVersionMismatch { get; set; } = false;
 
         /// <summary>
         /// Force dependencies to be walked even when a reference is marked with ExternallyResolved=true
@@ -325,11 +308,7 @@ namespace Microsoft.Build.Tasks
         /// assembly subset tables (a.k.a Subset Lists) found in the SubsetList directory underneath the provided
         /// TargetFrameworkDirectories.
         /// </summary>
-        public bool IgnoreDefaultInstalledAssemblySubsetTables
-        {
-            get { return _ignoreDefaultInstalledAssemblySubsetTables; }
-            set { _ignoreDefaultInstalledAssemblySubsetTables = value; }
-        }
+        public bool IgnoreDefaultInstalledAssemblySubsetTables { get; set; } = false;
 
         /// <summary>
         /// If the primary reference is a framework assembly ignore its version information and actually resolve the framework assembly from the currently targeted framework.
@@ -353,11 +332,7 @@ namespace Microsoft.Build.Tasks
         /// <summary>
         /// What is the runtime we are targeting, is it 2.0.57027 or anotherone, It can have a v or not prefixed onto it.
         /// </summary>
-        public string TargetedRuntimeVersion
-        {
-            get { return _targetedRuntimeVersionRawValue; }
-            set { _targetedRuntimeVersionRawValue = value; }
-        }
+        public string TargetedRuntimeVersion { get; set; } = String.Empty;
 
         /// <summary>
         /// List of locations to search for assemblyFiles when resolving dependencies.
@@ -411,11 +386,7 @@ namespace Microsoft.Build.Tasks
         /// [default=.pdb;.xml]
         /// These are the extensions that will be considered when looking for related files.
         /// </summary>
-        public string[] AllowedRelatedFileExtensions
-        {
-            get { return _relatedFileExtensions; }
-            set { _relatedFileExtensions = value; }
-        }
+        public string[] AllowedRelatedFileExtensions { get; set; } = new string[] { ".pdb", ".xml", ".pri" };
 
 
         /// <summary>
@@ -507,11 +478,7 @@ namespace Microsoft.Build.Tasks
         /// Default is true.
         /// </summary>
         /// <value></value>
-        public bool FindDependencies
-        {
-            get { return _findDependencies; }
-            set { _findDependencies = value; }
-        }
+        public bool FindDependencies { get; set; } = true;
 
         /// <summary>
         /// If set, then satellites will be found.
@@ -543,11 +510,7 @@ namespace Microsoft.Build.Tasks
         /// Default is false.
         /// </summary>
         /// <value></value>
-        public bool Silent
-        {
-            get { return _silent; }
-            set { _silent = value; }
-        }
+        public bool Silent { get; set; } = false;
 
         /// <summary>
         /// The project target framework version.
@@ -1145,7 +1108,7 @@ namespace Microsoft.Build.Tasks
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", TargetFrameworkMonikerDisplayName);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetedRuntimeVersion");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _targetedRuntimeVersionRawValue);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", TargetedRuntimeVersion);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "Assemblies");
                 foreach (ITaskItem item in Assemblies)
@@ -1209,7 +1172,7 @@ namespace Microsoft.Build.Tasks
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "AllowedRelatedFileExtensions");
-                foreach (string allowedRelatedFileExtension in _relatedFileExtensions)
+                foreach (string allowedRelatedFileExtension in AllowedRelatedFileExtensions)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", allowedRelatedFileExtension);
                 }
@@ -1224,7 +1187,7 @@ namespace Microsoft.Build.Tasks
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", CopyLocalDependenciesWhenParentReferenceInGac);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "FindDependencies");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _findDependencies);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", FindDependencies);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetProcessorArchitecture");
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", TargetProcessorArchitecture);
@@ -1240,7 +1203,7 @@ namespace Microsoft.Build.Tasks
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "IgnoreInstalledAssemblySubsetTable");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _ignoreDefaultInstalledAssemblySubsetTables);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", IgnoreDefaultInstalledAssemblySubsetTables);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetFrameworkSubsets");
                 foreach (string subset in _targetFrameworkSubsets)
@@ -1805,7 +1768,7 @@ namespace Microsoft.Build.Tasks
                         }
                     }
 
-                    Version targetedRuntimeVersion = SetTargetedRuntimeVersion(_targetedRuntimeVersionRawValue);
+                    Version targetedRuntimeVersion = SetTargetedRuntimeVersion(TargetedRuntimeVersion);
 
                     // Log task inputs.
                     LogInputs();
@@ -1979,13 +1942,13 @@ namespace Microsoft.Build.Tasks
                     ReferenceTable dependencyTable = new ReferenceTable
                     (
                         BuildEngine,
-                        _findDependencies,
+                        FindDependencies,
                         FindSatellites,
                         FindSerializationAssemblies,
                         FindRelatedFiles,
                         SearchPaths,
                         AllowedAssemblyExtensions,
-                        _relatedFileExtensions,
+                        AllowedRelatedFileExtensions,
                         CandidateAssemblyFiles,
                         ResolvedSDKReferences,
                         TargetFrameworkDirectories,
@@ -2014,7 +1977,7 @@ namespace Microsoft.Build.Tasks
                         IgnoreVersionForFrameworkReferences,
                         readMachineTypeFromPEHeader,
                         _warnOrErrorOnTargetArchitectureMismatch,
-                        _ignoreTargetFrameworkAttributeVersionMismatch,
+                        IgnoreTargetFrameworkAttributeVersionMismatch,
                         UnresolveFrameworkAssembliesFromHigherFrameworks,
                         assemblyMetadataCache
                         );
@@ -2550,7 +2513,7 @@ namespace Microsoft.Build.Tasks
                 {
                     if (String.Equals(fullSubsetName, subsetName, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (!_silent)
+                        if (!Silent)
                         {
                             Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.NoExclusionListBecauseofFullClientName", subsetName);
                         }
@@ -2572,7 +2535,7 @@ namespace Microsoft.Build.Tasks
                 return false;
             }
 
-            if (!_silent)
+            if (!Silent)
             {
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.UsingExclusionList");
             }
