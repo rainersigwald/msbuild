@@ -64,6 +64,8 @@
     <Compile Include="AssemblyDependency\ResolveAssemblyReferenceImpl.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="AssemblyDependency\ResolveAssemblyReferenceRequest.cs" />
+    <Compile Include="AssemblyDependency\ResolveAssemblyReferenceResponse.cs" />
     <Compile Include="ConvertToAbsolutePath.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
