@@ -73,7 +73,6 @@ namespace Microsoft.Build.Tasks
         private string[] _fullTargetFrameworkSubsetNames = Array.Empty<string>();
         private Version _projectTargetFramework;
         private string _profileName = String.Empty;
-        private string[] _fullFrameworkFolders = Array.Empty<string>();
         private Dictionary<string, MessageImportance> _showAssemblyFoldersExLocations = new Dictionary<string, MessageImportance>(StringComparer.OrdinalIgnoreCase);
         private bool _logVerboseSearchResults = false;
         private WarnOrErrorOnTargetArchitectureMismatchBehavior _warnOrErrorOnTargetArchitectureMismatch = WarnOrErrorOnTargetArchitectureMismatchBehavior.Warning;
@@ -543,13 +542,13 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                return _fullFrameworkFolders;
+                return _request.FullFrameworkFolders;
             }
 
             set
             {
                 ErrorUtilities.VerifyThrowArgumentNull(value, "FullFrameworkFolders");
-                _fullFrameworkFolders = value;
+                _request.FullFrameworkFolders = value;
             }
         }
 
