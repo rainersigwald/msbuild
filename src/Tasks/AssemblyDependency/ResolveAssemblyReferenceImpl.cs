@@ -70,7 +70,6 @@ namespace Microsoft.Build.Tasks
         private ITaskItem[] _serializationAssemblyFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _scatterFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _copyLocalFiles = Array.Empty<TaskItem>();
-        private string[] _fullTargetFrameworkSubsetNames = Array.Empty<string>();
         private Version _projectTargetFramework;
         private string _profileName = String.Empty;
         private Dictionary<string, MessageImportance> _showAssemblyFoldersExLocations = new Dictionary<string, MessageImportance>(StringComparer.OrdinalIgnoreCase);
@@ -493,26 +492,6 @@ namespace Microsoft.Build.Tasks
         {
             get;
             set;
-        }
-
-        /// <summary>
-        /// Provide a set of names which if seen in the TargetFrameworkSubset list will cause the ignoring 
-        /// of TargetFrameworkSubsets.
-        /// 
-        /// Full, Complete
-        /// </summary>
-        public string[] FullTargetFrameworkSubsetNames
-        {
-            get
-            {
-                return _fullTargetFrameworkSubsetNames;
-            }
-
-            set
-            {
-                ErrorUtilities.VerifyThrowArgumentNull(value, "FullTargetFrameworkSubsetNames");
-                _fullTargetFrameworkSubsetNames = value;
-            }
         }
 
         /// <summary>
@@ -2465,7 +2444,7 @@ namespace Microsoft.Build.Tasks
         private bool ShouldUseSubsetBlackList()
         {
             // Check for full subset names in the passed in list of subsets to search for
-            foreach (string fullSubsetName in _fullTargetFrameworkSubsetNames)
+            foreach (string fullSubsetName in _request.FullTargetFrameworkSubsetNames)
             {
                 foreach (string subsetName in _request.TargetFrameworkSubsets)
                 {
