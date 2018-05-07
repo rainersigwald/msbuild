@@ -63,7 +63,6 @@ namespace Microsoft.Build.Tasks
         }
 
         #region Properties
-        private ITaskItem[] _fullFrameworkAssemblyTables = Array.Empty<TaskItem>();
         private ITaskItem[] _resolvedFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _resolvedDependencyFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _relatedFiles = Array.Empty<TaskItem>();
@@ -265,33 +264,6 @@ namespace Microsoft.Build.Tasks
             {
                 ErrorUtilities.VerifyThrowArgumentNull(value, "InstalledAssemblySubsetTables");
                 _request.InstalledAssemblySubsetTables = value;
-            }
-        }
-
-        /// <summary>
-        /// A list of XML files that contain the full framework for the profile.
-        /// 
-        /// Normally nothing is passed in here, this is for the cases where the location of the xml file for the full framework 
-        /// is not under a RedistList folder.
-        /// 
-        /// Format of the file is like:
-        /// 
-        ///     <FileList Redist="MatchingRedistListName" >
-        ///         <File AssemblyName="System" Version="2.0.0.0" PublicKeyToken="b77a5c561934e089" Culture="neutral" ProcessorArchitecture="MSIL" FileVersion="2.0.40824.0" InGAC="true" />
-        ///         etc.
-        ///     </FileList>
-        /// 
-        /// Items in this list must specify the "FrameworkDirectory" metadata to associate an redist list
-        /// with a particular framework directory. If the association is not made an error will be logged. The reason is, 
-        /// The logic in rar assumes if a FrameworkDirectory is not set it will use the target framework directory.
-        /// </summary>
-        public ITaskItem[] FullFrameworkAssemblyTables
-        {
-            get { return _fullFrameworkAssemblyTables; }
-            set
-            {
-                ErrorUtilities.VerifyThrowArgumentNull(value, "FullFrameworkAssemblyTables");
-                _fullFrameworkAssemblyTables = value;
             }
         }
 
@@ -1235,7 +1207,7 @@ namespace Microsoft.Build.Tasks
 
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "ProfileTablesLocation");
-                foreach (ITaskItem profileTable in FullFrameworkAssemblyTables)
+                foreach (ITaskItem profileTable in _request.FullFrameworkAssemblyTables)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", profileTable);
                     LogAttribute(profileTable, ItemMetadataNames.frameworkDirectory);
@@ -1811,7 +1783,7 @@ namespace Microsoft.Build.Tasks
                     string subsetOrProfileName = null;
 
                     // Are we targeting a profile
-                    bool targetingProfile = !String.IsNullOrEmpty(ProfileName) && ((FullFrameworkFolders.Length > 0) || (FullFrameworkAssemblyTables.Length > 0));
+                    bool targetingProfile = !String.IsNullOrEmpty(ProfileName) && ((FullFrameworkFolders.Length > 0) || (_request.FullFrameworkAssemblyTables.Length > 0));
                     bool targetingSubset = false;
                     List<Exception> whiteListErrors = new List<Exception>();
                     List<string> whiteListErrorFilesNames = new List<string>();
@@ -2328,7 +2300,7 @@ namespace Microsoft.Build.Tasks
             fullRedistAssemblyTableInfo = null;
 
             // Make sure the framework directory is on the FullFrameworkTablesLocation if it is being used.
-            foreach (ITaskItem item in FullFrameworkAssemblyTables)
+            foreach (ITaskItem item in _request.FullFrameworkAssemblyTables)
             {
                 // Cannot be missing the FrameworkDirectory if we are using this property
                 if (String.IsNullOrEmpty(item.GetMetadata("FrameworkDirectory")))
@@ -2338,7 +2310,7 @@ namespace Microsoft.Build.Tasks
                 }
             }
 
-            fullRedistAssemblyTableInfo = GetInstalledAssemblyTableInfo(false, FullFrameworkAssemblyTables, new GetListPath(RedistList.GetRedistListPathsFromDisk), FullFrameworkFolders);
+            fullRedistAssemblyTableInfo = GetInstalledAssemblyTableInfo(false, _request.FullFrameworkAssemblyTables, new GetListPath(RedistList.GetRedistListPathsFromDisk), FullFrameworkFolders);
             if (fullRedistAssemblyTableInfo.Length > 0)
             {
                 // Get the redist list which represents the Full framework, we need this so that we can generate the exclusion list
@@ -2428,7 +2400,7 @@ namespace Microsoft.Build.Tasks
             // Make sure the inputs for profiles are correct
             bool profileNameIsSet = !String.IsNullOrEmpty(ProfileName);
             bool fullFrameworkFoldersIsSet = FullFrameworkFolders.Length > 0;
-            bool fullFrameworkTableLocationsIsSet = FullFrameworkAssemblyTables.Length > 0;
+            bool fullFrameworkTableLocationsIsSet = _request.FullFrameworkAssemblyTables.Length > 0;
             bool profileIsSet = profileNameIsSet && (fullFrameworkFoldersIsSet || fullFrameworkTableLocationsIsSet);
 
             // Cannot target a subset and a profile at the same time
