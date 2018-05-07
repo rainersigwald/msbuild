@@ -70,7 +70,6 @@ namespace Microsoft.Build.Tasks
         private ITaskItem[] _serializationAssemblyFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _scatterFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _copyLocalFiles = Array.Empty<TaskItem>();
-        private string[] _targetFrameworkSubsets = Array.Empty<string>();
         private string[] _fullTargetFrameworkSubsetNames = Array.Empty<string>();
         private Version _projectTargetFramework;
         private string _profileName = String.Empty;
@@ -145,19 +144,6 @@ namespace Microsoft.Build.Tasks
         /// conflicts within an externally resolved graph.
         /// </remarks>
         public bool FindDependenciesOfExternallyResolvedReferences { get; set; }
-
-        /// <summary>
-        /// List of target framework subset names which will be searched for in the target framework directories
-        /// </summary>
-        public string[] TargetFrameworkSubsets
-        {
-            get { return _targetFrameworkSubsets; }
-            set
-            {
-                ErrorUtilities.VerifyThrowArgumentNull(value, "TargetFrameworkSubsets");
-                _targetFrameworkSubsets = value;
-            }
-        }
 
         /// <summary>
         /// These can either be simple fusion names like:
@@ -1179,7 +1165,7 @@ namespace Microsoft.Build.Tasks
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", IgnoreDefaultInstalledAssemblySubsetTables);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetFrameworkSubsets");
-                foreach (string subset in _targetFrameworkSubsets)
+                foreach (string subset in _request.TargetFrameworkSubsets)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", subset);
                 }
@@ -1795,7 +1781,7 @@ namespace Microsoft.Build.Tasks
                         if (!targetingProfile && ShouldUseSubsetBlackList())
                         {
                             // Based in the target framework subset names find the paths to the files
-                            SubsetListFinder whiteList = new SubsetListFinder(_targetFrameworkSubsets);
+                            SubsetListFinder whiteList = new SubsetListFinder(_request.TargetFrameworkSubsets);
                             whiteListSubsetTableInfo = GetInstalledAssemblyTableInfo(IgnoreDefaultInstalledAssemblySubsetTables, InstalledAssemblySubsetTables, new GetListPath(whiteList.GetSubsetListPathsFromDisk), TargetFrameworkDirectories);
                             if (whiteListSubsetTableInfo.Length > 0 && (redistList != null && redistList.Count > 0))
                             {
@@ -1812,7 +1798,7 @@ namespace Microsoft.Build.Tasks
                                 Log.LogWarningWithCodeFromResources("ResolveAssemblyReference.NoRedistAssembliesToGenerateExclusionList");
                             }
 
-                            subsetOrProfileName = GenerateSubSetName(_targetFrameworkSubsets, _request.InstalledAssemblySubsetTables);
+                            subsetOrProfileName = GenerateSubSetName(_request.TargetFrameworkSubsets, _request.InstalledAssemblySubsetTables);
                             targetingSubset = true;
                         }
                         else
@@ -2395,7 +2381,7 @@ namespace Microsoft.Build.Tasks
         /// <returns></returns>
         private bool VerifyInputConditions()
         {
-            bool targetFrameworkSubsetIsSet = TargetFrameworkSubsets.Length != 0 || InstalledAssemblySubsetTables.Length != 0;
+            bool targetFrameworkSubsetIsSet = _request.TargetFrameworkSubsets.Length != 0 || InstalledAssemblySubsetTables.Length != 0;
 
             // Make sure the inputs for profiles are correct
             bool profileNameIsSet = !String.IsNullOrEmpty(ProfileName);
@@ -2482,7 +2468,7 @@ namespace Microsoft.Build.Tasks
             // Check for full subset names in the passed in list of subsets to search for
             foreach (string fullSubsetName in _fullTargetFrameworkSubsetNames)
             {
-                foreach (string subsetName in _targetFrameworkSubsets)
+                foreach (string subsetName in _request.TargetFrameworkSubsets)
                 {
                     if (String.Equals(fullSubsetName, subsetName, StringComparison.OrdinalIgnoreCase))
                     {
@@ -2503,7 +2489,7 @@ namespace Microsoft.Build.Tasks
 
             // No subset names were passed in to search for in the targetframework directories and no installed subset tables were provided, we have nothing to use to 
             // generate the black list with, so do not continue.
-            if (_targetFrameworkSubsets.Length == 0 && _request.InstalledAssemblySubsetTables.Length == 0)
+            if (_request.TargetFrameworkSubsets.Length == 0 && _request.InstalledAssemblySubsetTables.Length == 0)
             {
                 return false;
             }
