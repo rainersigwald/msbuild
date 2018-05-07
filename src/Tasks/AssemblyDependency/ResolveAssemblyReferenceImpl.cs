@@ -63,7 +63,6 @@ namespace Microsoft.Build.Tasks
         }
 
         #region Properties
-        private ITaskItem[] _installedAssemblySubsetTables = Array.Empty<TaskItem>();
         private ITaskItem[] _fullFrameworkAssemblyTables = Array.Empty<TaskItem>();
         private ITaskItem[] _resolvedFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _resolvedDependencyFiles = Array.Empty<TaskItem>();
@@ -261,11 +260,11 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         public ITaskItem[] InstalledAssemblySubsetTables
         {
-            get { return _installedAssemblySubsetTables; }
+            get { return _request.InstalledAssemblySubsetTables; }
             set
             {
                 ErrorUtilities.VerifyThrowArgumentNull(value, "InstalledAssemblySubsetTables");
-                _installedAssemblySubsetTables = value;
+                _request.InstalledAssemblySubsetTables = value;
             }
         }
 
@@ -1841,7 +1840,7 @@ namespace Microsoft.Build.Tasks
                                 Log.LogWarningWithCodeFromResources("ResolveAssemblyReference.NoRedistAssembliesToGenerateExclusionList");
                             }
 
-                            subsetOrProfileName = GenerateSubSetName(_targetFrameworkSubsets, _installedAssemblySubsetTables);
+                            subsetOrProfileName = GenerateSubSetName(_targetFrameworkSubsets, _request.InstalledAssemblySubsetTables);
                             targetingSubset = true;
                         }
                         else
@@ -2525,14 +2524,14 @@ namespace Microsoft.Build.Tasks
             }
 
             // We are going to ignore the default installed subsets and there are no additional installedAssemblySubsets passed in, we should not make the list
-            if (IgnoreDefaultInstalledAssemblySubsetTables && _installedAssemblySubsetTables.Length == 0)
+            if (IgnoreDefaultInstalledAssemblySubsetTables && _request.InstalledAssemblySubsetTables.Length == 0)
             {
                 return false;
             }
 
             // No subset names were passed in to search for in the targetframework directories and no installed subset tables were provided, we have nothing to use to 
             // generate the black list with, so do not continue.
-            if (_targetFrameworkSubsets.Length == 0 && _installedAssemblySubsetTables.Length == 0)
+            if (_targetFrameworkSubsets.Length == 0 && _request.InstalledAssemblySubsetTables.Length == 0)
             {
                 return false;
             }
