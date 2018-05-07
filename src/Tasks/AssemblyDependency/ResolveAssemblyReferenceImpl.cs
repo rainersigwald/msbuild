@@ -470,14 +470,6 @@ namespace Microsoft.Build.Tasks
         public bool Silent { get; set; } = false;
 
         /// <summary>
-        /// The project target framework version.
-        ///
-        /// Default is empty. which means there will be no filtering for the reference based on their target framework.
-        /// </summary>
-        /// <value></value>
-        public string TargetFrameworkVersion { get; set; } = String.Empty;
-
-        /// <summary>
         /// The target framework moniker we are targeting if any. This is used for logging purposes.
         ///
         /// Default is empty.
@@ -1848,7 +1840,7 @@ namespace Microsoft.Build.Tasks
                     getDirectories = _cache.CacheDelegate(getDirectories);
                     getRuntimeVersion = _cache.CacheDelegate(getRuntimeVersion);
 
-                    _projectTargetFramework = FrameworkVersionFromString(TargetFrameworkVersion);
+                    _projectTargetFramework = FrameworkVersionFromString(_request.TargetFrameworkVersion);
 
                     // Filter out all Assemblies that have SubType!='', or higher framework
                     FilterBySubtypeAndTargetFramework();
