@@ -462,14 +462,6 @@ namespace Microsoft.Build.Tasks
         public bool FindRelatedFiles { get; set; } = true;
 
         /// <summary>
-        /// If set, then don't log any messages to the screen.
-        ///
-        /// Default is false.
-        /// </summary>
-        /// <value></value>
-        public bool Silent { get; set; } = false;
-
-        /// <summary>
         /// The target framework moniker we are targeting if any. This is used for logging purposes.
         ///
         /// Default is empty.
@@ -690,11 +682,11 @@ namespace Microsoft.Build.Tasks
 #endif
             {
                 /*
-                PERF NOTE: The Silent flag turns off logging completely from the task side. This means
+                PERF NOTE: The _request.Silent flag turns off logging completely from the task side. This means
                 we avoid the String.Formats that would normally occur even if the verbosity was set to 
                 quiet at the engine level.
                 */
-                if (!Silent)
+                if (!_request.Silent)
                 {
                     // First, loop over primaries and display information.
                     foreach (AssemblyNameExtension assemblyName in dependencyTable.References.Keys)
@@ -1028,7 +1020,7 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private void LogInputs()
         {
-            if (!Silent)
+            if (!_request.Silent)
             {
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetFrameworkMoniker");
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", TargetFrameworkMoniker);
@@ -2442,7 +2434,7 @@ namespace Microsoft.Build.Tasks
                 {
                     if (String.Equals(fullSubsetName, subsetName, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (!Silent)
+                        if (!_request.Silent)
                         {
                             Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.NoExclusionListBecauseofFullClientName", subsetName);
                         }
@@ -2464,7 +2456,7 @@ namespace Microsoft.Build.Tasks
                 return false;
             }
 
-            if (!Silent)
+            if (!_request.Silent)
             {
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.UsingExclusionList");
             }
