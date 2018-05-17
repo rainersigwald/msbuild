@@ -62,6 +62,14 @@ namespace Microsoft.Build.Tasks
         {
         }
 
+        /// <summary>
+        /// Construct
+        /// </summary>
+        public ResolveAssemblyReferenceImpl(ResolveAssemblyReferenceRequest request)
+        {
+            _request = request;
+        }
+
         #region Properties
         private ITaskItem[] _resolvedFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _resolvedDependencyFiles = Array.Empty<TaskItem>();
@@ -75,445 +83,6 @@ namespace Microsoft.Build.Tasks
         private Dictionary<string, MessageImportance> _showAssemblyFoldersExLocations = new Dictionary<string, MessageImportance>(StringComparer.OrdinalIgnoreCase);
         private bool _logVerboseSearchResults = false;
         private WarnOrErrorOnTargetArchitectureMismatchBehavior _warnOrErrorOnTargetArchitectureMismatch = WarnOrErrorOnTargetArchitectureMismatchBehavior.Warning;
-
-        /// <summary>
-        /// If set to true, it forces to unresolve framework assemblies with versions higher or equal the version of the target framework, regardless of the target framework
-        /// </summary>
-        public bool UnresolveFrameworkAssembliesFromHigherFrameworks { get; set; } = false;
-
-        /// <summary>
-        /// If there is a mismatch between the targetprocessor architecture and the architecture of a primary reference.
-        /// 
-        /// When this is error,  an error will be logged. 
-        /// 
-        /// When this is warn, if there is a mismatch between the targetprocessor architecture and the architecture of a primary reference a warning will be logged.
-        /// 
-        /// When this is none, no error or warning will be logged.
-        /// </summary>
-        public string WarnOrErrorOnTargetArchitectureMismatch
-        {
-            get
-            {
-                return _warnOrErrorOnTargetArchitectureMismatch.ToString();
-            }
-
-            set
-            {
-                if (!Enum.TryParse<WarnOrErrorOnTargetArchitectureMismatchBehavior>(value, /*ignoreCase*/true, out _warnOrErrorOnTargetArchitectureMismatch))
-                {
-                    _warnOrErrorOnTargetArchitectureMismatch = WarnOrErrorOnTargetArchitectureMismatchBehavior.Warning;
-                }
-            }
-        }
-        /// <summary>
-        /// A list of fully qualified paths-to-assemblyFiles to find dependencies for.
-        ///
-        /// Optional attributes are:
-        ///     bool Private [default=true] -- means 'CopyLocal'
-        ///     string FusionName -- the simple or strong fusion name for this item. If this 
-        ///         attribute is present it can save time since the assembly file won't need
-        ///         to be opened to get the fusion name.
-        ///     bool ExternallyResolved [default=false] -- indicates that the reference and its
-        ///        dependencies are resolved by an external system (commonly from nuget assets) and
-        ///        so several steps can be skipped as an optimization: finding dependencies, 
-        ///        satellite assemblies, etc.
-        /// </summary>
-        public ITaskItem[] AssemblyFiles { get; set; } = Array.Empty<TaskItem>();
-
-        /// <summary>
-        /// The list of directories which contain the redist lists for the most current 
-        /// framework which can be targeted on the machine. If this is not set
-        /// Then we will looks for the highest framework installed on the machine 
-        /// for a given target framework identifier and use that.
-        /// </summary>
-        public string[] LatestTargetFrameworkDirectories { get; set; } = Array.Empty<string>();
-
-        /// <summary>
-        /// Should the framework attribute be ignored when checking to see if an assembly is compatible with the targeted framework.
-        /// </summary>
-        public bool IgnoreTargetFrameworkAttributeVersionMismatch { get; set; } = false;
-
-        /// <summary>
-        /// Force dependencies to be walked even when a reference is marked with ExternallyResolved=true
-        /// metadata.
-        /// </summary>
-        /// <remarks>
-        /// This is used to ensure that we suggest appropriate binding redirects for assembly version
-        /// conflicts within an externally resolved graph.
-        /// </remarks>
-        public bool FindDependenciesOfExternallyResolvedReferences { get; set; }
-
-        /// <summary>
-        /// These can either be simple fusion names like:
-        ///
-        ///      System
-        ///
-        /// or strong names like
-        ///
-        ///     System, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
-        ///
-        /// These names will be resolved into full paths and all dependencies will be found.
-        ///
-        /// Optional attributes are:
-        ///     bool Private [default=true] -- means 'CopyLocal'
-        ///     string HintPath [default=''] -- location of file name to consider as a reference, 
-        ///         used when {HintPathFromItem} is one of the paths in SearchPaths.
-        ///     bool SpecificVersion [default=absent] -- 
-        ///         when true, the exact fusionname in the Include must be matched. 
-        ///         when false, any assembly with the same simple name will be a match.
-        ///         when absent, then look at the value in Include. 
-        ///           If its a simple name then behave as if specific version=false.
-        ///           If its a strong name name then behave as if specific version=true.
-        ///     string ExecutableExtension [default=absent] -- 
-        ///         when present, the resolved assembly must have this extension.
-        ///         when absent, .dll is considered and then .exe for each directory looked at.
-        ///     string SubType -- only items with empty SubTypes will be considered. Items 
-        ///         with non-empty subtypes will be ignored.
-        ///     string AssemblyFolderKey [default=absent] -- supported for legacy AssemblyFolder 
-        ///         resolution. This key can have a value like 'hklm\vendor folder'. When set, only
-        ///         this particular assembly folder key will be used.
-        ///            This is to support the scenario in VSWhidey#357946 in which there are multiple
-        ///            side-by-side libraries installed and the user wants to pick an exact version.
-        ///     bool EmbedInteropTyeps [default=absent] -- 
-        ///         when true, we should treat this assembly as if it has no dependencies and should 
-        ///         be completely embedded into the target assembly.
-        /// </summary>
-        public ITaskItem[] Assemblies { get; set; } = Array.Empty<TaskItem>();
-
-        /// <summary>
-        /// A list of assembly files that can be part of the search and resolution process.
-        /// These must be absolute filesnames, or project-relative filenames.
-        ///
-        /// Assembly files in this list will be considered when SearchPaths contains
-        /// {CandidateAssemblyFiles} as one of the paths to consider.
-        /// </summary>
-        public string[] CandidateAssemblyFiles { get; set; } = Array.Empty<string>();
-
-        /// <summary>
-        /// A list of resolved SDK references which contain the sdk name, sdk location and the targeted configuration.
-        /// These locations will only be searched if the reference has the SDKName metadata attached to it.
-        /// </summary>
-        public ITaskItem[] ResolvedSDKReferences { get; set; } = Array.Empty<TaskItem>();
-
-        /// <summary>
-        /// Path to the target frameworks directory. Required to figure out CopyLocal status 
-        /// for resulting items.
-        /// If not present, then no resulting items will be deemed CopyLocal='true' unless they explicity 
-        /// have a Private='true' attribute on their source item.
-        /// </summary>
-        public string[] TargetFrameworkDirectories { get; set; } = Array.Empty<string>();
-
-        /// <summary>
-        /// A list of XML files that contain assemblies that are expected to be installed on the target machine.
-        /// 
-        /// Format of the file is like:
-        /// 
-        ///     <FileList Redist="Microsoft-Windows-CLRCoreComp" >
-        ///         <File AssemblyName="System" Version="2.0.0.0" PublicKeyToken="b77a5c561934e089" Culture="neutral" ProcessorArchitecture="MSIL" FileVersion="2.0.40824.0" InGAC="true" />
-        ///         etc.
-        ///     </FileList>
-        /// 
-        /// When present, assemblies from this list will be candidates to automatically "unify" from prior versions up to
-        /// the version listed in the XML. Also, assemblies with InGAC='true' will be considered prerequisites and will be CopyLocal='false'
-        /// unless explicitly overridden.
-        /// Items in this list may optionally specify the "FrameworkDirectory" metadata to associate an InstalledAssemblyTable
-        /// with a particular framework directory.  However, this setting will be ignored unless the Redist name begins with
-        /// "Microsoft-Windows-CLRCoreComp".
-        /// If there is only a single TargetFrameworkDirectories element, then any items in this list missing the
-        /// "FrameworkDirectory" metadata will be treated as though this metadata is set to the lone (unique) value passed
-        /// to TargetFrameworkDirectories.
-        /// </summary>
-        public ITaskItem[] InstalledAssemblyTables { get; set; } = Array.Empty<TaskItem>();
-
-        /// <summary>
-        /// A list of XML files that contain assemblies that are expected to be in the target subset
-        /// 
-        /// Format of the file is like:
-        /// 
-        ///     <FileList Redist="ClientSubset" >
-        ///         <File AssemblyName="System" Version="2.0.0.0" PublicKeyToken="b77a5c561934e089" Culture="neutral" ProcessorArchitecture="MSIL" FileVersion="2.0.40824.0" InGAC="true" />
-        ///         etc.
-        ///     </FileList>
-        /// 
-        /// Items in this list may optionally specify the "FrameworkDirectory" metadata to associate an InstalledAssemblySubsetTable
-        /// with a particular framework directory. 
-        /// If there is only a single TargetFrameworkDirectories element, then any items in this list missing the
-        /// "FrameworkDirectory" metadata will be treated as though this metadata is set to the lone (unique) value passed
-        /// to TargetFrameworkDirectories.
-        /// </summary>
-        public ITaskItem[] InstalledAssemblySubsetTables
-        {
-            get { return _request.InstalledAssemblySubsetTables; }
-            set
-            {
-                ErrorUtilities.VerifyThrowArgumentNull(value, "InstalledAssemblySubsetTables");
-                _request.InstalledAssemblySubsetTables = value;
-            }
-        }
-
-        /// <summary>
-        /// [default=false]
-        /// Boolean property to control whether or not the task should look for and use additional installed 
-        /// assembly tables (a.k.a Redist Lists) found in the RedistList directory underneath the provided
-        /// TargetFrameworkDirectories.
-        /// </summary>
-        public bool IgnoreDefaultInstalledAssemblyTables { get; set; } = false;
-
-        /// <summary>
-        /// [default=false]
-        /// Boolean property to control whether or not the task should look for and use additional installed 
-        /// assembly subset tables (a.k.a Subset Lists) found in the SubsetList directory underneath the provided
-        /// TargetFrameworkDirectories.
-        /// </summary>
-        public bool IgnoreDefaultInstalledAssemblySubsetTables { get; set; } = false;
-
-        /// <summary>
-        /// If the primary reference is a framework assembly ignore its version information and actually resolve the framework assembly from the currently targeted framework.
-        /// </summary>
-        public bool IgnoreVersionForFrameworkReferences { get; set; } = false;
-
-        /// <summary>
-        /// The preferred target processor architecture. Used for resolving {GAC} references. 
-        /// Should be like x86, IA64 or AMD64.
-        /// 
-        /// This is the order of preference:
-        /// (1) Assemblies in the GAC that match the supplied ProcessorArchitecture.
-        /// (2) Assemblies in the GAC that have ProcessorArchitecture=MSIL
-        /// (3) Assemblies in the GAC that have no ProcessorArchitecture.
-        /// 
-        /// If absent, then only consider assemblies in the GAC that have ProcessorArchitecture==MSIL or
-        /// no ProcessorArchitecture (these are pre-Whidbey assemblies).
-        /// </summary>
-        public string TargetProcessorArchitecture { get; set; } = null;
-
-        /// <summary>
-        /// What is the runtime we are targeting, is it 2.0.57027 or anotherone, It can have a v or not prefixed onto it.
-        /// </summary>
-        public string TargetedRuntimeVersion { get; set; } = String.Empty;
-
-        /// <summary>
-        /// List of locations to search for assemblyFiles when resolving dependencies.
-        /// The following types of things can be passed in here:
-        /// (1) A plain old directory path.
-        /// (2) {HintPathFromItem} -- Look at the HintPath attribute from the base item.
-        ///     This attribute must be a file name *not* a directory name.
-        /// (3) {CandidateAssemblyFiles} -- Look at the files passed in through the CandidateAssemblyFiles
-        ///     parameter.
-        /// (4) {Registry:_AssemblyFoldersBase_,_RuntimeVersion_,_AssemblyFoldersSuffix_}
-        ///      Where:
-        ///
-        ///         _AssemblyFoldersBase_ = Software\Microsoft\[.NetFramework | .NetCompactFramework]
-        ///         _RuntimeVersion_ = the runtime version property from the project file
-        ///         _AssemblyFoldersSuffix_ = [ PocketPC | SmartPhone | WindowsCE]\AssemblyFoldersEx
-        ///
-        ///      Then look in the registry for keys with the following schema:
-        ///
-        ///         [HKLM | HKCU]\SOFTWARE\MICROSOFT\.NetFramework\
-        ///           v1.0.3705
-        ///             AssemblyFoldersEx
-        ///                 ControlVendor.GridControl.1.0:
-        ///                     @Default = c:\program files\ControlVendor\grid control\1.0\bin
-        ///                     @Description = Grid Control for .NET version 1.0
-        ///                     9466
-        ///                         @Default = c:\program files\ControlVendor\grid control\1.0sp1\bin
-        ///                         @Description = SP1 for Grid Control for .NET version 1.0
-        ///
-        ///      The based registry key is composed as:
-        ///
-        ///          [HKLM | HKCU]\_AssemblyFoldersBase_\_RuntimeVersion_\_AssemblyFoldersSuffix_
-        ///
-        /// (5) {AssemblyFolders} -- Use the VisualStudion 2003 .NET finding-assemblies-from-registry scheme.
-        /// (6) {GAC} -- Look in the GAC.
-        /// (7) {RawFileName} -- Consider the Include value to be an exact path and file name.
-        ///
-        ///
-        /// </summary>
-        /// <value></value>
-        [Required]
-        public string[] SearchPaths { get; set; } = Array.Empty<string>();
-
-        /// <summary>
-        /// [default=.exe;.dll]
-        /// These are the assembly extensions that will be considered during references resolution.
-        /// </summary>
-        public string[] AllowedAssemblyExtensions { get; set; } = new string[] { ".winmd", ".dll", ".exe" };
-
-
-        /// <summary>
-        /// [default=.pdb;.xml]
-        /// These are the extensions that will be considered when looking for related files.
-        /// </summary>
-        public string[] AllowedRelatedFileExtensions { get; set; } = new string[] { ".pdb", ".xml", ".pri" };
-
-
-        /// <summary>
-        /// If this file name is passed in, then we parse it as an app.config file and extract bindingRedirect mappings. These mappings are used in the dependency
-        /// calculation process to remap versions of assemblies.
-        ///
-        /// If this parameter is passed in, then AutoUnify must be false, otherwise error.
-        /// </summary>
-        /// <value></value>
-        public string AppConfigFile { get; set; } = null;
-
-        /// <summary>
-        /// This is true if the project type supports "AutoGenerateBindingRedirects" (currently only for EXE projects).
-        /// </summary>
-        /// <value></value>
-        public bool SupportsBindingRedirectGeneration { get; set; }
-
-        /// <summary>
-        /// [default=false]
-        /// This parameter is used for building assemblies, such as DLLs, which cannot have a normal
-        /// App.Config file.
-        ///
-        /// When true, the resulting dependency graph is automatically treated as if there were an
-        /// App.Config file passed in to the AppConfigFile parameter. This virtual
-        /// App.Config file has a bindingRedirect entry for each conflicting set of assemblies such
-        /// that the highest version assembly is chosen. A consequence of this is that there will never
-        /// be a warning about conflicting assemblies because every conflict will have been resolved.
-        ///
-        /// When true, each distinct remapping will result in a high priority comment indicating the
-        /// old and new versions and the fact that this was done automatically because AutoUnify was true.
-        ///
-        /// When true, the AppConfigFile parameter should be empty. Otherwise, it's an
-        /// error.
-        ///
-        /// When false, no assembly version remapping will occur automatically. When two versions of an
-        /// assembly are present, there will be a warning.
-        ///
-        /// When false, each distinct conflict between different versions of the same assembly will
-        /// result in a high priority comment. After all of these comments are displayed, there will be
-        /// a single warning with a unique error code and text that reads "Found conflicts between
-        /// different versions of reference and dependent assemblies".
-        /// </summary>
-        /// <value></value>
-        public bool AutoUnify { get; set; } = false;
-
-
-        /// <summary>
-        ///  When determining if a dependency should be copied locally one of the checks done is to see if the 
-        ///  parent reference in the project file has the Private metadata set or not. If that metadata is set then 
-        ///  We will use that for the dependency as well. 
-        ///  
-        /// However, if the metadata is not set then the dependency will go through the same checks as the parent reference. 
-        /// One of these checks is to see if the reference is in the GAC. If a reference is in the GAC then we will not copy it locally
-        /// as it is assumed it will be in the gac on the target machine as well. However this only applies to that specific reference and not its dependencies.
-        /// 
-        /// This means a reference in the project file may be copy local false due to it being in the GAC but the dependencies may still be copied locally because they are not in the GAC.
-        /// This is the default behavior for RAR and causes the default value for this property to be true.
-        /// 
-        /// When this property is false we will still check project file references to see if they are in the GAC and set their copy local state as appropriate. 
-        /// However for dependencies we will not only check to see if they are in the GAC but we will also check to see if the parent reference from the project file is in the GAC. 
-        /// If the parent reference from the project file is in the GAC then we will not copy the dependency locally.
-        /// 
-        /// NOTE: If there are multiple parent reference and ANY of them does not come from the GAC then we will set copy local to true.
-        /// </summary>
-        public bool CopyLocalDependenciesWhenParentReferenceInGac { get; set; } = true;
-
-        /// <summary>
-        /// [default=false]
-        /// Enables legacy mode for CopyLocal determination. If true, referenced assemblies will not be copied locally if they
-        /// are found in the GAC. If false, assemblies will be copied locally unless they were found only in the GAC.
-        /// </summary>
-        public bool DoNotCopyLocalIfInGac
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// An optional file name that indicates where to save intermediate build state
-        /// for this task. If not specified, then no inter-build caching will occur.
-        /// </summary>
-        /// <value></value>
-        public string StateFile { get; set; } = null;
-
-        /// <summary>
-        /// If set, then dependencies will be found. Otherwise, only Primary references will be
-        /// resolved.
-        ///
-        /// Default is true.
-        /// </summary>
-        /// <value></value>
-        public bool FindDependencies { get; set; } = true;
-
-        /// <summary>
-        /// If set, then satellites will be found.
-        ///
-        /// Default is true.
-        /// </summary>
-        /// <value></value>
-        public bool FindSatellites { get; set; } = true;
-
-        /// <summary>
-        /// If set, then serialization assemblies will be found.
-        ///
-        /// Default is true.
-        /// </summary>
-        /// <value></value>
-        public bool FindSerializationAssemblies { get; set; } = true;
-
-        /// <summary>
-        /// If set, then related files (.pdbs and .xmls) will be found.
-        ///
-        /// Default is true.
-        /// </summary>
-        /// <value></value>
-        public bool FindRelatedFiles { get; set; } = true;
-
-        /// <summary>
-        /// The target framework moniker we are targeting if any. This is used for logging purposes.
-        ///
-        /// Default is empty.
-        /// </summary>
-        /// <value></value>
-        public string TargetFrameworkMoniker { get; set; } = String.Empty;
-
-        /// <summary>
-        /// The display name of the target framework moniker, if any. This is only for logging.
-        /// </summary>
-        public string TargetFrameworkMonikerDisplayName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Name of the target framework profile we are targeting.
-        /// Eg. Client, Web, or Network
-        /// </summary>
-        public string ProfileName
-        {
-            get
-            {
-                return _profileName;
-            }
-
-            set
-            {
-                ErrorUtilities.VerifyThrowArgumentNull(value, "profileName");
-                _profileName = value;
-            }
-        }
-
-        /// <summary>
-        /// Set of folders which containd a RedistList directory which represent the full framework for a given client profile.
-        /// An example would be 
-        /// %programfiles%\reference assemblies\microsoft\framework\v4.0
-        /// </summary>
-        public string[] FullFrameworkFolders
-        {
-            get
-            {
-                return _request.FullFrameworkFolders;
-            }
-
-            set
-            {
-                ErrorUtilities.VerifyThrowArgumentNull(value, "FullFrameworkFolders");
-                _request.FullFrameworkFolders = value;
-            }
-        }
 
         /// <summary>
         /// This is a list of all primary references resolved to full paths.
@@ -555,7 +124,7 @@ namespace Microsoft.Build.Tasks
         /// <summary>
         /// Related files are files like intellidoc (.XML) and symbols (.PDB) that have the same base
         /// name as a reference.
-        ///     bool Primary [always false] - true if this assembly was passed in with Assemblies.
+        ///     bool Primary [always false] - true if this assembly was passed in with _request.Assemblies.
         ///     bool CopyLocal - whether the given reference should be copied to the output directory.
         /// </summary>
         [Output]
@@ -779,7 +348,7 @@ namespace Microsoft.Build.Tasks
                                         reference.FullPath
                                     );
 
-                                    if (!SupportsBindingRedirectGeneration && !AutoUnify)
+                                    if (!_request.SupportsBindingRedirectGeneration && !_request.AutoUnify)
                                     {
                                         // When running against projects types (such as Web Projects) where we can't auto-generate
                                         // binding redirects during the build, populate a buffer (to be output below) with the
@@ -824,15 +393,15 @@ namespace Microsoft.Build.Tasks
                         // Log the warning
                         if (idealAssemblyRemappings.Length > 0 && foundAtLeastOneValidBindingRedirect)
                         {
-                            if (SupportsBindingRedirectGeneration)
+                            if (_request.SupportsBindingRedirectGeneration)
                             {
-                                if (!AutoUnify)
+                                if (!_request.AutoUnify)
                                 {
                                     Log.LogWarningWithCodeFromResources("ResolveAssemblyReference.TurnOnAutoGenerateBindingRedirects");
                                 }
                                 // else we'll generate bindingRedirects to address the remappings
                             }
-                            else if (!AutoUnify)
+                            else if (!_request.AutoUnify)
                             {
                                 Log.LogWarningWithCodeFromResources("ResolveAssemblyReference.SuggestedRedirects", buffer.ToString());
                             }
@@ -1023,16 +592,16 @@ namespace Microsoft.Build.Tasks
             if (!_request.Silent)
             {
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetFrameworkMoniker");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", TargetFrameworkMoniker);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.TargetFrameworkMoniker);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetFrameworkMonikerDisplayName");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", TargetFrameworkMonikerDisplayName);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.TargetFrameworkMonikerDisplayName);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetedRuntimeVersion");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", TargetedRuntimeVersion);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.TargetedRuntimeVersion);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "Assemblies");
-                foreach (ITaskItem item in Assemblies)
+                foreach (ITaskItem item in _request.Assemblies)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", item.ItemSpec);
                     LogAttribute(item, ItemMetadataNames.privateMetadata);
@@ -1044,7 +613,7 @@ namespace Microsoft.Build.Tasks
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "AssemblyFiles");
-                foreach (ITaskItem item in AssemblyFiles)
+                foreach (ITaskItem item in _request.AssemblyFiles)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", item.ItemSpec);
                     LogAttribute(item, ItemMetadataNames.privateMetadata);
@@ -1052,11 +621,11 @@ namespace Microsoft.Build.Tasks
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "CandidateAssemblyFiles");
-                foreach (string file in CandidateAssemblyFiles)
+                foreach (string file in _request.CandidateAssemblyFiles)
                 {
                     try
                     {
-                        if (FileUtilities.HasExtension(file, AllowedAssemblyExtensions))
+                        if (FileUtilities.HasExtension(file, _request.AllowedAssemblyExtensions))
                         {
                             Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", file);
                         }
@@ -1068,63 +637,63 @@ namespace Microsoft.Build.Tasks
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetFrameworkDirectories");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", String.Join(",", TargetFrameworkDirectories));
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", String.Join(",", _request.TargetFrameworkDirectories));
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "InstalledAssemblyTables");
-                foreach (ITaskItem installedAssemblyTable in InstalledAssemblyTables)
+                foreach (ITaskItem installedAssemblyTable in _request.InstalledAssemblyTables)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", installedAssemblyTable);
                     LogAttribute(installedAssemblyTable, ItemMetadataNames.frameworkDirectory);
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "IgnoreInstalledAssemblyTable");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", IgnoreDefaultInstalledAssemblyTables);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.IgnoreDefaultInstalledAssemblyTables);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "SearchPaths");
-                foreach (string path in SearchPaths)
+                foreach (string path in _request.SearchPaths)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", path);
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "AllowedAssemblyExtensions");
-                foreach (string allowedAssemblyExtension in AllowedAssemblyExtensions)
+                foreach (string allowedAssemblyExtension in _request.AllowedAssemblyExtensions)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", allowedAssemblyExtension);
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "AllowedRelatedFileExtensions");
-                foreach (string allowedRelatedFileExtension in AllowedRelatedFileExtensions)
+                foreach (string allowedRelatedFileExtension in _request.AllowedRelatedFileExtensions)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", allowedRelatedFileExtension);
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "AppConfigFile");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", AppConfigFile);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.AppConfigFile);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "AutoUnify");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", AutoUnify.ToString());
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.AutoUnify.ToString());
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "CopyLocalDependenciesWhenParentReferenceInGac");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", CopyLocalDependenciesWhenParentReferenceInGac);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.CopyLocalDependenciesWhenParentReferenceInGac);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "FindDependencies");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", FindDependencies);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.FindDependencies);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetProcessorArchitecture");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", TargetProcessorArchitecture);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.TargetProcessorArchitecture);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "StateFile");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", StateFile);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.StateFile);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "InstalledAssemblySubsetTables");
-                foreach (ITaskItem installedAssemblySubsetTable in InstalledAssemblySubsetTables)
+                foreach (ITaskItem installedAssemblySubsetTable in _request.InstalledAssemblySubsetTables)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", installedAssemblySubsetTable);
                     LogAttribute(installedAssemblySubsetTable, ItemMetadataNames.frameworkDirectory);
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "IgnoreInstalledAssemblySubsetTable");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", IgnoreDefaultInstalledAssemblySubsetTables);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.IgnoreDefaultInstalledAssemblySubsetTables);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "TargetFrameworkSubsets");
                 foreach (string subset in _request.TargetFrameworkSubsets)
@@ -1133,22 +702,22 @@ namespace Microsoft.Build.Tasks
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "FullTargetFrameworkSubsetNames");
-                foreach (string subset in FullTargetFrameworkSubsetNames)
+                foreach (string subset in _request.FullTargetFrameworkSubsetNames)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", subset);
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "ProfileName");
-                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", ProfileName);
+                Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", _request.ProfileName);
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "FullFrameworkFolders");
-                foreach (string fullFolder in FullFrameworkFolders)
+                foreach (string fullFolder in _request.FullFrameworkFolders)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", fullFolder);
                 }
 
                 Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.LogTaskPropertyFormat", "LatestTargetFrameworkDirectories");
-                foreach (string latestFolder in LatestTargetFrameworkDirectories)
+                foreach (string latestFolder in _request.LatestTargetFrameworkDirectories)
                 {
                     Log.LogMessageFromResources(MessageImportance.Low, "ResolveAssemblyReference.FourSpaceIndent", latestFolder);
                 }
@@ -1213,13 +782,13 @@ namespace Microsoft.Build.Tasks
                 switch (unificationVersion.reason)
                 {
                     case UnificationReason.BecauseOfBindingRedirect:
-                        if (AutoUnify)
+                        if (_request.AutoUnify)
                         {
                             Log.LogMessageFromResources(importance, "ResolveAssemblyReference.FourSpaceIndent", Log.FormatResourceString("ResolveAssemblyReference.UnificationByAutoUnify", unificationVersion.version, unificationVersion.referenceFullPath));
                         }
                         else
                         {
-                            Log.LogMessageFromResources(importance, "ResolveAssemblyReference.FourSpaceIndent", Log.FormatResourceString("ResolveAssemblyReference.UnificationByAppConfig", unificationVersion.version, AppConfigFile, unificationVersion.referenceFullPath));
+                            Log.LogMessageFromResources(importance, "ResolveAssemblyReference.FourSpaceIndent", Log.FormatResourceString("ResolveAssemblyReference.UnificationByAppConfig", unificationVersion.version, _request.AppConfigFile, unificationVersion.referenceFullPath));
                         }
                         break;
 
@@ -1392,7 +961,7 @@ namespace Microsoft.Build.Tasks
                                 break;
                             }
                         case NoMatchReason.ProcessorArchitectureDoesNotMatch:
-                            Log.LogMessageFromResources(importance, "ResolveAssemblyReference.EightSpaceIndent", Log.FormatResourceString("ResolveAssemblyReference.TargetedProcessorArchitectureDoesNotMatch", location.FileNameAttempted, location.AssemblyName.AssemblyName.ProcessorArchitecture.ToString(), TargetProcessorArchitecture));
+                            Log.LogMessageFromResources(importance, "ResolveAssemblyReference.EightSpaceIndent", Log.FormatResourceString("ResolveAssemblyReference.TargetedProcessorArchitectureDoesNotMatch", location.FileNameAttempted, location.AssemblyName.AssemblyName.ProcessorArchitecture.ToString(), _request.TargetProcessorArchitecture));
                             break;
                         default:
                             Debug.Assert(false, "Should have handled this case.");
@@ -1592,7 +1161,7 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private void ReadStateFile()
         {
-            _cache = (SystemState)StateFileBase.DeserializeCache(StateFile, Log, typeof(SystemState));
+            _cache = (SystemState)StateFileBase.DeserializeCache(_request.StateFile, Log, typeof(SystemState));
 
             // Construct the cache if necessary.
             if (_cache == null)
@@ -1606,9 +1175,9 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private void WriteStateFile()
         {
-            if (!string.IsNullOrEmpty(StateFile) && _cache.IsDirty)
+            if (!string.IsNullOrEmpty(_request.StateFile) && _cache.IsDirty)
             {
-                _cache.SerializeCache(StateFile, Log);
+                _cache.SerializeCache(_request.StateFile, Log);
             }
         }
         #endregion
@@ -1620,10 +1189,10 @@ namespace Microsoft.Build.Tasks
         /// <returns></returns>
         private DependentAssembly[] GetAssemblyRemappingsFromAppConfig()
         {
-            if (AppConfigFile != null)
+            if (_request.AppConfigFile != null)
             {
                 AppConfig appConfig = new AppConfig();
-                appConfig.Load(AppConfigFile);
+                appConfig.Load(_request.AppConfigFile);
 
                 return appConfig.Runtime.DependentAssemblies;
             }
@@ -1675,21 +1244,21 @@ namespace Microsoft.Build.Tasks
                 try
                 {
                     FrameworkNameVersioning frameworkMoniker = null;
-                    if (!String.IsNullOrEmpty(TargetFrameworkMoniker))
+                    if (!String.IsNullOrEmpty(_request.TargetFrameworkMoniker))
                     {
                         try
                         {
-                            frameworkMoniker = new FrameworkNameVersioning(TargetFrameworkMoniker);
+                            frameworkMoniker = new FrameworkNameVersioning(_request.TargetFrameworkMoniker);
                         }
                         catch (ArgumentException)
                         {
                             // The exception doesn't contain the bad value, so log it ourselves
-                            Log.LogErrorWithCodeFromResources("ResolveAssemblyReference.InvalidParameter", "TargetFrameworkMoniker", TargetFrameworkMoniker, String.Empty);
+                            Log.LogErrorWithCodeFromResources("ResolveAssemblyReference.InvalidParameter", "TargetFrameworkMoniker", _request.TargetFrameworkMoniker, String.Empty);
                             return false;
                         }
                     }
 
-                    Version targetedRuntimeVersion = SetTargetedRuntimeVersion(TargetedRuntimeVersion);
+                    Version targetedRuntimeVersion = SetTargetedRuntimeVersion(_request.TargetedRuntimeVersion);
 
                     // Log task inputs.
                     LogInputs();
@@ -1704,17 +1273,17 @@ namespace Microsoft.Build.Tasks
                     // Loop through all the target framework directories that were passed in,
                     // and ensure that they all have a trailing slash.  This is necessary
                     // for the string comparisons we will do later on.
-                    if (TargetFrameworkDirectories != null)
+                    if (_request.TargetFrameworkDirectories != null)
                     {
-                        for (int i = 0; i < TargetFrameworkDirectories.Length; i++)
+                        for (int i = 0; i < _request.TargetFrameworkDirectories.Length; i++)
                         {
-                            TargetFrameworkDirectories[i] = FileUtilities.EnsureTrailingSlash(TargetFrameworkDirectories[i]);
+                            _request.TargetFrameworkDirectories[i] = FileUtilities.EnsureTrailingSlash(_request.TargetFrameworkDirectories[i]);
                         }
                     }
 
 
                     // Validate the contents of the InstalledAssemblyTables parameter.
-                    AssemblyTableInfo[] installedAssemblyTableInfo = GetInstalledAssemblyTableInfo(IgnoreDefaultInstalledAssemblyTables, InstalledAssemblyTables, new GetListPath(RedistList.GetRedistListPathsFromDisk), TargetFrameworkDirectories);
+                    AssemblyTableInfo[] installedAssemblyTableInfo = GetInstalledAssemblyTableInfo(_request.IgnoreDefaultInstalledAssemblyTables, _request.InstalledAssemblyTables, new GetListPath(RedistList.GetRedistListPathsFromDisk), _request.TargetFrameworkDirectories);
                     AssemblyTableInfo[] whiteListSubsetTableInfo = null;
 
                     InstalledAssemblies installedAssemblies = null;
@@ -1731,7 +1300,7 @@ namespace Microsoft.Build.Tasks
                     string subsetOrProfileName = null;
 
                     // Are we targeting a profile
-                    bool targetingProfile = !String.IsNullOrEmpty(ProfileName) && ((FullFrameworkFolders.Length > 0) || (_request.FullFrameworkAssemblyTables.Length > 0));
+                    bool targetingProfile = !String.IsNullOrEmpty(_request.ProfileName) && ((_request.FullFrameworkFolders.Length > 0) || (_request.FullFrameworkAssemblyTables.Length > 0));
                     bool targetingSubset = false;
                     List<Exception> whiteListErrors = new List<Exception>();
                     List<string> whiteListErrorFilesNames = new List<string>();
@@ -1744,7 +1313,7 @@ namespace Microsoft.Build.Tasks
                         {
                             // Based in the target framework subset names find the paths to the files
                             SubsetListFinder whiteList = new SubsetListFinder(_request.TargetFrameworkSubsets);
-                            whiteListSubsetTableInfo = GetInstalledAssemblyTableInfo(IgnoreDefaultInstalledAssemblySubsetTables, InstalledAssemblySubsetTables, new GetListPath(whiteList.GetSubsetListPathsFromDisk), TargetFrameworkDirectories);
+                            whiteListSubsetTableInfo = GetInstalledAssemblyTableInfo(_request.IgnoreDefaultInstalledAssemblySubsetTables, _request.InstalledAssemblySubsetTables, new GetListPath(whiteList.GetSubsetListPathsFromDisk), _request.TargetFrameworkDirectories);
                             if (whiteListSubsetTableInfo.Length > 0 && (redistList != null && redistList.Count > 0))
                             {
                                 blackList = redistList.GenerateBlackList(whiteListSubsetTableInfo, whiteListErrors, whiteListErrorFilesNames);
@@ -1834,12 +1403,12 @@ namespace Microsoft.Build.Tasks
 
                     _projectTargetFramework = FrameworkVersionFromString(_request.TargetFrameworkVersion);
 
-                    // Filter out all Assemblies that have SubType!='', or higher framework
+                    // Filter out all _request.Assemblies that have SubType!='', or higher framework
                     FilterBySubtypeAndTargetFramework();
 
                     // Compute the set of bindingRedirect remappings.
                     DependentAssembly[] appConfigRemappedAssemblies = null;
-                    if (FindDependencies)
+                    if (_request.FindDependencies)
                     {
                         try
                         {
@@ -1847,12 +1416,12 @@ namespace Microsoft.Build.Tasks
                         }
                         catch (AppConfigException e)
                         {
-                            Log.LogErrorWithCodeFromResources(null, e.FileName, e.Line, e.Column, 0, 0, "ResolveAssemblyReference.InvalidAppConfig", AppConfigFile, e.Message);
+                            Log.LogErrorWithCodeFromResources(null, e.FileName, e.Line, e.Column, 0, 0, "ResolveAssemblyReference.InvalidAppConfig", _request.AppConfigFile, e.Message);
                             return false;
                         }
                     }
 
-                    SystemProcessorArchitecture processorArchitecture = TargetProcessorArchitectureToEnumeration(TargetProcessorArchitecture);
+                    SystemProcessorArchitecture processorArchitecture = TargetProcessorArchitectureToEnumeration(_request.TargetProcessorArchitecture);
 
                     ConcurrentDictionary<string, AssemblyMetadata> assemblyMetadataCache =
                         Traits.Instance.EscapeHatches.CacheAssemblyInformation
@@ -1863,16 +1432,16 @@ namespace Microsoft.Build.Tasks
                     ReferenceTable dependencyTable = new ReferenceTable
                     (
                         BuildEngine,
-                        FindDependencies,
-                        FindSatellites,
-                        FindSerializationAssemblies,
-                        FindRelatedFiles,
-                        SearchPaths,
-                        AllowedAssemblyExtensions,
-                        AllowedRelatedFileExtensions,
-                        CandidateAssemblyFiles,
-                        ResolvedSDKReferences,
-                        TargetFrameworkDirectories,
+                        _request.FindDependencies,
+                        _request.FindSatellites,
+                        _request.FindSerializationAssemblies,
+                        _request.FindRelatedFiles,
+                        _request.SearchPaths,
+                        _request.AllowedAssemblyExtensions,
+                        _request.AllowedRelatedFileExtensions,
+                        _request.CandidateAssemblyFiles,
+                        _request.ResolvedSDKReferences,
+                        _request.TargetFrameworkDirectories,
                         installedAssemblies,
                         processorArchitecture,
                         fileExists,
@@ -1890,30 +1459,30 @@ namespace Microsoft.Build.Tasks
                         _projectTargetFramework,
                         frameworkMoniker,
                         Log,
-                        LatestTargetFrameworkDirectories,
-                        CopyLocalDependenciesWhenParentReferenceInGac,
-                        DoNotCopyLocalIfInGac,
+                        _request.LatestTargetFrameworkDirectories,
+                        _request.CopyLocalDependenciesWhenParentReferenceInGac,
+                        _request.DoNotCopyLocalIfInGac,
                         getAssemblyPathInGac,
                         isWinMDFile,
-                        IgnoreVersionForFrameworkReferences,
+                        _request.IgnoreVersionForFrameworkReferences,
                         readMachineTypeFromPEHeader,
                         _warnOrErrorOnTargetArchitectureMismatch,
-                        IgnoreTargetFrameworkAttributeVersionMismatch,
-                        UnresolveFrameworkAssembliesFromHigherFrameworks,
+                        _request.IgnoreTargetFrameworkAttributeVersionMismatch,
+                        _request.UnresolveFrameworkAssembliesFromHigherFrameworks,
                         assemblyMetadataCache
                         );
 
-                    dependencyTable.FindDependenciesOfExternallyResolvedReferences = FindDependenciesOfExternallyResolvedReferences;
+                    dependencyTable.FindDependenciesOfExternallyResolvedReferences = _request.FindDependenciesOfExternallyResolvedReferences;
 
                     // If AutoUnify, then compute the set of assembly remappings.
                     ArrayList generalResolutionExceptions = new ArrayList();
 
-                    subsetOrProfileName = targetingSubset && String.IsNullOrEmpty(TargetFrameworkMoniker) ? subsetOrProfileName : TargetFrameworkMoniker;
+                    subsetOrProfileName = targetingSubset && String.IsNullOrEmpty(_request.TargetFrameworkMoniker) ? subsetOrProfileName : _request.TargetFrameworkMoniker;
                     bool excludedReferencesExist = false;
 
                     DependentAssembly[] autoUnifiedRemappedAssemblies = null;
                     AssemblyNameReference[] autoUnifiedRemappedAssemblyReferences = null;
-                    if (AutoUnify && FindDependencies)
+                    if (_request.AutoUnify && _request.FindDependencies)
                     {
                         // Compute all dependencies.
                         dependencyTable.ComputeClosure
@@ -1921,8 +1490,8 @@ namespace Microsoft.Build.Tasks
                             // Use any app.config specified binding redirects so that later when we output suggested redirects
                             // for the GenerateBindingRedirects target, we don't suggest ones that the user already wrote
                             appConfigRemappedAssemblies,
-                            AssemblyFiles,
-                            Assemblies,
+                            _request.AssemblyFiles,
+                            _request.Assemblies,
                             generalResolutionExceptions
                         );
 
@@ -1958,7 +1527,7 @@ namespace Microsoft.Build.Tasks
                     DependentAssembly[] allRemappedAssemblies = CombineRemappedAssemblies(appConfigRemappedAssemblies, autoUnifiedRemappedAssemblies);
 
                     // Compute all dependencies.
-                    dependencyTable.ComputeClosure(allRemappedAssemblies, AssemblyFiles, Assemblies, generalResolutionExceptions);
+                    dependencyTable.ComputeClosure(allRemappedAssemblies, _request.AssemblyFiles, _request.Assemblies, generalResolutionExceptions);
 
                     try
                     {
@@ -2002,13 +1571,13 @@ namespace Microsoft.Build.Tasks
                     );
 
                     // If we're not finding dependencies, then don't suggest redirects (they're only about dependencies).
-                    if (FindDependencies)
+                    if (_request.FindDependencies)
                     {
                         // Build the table of suggested redirects. If we're auto-unifying, we want to output all the 
                         // assemblies that we auto-unified so that GenerateBindingRedirects can consume them, 
                         // not just the required ones for build to succeed
-                        DependentAssembly[] remappings = AutoUnify ? autoUnifiedRemappedAssemblies : idealAssemblyRemappings;
-                        AssemblyNameReference[] remappedReferences = AutoUnify ? autoUnifiedRemappedAssemblyReferences : idealAssemblyRemappingsIdentities;
+                        DependentAssembly[] remappings = _request.AutoUnify ? autoUnifiedRemappedAssemblies : idealAssemblyRemappings;
+                        AssemblyNameReference[] remappedReferences = _request.AutoUnify ? autoUnifiedRemappedAssemblyReferences : idealAssemblyRemappingsIdentities;
                         PopulateSuggestedRedirects(remappings, remappedReferences);
                     }
 
@@ -2030,12 +1599,12 @@ namespace Microsoft.Build.Tasks
                         }
                     }
 
-                    if ((!useSystemRuntime || !useNetStandard) && (!FindDependencies || dependencyTable.SkippedFindingExternallyResolvedDependencies))
+                    if ((!useSystemRuntime || !useNetStandard) && (!_request.FindDependencies || dependencyTable.SkippedFindingExternallyResolvedDependencies))
                     {
                         // when we are not producing the (full) dependency graph look for direct dependencies of primary references
                         foreach (var resolvedReference in dependencyTable.References.Values)
                         {
-                            if (FindDependencies && !resolvedReference.ExternallyResolved)
+                            if (_request.FindDependencies && !resolvedReference.ExternallyResolved)
                             {
                                 // if we're finding dependencies and a given reference was not marked as ExternallyResolved
                                 // then its use of System.Runtime/.netstandard would already have been identified above.
@@ -2073,9 +1642,9 @@ namespace Microsoft.Build.Tasks
                     WriteStateFile();
 
                     // Save the new state out and put into the file exists if it is actually on disk.
-                    if (StateFile != null && fileExists(StateFile))
+                    if (_request.StateFile != null && fileExists(_request.StateFile))
                     {
-                        _filesWritten.Add(new TaskItem(StateFile));
+                        _filesWritten.Add(new TaskItem(_request.StateFile));
                     }
 
                     // Log the results.
@@ -2089,7 +1658,7 @@ namespace Microsoft.Build.Tasks
                         {
                             AssemblyNameExtension assemblyName = null;
 
-                            if (fileExists(item.ItemSpec) && !Reference.IsFrameworkFile(item.ItemSpec, TargetFrameworkDirectories))
+                            if (fileExists(item.ItemSpec) && !Reference.IsFrameworkFile(item.ItemSpec, _request.TargetFrameworkDirectories))
                             {
                                 try
                                 {
@@ -2258,7 +1827,7 @@ namespace Microsoft.Build.Tasks
                 }
             }
 
-            fullRedistAssemblyTableInfo = GetInstalledAssemblyTableInfo(false, _request.FullFrameworkAssemblyTables, new GetListPath(RedistList.GetRedistListPathsFromDisk), FullFrameworkFolders);
+            fullRedistAssemblyTableInfo = GetInstalledAssemblyTableInfo(false, _request.FullFrameworkAssemblyTables, new GetListPath(RedistList.GetRedistListPathsFromDisk), _request.FullFrameworkFolders);
             if (fullRedistAssemblyTableInfo.Length > 0)
             {
                 // Get the redist list which represents the Full framework, we need this so that we can generate the exclusion list
@@ -2343,11 +1912,11 @@ namespace Microsoft.Build.Tasks
         /// <returns></returns>
         private bool VerifyInputConditions()
         {
-            bool targetFrameworkSubsetIsSet = _request.TargetFrameworkSubsets.Length != 0 || InstalledAssemblySubsetTables.Length != 0;
+            bool targetFrameworkSubsetIsSet = _request.TargetFrameworkSubsets.Length != 0 || _request.InstalledAssemblySubsetTables.Length != 0;
 
             // Make sure the inputs for profiles are correct
-            bool profileNameIsSet = !String.IsNullOrEmpty(ProfileName);
-            bool fullFrameworkFoldersIsSet = FullFrameworkFolders.Length > 0;
+            bool profileNameIsSet = !String.IsNullOrEmpty(_request.ProfileName);
+            bool fullFrameworkFoldersIsSet = _request.FullFrameworkFolders.Length > 0;
             bool fullFrameworkTableLocationsIsSet = _request.FullFrameworkAssemblyTables.Length > 0;
             bool profileIsSet = profileNameIsSet && (fullFrameworkFoldersIsSet || fullFrameworkTableLocationsIsSet);
 
@@ -2444,7 +2013,7 @@ namespace Microsoft.Build.Tasks
             }
 
             // We are going to ignore the default installed subsets and there are no additional installedAssemblySubsets passed in, we should not make the list
-            if (IgnoreDefaultInstalledAssemblySubsetTables && _request.InstalledAssemblySubsetTables.Length == 0)
+            if (_request.IgnoreDefaultInstalledAssemblySubsetTables && _request.InstalledAssemblySubsetTables.Length == 0)
             {
                 return false;
             }
@@ -2536,12 +2105,12 @@ namespace Microsoft.Build.Tasks
 
                 if (String.IsNullOrEmpty(frameworkDirectory))
                 {
-                    if (TargetFrameworkDirectories != null && TargetFrameworkDirectories.Length == 1)
+                    if (_request.TargetFrameworkDirectories != null && _request.TargetFrameworkDirectories.Length == 1)
                     {
                         // Exactly one TargetFrameworkDirectory, so assume it's related to this
                         // InstalledAssemblyTable.
 
-                        frameworkDirectory = TargetFrameworkDirectories[0];
+                        frameworkDirectory = _request.TargetFrameworkDirectories[0];
                     }
                 }
                 else
@@ -2594,7 +2163,7 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
-        /// Validate and filter the Assemblies that were passed in.
+        /// Validate and filter the _request.Assemblies that were passed in.
         /// - Check for assemblies that look like file names.
         /// - Check for assemblies where subtype!=''. These are removed.
         /// - Check for assemblies that have target framework higher than the project. These are removed.
@@ -2602,7 +2171,7 @@ namespace Microsoft.Build.Tasks
         private void FilterBySubtypeAndTargetFramework()
         {
             ArrayList assembliesLeft = new ArrayList();
-            foreach (ITaskItem assembly in Assemblies)
+            foreach (ITaskItem assembly in _request.Assemblies)
             {
                 string subType = assembly.GetMetadata(ItemMetadataNames.subType);
                 if (subType != null && subType.Length > 0)
@@ -2620,7 +2189,7 @@ namespace Microsoft.Build.Tasks
             }
 
             // Save the array of assemblies filtered by SubType==''.
-            Assemblies = (ITaskItem[])assembliesLeft.ToArray(typeof(ITaskItem));
+            _request.Assemblies = (ITaskItem[])assembliesLeft.ToArray(typeof(ITaskItem));
         }
 
         /// <summary>

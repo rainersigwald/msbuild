@@ -1753,6 +1753,48 @@ namespace Microsoft.Build.Tasks
             {
                 try
                 {
+                    var request = new ResolveAssemblyReferenceRequest()
+                    {
+                        AllowedAssemblyExtensions = AllowedAssemblyExtensions,
+                        AllowedRelatedFileExtensions = AllowedRelatedFileExtensions,
+                        AssemblyFiles = AssemblyFiles,
+                        AutoUnify = AutoUnify,
+                        CandidateAssemblyFiles = CandidateAssemblyFiles,
+                        CopyLocalDependenciesWhenParentReferenceInGac = CopyLocalDependenciesWhenParentReferenceInGac,
+                        DoNotCopyLocalIfInGac = DoNotCopyLocalIfInGac,
+                        FindDependencies = FindDependencies,
+                        FindDependenciesOfExternallyResolvedReferences = FindDependenciesOfExternallyResolvedReferences,
+                        FindRelatedFiles = FindRelatedFiles,
+                        FindSatellites = FindSatellites,
+                        FindSerializationAssemblies = FindSerializationAssemblies,
+                        FullFrameworkAssemblyTables = FullFrameworkAssemblyTables,
+                        FullFrameworkFolders = FullFrameworkFolders,
+                        FullTargetFrameworkSubsetNames = FullTargetFrameworkSubsetNames,
+                        IgnoreDefaultInstalledAssemblySubsetTables = IgnoreDefaultInstalledAssemblySubsetTables,
+                        IgnoreDefaultInstalledAssemblyTables = IgnoreDefaultInstalledAssemblyTables,
+                        IgnoreTargetFrameworkAttributeVersionMismatch = IgnoreTargetFrameworkAttributeVersionMismatch,
+                        IgnoreVersionForFrameworkReferences = IgnoreVersionForFrameworkReferences,
+                        InstalledAssemblySubsetTables = InstalledAssemblySubsetTables,
+                        InstalledAssemblyTables = InstalledAssemblyTables,
+                        LatestTargetFrameworkDirectories = LatestTargetFrameworkDirectories,
+                        ProfileName = ProfileName,
+                        ResolvedSDKReferences = ResolvedSDKReferences,
+                        SearchPaths = SearchPaths,
+                        Silent = Silent,
+                        StateFile = StateFile,
+                        SupportsBindingRedirectGeneration = SupportsBindingRedirectGeneration,
+                        TargetedRuntimeVersion = TargetedRuntimeVersion,
+                        TargetFrameworkDirectories = TargetFrameworkDirectories,
+                        TargetFrameworkMoniker = TargetFrameworkMoniker,
+                        TargetFrameworkMonikerDisplayName = TargetFrameworkMonikerDisplayName,
+                        TargetFrameworkSubsets = TargetFrameworkSubsets,
+                        TargetFrameworkVersion = TargetFrameworkVersion,
+                        TargetProcessorArchitecture = TargetProcessorArchitecture,
+                        UnresolveFrameworkAssembliesFromHigherFrameworks = UnresolveFrameworkAssembliesFromHigherFrameworks,
+                        WarnOrErrorOnTargetArchitectureMismatch = WarnOrErrorOnTargetArchitectureMismatch,
+                    };
+
+
                     FrameworkNameVersioning frameworkMoniker = null;
                     if (!String.IsNullOrEmpty(TargetFrameworkMoniker))
                     {

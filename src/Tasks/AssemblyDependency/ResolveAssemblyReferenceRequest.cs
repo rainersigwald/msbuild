@@ -32,6 +32,7 @@ namespace Microsoft.Build.Tasks.AssemblyDependency
         public ITaskItem[] InstalledAssemblyTables { get; set; }
         public string[] LatestTargetFrameworkDirectories { get; set; }
         public string ProfileName { get; set; }
+        public ITaskItem[] ResolvedSDKReferences { get; set; }
         public string[] SearchPaths { get; set; }
         public bool Silent { get; set; }
         public string StateFile { get; set; }
