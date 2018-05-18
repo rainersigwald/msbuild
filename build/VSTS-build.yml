@@ -104,7 +104,7 @@ steps:
     CleanTargetFolder: true
 
 - task: PublishBuildArtifacts@1
-  displayName: Publish Artifact: symbols
+  displayName: "Publish Artifact: symbols"
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/symbols'
     ArtifactName: symbols
