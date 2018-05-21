@@ -2507,24 +2507,21 @@ namespace Microsoft.Build.Tasks
         /// <param name="relatedFiles">Related files like .xmls and .pdbs.</param>
         /// <param name="satelliteFiles">Satellite files.</param>
         /// <param name="copyLocalFiles">All copy-local files out of primaryFiles+dependencyFiles+relatedFiles+satelliteFiles.</param>
-        internal void GetReferenceItems
-        (
-            out ITaskItem[] primaryFiles,
-            out ITaskItem[] dependencyFiles,
-            out ITaskItem[] relatedFiles,
-            out ITaskItem[] satelliteFiles,
-            out ITaskItem[] serializationAssemblyFiles,
-            out ITaskItem[] scatterFiles,
-            out ITaskItem[] copyLocalFiles
-        )
+        internal (ITaskItem[] primaryFiles,
+            ITaskItem[] dependencyFiles,
+            ITaskItem[] relatedFiles,
+            ITaskItem[] satelliteFiles,
+            ITaskItem[] serializationAssemblyFiles,
+            ITaskItem[] scatterFiles,
+            ITaskItem[] copyLocalFiles) GetReferenceItems()
         {
-            primaryFiles = Array.Empty<ITaskItem>();
-            dependencyFiles = Array.Empty<ITaskItem>();
-            relatedFiles = Array.Empty<ITaskItem>();
-            satelliteFiles = Array.Empty<ITaskItem>();
-            serializationAssemblyFiles = Array.Empty<ITaskItem>();
-            scatterFiles = Array.Empty<ITaskItem>();
-            copyLocalFiles = Array.Empty<ITaskItem>();
+            ITaskItem[] primaryFiles = Array.Empty<ITaskItem>();
+            ITaskItem[] dependencyFiles = Array.Empty<ITaskItem>();
+            ITaskItem[] relatedFiles = Array.Empty<ITaskItem>();
+            ITaskItem[] satelliteFiles = Array.Empty<ITaskItem>();
+            ITaskItem[] serializationAssemblyFiles = Array.Empty<ITaskItem>();
+            ITaskItem[] scatterFiles = Array.Empty<ITaskItem>();
+            ITaskItem[] copyLocalFiles = Array.Empty<ITaskItem>();
 
             ArrayList primaryItems = new ArrayList();
             ArrayList dependencyItems = new ArrayList();
@@ -2605,6 +2602,14 @@ namespace Microsoft.Build.Tasks
             FindCopyLocalItems(serializationAssemblyFiles, copyLocalItems);
             FindCopyLocalItems(scatterFiles, copyLocalItems);
             copyLocalFiles = (ITaskItem[])copyLocalItems.ToArray(typeof(ITaskItem));
+
+            return (primaryFiles,
+            dependencyFiles,
+            relatedFiles,
+            satelliteFiles,
+            serializationAssemblyFiles,
+            scatterFiles,
+            copyLocalFiles);
         }
 
         /// <summary>

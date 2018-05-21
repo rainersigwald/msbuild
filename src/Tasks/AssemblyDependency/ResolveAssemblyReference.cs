@@ -1791,9 +1791,8 @@ namespace Microsoft.Build.Tasks
                         TargetFrameworkVersion = TargetFrameworkVersion,
                         TargetProcessorArchitecture = TargetProcessorArchitecture,
                         UnresolveFrameworkAssembliesFromHigherFrameworks = UnresolveFrameworkAssembliesFromHigherFrameworks,
-                        WarnOrErrorOnTargetArchitectureMismatch = WarnOrErrorOnTargetArchitectureMismatch,
+                        WarnOrErrorOnTargetArchitectureMismatch = _warnOrErrorOnTargetArchitectureMismatch,
                     };
-
 
                     FrameworkNameVersioning frameworkMoniker = null;
                     if (!String.IsNullOrEmpty(TargetFrameworkMoniker))
@@ -2111,16 +2110,12 @@ namespace Microsoft.Build.Tasks
                     );
 
                     // Build the output tables.
-                    dependencyTable.GetReferenceItems
-                    (
-                        out _resolvedFiles,
-                        out _resolvedDependencyFiles,
-                        out _relatedFiles,
-                        out _satelliteFiles,
-                        out _serializationAssemblyFiles,
-                        out _scatterFiles,
-                        out _copyLocalFiles
-                    );
+                    (_resolvedFiles, _resolvedDependencyFiles,
+                         _relatedFiles,
+                         _satelliteFiles,
+                         _serializationAssemblyFiles,
+                         _scatterFiles,
+                         _copyLocalFiles) = dependencyTable.GetReferenceItems();
 
                     // If we're not finding dependencies, then don't suggest redirects (they're only about dependencies).
                     if (FindDependencies)

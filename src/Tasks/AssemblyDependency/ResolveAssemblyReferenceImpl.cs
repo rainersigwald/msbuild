@@ -33,6 +33,8 @@ namespace Microsoft.Build.Tasks
     {
         public ResolveAssemblyReferenceRequest _request { get; set; }
 
+        public ResolveAssemblyReferenceResponse _response { get; } = new ResolveAssemblyReferenceResponse();
+
         /// <summary>
         /// key assembly used to trigger inclusion of facade references. 
         /// </summary>
@@ -71,7 +73,6 @@ namespace Microsoft.Build.Tasks
         }
 
         #region Properties
-        private ITaskItem[] _resolvedFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _resolvedDependencyFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _relatedFiles = Array.Empty<TaskItem>();
         private ITaskItem[] _satelliteFiles = Array.Empty<TaskItem>();
@@ -82,25 +83,6 @@ namespace Microsoft.Build.Tasks
         private string _profileName = String.Empty;
         private Dictionary<string, MessageImportance> _showAssemblyFoldersExLocations = new Dictionary<string, MessageImportance>(StringComparer.OrdinalIgnoreCase);
         private bool _logVerboseSearchResults = false;
-        private WarnOrErrorOnTargetArchitectureMismatchBehavior _warnOrErrorOnTargetArchitectureMismatch = WarnOrErrorOnTargetArchitectureMismatchBehavior.Warning;
-
-        /// <summary>
-        /// This is a list of all primary references resolved to full paths.
-        ///     bool CopyLocal - whether the given reference should be copied to the output directory.
-        ///     string FusionName - the fusion name for this dependency.
-        ///     string ResolvedFrom - the literal search path that this file was resolved from.
-        ///     bool IsRedistRoot - Whether or not this assembly is the representative for an entire redist.
-        ///         'true' means the assembly is representative of an entire redist and should be indicated as
-        ///         an application dependency in an application manifest.
-        ///         'false' means the assembly is internal to a redist and should not be part of the
-        ///         application manifest.
-        ///     string Redist - The name (if any) of the redist that contains this assembly.
-        /// </summary>
-        [Output]
-        public ITaskItem[] ResolvedFiles
-        {
-            get { return _resolvedFiles; }
-        }
 
         /// <summary>
         /// A list of all n-th order paths-to-dependencies with the following attributes:
@@ -1466,7 +1448,7 @@ namespace Microsoft.Build.Tasks
                         isWinMDFile,
                         _request.IgnoreVersionForFrameworkReferences,
                         readMachineTypeFromPEHeader,
-                        _warnOrErrorOnTargetArchitectureMismatch,
+                        _request.WarnOrErrorOnTargetArchitectureMismatch,
                         _request.IgnoreTargetFrameworkAttributeVersionMismatch,
                         _request.UnresolveFrameworkAssembliesFromHigherFrameworks,
                         assemblyMetadataCache
@@ -1559,16 +1541,12 @@ namespace Microsoft.Build.Tasks
                     );
 
                     // Build the output tables.
-                    dependencyTable.GetReferenceItems
-                    (
-                        out _resolvedFiles,
-                        out _resolvedDependencyFiles,
-                        out _relatedFiles,
-                        out _satelliteFiles,
-                        out _serializationAssemblyFiles,
-                        out _scatterFiles,
-                        out _copyLocalFiles
-                    );
+                    (_response.ResolvedFiles,  _resolvedDependencyFiles,
+                         _relatedFiles,
+                         _satelliteFiles,
+                         _serializationAssemblyFiles,
+                         _scatterFiles,
+                         _copyLocalFiles) = dependencyTable.GetReferenceItems();
 
                     // If we're not finding dependencies, then don't suggest redirects (they're only about dependencies).
                     if (_request.FindDependencies)
@@ -1652,9 +1630,9 @@ namespace Microsoft.Build.Tasks
 
                     DumpTargetProfileLists(installedAssemblyTableInfo, whiteListSubsetTableInfo, dependencyTable);
 
-                    if (processorArchitecture != SystemProcessorArchitecture.None && _warnOrErrorOnTargetArchitectureMismatch != WarnOrErrorOnTargetArchitectureMismatchBehavior.None)
+                    if (processorArchitecture != SystemProcessorArchitecture.None &&  _request.WarnOrErrorOnTargetArchitectureMismatch != WarnOrErrorOnTargetArchitectureMismatchBehavior.None)
                     {
-                        foreach (ITaskItem item in _resolvedFiles)
+                        foreach (ITaskItem item in _response.ResolvedFiles)
                         {
                             AssemblyNameExtension assemblyName = null;
 
@@ -1696,7 +1674,7 @@ namespace Microsoft.Build.Tasks
 
                                 if (processorArchitecture != assemblyArch)
                                 {
-                                    if (_warnOrErrorOnTargetArchitectureMismatch == WarnOrErrorOnTargetArchitectureMismatchBehavior.Error)
+                                    if ( _request.WarnOrErrorOnTargetArchitectureMismatch == WarnOrErrorOnTargetArchitectureMismatchBehavior.Error)
                                     {
                                         Log.LogErrorWithCodeFromResources("ResolveAssemblyReference.MismatchBetweenTargetedAndReferencedArch", ProcessorArchitectureToString(processorArchitecture), item.GetMetadata("OriginalItemSpec"), ProcessorArchitectureToString(assemblyArch));
                                     }

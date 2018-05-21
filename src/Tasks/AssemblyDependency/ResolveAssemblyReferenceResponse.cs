@@ -18,6 +18,5 @@ namespace Microsoft.Build.Tasks.AssemblyDependency
         public ITaskItem[] SatelliteFiles { get; set; }
         public ITaskItem[] ScatterFiles { get; set; }
         public ITaskItem[] SuggestedRedirects { get; set; }
-
     }
 }

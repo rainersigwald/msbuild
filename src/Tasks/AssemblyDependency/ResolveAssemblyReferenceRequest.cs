@@ -45,6 +45,6 @@ namespace Microsoft.Build.Tasks.AssemblyDependency
         public string TargetFrameworkVersion { get; set; }
         public string TargetProcessorArchitecture { get; set; }
         public bool UnresolveFrameworkAssembliesFromHigherFrameworks { get; set; }
-        public string WarnOrErrorOnTargetArchitectureMismatch { get; set; }
+        public WarnOrErrorOnTargetArchitectureMismatchBehavior WarnOrErrorOnTargetArchitectureMismatch { get; set; }
     }
 }
