@@ -508,6 +508,7 @@
     <Compile Include="Dependencies.cs" />
     <Compile Include="SystemState.cs" />
     <Compile Include="DependencyFile.cs" />
+    <Compile Include="XslTransformation.cs" />
     <Compile Include="ZipDirectory.cs" />
   </ItemGroup>
   <ItemGroup Condition="$(TargetFrameworkIdentifier) == '.NETFramework'">
@@ -648,7 +649,6 @@
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="WinMDExp.cs" />
-    <Compile Include="XslTransformation.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Compile Include="XamlTaskFactory\CommandLineGenerator.cs" />
