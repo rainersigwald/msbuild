@@ -90,11 +90,9 @@ namespace Microsoft.Build.CommandLine
         {
             switch (Environment.GetEnvironmentVariable("MSBUILDDEBUGONSTART"))
             {
-#if FEATURE_DEBUG_LAUNCH
                 case "1":
                     Debugger.Launch();
                     break;
-#endif
                 case "2":
                     // Sometimes easier to attach rather than deal with JIT prompt
                     Process currentProcess = Process.GetCurrentProcess();

@@ -301,23 +301,17 @@ namespace Microsoft.Build.Shared
             }
             catch (ArgumentException e)
             {
-#if FEATURE_DEBUG_LAUNCH
                 Debug.Fail("The resource string \"" + resourceName + "\" was not found.");
-#endif
                 ErrorUtilities.ThrowInternalError(e.Message);
             }
             catch (InvalidOperationException e)
             {
-#if FEATURE_DEBUG_LAUNCH
                 Debug.Fail("The resource string \"" + resourceName + "\" was not found.");
-#endif
                 ErrorUtilities.ThrowInternalError(e.Message);
             }
             catch (MissingManifestResourceException e)
             {
-#if FEATURE_DEBUG_LAUNCH
                 Debug.Fail("The resource string \"" + resourceName + "\" was not found.");
-#endif
                 ErrorUtilities.ThrowInternalError(e.Message);
             }
 #endif

@@ -123,21 +123,8 @@ namespace Microsoft.Build.Shared
 
         private static void LaunchDebugger(string message, string innerMessage)
         {
-#if FEATURE_DEBUG_LAUNCH
             Debug.Fail(message, innerMessage);
             Debugger.Launch();
-#else
-            Console.WriteLine("MSBuild Failure: " + message);    
-            if (!string.IsNullOrEmpty(innerMessage))
-            {
-                Console.WriteLine(innerMessage);
-            }
-            Console.WriteLine("Waiting for debugger to attach to process: " + Process.GetCurrentProcess().Id);
-            while (!Debugger.IsAttached)
-            {
-                System.Threading.Thread.Sleep(100);
-            }
-#endif
         }
         #endregion
 
