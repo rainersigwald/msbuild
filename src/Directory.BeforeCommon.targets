@@ -72,7 +72,6 @@
     <DefineConstants>$(DefineConstants);FEATURE_SECURITY_PRINCIPAL_WINDOWS</DefineConstants>
     <DefineConstants>$(DefineConstants);FEATURE_SPECIAL_FOLDERS</DefineConstants>
     <FeatureSpecialFolders>true</FeatureSpecialFolders>
-    <DefineConstants>$(DefineConstants);FEATURE_STRING_INTERN</DefineConstants>
     <DefineConstants>$(DefineConstants);FEATURE_STRONG_NAMES</DefineConstants>
     <DefineConstants>$(DefineConstants);FEATURE_SYSTEM_CONFIGURATION</DefineConstants>
     <DefineConstants>$(DefineConstants);FEATURE_SYSTEMPAGESIZE</DefineConstants>
