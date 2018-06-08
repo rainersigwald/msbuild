@@ -530,16 +530,6 @@ namespace Microsoft.Build.Tasks
             {
                 var systemCmd = ToolLocationHelper.GetPathToSystemFile("cmd.exe");
 
-#if !FEATURE_SPECIAL_FOLDERS
-                // Work around https://github.com/Microsoft/msbuild/issues/2273 and
-                // https://github.com/dotnet/corefx/issues/19110, which result in
-                // a bad path being returned above on Nano Server SKUs of Windows.
-                if (!File.Exists(systemCmd))
-                {
-                    return Environment.GetEnvironmentVariable("ComSpec");
-                }
-#endif
-
                 return systemCmd;
             }
             else
