@@ -160,7 +160,6 @@ namespace Microsoft.Build.Construction
             _reader = null;
         }
 
-#if FEATURE_XML_LOADPATH
         /// <summary>
         /// Grab the path to the file, for use in our location information.
         /// </summary>
@@ -175,7 +174,6 @@ namespace Microsoft.Build.Construction
                 this.Load(xtr.Reader);
             }
         }
-#endif
 
         /// <summary>
         /// Called during load, to add an element.
@@ -276,7 +274,6 @@ namespace Microsoft.Build.Construction
             base.Save(outStream);
         }
 
-#if FEATURE_XML_LOADPATH
         /// <summary>
         /// Override Save to verify file was not loaded as readonly
         /// </summary>
@@ -285,7 +282,6 @@ namespace Microsoft.Build.Construction
             VerifyThrowNotReadOnly();
             base.Save(filename);
         }
-#endif
 
         /// <summary>
         /// Override Save to verify file was not loaded as readonly
