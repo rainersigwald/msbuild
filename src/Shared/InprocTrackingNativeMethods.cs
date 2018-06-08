@@ -15,9 +15,7 @@ using System.Security;
 #if FEATURE_SECURITY_PERMISSIONS
 using System.Security.Permissions;
 #endif
-#if FEATURE_RESOURCE_EXPOSURE
 using System.Runtime.Versioning;
-#endif
 
 namespace Microsoft.Build.Shared
 {
@@ -182,16 +180,12 @@ namespace Microsoft.Build.Shared
             #region Declarations of Windows API needed to load the native library
 
             [DllImport("kernel32.dll", CharSet = CharSet.Ansi, BestFitMapping = false)]
-#if FEATURE_RESOURCE_EXPOSURE
             [ResourceExposure(ResourceScope.Process)]
-#endif
             [SecurityCritical]
             private static extern IntPtr GetProcAddress(SafeHandle moduleHandle, String procName);
 
             [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-#if FEATURE_RESOURCE_EXPOSURE
             [ResourceExposure(ResourceScope.Machine)]
-#endif
             [SecurityCritical]
             private static extern SafeLibraryHandle LoadLibrary(String libPath);
 

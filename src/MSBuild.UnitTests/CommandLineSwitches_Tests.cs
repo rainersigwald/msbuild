@@ -1364,7 +1364,6 @@ namespace Microsoft.Build.UnitTests
             yield return new object[] { $"C:\\a_path\\with{Path.GetInvalidPathChars().First()}invalid\\chars" };
         }
 
-#if FEATURE_RESOURCEMANAGER_GETRESOURCESET
         /// <summary>
         /// Verifies that help messages are correctly formed with the right width and leading spaces.
         /// </summary>
@@ -1427,7 +1426,6 @@ namespace Microsoft.Build.UnitTests
                 }
             }
         }
-#endif
 
         /// <summary>
         /// Verifies that a switch collection has an error registered for the given command line arg.
