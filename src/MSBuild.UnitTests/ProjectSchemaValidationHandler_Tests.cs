@@ -15,6 +15,7 @@ using Xunit;
 
 namespace Microsoft.Build.UnitTests
 {
+    
     public class ProjectSchemaValidationHandlerTest
     {
         /***********************************************************************

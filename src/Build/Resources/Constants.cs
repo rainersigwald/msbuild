@@ -355,10 +355,8 @@ namespace Microsoft.Build.Internal
 #if FEATURE_GET_COMMANDLINE
                         availableStaticMethods.TryAdd("System.Environment::CommandLine", environmentType);
 #endif
-#if FEATURE_64BIT_ENVIRONMENT_QUERY
                         availableStaticMethods.TryAdd("System.Environment::Is64BitOperatingSystem", environmentType);
                         availableStaticMethods.TryAdd("System.Environment::Is64BitProcess", environmentType);
-#endif
 
                         availableStaticMethods.TryAdd("System.Environment::MachineName", environmentType);
 #if FEATURE_OSVERSION
