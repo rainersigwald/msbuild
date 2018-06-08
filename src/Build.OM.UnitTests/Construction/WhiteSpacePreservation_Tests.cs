@@ -476,9 +476,7 @@ multi-line comment here
 
             VerifyAssertLineByLine(expected, actual);
 
-#if FEATURE_XMLTEXTREADER
             VerifyLineEndings(actual);
-#endif
         }
 
         private void VerifyAssertLineByLine(string expected, string actual)
