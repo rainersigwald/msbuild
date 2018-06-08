@@ -1136,11 +1136,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
         {
             return (type.GetTypeInfo().IsClass &&
                 !type.GetTypeInfo().IsAbstract &&
-#if FEATURE_TYPE_GETINTERFACE
                 (type.GetInterface("Microsoft.Build.Framework.ITaskFactory") != null));
-#else
-                type.GetInterfaces().Any(interfaceType => interfaceType.FullName == "Microsoft.Build.Framework.ITaskFactory"));
-#endif
         }
 
         /// <summary>
