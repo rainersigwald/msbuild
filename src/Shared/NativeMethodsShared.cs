@@ -62,11 +62,7 @@ namespace Microsoft.Build.Shared
         internal const uint WAIT_OBJECT_0 = 0x00000000;
         internal const uint WAIT_TIMEOUT = 0x00000102;
 
-#if FEATURE_CHARSET_AUTO
         internal const CharSet AutoOrUnicode = CharSet.Auto;
-#else
-        internal const CharSet AutoOrUnicode = CharSet.Unicode;
-#endif
 
         #endregion
 
