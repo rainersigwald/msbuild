@@ -10,9 +10,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-#if FEATURE_CONSTRAINED_EXECUTION
 using System.Runtime.ConstrainedExecution;
-#endif
 using System.Security;
 #if FEATURE_SECURITY_PERMISSIONS
 using System.Security.Permissions;
@@ -292,9 +290,8 @@ namespace Microsoft.Build.Shared
                     get
                     { return IntPtr.Zero == handle; }
                 }
-#if FEATURE_CONSTRAINED_EXECUTION
+
                 [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-#endif
                 [SecurityCritical]
                 protected override bool ReleaseHandle()
                 {

@@ -5,11 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-#if !SILVERLIGHT
-#if FEATURE_CONSTRAINED_EXECUTION
 using System.Runtime.ConstrainedExecution;
-#endif
-#endif
 using System.Text;
 
 namespace Microsoft.Build.Collections
@@ -30,11 +26,7 @@ namespace Microsoft.Build.Collections
             187751, 225307, 270371, 324449, 389357, 467237, 560689, 672827, 807403, 968897, 1162687, 1395263,
             1674319, 2009191, 2411033, 2893249, 3471899, 4166287, 4999559, 5999471, 7199369};
 
-#if !SILVERLIGHT
-#if FEATURE_CONSTRAINED_EXECUTION
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-#endif
-#endif
         internal static bool IsPrime(int candidate)
         {
             if ((candidate & 1) != 0)
@@ -52,11 +44,7 @@ namespace Microsoft.Build.Collections
             return (candidate == 2);
         }
 
-#if !SILVERLIGHT
-#if FEATURE_CONSTRAINED_EXECUTION
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-#endif
-#endif
         internal static int GetPrime(int min)
         {
             Debug.Assert(min >= 0, "min less than zero; handle overflow checking before calling HashHelpers");
