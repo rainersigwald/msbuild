@@ -389,10 +389,8 @@ namespace Microsoft.Build.BackEnd
                 _terminatePacketPump.Set();
                 if (!_packetPump.Join((int)new TimeSpan(0, 0, BuildParameters.EndpointShutdownTimeout).TotalMilliseconds))
                 {
-#if FEATURE_THREAD_ABORT
                     // We timed out.  Kill it.
                     _packetPump.Abort();
-#endif
                 }
 
                 _packetPump = null;

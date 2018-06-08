@@ -214,9 +214,6 @@ namespace Microsoft.Build.UnitTests.BackEnd
                 if (!_builderThread.Join(5000))
                 {
                     Assert.True(false, "Builder thread did not terminate on cancel.");
-#if FEATURE_THREAD_ABORT
-                    _builderThread.Abort();
-#endif
                 }
             }
 
