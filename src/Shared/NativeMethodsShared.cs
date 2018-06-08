@@ -47,9 +47,7 @@ namespace Microsoft.Build.Shared
         private const string kernel32Dll = "kernel32.dll";
         private const string mscoreeDLL = "mscoree.dll";
 
-#if FEATURE_HANDLEREF
         internal static HandleRef NullHandleRef = new HandleRef(null, IntPtr.Zero);
-#endif
 
         internal static IntPtr NullIntPtr = new IntPtr(0);
 
@@ -1258,11 +1256,7 @@ namespace Microsoft.Build.Shared
         [SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Class name is NativeMethodsShared for increased clarity")]
         [DllImport(kernel32Dll, SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern int GetModuleFileName(
-#if FEATURE_HANDLEREF
             HandleRef hModule,
-#else
-            IntPtr hModule,
-#endif
             [Out] StringBuilder buffer, int length);
 
         [SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Class name is NativeMethodsShared for increased clarity")]
