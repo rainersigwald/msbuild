@@ -684,12 +684,11 @@ namespace Microsoft.Build.Shared
 
         internal static int SetErrorMode(int newMode)
         {
-#if FEATURE_OSVERSION
             if (Environment.OSVersion.Version < s_threadErrorModeMinOsVersion)
             {
                 return SetErrorMode_VistaAndOlder(newMode);
             }
-#endif
+
             int num;
             SetErrorMode_Win7AndNewer(newMode, out num);
             return num;

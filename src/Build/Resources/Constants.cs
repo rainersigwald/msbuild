@@ -359,9 +359,7 @@ namespace Microsoft.Build.Internal
                         availableStaticMethods.TryAdd("System.Environment::Is64BitProcess", environmentType);
 
                         availableStaticMethods.TryAdd("System.Environment::MachineName", environmentType);
-#if FEATURE_OSVERSION
                         availableStaticMethods.TryAdd("System.Environment::OSVersion", environmentType);
-#endif
                         availableStaticMethods.TryAdd("System.Environment::ProcessorCount", environmentType);
                         availableStaticMethods.TryAdd("System.Environment::StackTrace", environmentType);
 #if FEATURE_SPECIAL_FOLDERS

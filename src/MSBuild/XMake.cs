@@ -1343,7 +1343,6 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private static void VerifyThrowSupportedOS()
         {
-#if FEATURE_OSVERSION
             if ((Environment.OSVersion.Platform == PlatformID.Win32S) ||        // Win32S
                 (Environment.OSVersion.Platform == PlatformID.Win32Windows) ||  // Windows 95, Windows 98, Windows ME
                 (Environment.OSVersion.Platform == PlatformID.WinCE) ||         // Windows CE
@@ -1354,7 +1353,6 @@ namespace Microsoft.Build.CommandLine
                 // we don't run into some obscure error down the line, totally confusing the user.
                 InitializationException.VerifyThrow(false, "UnsupportedOS");
             }
-#endif
         }
 
         /// <summary>
