@@ -4257,7 +4257,6 @@ namespace Microsoft.Build.UnitTests.Evaluation
             }
         }
 
-#if FEATURE_HTTP_LISTENER
         /// <summary>
         /// Verify that DTD processing is disabled when loading a project
         /// We create an HTTP server that waits for a request and load a project containing DTD code making reference to a fictitious file in the server.
@@ -4312,7 +4311,6 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 Assert.True(t.IsAlive);
             }
         }
-#endif
 
         /// <summary>
         /// Verify that Condition Evaluator does reset the cached state when the evaluation throws an exception.
@@ -4446,7 +4444,6 @@ namespace Microsoft.Build.UnitTests.Evaluation
             }
         }
 
-#if FEATURE_HTTP_LISTENER
         /// <summary>
         /// HTTP server code running on a separate thread that expects a connection request
         /// The test "VerifyDTDProcessingIsDisabled" creates a project with a url reference to this server from a DTD tag
@@ -4464,7 +4461,6 @@ namespace Microsoft.Build.UnitTests.Evaluation
             // if reached this point it means the server answered a request triggered during DTD processing
             listener.Stop();
         }
-#endif
 
         /// <summary>
         /// Creates a standard ProjectCollection and adds a fake toolset with the following contents to it:
