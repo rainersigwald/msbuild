@@ -1402,11 +1402,7 @@ namespace Microsoft.Build.Shared
             // VS needs this in order to allow the in-proc compilers to properly initialize, since they will make calls from the
             // build thread which the main thread (blocked on BuildSubmission.Execute) must service.
             int waitIndex;
-#if FEATURE_HANDLE_SAFEWAITHANDLE
             IntPtr handlePtr = handle.SafeWaitHandle.DangerousGetHandle();
-#else
-            IntPtr handlePtr = handle.GetSafeWaitHandle().DangerousGetHandle();
-#endif
             int returnValue = CoWaitForMultipleHandles(COWAIT_FLAGS.COWAIT_NONE, timeout, 1, new IntPtr[] { handlePtr }, out waitIndex);
             ErrorUtilities.VerifyThrow(returnValue == 0 || ((uint)returnValue == RPC_S_CALLPENDING && timeout != Timeout.Infinite), "Received {0} from CoWaitForMultipleHandles, but expected 0 (S_OK)", returnValue);
             return returnValue == 0;
