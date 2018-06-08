@@ -158,13 +158,11 @@ namespace Microsoft.Build.UnitTests.Logging
             VerifyShutdownExceptions(null, className, exceptionType);
             Assert.Equal(_initializedService.ServiceState, LoggingServiceState.Shutdown);
 
-#if FEATURE_VARIOUS_EXCEPTIONS
             // Cause a StackOverflow exception in the shutdown of the logger
             // this kind of exception should not be caught
             className = "Microsoft.Build.UnitTests.Logging.LoggingService_Tests+ShutdownStackoverflowExceptionFL";
             exceptionType = typeof(StackOverflowException);
             VerifyShutdownExceptions(null, className, exceptionType);
-#endif
 
             Assert.Equal(_initializedService.ServiceState, LoggingServiceState.Shutdown);
         }
@@ -182,10 +180,8 @@ namespace Microsoft.Build.UnitTests.Logging
             logger = new LoggerThrowException(true, false, new Exception("boo"));
             VerifyShutdownExceptions(logger, null, typeof(InternalLoggerException));
 
-#if FEATURE_VARIOUS_EXCEPTIONS
             logger = new LoggerThrowException(true, false, new StackOverflowException());
             VerifyShutdownExceptions(logger, null, typeof(StackOverflowException));
-#endif
 
             Assert.Equal(_initializedService.ServiceState, LoggingServiceState.Shutdown);
         }
@@ -289,7 +285,6 @@ namespace Microsoft.Build.UnitTests.Logging
            );
         }
 
-#if FEATURE_VARIOUS_EXCEPTIONS
         /// <summary>
         /// Verify a critical exception is not wrapped
         /// </summary>
@@ -303,7 +298,6 @@ namespace Microsoft.Build.UnitTests.Logging
             }
            );
         }
-#endif
 
         /// <summary>
         /// Register an good Logger and verify it was registered.
@@ -933,7 +927,6 @@ namespace Microsoft.Build.UnitTests.Logging
             }
         }
 
-#if FEATURE_VARIOUS_EXCEPTIONS
         /// <summary>
         /// Forwarding logger which will throw a StackOverflowException
         /// in the shutdown method. This is to test the shutdown exception handling
@@ -949,7 +942,6 @@ namespace Microsoft.Build.UnitTests.Logging
             {
             }
         }
-#endif
 
         /// <summary>
         /// Logger which can throw a defined exception in the initialize or shutdown methods
