@@ -351,24 +351,11 @@ namespace Microsoft.Build.BackEnd
 
             _packetFactory = factory;
             _inProcNode = new InProcNode(_componentHost, endpoints.NodeEndpoint);
-#if FEATURE_THREAD_CULTURE
             _inProcNodeThread = new Thread(InProcNodeThreadProc, BuildParameters.ThreadStackSize);
-#else
-                CultureInfo culture = _componentHost.BuildParameters.Culture;
-                CultureInfo uiCulture = _componentHost.BuildParameters.UICulture;
-                _inProcNodeThread = new Thread(() =>
-                {
-                    CultureInfo.CurrentCulture = culture;
-                    CultureInfo.CurrentUICulture = uiCulture;
-                    InProcNodeThreadProc();
-                });
-#endif
             _inProcNodeThread.Name = String.Format(CultureInfo.CurrentCulture, "In-proc Node ({0})", _componentHost.Name);
             _inProcNodeThread.IsBackground = true;
-#if FEATURE_THREAD_CULTURE
             _inProcNodeThread.CurrentCulture = _componentHost.BuildParameters.Culture;
             _inProcNodeThread.CurrentUICulture = _componentHost.BuildParameters.UICulture;
-#endif
             _inProcNodeThread.Start();
 
             _inProcNodeEndpoint.Connect(this);
