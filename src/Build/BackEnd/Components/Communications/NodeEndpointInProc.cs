@@ -349,13 +349,27 @@ namespace Microsoft.Build.BackEnd
                 ErrorUtilities.VerifyThrow(null == _terminatePacketPump, "terminatePacketPump != null");
                 ErrorUtilities.VerifyThrow(null == _packetQueue, "packetQueue != null");
 
+#if FEATURE_THREAD_CULTURE
                 _packetPump = new Thread(PacketPumpProc);
+#else
+                //  In .NET Core, we need to set the current culture from inside the new thread
+                CultureInfo culture = _componentHost.BuildParameters.Culture;
+                CultureInfo uiCulture = _componentHost.BuildParameters.UICulture;
+                _packetPump = new Thread(() =>
+                {
+                    CultureInfo.CurrentCulture = culture;
+                    CultureInfo.CurrentUICulture = uiCulture;
+                    PacketPumpProc();
+                });
+#endif
                 _packetPump.Name = "InProc Endpoint Packet Pump";
                 _packetAvailable = new AutoResetEvent(false);
                 _terminatePacketPump = new AutoResetEvent(false);
                 _packetQueue = new ConcurrentQueue<INodePacket>();
+#if FEATURE_THREAD_CULTURE
                 _packetPump.CurrentCulture = _componentHost.BuildParameters.Culture;
                 _packetPump.CurrentUICulture = _componentHost.BuildParameters.UICulture;
+#endif
                 _packetPump.Start();
             }
         }
