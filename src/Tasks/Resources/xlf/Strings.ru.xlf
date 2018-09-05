@@ -1607,8 +1607,8 @@
         <note>{StrBegin="MSB3245: "}</note>
       </trans-unit>
       <trans-unit id="ResolveAssemblyReference.FailedWithException">
-        <source>MSB3246: Resolved file has a bad image, no metadata, or is otherwise inaccessible. {0}</source>
-        <target state="translated">MSB3246: найденный файл имеет неправильный образ, не имеет метаданных или недоступен по другим причинам. {0}</target>
+        <source>MSB3246: Resolved file "{0}" has a bad image, no metadata, or is otherwise inaccessible. {1}</source>
+        <target state="needs-review-translation">MSB3246: найденный файл имеет неправильный образ, не имеет метаданных или недоступен по другим причинам. {0}</target>
         <note>{StrBegin="MSB3246: "}</note>
       </trans-unit>
       <trans-unit id="ResolveAssemblyReference.SuggestedRedirects">
