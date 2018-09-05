@@ -1663,8 +1663,7 @@ namespace Microsoft.Build.Tasks
         {
             if (!reference.IsPrimary)
             {
-                ICollection dependees = reference.GetSourceItems();
-                foreach (ITaskItem dependee in dependees)
+                foreach (ITaskItem dependee in reference.GetSourceItems())
                 {
                     Log.LogMessageFromResources(importance, "ResolveAssemblyReference.FourSpaceIndent", Log.FormatResourceString("ResolveAssemblyReference.RequiredBy", dependee.ItemSpec));
                 }

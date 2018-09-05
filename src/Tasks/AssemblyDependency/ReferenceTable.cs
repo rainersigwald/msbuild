@@ -1391,7 +1391,7 @@ namespace Microsoft.Build.Tasks
 
                     // A Primary reference can also be dependency of other references. This means there may be other primary reference which depend on 
                     // the current primary reference and they need to be removed.
-                    ICollection dependees = assemblyReference.GetSourceItems();
+                    List<ITaskItem> dependees = assemblyReference.GetSourceItems()?.ToList();
 
                     // Need to deal with dependencies, this can also include primary references who are dependencies themselves and are in the black list
                     if (!assemblyReference.IsPrimary || (assemblyReference.IsPrimary && isMarkedForExclusion && (dependees != null && dependees.Count > 1)))
@@ -1463,8 +1463,7 @@ namespace Microsoft.Build.Tasks
         {
             // For a dependency we would like to remove the primary references which caused this dependency to be found.
             // Source Items is the list of primary itemspecs which lead to the current reference being discovered. 
-            ICollection dependees = assemblyReference.GetSourceItems();
-            foreach (ITaskItem dependee in dependees)
+            foreach (ITaskItem dependee in assemblyReference.GetSourceItems())
             {
                 string dependeeItemSpec = dependee.ItemSpec;
 
@@ -2641,8 +2640,7 @@ namespace Microsoft.Build.Tasks
                 bool hasWinMDFile = referenceItem.GetMetadata(ItemMetadataNames.winMDFile).Length > 0;
 
                 // If there were non-primary source items, then forward metadata from them.
-                ICollection sourceItems = reference.GetSourceItems();
-                foreach (ITaskItem sourceItem in sourceItems)
+                foreach (ITaskItem sourceItem in reference.GetSourceItems())
                 {
                     sourceItem.CopyMetadataTo(referenceItem);
                 }

@@ -186,7 +186,7 @@ namespace Microsoft.Build.Tasks
         /// Get the source items for this reference.
         ///  This is collection of ITaskItems.
         /// </summary>
-        internal ICollection GetSourceItems()
+        internal IEnumerable<ITaskItem> GetSourceItems()
         {
             return _sourceItems.Values;
         }
