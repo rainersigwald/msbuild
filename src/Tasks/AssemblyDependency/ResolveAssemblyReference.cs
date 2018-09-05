@@ -1501,7 +1501,29 @@ namespace Microsoft.Build.Tasks
         /// <param name="importance">The importance of the message.</param>
         private void LogReferenceErrors(Reference reference, MessageImportance importance)
         {
+            string referenceDescription = null;
+
             ICollection itemErrors = reference.GetErrors();
+
+            if (itemErrors.Count > 0)
+            {
+                if (reference.IsPrimary && !string.IsNullOrWhiteSpace(reference.FullPath))
+                {
+                    referenceDescription = reference.FullPath;
+                }
+                else
+                {
+                    var l = new List<string>();
+
+                    foreach (var sourceItem in reference.GetSourceItems())
+                    {
+                        l.Add(sourceItem.ItemSpec);
+                    }
+
+                    referenceDescription = string.Join("; ", l);
+                }
+            }
+
             foreach (Exception itemError in itemErrors)
             {
                 string message = String.Empty;
@@ -1522,7 +1544,7 @@ namespace Microsoft.Build.Tasks
                 }
                 else if (itemError is BadImageReferenceException)
                 {
-                    message = Log.FormatResourceString("ResolveAssemblyReference.FailedWithException", string.Empty, itemError.Message);
+                    message = Log.FormatResourceString("ResolveAssemblyReference.FailedWithException", referenceDescription, itemError.Message);
                     helpKeyword = "MSBuild.ResolveAssemblyReference.FailedWithException";
                     dependencyProblem = false;
                 }

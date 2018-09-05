@@ -1607,7 +1607,7 @@
         <note>{StrBegin="MSB3245: "}</note>
       </trans-unit>
       <trans-unit id="ResolveAssemblyReference.FailedWithException">
-        <source>MSB3246: Resolved file "{0}" has a bad image, no metadata, or is otherwise inaccessible. {1}</source>
+        <source>MSB3246: Encountered a file while resolving "{0}" that has a bad image, no metadata, or is otherwise inaccessible. {1}</source>
         <target state="needs-review-translation">MSB3246: Die aufgelöste Datei enthält ein fehlerhaftes Image oder keine Metadaten, oder der Zugriff ist aus anderen Gründen nicht möglich. {0}</target>
         <note>{StrBegin="MSB3246: "}</note>
       </trans-unit>

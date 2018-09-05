@@ -1421,7 +1421,7 @@
     <comment>{StrBegin="MSB3245: "}</comment>
   </data>
   <data name="ResolveAssemblyReference.FailedWithException">
-    <value>MSB3246: Resolved file "{0}" has a bad image, no metadata, or is otherwise inaccessible. {1}</value>
+    <value>MSB3246: Encountered a file while resolving "{0}" that has a bad image, no metadata, or is otherwise inaccessible. {1}</value>
     <comment>{StrBegin="MSB3246: "}</comment>
   </data>
   <data name="ResolveAssemblyReference.SuggestedRedirects">
