@@ -1756,6 +1756,7 @@ namespace Microsoft.Build.Tasks
                     {
                         AllowedAssemblyExtensions = AllowedAssemblyExtensions,
                         AllowedRelatedFileExtensions = AllowedRelatedFileExtensions,
+                        Assemblies = Assemblies,
                         AssemblyFiles = AssemblyFiles,
                         AutoUnify = AutoUnify,
                         CandidateAssemblyFiles = CandidateAssemblyFiles,
