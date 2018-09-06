@@ -1,9 +1,5 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//-----------------------------------------------------------------------
-// </copyright>
-// <summary>A utility class that mediates access to a shared string builder.</summary>
-//-----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
@@ -187,6 +183,36 @@ namespace Microsoft.Build.Shared
             LazyPrepare();
             _cachedString = null;
             _borrowedBuilder.Append(value, startIndex, count);
+            return this;
+        }
+
+        public ReuseableStringBuilder AppendSeparated(char separator, ICollection<string> strings)
+        {
+            LazyPrepare();
+            _cachedString = null;
+
+            var separatorsRemaining = strings.Count - 1;
+
+            foreach (var s in strings)
+            {
+                _borrowedBuilder.Append(s);
+
+                if (separatorsRemaining > 0)
+                {
+                    _borrowedBuilder.Append(separator);
+                }
+
+                separatorsRemaining--;
+            }
+
+            return this;
+        }
+
+        public ReuseableStringBuilder Clear()
+        {
+            LazyPrepare();
+            _cachedString = null;
+            _borrowedBuilder.Clear();
             return this;
         }
 

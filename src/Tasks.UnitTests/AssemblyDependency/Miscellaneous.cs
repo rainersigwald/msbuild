@@ -162,7 +162,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             Assert.False(succeeded);
             Assert.Equal(1, engine.Errors);
             Assert.Equal(0, engine.Warnings);
-            string message = ResourceUtilities.FormatResourceString("ResolveAssemblyReference.InvalidParameter", "TargetFrameworkMoniker", t.TargetFrameworkMoniker, String.Empty);
+            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.InvalidParameter", "TargetFrameworkMoniker", t.TargetFrameworkMoniker, String.Empty);
             engine.AssertLogContains(message);
         }
 
@@ -1370,7 +1370,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             Execute(t);
 
             Assert.Equal(0, t.ResolvedFiles.Length);
-            string message = ResourceUtilities.FormatResourceString("ResolveAssemblyReference.TargetedProcessorArchitectureDoesNotMatch", @"C:\Regress714052\X86\A.dll", "X86", "AMD64");
+            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.TargetedProcessorArchitectureDoesNotMatch", @"C:\Regress714052\X86\A.dll", "X86", "AMD64");
             mockEngine.AssertLogContains(message);
         }
 
@@ -3289,12 +3289,11 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
         [Trait("Category", "mono-osx-failing")]
         public void ParentAssemblyResolvedFromAForGac()
         {
-            Hashtable parentReferenceFolderHash = new Hashtable();
-            List<string> parentReferenceFolders = new List<string>();
-            List<Reference> referenceList = new List<Reference>();
+            var parentReferenceFolders = new List<string>();
+            var referenceList = new List<Reference>();
 
-            TaskItem taskItem = new TaskItem("Microsoft.VisualStudio.Interopt, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
-            Reference reference = new Reference(isWinMDFile, fileExists, getRuntimeVersion);
+            var taskItem = new TaskItem("Microsoft.VisualStudio.Interopt, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            var reference = new Reference(isWinMDFile, fileExists, getRuntimeVersion);
             reference.MakePrimaryAssemblyReference(taskItem, false, ".dll");
             reference.FullPath = "c:\\AssemblyFolders\\Microsoft.VisualStudio.Interopt.dll";
             reference.ResolvedSearchPath = "{AssemblyFolders}";
@@ -3315,14 +3314,13 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
 
             foreach (Reference parentReference in referenceList)
             {
-                ReferenceTable.CalculateParentAssemblyDirectories(parentReferenceFolderHash, parentReferenceFolders, parentReference);
+                ReferenceTable.CalculateParentAssemblyDirectories(parentReferenceFolders, parentReference);
             }
 
             Assert.Equal(1, parentReferenceFolders.Count);
             Assert.True(parentReferenceFolders[0].Equals(reference2.ResolvedSearchPath, StringComparison.OrdinalIgnoreCase));
         }
-
-
+        
         /// <summary>
         /// Generate a fake reference which has been resolved from the gac. We will use it to verify the creation of the exclusion list.
         /// </summary>
@@ -6014,7 +6012,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
                 Assert.Equal(0, blackList.Count); // "Expected to have no assembly in the black list"
                 Assert.Equal(1, whiteListErrors.Count); // "Expected there to be one error in the whiteListErrors"
                 Assert.Equal(1, whiteListErrorFileNames.Count); // "Expected there to be one error in the whiteListErrorFileNames"
-                string message = ResourceUtilities.FormatResourceString("ResolveAssemblyReference.NoSubSetRedistListName", subsetFile);
+                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.NoSubSetRedistListName", subsetFile);
                 Assert.True(((Exception)whiteListErrors[0]).Message.Contains(message)); // "Expected assertion to contain correct error code"
             }
             finally
@@ -6475,22 +6473,18 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
 
 
         /// <summary>
-        /// Verify that the method will not crash if there are empty string array elements, and that when we call the
-        /// method twice with the same set of SubsetToSearchFor and TargetFrameworkDirectory that we get the exact same array back.
+        /// Verify that the method will not crash if there are empty string array elements
         /// </summary>
         [Fact]
-        public void SubsetListFinderVerifyEmptyInSubsetsToSearchForAndCaching()
+        public void SubsetListFinderVerifyEmptyInSubsetsToSearchFor()
         {
-            // Verify the program will not crash when an empty string is passed in and that when we call the method twice that we get the
-            // exact same array of strings back.
+            // Verify the program will not crash when an empty string is passed in
             SubsetListFinder finder = new SubsetListFinder(new string[] { "Clent", string.Empty, "Bar" });
             string[] returnArray = finder.GetSubsetListPathsFromDisk("FrameworkDirectory");
             string[] returnArray2 = finder.GetSubsetListPathsFromDisk("FrameworkDirectory");
 
-            Assert.True(Object.ReferenceEquals(returnArray, returnArray2)); // "Expected the string arrays to be the exact same reference"
-            // Verify that if i call the method again with a different target framework directory that I get a different array back
-            string[] returnArray3 = finder.GetSubsetListPathsFromDisk("FrameworkDirectory2");
-            Assert.False(Object.ReferenceEquals(returnArray2, returnArray3)); // "Expected the string arrays to not be the exact same reference"
+            Assert.Equal(returnArray.Length, 0);
+            Assert.Equal(returnArray.Length, returnArray2.Length);
         }
 
         /// <summary>
@@ -8565,8 +8559,8 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
                 AssemblyTableInfo tableInfo = new AssemblyTableInfo(redistFile, "DoesNotExist");
                 RedistList redist = RedistList.GetRedistList(new AssemblyTableInfo[] { tableInfo });
 
-                AssemblyEntry[] entryArray = redist.FindAssemblyNameFromSimpleName("System");
-                Assert.Equal(6, entryArray.Length);
+                List<AssemblyEntry> entryArray = redist.FindAssemblyNameFromSimpleName("System").ToList();
+                Assert.Equal(6, entryArray.Count);
                 AssemblyNameExtension a1 = new AssemblyNameExtension(entryArray[0].FullName);
                 AssemblyNameExtension a2 = new AssemblyNameExtension(entryArray[1].FullName);
                 AssemblyNameExtension a3 = new AssemblyNameExtension(entryArray[2].FullName);

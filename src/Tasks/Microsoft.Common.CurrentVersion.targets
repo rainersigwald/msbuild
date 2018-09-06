@@ -80,7 +80,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <!-- The FrameworkPathOverride is required for the inproc visual basic compiler to initialize when targeting target frameworks less than 4.0. If .net 2.0 is not installed then the property value above will not provide the location
              of mscorlib. This is also true if the build author overrides this property to some other directory which does not contain mscorlib.dll. In the case we cannot find mscorlib.dll at the correct location
              we need to find a directory which does contain mscorlib to allow the inproc compiler to initialize and give us the chance to show certain dialogs in the IDE (which only happen after initialization).-->
-    <FrameworkPathOverride Condition="'$(EnableFrameworkPathOverride)' != 'false' And '$(FrameworkPathOverride)' == ''">$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPathToStandardLibraries($(TargetFrameworkIdentifier), $(TargetFrameworkVersion), $(TargetFrameworkProfile), $(PlatformTarget), $(TargetFrameworkRootPath)))</FrameworkPathOverride>
+    <FrameworkPathOverride Condition="'$(EnableFrameworkPathOverride)' != 'false' And '$(FrameworkPathOverride)' == ''">$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPathToStandardLibraries($(TargetFrameworkIdentifier), $(TargetFrameworkVersion), $(TargetFrameworkProfile), $(PlatformTarget), $(TargetFrameworkRootPath), $(TargetFrameworkFallbackSearchPaths)))</FrameworkPathOverride>
     <FrameworkPathOverride Condition="'$(EnableFrameworkPathOverride)' != 'false' And !Exists('$(FrameworkPathOverride)\mscorlib.dll')">$(MSBuildFrameworkToolsPath)</FrameworkPathOverride>
   </PropertyGroup>
 
@@ -530,11 +530,6 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <WebReference_EnableProperties Condition=" '$(WebReference_EnableProperties)' == '' ">true</WebReference_EnableProperties>
     <WebReference_EnableSQLTypes Condition=" '$(WebReference_EnableSQLTypes)' == '' ">true</WebReference_EnableSQLTypes>
     <WebReference_EnableLegacyEventingModel Condition=" '$(WebReference_EnableLegacyEventingModel)' == '' ">false</WebReference_EnableLegacyEventingModel>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildProjectFullPath);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-    <MSBuildAllProjects Condition="Exists('$(MSBuildProjectFullPath).user')">$(MSBuildAllProjects);$(MSBuildProjectFullPath).user</MSBuildAllProjects>
   </PropertyGroup>
 
   <!--
@@ -1180,6 +1175,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         Condition="'$(TargetFrameworkMoniker)' != '' and ('$(_TargetFrameworkDirectories)' == '' or '$(_FullFrameworkReferenceAssemblyPaths)' == '')"
         TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
         RootPath="$(TargetFrameworkRootPath)"
+        TargetFrameworkFallbackSearchPaths="$(TargetFrameworkFallbackSearchPaths)"
         BypassFrameworkInstallChecks="$(BypassFrameworkInstallChecks)"
         >
       <Output TaskParameter="ReferenceAssemblyPaths" PropertyName="_TargetFrameworkDirectories"/>
@@ -1656,6 +1652,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <GetReferenceNearestTargetFrameworkTask AnnotatedProjectReferences="@(_ProjectReferenceTargetFrameworkPossibilities)"
                                             CurrentProjectTargetFramework="$(ReferringTargetFrameworkForProjectReferences)"
                                             CurrentProjectName="$(MSBuildProjectName)"
+                                            FallbackTargetFrameworks="$(AssetTargetFallback)"
                                             Condition="'@(_ProjectReferenceTargetFrameworkPossibilities->Count())' != '0' and '$(ReferringTargetFrameworkForProjectReferences)' != ''">
       <Output ItemName="AnnotatedProjects" TaskParameter="AssignedProjects" />
     </GetReferenceNearestTargetFrameworkTask>
@@ -2045,6 +2042,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     -->
   <PropertyGroup>
     <ResolveAssemblyReferencesDependsOn>
+      ResolveProjectReferences;
+      FindInvalidProjectReferences;
       GetFrameworkPaths;
       GetReferenceAssemblyPaths;
       PrepareForBuild;
@@ -3955,7 +3954,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
     <!-- Flag primary dependencies-certain warnings emitted during application manifest generation apply only to them. -->
     <ItemGroup>
-      <_DeploymentReferencePaths Include="@(ReferencePath)">
+      <_DeploymentReferencePaths Include="@(ReferenceCopyLocalPaths)" Condition="'%(Extension)' == '.dll' Or '%(Extension)' == '.exe'">
         <IsPrimary>true</IsPrimary>
       </_DeploymentReferencePaths>
     </ItemGroup>
@@ -5781,6 +5780,23 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
   <!--
     ============================================================
+                                        CommonOutputGroupsDependsOn
+
+    Dependencies common to many of the *OutputGroupDependencies targets.
+    ============================================================
+    -->
+  <PropertyGroup>
+    <CommonOutputGroupsDependsOn>
+      $(CommonOutputGroupsDependsOn);
+      BuildOnlySettings;
+      PrepareForBuild;
+      AssignTargetPaths;
+      ResolveReferences
+    </CommonOutputGroupsDependsOn>
+  </PropertyGroup>
+  
+  <!--
+    ============================================================
                                         AllProjectOutputGroupsDependencies
     ============================================================
     -->
@@ -5800,9 +5816,16 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     This target performs population of the Built project output group dependencies.
     ============================================================
     -->
+  <PropertyGroup>
+    <BuiltProjectOutputGroupDependenciesDependsOn>
+      $(BuiltProjectOutputGroupDependenciesDependsOn);
+      $(CommonOutputGroupsDependsOn)
+    </BuiltProjectOutputGroupDependenciesDependsOn>
+  </PropertyGroup>
+
   <Target
       Name="BuiltProjectOutputGroupDependencies"
-      DependsOnTargets="BuildOnlySettings;PrepareForBuild;AssignTargetPaths;ResolveReferences"
+      DependsOnTargets="$(BuiltProjectOutputGroupDependenciesDependsOn)"
       Returns="@(BuiltProjectOutputGroupDependency)">
 
     <ItemGroup>
@@ -5822,10 +5845,17 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     This target performs population of the dependencies for the debug symbols project output group.
     ============================================================
     -->
+  <PropertyGroup>
+    <DebugSymbolsProjectOutputGroupDependenciesDependsOn>
+      $(DebugSymbolsProjectOutputGroupDependenciesDependsOn);
+      $(CommonOutputGroupsDependsOn)
+    </DebugSymbolsProjectOutputGroupDependenciesDependsOn>
+  </PropertyGroup>
+  
   <Target
       Name="DebugSymbolsProjectOutputGroupDependencies"
       Condition="'$(DebugSymbols)'!='false'"
-      DependsOnTargets="BuildOnlySettings;PrepareForBuild;AssignTargetPaths;ResolveReferences"
+      DependsOnTargets="$(DebugSymbolsProjectOutputGroupDependenciesDependsOn)"
       Returns="@(DebugSymbolsProjectOutputGroupDependency)">
 
     <!-- This item represents dependent PDB's -->
@@ -5842,9 +5872,16 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     This target performs population of the dependencies for the satellite files project output group.
     ============================================================
     -->
+  <PropertyGroup>
+    <SatelliteDllsProjectOutputGroupDependenciesDependsOn>
+      $(SatelliteDllsProjectOutputGroupDependenciesDependsOn);
+      $(CommonOutputGroupsDependsOn)
+    </SatelliteDllsProjectOutputGroupDependenciesDependsOn>
+  </PropertyGroup>
+
   <Target
       Name="SatelliteDllsProjectOutputGroupDependencies"
-      DependsOnTargets="BuildOnlySettings;PrepareForBuild;AssignTargetPaths;ResolveReferences"
+      DependsOnTargets="$(SatelliteDllsProjectOutputGroupDependenciesDependsOn)"
       Returns="@(SatelliteDllsProjectOutputGroupDependency)">
 
     <!-- This item represents dependent satellites -->
@@ -5861,10 +5898,17 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     This target performs population of the dependencies for the documentation project output group.
     ============================================================
     -->
+  <PropertyGroup>
+    <DocumentationProjectOutputGroupDependenciesDependsOn>
+      $(DocumentationProjectOutputGroupDependenciesDependsOn);
+      $(CommonOutputGroupsDependsOn)
+    </DocumentationProjectOutputGroupDependenciesDependsOn>
+  </PropertyGroup>
+
   <Target
       Name="DocumentationProjectOutputGroupDependencies"
       Condition="'$(DocumentationFile)'!=''"
-      DependsOnTargets="BuildOnlySettings;PrepareForBuild;AssignTargetPaths;ResolveReferences"
+      DependsOnTargets="$(DocumentationProjectOutputGroupDependenciesDependsOn)"
       Returns="@(DocumentationProjectOutputGroupDependency)">
 
     <!-- This item represents dependent XMLs -->
@@ -5881,14 +5925,48 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     This target performs population of the dependencies for the GenerateSerializationAssemblies project output group.
     ============================================================
     -->
+  <PropertyGroup>
+    <SGenFilesOutputGroupDependenciesDependsOn>
+      $(SGenFilesOutputGroupDependenciesDependsOn);
+      $(CommonOutputGroupsDependsOn)
+    </SGenFilesOutputGroupDependenciesDependsOn>
+  </PropertyGroup>
+
   <Target
       Name="SGenFilesOutputGroupDependencies"
-      DependsOnTargets="BuildOnlySettings;PrepareForBuild;AssignTargetPaths;ResolveReferences"
+      DependsOnTargets="$(SGenFilesOutputGroupDependenciesDependsOn)"
       Returns="@(SGenFilesOutputGroupDependency)">
 
     <!-- This item represents sgen xml serializer dll's -->
     <ItemGroup>
       <SGenFilesOutputGroupDependency Include="@(_ReferenceSerializationAssemblyPaths->'%(FullPath)')" Condition="'%(Extension)' == '.dll'"/>
+    </ItemGroup>
+
+  </Target>
+
+  <!--
+    ============================================================
+                                        ReferenceCopyLocalPathsOutputGroup
+
+    Exposes the set of items that should be copied locally based on the project's references.
+    ============================================================
+    -->
+  <PropertyGroup>
+    <ReferenceCopyLocalPathsOutputGroupDependsOn>
+      $(ReferenceCopyLocalPathsOutputGroupDependsOn);
+      $(CommonOutputGroupsDependsOn)
+    </ReferenceCopyLocalPathsOutputGroupDependsOn>
+  </PropertyGroup>
+
+  <Target
+      Name="ReferenceCopyLocalPathsOutputGroup"
+      DependsOnTargets="$(ReferenceCopyLocalPathsOutputGroupDependsOn)"
+      Returns="@(ReferenceCopyLocalPathsOutputGroupOutput)">
+
+    <ItemGroup>
+      <ReferenceCopyLocalPathsOutputGroupOutput Include="@(ReferenceCopyLocalPaths)">
+        <TargetPath>%(ReferenceCopyLocalPaths.DestinationSubDirectory)%(ReferenceCopyLocalPaths.Filename)%(ReferenceCopyLocalPaths.Extension)</TargetPath>
+      </ReferenceCopyLocalPathsOutputGroupOutput>
     </ItemGroup>
 
   </Target>

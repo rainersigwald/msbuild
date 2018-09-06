@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="RoslynTools.RepoToolset">
   <PropertyGroup>
     <TargetFrameworks>$(LibraryTargetFrameworks)</TargetFrameworks>
     <GenerateReferenceAssemblySources>true</GenerateReferenceAssemblySources>
@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" />
-    <PackageReference Include="System.Threading.Thread" Version="4.0.0" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" />
+    <PackageReference Include="System.Threading.Thread" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" />
     <Reference Include="System.Xaml" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" />
   </ItemGroup>
 

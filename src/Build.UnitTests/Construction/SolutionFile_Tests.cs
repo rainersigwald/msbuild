@@ -636,7 +636,7 @@ namespace Microsoft.Build.UnitTests.Construction
                         EndProject";
                 SolutionFile solution = ParseSolutionHelper(solutionFileContents);
                 string errCode, ignoredKeyword;
-                ResourceUtilities.FormatResourceString(out errCode, out ignoredKeyword, "Shared.InvalidProjectFile",
+                ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errCode, out ignoredKeyword, "Shared.InvalidProjectFile",
                    "someproj.etp", String.Empty);
                 foreach (string warningString in solution.SolutionParserWarnings)
                 {
@@ -671,7 +671,7 @@ namespace Microsoft.Build.UnitTests.Construction
             File.Delete(proj1Path);
             SolutionFile solution = ParseSolutionHelper(solutionFileContents);
             string errCode, ignoredKeyword;
-            ResourceUtilities.FormatResourceString(out errCode, out ignoredKeyword, "Shared.ProjectFileCouldNotBeLoaded",
+            ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errCode, out ignoredKeyword, "Shared.ProjectFileCouldNotBeLoaded",
                   "someproj.etp", String.Empty);
             Assert.True(solution.SolutionParserErrorCodes[0].ToString().Contains(errCode));
         }
@@ -708,11 +708,11 @@ namespace Microsoft.Build.UnitTests.Construction
             using (var env = TestEnvironment.Create())
             {
                 var solutionFolder = env.CreateFolder(Path.Combine(FileUtilities.GetTemporaryDirectory(), "sln"));
-                var projectFolder = env.CreateFolder(Path.Combine(solutionFolder.FolderPath, "RelativePath"));
+                var projectFolder = env.CreateFolder(Path.Combine(solutionFolder.Path, "RelativePath"));
 
                 SolutionFile p = new SolutionFile();
-                p.FullPath = Path.Combine(solutionFolder.FolderPath, "RelativePath", "project file");
-                p.SolutionFileDirectory = Path.GetFullPath(solutionFolder.FolderPath);
+                p.FullPath = Path.Combine(solutionFolder.Path, "RelativePath", "project file");
+                p.SolutionFileDirectory = Path.GetFullPath(solutionFolder.Path);
                 ProjectInSolution proj = new ProjectInSolution(p);
 
                 p.ParseFirstProjectLine
@@ -799,7 +799,7 @@ namespace Microsoft.Build.UnitTests.Construction
 
             SolutionFile solution = ParseSolutionHelper(solutionFileContents);
             Assert.Equal(1, solution.SolutionParserComments.Count); // "Expected the solution parser to contain one comment"
-            Assert.True(String.Equals((string)solution.SolutionParserComments[0], ResourceUtilities.FormatResourceString("UnrecognizedSolutionComment", "999"), StringComparison.OrdinalIgnoreCase));
+            Assert.True(String.Equals((string)solution.SolutionParserComments[0], ResourceUtilities.FormatResourceStringStripCodeAndKeyword("UnrecognizedSolutionComment", "999"), StringComparison.OrdinalIgnoreCase));
         }
 
         [Fact]
@@ -1466,7 +1466,7 @@ EndGlobal
             Assert.Equal("", releaseAspNetCompilerParameters.aspNetAPTCA);
             Assert.Equal("", releaseAspNetCompilerParameters.aspNetFixedNames);
 
-            ArrayList aspNetProjectReferences = solution.ProjectsInOrder[0].ProjectReferences;
+            List<string> aspNetProjectReferences = solution.ProjectsInOrder[0].ProjectReferences;
             Assert.Equal(2, aspNetProjectReferences.Count);
             Assert.Equal("{FD705688-88D1-4C22-9BFF-86235D89C2FC}", aspNetProjectReferences[0]);
             Assert.Equal("{F0726D09-042B-4A7A-8A01-6BED2422BD5D}", aspNetProjectReferences[1]);

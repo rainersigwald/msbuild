@@ -1,9 +1,5 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//-----------------------------------------------------------------------
-// </copyright>
-// <summary>An object containing properties of a toolset.</summary>
-//-----------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -20,6 +16,7 @@ using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Internal;
 using Microsoft.Build.Shared;
+using Microsoft.Build.Shared.FileSystem;
 using Microsoft.Win32;
 using ILoggingService = Microsoft.Build.BackEnd.Logging.ILoggingService;
 using ObjectModel = System.Collections.ObjectModel;
@@ -977,7 +974,7 @@ namespace Microsoft.Build.Evaluation
 
                 if (_expander == null)
                 {
-                    _expander = new Expander<ProjectPropertyInstance, ProjectItemInstance>(_propertyBag);
+                    _expander = new Expander<ProjectPropertyInstance, ProjectItemInstance>(_propertyBag, FileSystems.Default);
                 }
             }
             catch (Exception e) when (ExceptionHandling.IsIoRelatedException(e))
@@ -1011,20 +1008,20 @@ namespace Microsoft.Build.Evaluation
                                 }
                                 else
                                 {
-                                    overrideDirectoryExists = Directory.Exists(_overrideTasksPath);
+                                    overrideDirectoryExists = FileSystems.Default.DirectoryExists(_overrideTasksPath);
                                 }
                             }
 
                             if (!overrideDirectoryExists)
                             {
-                                string rootedPathMessage = ResourceUtilities.FormatResourceString("OverrideTaskNotRootedPath", _overrideTasksPath);
+                                string rootedPathMessage = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("OverrideTaskNotRootedPath", _overrideTasksPath);
                                 loggingServices.LogWarning(buildEventContext, null, new BuildEventFileInfo(String.Empty /* this warning truly does not involve any file*/), "OverrideTasksFileFailure", rootedPathMessage);
                             }
                         }
                     }
                     catch (Exception e) when (ExceptionHandling.IsIoRelatedException(e))
                     {
-                        string rootedPathMessage = ResourceUtilities.FormatResourceString("OverrideTaskProblemWithPath", _overrideTasksPath, e.Message);
+                        string rootedPathMessage = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("OverrideTaskProblemWithPath", _overrideTasksPath, e.Message);
                         loggingServices.LogWarning(buildEventContext, null, new BuildEventFileInfo(String.Empty /* this warning truly does not involve any file*/), "OverrideTasksFileFailure", rootedPathMessage);
                     }
 
@@ -1089,7 +1086,8 @@ namespace Microsoft.Build.Evaluation
                             usingTask,
                             registry,
                             _expander,
-                            ExpanderOptions.ExpandProperties
+                            ExpanderOptions.ExpandProperties,
+                            FileSystems.Default
                             );
                     }
                 }

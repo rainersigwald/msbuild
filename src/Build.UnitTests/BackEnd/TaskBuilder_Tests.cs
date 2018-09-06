@@ -1,9 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//-----------------------------------------------------------------------
-// </copyright>
-// <summary>Unit tests for the task builder object.</summary>
-//-----------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -256,9 +252,9 @@ namespace ItemCreationTask
             project.Build("t", loggers);
 
             logger.AssertLogContains(new string[] { "final:[/assemblyresource:c.resx,barz]" });
-            logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceString("TaskStarted", "CreateProperty") });
-            logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceString("PropertyOutputOverridden", "LinkSwitches", "/assemblyresource:a.resx,foo", "/assemblyresource:b.resx,bar") });
-            logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceString("PropertyOutputOverridden", "LinkSwitches", "/assemblyresource:b.resx,bar", "/assemblyresource:c.resx,barz") });
+            logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TaskStarted", "CreateProperty") });
+            logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceStringStripCodeAndKeyword("PropertyOutputOverridden", "LinkSwitches", "/assemblyresource:a.resx,foo", "/assemblyresource:b.resx,bar") });
+            logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceStringStripCodeAndKeyword("PropertyOutputOverridden", "LinkSwitches", "/assemblyresource:b.resx,bar", "/assemblyresource:c.resx,barz") });
         }
 
         /// <summary>
@@ -312,9 +308,9 @@ namespace ItemCreationTask
                 logger.AssertLogDoesntContain("end:");
 
                 logger.AssertLogContains(new string[] { "final:[/assemblyresource:c.resx,barz]" });
-                logger.AssertLogDoesntContain(ResourceUtilities.FormatResourceString("TaskStarted", "CreateProperty"));
-                logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceString("PropertyOutputOverridden", "LinkSwitches", "/assemblyresource:a.resx,foo", "/assemblyresource:b.resx,bar") });
-                logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceString("PropertyOutputOverridden", "LinkSwitches", "/assemblyresource:b.resx,bar", "/assemblyresource:c.resx,barz") });
+                logger.AssertLogDoesntContain(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TaskStarted", "CreateProperty"));
+                logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceStringStripCodeAndKeyword("PropertyOutputOverridden", "LinkSwitches", "/assemblyresource:a.resx,foo", "/assemblyresource:b.resx,bar") });
+                logger.AssertLogContains(new string[] { ResourceUtilities.FormatResourceStringStripCodeAndKeyword("PropertyOutputOverridden", "LinkSwitches", "/assemblyresource:b.resx,bar", "/assemblyresource:c.resx,barz") });
             }
             finally
             {

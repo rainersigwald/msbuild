@@ -1,9 +1,5 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//-----------------------------------------------------------------------
-// </copyright>
-// <summary>The location of an XML node in a file</summary>
-//-----------------------------------------------------------------------
 
 using Microsoft.Build.Shared;
 using Microsoft.Build.Framework;
@@ -216,7 +212,7 @@ namespace Microsoft.Build.Construction
             string locationString = String.Empty;
             if (line != 0 && column != 0)
             {
-                locationString = ResourceUtilities.FormatResourceString("FileLocation", file, line, column);
+                locationString = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("FileLocation", file, line, column);
             }
             else if (line != 0)
             {

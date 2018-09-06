@@ -1,12 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//-----------------------------------------------------------------------
-// </copyright>
-// <summary>Evaluates a ProjectRootElement into a Project.</summary>
-//-----------------------------------------------------------------------
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -35,6 +33,7 @@ using EngineFileUtilities = Microsoft.Build.Internal.EngineFileUtilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Framework.Profiler;
 using Microsoft.Build.Internal;
+using Microsoft.Build.Shared.FileSystem;
 using Microsoft.Build.Utilities;
 using ILoggingService = Microsoft.Build.BackEnd.Logging.ILoggingService;
 using SdkResult = Microsoft.Build.BackEnd.SdkResolution.SdkResult;
@@ -165,11 +164,6 @@ namespace Microsoft.Build.Evaluation
         private readonly int _maxNodeCount;
 
         /// <summary>
-        /// This optional ProjectInstance is only exposed when doing debugging. It is not used by the evaluator.
-        /// </summary>
-        private readonly ProjectInstance _projectInstanceIfAnyForDebuggerOnly;
-
-        /// <summary>
         /// The <see cref="ISdkResolverService"/> to use.
         /// </summary>
         private readonly ISdkResolverService _sdkResolverService;
@@ -206,6 +200,11 @@ namespace Microsoft.Build.Evaluation
         private readonly EvaluationProfiler _evaluationProfiler;
 
         /// <summary>
+        /// Keeps track of the project that is last modified of the project and all imports.
+        /// </summary>
+        private ProjectRootElement _lastModifiedProject;
+
+        /// <summary>
         /// Private constructor called by the static Evaluate method.
         /// </summary>
         private Evaluator(
@@ -217,18 +216,20 @@ namespace Microsoft.Build.Evaluation
             IItemFactory<I, I> itemFactory,
             IToolsetProvider toolsetProvider,
             ProjectRootElementCache projectRootElementCache,
-            ProjectInstance projectInstanceIfAnyForDebuggerOnly,
             ISdkResolverService sdkResolverService,
             int submissionId,
-            EvaluationContext evaluationContext)
+            EvaluationContext evaluationContext,
+            bool profileEvaluation)
         {
-            ErrorUtilities.VerifyThrowInternalNull(data, "data");
-            ErrorUtilities.VerifyThrowInternalNull(projectRootElementCache, "projectRootElementCache");
+            ErrorUtilities.VerifyThrowInternalNull(data, nameof(data));
+            ErrorUtilities.VerifyThrowInternalNull(projectRootElementCache, nameof(projectRootElementCache));
+
+            _evaluationContext = evaluationContext ?? EvaluationContext.Create(EvaluationContext.SharingPolicy.Isolated);
 
             // Create containers for the evaluation results
-            data.InitializeForEvaluation(toolsetProvider);
+            data.InitializeForEvaluation(toolsetProvider, _evaluationContext.FileSystem);
 
-            _expander = new Expander<P, I>(data, data);
+            _expander = new Expander<P, I>(data, data, _evaluationContext.FileSystem);
 
             // This setting may change after the build has started, therefore if the user has not set the property to true on the build parameters we need to check to see if it is set to true on the environment variable.
             _expander.WarnForUninitializedProperties = BuildParameters.WarnOnUninitializedProperty || Traits.Instance.EscapeHatches.WarnOnUninitializedProperty;
@@ -246,11 +247,15 @@ namespace Microsoft.Build.Evaluation
             _environmentProperties = environmentProperties;
             _itemFactory = itemFactory;
             _projectRootElementCache = projectRootElementCache;
-            _projectInstanceIfAnyForDebuggerOnly = projectInstanceIfAnyForDebuggerOnly;
             _sdkResolverService = sdkResolverService;
             _submissionId = submissionId;
-            _evaluationContext = evaluationContext;
-            _evaluationProfiler = new EvaluationProfiler((loadSettings & ProjectLoadSettings.ProfileEvaluation) != 0);
+            _evaluationProfiler = new EvaluationProfiler(profileEvaluation);
+
+            // The last modified project is the project itself unless its an in-memory project
+            if (projectRootElement.FullPath != null)
+            {
+                _lastModifiedProject = projectRootElement;
+            }
         }
 
         /// <summary>
@@ -334,15 +339,13 @@ namespace Microsoft.Build.Evaluation
 
         /// <summary>
         /// Evaluates the project data passed in.
-        /// If debugging is enabled, returns a dictionary of name/value pairs such as properties, for debugger display.
         /// </summary>
         /// <remarks>
         /// This is the only non-private member of this class.
         /// This is a helper static method so that the caller can just do "Evaluator.Evaluate(..)" without
         /// newing one up, yet the whole class need not be static.
-        /// The optional ProjectInstance is only exposed when doing debugging. It is not used by the evaluator.
         /// </remarks>
-        internal static IDictionary<string, object> Evaluate(
+        internal static void Evaluate(
             IEvaluatorData<P, I, M, D> data,
             ProjectRootElement root,
             ProjectLoadSettings loadSettings,
@@ -353,7 +356,6 @@ namespace Microsoft.Build.Evaluation
             IToolsetProvider toolsetProvider,
             ProjectRootElementCache projectRootElementCache,
             BuildEventContext buildEventContext,
-            ProjectInstance projectInstanceIfAnyForDebuggerOnly,
             ISdkResolverService sdkResolverService,
             int submissionId,
             EvaluationContext evaluationContext = null)
@@ -369,6 +371,7 @@ namespace Microsoft.Build.Evaluation
                 string beginProjectEvaluate = String.Format(CultureInfo.CurrentCulture, "Evaluate Project {0} - Begin", projectFile);
                 DataCollection.CommentMarkProfile(8812, beginProjectEvaluate);
 #endif
+                var profileEvaluation = (loadSettings & ProjectLoadSettings.ProfileEvaluation) != 0 || loggingService.IncludeEvaluationProfile;
                 var evaluator = new Evaluator<P, I, M, D>(
                     data,
                     root,
@@ -378,12 +381,12 @@ namespace Microsoft.Build.Evaluation
                     itemFactory,
                     toolsetProvider,
                     projectRootElementCache,
-                    projectInstanceIfAnyForDebuggerOnly,
                     sdkResolverService,
                     submissionId,
-                    evaluationContext);
+                    evaluationContext,
+                    profileEvaluation);
 
-                return evaluator.Evaluate(loggingService, buildEventContext);
+                evaluator.Evaluate(loggingService, buildEventContext);
 #if MSBUILDENABLEVSPROFILING 
             }
             finally
@@ -432,7 +435,7 @@ namespace Microsoft.Build.Evaluation
                     else
                     {
                         // The expression is not of the form "@(X)". Treat as string
-                        string[] includeSplitFilesEscaped = EngineFileUtilities.GetFileListEscaped(rootDirectory, includeSplitEscaped);
+                        string[] includeSplitFilesEscaped = EngineFileUtilities.Default.GetFileListEscaped(rootDirectory, includeSplitEscaped);
 
                         if (includeSplitFilesEscaped.Length > 0)
                         {
@@ -677,9 +680,8 @@ namespace Microsoft.Build.Evaluation
         /// <summary>
         /// Do the evaluation.
         /// Called by the static helper method.
-        /// If debugging is enabled, returns a dictionary of name/value pairs such as properties, for debugger display.
         /// </summary>
-        private IDictionary<string, object> Evaluate(ILoggingService loggingService, BuildEventContext buildEventContext)
+        private void Evaluate(ILoggingService loggingService, BuildEventContext buildEventContext)
         {
             string projectFile;
             using (_evaluationProfiler.TrackPass(EvaluationPass.TotalEvaluation))
@@ -726,6 +728,8 @@ namespace Microsoft.Build.Evaluation
                     PerformDepthFirstPass(_projectRootElement);
                 }
 
+                SetAllProjectsProperty();
+
                 List<string> initialTargets = new List<string>(_initialTargetsList.Count);
                 foreach (var initialTarget in _initialTargetsList)
                 {
@@ -763,7 +767,7 @@ namespace Microsoft.Build.Evaluation
                 using (_evaluationProfiler.TrackPass(EvaluationPass.Items))
                 {
                     // comment next line to turn off lazy Evaluation
-                    lazyEvaluator = new LazyItemEvaluator<P, I, M, D>(_data, _itemFactory, _evaluationLoggingContext, _evaluationProfiler);
+                    lazyEvaluator = new LazyItemEvaluator<P, I, M, D>(_data, _itemFactory, _evaluationLoggingContext, _evaluationProfiler, _evaluationContext);
 
                     // Pass3: evaluate project items
                     foreach (ProjectItemGroupElement itemGroup in _itemGroupElements)
@@ -903,10 +907,8 @@ namespace Microsoft.Build.Evaluation
             {
                 BuildEventContext = _evaluationLoggingContext.BuildEventContext,
                 ProjectFile = projectFile,
-                ProfilerResult = (_loadSettings & ProjectLoadSettings.ProfileEvaluation) != 0 ? (ProfilerResult?)_evaluationProfiler.ProfiledResult : null
+                ProfilerResult = _evaluationProfiler.ProfiledResult
             });
-
-            return null;
         }
 
         /// <summary>
@@ -933,7 +935,7 @@ namespace Microsoft.Build.Evaluation
 
                 UpdateDefaultTargets(currentProjectOrImport);
 
-                // Get all the implicit imports (e.g. <Project Sdk="" />, but not <Import Sdk="" />)
+                // Get all the implicit imports (e.g. <Project Sdk="" />, or <Sdk Name="" />, but not <Import Sdk="" />)
                 List<ProjectImportElement> implicitImports = currentProjectOrImport.GetImplicitImportNodes(currentProjectOrImport);
 
                 // Evaluate the "top" implicit imports as if they were the first entry in the file.
@@ -1149,7 +1151,8 @@ namespace Microsoft.Build.Evaluation
                 projectUsingTaskElement,
                 _data.TaskRegistry,
                 _expander,
-                ExpanderOptions.ExpandPropertiesAndItems
+                ExpanderOptions.ExpandPropertiesAndItems,
+                _evaluationContext.FileSystem
                 );
         }
 
@@ -1547,7 +1550,7 @@ namespace Microsoft.Build.Evaluation
                         (
                             _expander.ExpandIntoStringLeaveEscaped(itemElement.Update, ExpanderOptions.ExpandPropertiesAndItems, itemElement.Location)
                         )
-                        .SelectMany(i => EngineFileUtilities.GetFileListEscaped(_projectRootElement.DirectoryPath, i))
+                        .SelectMany(i => _evaluationContext.EngineFileUtilities.GetFileListEscaped(_projectRootElement.DirectoryPath, i))
                         .Select(EscapingUtilities.UnescapeAll));
 
             var itemsToUpdate = _data.GetItems(itemElement.ItemType).Where(i => expandedItemSet.Contains(i.EvaluatedInclude)).ToList();
@@ -1578,7 +1581,7 @@ namespace Microsoft.Build.Evaluation
 
                     foreach (string excludeSplit in excludeSplits)
                     {
-                        string[] excludeSplitFiles = EngineFileUtilities.GetFileListEscaped(_projectRootElement.DirectoryPath, excludeSplit);
+                        string[] excludeSplitFiles = _evaluationContext.EngineFileUtilities.GetFileListEscaped(_projectRootElement.DirectoryPath, excludeSplit);
 
                         foreach (string excludeSplitFile in excludeSplitFiles)
                         {
@@ -1820,12 +1823,12 @@ namespace Microsoft.Build.Evaluation
         {
             using (_evaluationProfiler.TrackElement(importElement))
             {
-                List<ProjectRootElement> importedProjectRootElements = ExpandAndLoadImports(directoryOfImportingFile, importElement);
+                List<ProjectRootElement> importedProjectRootElements = ExpandAndLoadImports(directoryOfImportingFile, importElement, out var sdkResult);
 
                 foreach (ProjectRootElement importedProjectRootElement in importedProjectRootElements)
                 {
-                    _data.RecordImport(importElement, importedProjectRootElement, importedProjectRootElement.Version);
-
+                    _data.RecordImport(importElement, importedProjectRootElement, importedProjectRootElement.Version, sdkResult);
+                    
                     PerformDepthFirstPass(importedProjectRootElement);
                 }
             }
@@ -1931,16 +1934,17 @@ namespace Microsoft.Build.Evaluation
         /// in those additional paths if the default fails.
         /// </remarks>
         /// </summary>
-        private List<ProjectRootElement> ExpandAndLoadImports(string directoryOfImportingFile, ProjectImportElement importElement)
+        private List<ProjectRootElement> ExpandAndLoadImports(string directoryOfImportingFile, ProjectImportElement importElement, out SdkResult sdkResult)
         {
             var fallbackSearchPathMatch = _data.Toolset.GetProjectImportSearchPaths(importElement.Project);
+            sdkResult = null;
 
             // no reference or we need to lookup only the default path,
             // so, use the Import path
             if (fallbackSearchPathMatch.Equals(ProjectImportPathMatch.None))
             {
                 List<ProjectRootElement> projects;
-                ExpandAndLoadImportsFromUnescapedImportExpressionConditioned(directoryOfImportingFile, importElement, out projects);
+                ExpandAndLoadImportsFromUnescapedImportExpressionConditioned(directoryOfImportingFile, importElement, out projects, out sdkResult);
                 return projects;
             }
 
@@ -2088,10 +2092,15 @@ namespace Microsoft.Build.Evaluation
         /// Caches the parsed import into the provided collection, so future
         /// requests can be satisfied without re-parsing it.
         /// </summary>
-        private void ExpandAndLoadImportsFromUnescapedImportExpressionConditioned(string directoryOfImportingFile,
-            ProjectImportElement importElement, out List<ProjectRootElement> projects,
+        private void ExpandAndLoadImportsFromUnescapedImportExpressionConditioned(
+            string directoryOfImportingFile,
+            ProjectImportElement importElement,
+            out List<ProjectRootElement> projects,
+            out SdkResult sdkResult,
             bool throwOnFileNotExistsError = true)
         {
+            sdkResult = null;
+
             if (!EvaluateConditionCollectingConditionedProperties(importElement, ExpanderOptions.ExpandProperties,
                 ParserOptions.AllowProperties, _projectRootElementCache))
             {
@@ -2135,10 +2144,14 @@ namespace Microsoft.Build.Evaluation
                 if (solutionPath == "*Undefined*") solutionPath = null;
                 var projectPath = _data.GetProperty(ReservedPropertyNames.projectFullPath)?.EvaluatedValue;
 
-                // Combine SDK path with the "project" relative path
-                var sdkRootPath = _sdkResolverService.ResolveSdk(_submissionId, importElement.ParsedSdkReference, _evaluationLoggingContext, importElement.Location, solutionPath, projectPath)?.Path;
+                // We currently only support the global property "NuGetInteractive" to allow SDK resolvers to be interactive.
+                // In the future we should add an /interactive command-line argument and pipe that through to here instead.
+                var interactive = String.Equals("true", _data.GetProperty("NuGetInteractive")?.EvaluatedValue, StringComparison.OrdinalIgnoreCase);
 
-                if (string.IsNullOrEmpty(sdkRootPath))
+                // Combine SDK path with the "project" relative path
+                sdkResult = _sdkResolverService.ResolveSdk(_submissionId, importElement.ParsedSdkReference, _evaluationLoggingContext, importElement.Location, solutionPath, projectPath, interactive);
+
+                if (!sdkResult.Success)
                 {
                     if (_loadSettings.HasFlag(ProjectLoadSettings.IgnoreMissingImports))
                     {
@@ -2165,7 +2178,7 @@ namespace Microsoft.Build.Evaluation
                     ProjectErrorUtilities.ThrowInvalidProject(importElement.SdkLocation, "CouldNotResolveSdk", importElement.ParsedSdkReference.ToString());
                 }
 
-                project = Path.Combine(sdkRootPath, project);
+                project = Path.Combine(sdkResult.Path, project);
             }
 
             ExpandAndLoadImportsFromUnescapedImportExpression(directoryOfImportingFile, importElement, project,
@@ -2207,7 +2220,7 @@ namespace Microsoft.Build.Evaluation
                     }
 
                     // Expand the wildcards and provide an alphabetical order list of import statements.
-                    importFilesEscaped = EngineFileUtilities.GetFileListEscaped(directoryOfImportingFile, importExpressionEscapedItem, forceEvaluate: true);
+                    importFilesEscaped = _evaluationContext.EngineFileUtilities.GetFileListEscaped(directoryOfImportingFile, importExpressionEscapedItem, forceEvaluate: true);
                 }
                 catch (Exception ex) when (ExceptionHandling.IsIoRelatedException(ex))
                 {
@@ -2356,6 +2369,11 @@ namespace Microsoft.Build.Evaluation
                         {
                             imports.Add(importedProjectElement);
 
+                            if (_lastModifiedProject == null || importedProjectElement.LastWriteTimeWhenRead > _lastModifiedProject.LastWriteTimeWhenRead)
+                            {
+                                _lastModifiedProject = importedProjectElement;
+                            }
+
                             if (_logProjectImportedEvents)
                             {
                                 ProjectImportedEventArgs eventArgs = new ProjectImportedEventArgs(
@@ -2384,7 +2402,7 @@ namespace Microsoft.Build.Evaluation
                         // Perhaps the import tag has a typo in, for example.
 
                         // There's a specific message for file not existing
-                        if (!File.Exists(importFileUnescaped))
+                        if (!FileSystems.Default.FileExists(importFileUnescaped))
                         {
                             bool ignoreMissingImportsFlagSet = (_loadSettings & ProjectLoadSettings.IgnoreMissingImports) != 0;
                             if (!throwOnFileNotExistsError || ignoreMissingImportsFlagSet)
@@ -2573,7 +2591,8 @@ namespace Microsoft.Build.Evaluation
                     GetCurrentDirectoryForConditionEvaluation(element),
                     element.ConditionLocation,
                     _evaluationLoggingContext.LoggingService,
-                    _evaluationLoggingContext.BuildEventContext
+                    _evaluationLoggingContext.BuildEventContext,
+                    _evaluationContext.FileSystem
                     );
 
                 return result;
@@ -2613,6 +2632,7 @@ namespace Microsoft.Build.Evaluation
                     element.ConditionLocation,
                     _evaluationLoggingContext.LoggingService,
                     _evaluationLoggingContext.BuildEventContext,
+                    _evaluationContext.FileSystem,
                     projectRootElementCache
                     );
 
@@ -2726,6 +2746,27 @@ namespace Microsoft.Build.Evaluation
             sb.Append($"\"{strings[strings.Count - 1]}\"");
 
             return sb.ToString();
+        }
+
+        private void SetAllProjectsProperty()
+        {
+            if (_lastModifiedProject != null)
+            {
+                P oldValue = _data.GetProperty(Constants.MSBuildAllProjectsPropertyName);
+
+                P newValue = _data.SetProperty(
+                    Constants.MSBuildAllProjectsPropertyName,
+                    oldValue == null
+                        ? _lastModifiedProject.FullPath
+                        : $"{_lastModifiedProject.FullPath};{oldValue.EvaluatedValue}",
+                    isGlobalProperty: false,
+                    mayBeReserved: false);
+
+                if (oldValue != null)
+                {
+                    LogPropertyReassignment(oldValue, newValue, String.Empty);
+                }
+            }
         }
     }
 

@@ -1,9 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//-----------------------------------------------------------------------
-// </copyright>
-// <summary>Tests for evaluation</summary>
-//-----------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -21,6 +17,8 @@ using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Internal;
 using Microsoft.Build.Shared;
+using Microsoft.Build.Shared.FileSystem;
+using Shouldly;
 using Xunit;
 
 using InvalidProjectFileException = Microsoft.Build.Exceptions.InvalidProjectFileException;
@@ -1833,11 +1831,9 @@ namespace Microsoft.Build.UnitTests.Evaluation
 
             IDictionary<string, ProjectProperty> allEvaluatedPropertiesWithNoBackingXmlAndNoDuplicates = new Dictionary<string, ProjectProperty>(StringComparer.OrdinalIgnoreCase);
 
-            // Get all those properties from project.AllEvaluatedProperties which don't have a backing xml. As project.AllEvaluatedProperties
-            // is an ordered collection and since such properties necessarily should occur before other properties, we don't need to scan
-            // the whole list.
-            // We have to dump it into a dictionary because AllEvaluatedProperties contains duplicates, but we're preparing to Properties,
-            // which doesn't, so we need to make sure that the final value in AllEvaluatedProperties is the one that matches.
+            // Get all those properties from project.AllEvaluatedProperties which don't have a backing xml. We have to dump it into a dictionary
+            // because AllEvaluatedProperties contains duplicates, but we're preparing to Properties, which doesn't, so we need to make sure
+            // that the final value in AllEvaluatedProperties is the one that matches.
             foreach (ProjectProperty property in project.AllEvaluatedProperties.TakeWhile(property => property.Xml == null))
             {
                 allEvaluatedPropertiesWithNoBackingXmlAndNoDuplicates[property.Name] = property;
@@ -2000,7 +1996,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 // the whole list.
                 // We have to dump it into a dictionary because AllEvaluatedProperties contains duplicates, but we're preparing to Properties,
                 // which doesn't, so we need to make sure that the final value in AllEvaluatedProperties is the one that matches.
-                foreach (ProjectProperty property in project.AllEvaluatedProperties.TakeWhile(property => property.Xml == null))
+                foreach (ProjectProperty property in project.AllEvaluatedProperties.Where(property => property.Xml == null))
                 {
                     allEvaluatedPropertiesWithNoBackingXmlAndNoDuplicates[property.Name] = property;
                 }
@@ -2027,7 +2023,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 }
 
                 // These are the properties which are defined in some file.
-                IEnumerable<ProjectProperty> restOfAllEvaluatedProperties = project.AllEvaluatedProperties.SkipWhile(property => property.Xml == null);
+                IEnumerable<ProjectProperty> restOfAllEvaluatedProperties = project.AllEvaluatedProperties.Where(property => property.Xml != null);
 
                 Assert.Equal(3, restOfAllEvaluatedProperties.Count());
                 Assert.Equal("1", restOfAllEvaluatedProperties.ElementAt(0).EvaluatedValue);
@@ -2306,11 +2302,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 Project project = new Project(new ProjectCollection());
 
                 string msbuildPath = NativeMethodsShared.IsWindows ?
-#if FEATURE_SPECIAL_FOLDERS
                     Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + Path.DirectorySeparatorChar + "MSBuild" :
-#else
-                    FileUtilities.GetFolderPath(FileUtilities.SpecialFolder.ProgramFiles) + Path.DirectorySeparatorChar + "MSBuild" :
-#endif
                     "MSBuild";
                 Assert.Equal(msbuildPath, project.GetPropertyValue(specialPropertyName));
             }
@@ -2429,11 +2421,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
             if (String.IsNullOrEmpty(expected))
             {
                 // 32 bit box
-#if FEATURE_SPECIAL_FOLDERS
                 expected = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-#else
-                expected = FileUtilities.GetFolderPath(FileUtilities.SpecialFolder.ProgramFiles);
-#endif
             }
 
             string extensionsPath32Env = Environment.GetEnvironmentVariable("MSBuildExtensionsPath32");
@@ -2514,11 +2502,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 if (string.IsNullOrEmpty(expected))
                 {
                     // 64-bit window on a 64-bit machine -- ProgramFiles is correct
-#if FEATURE_SPECIAL_FOLDERS
                     expected = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-#else
-                    expected = FileUtilities.GetFolderPath(FileUtilities.SpecialFolder.ProgramFiles);
-#endif
                 }
             }
 
@@ -2577,19 +2561,11 @@ namespace Microsoft.Build.UnitTests.Evaluation
         [Fact]
         public void LocalAppDataDefault()
         {
-#if FEATURE_SPECIAL_FOLDERS
             string expected = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (String.IsNullOrEmpty(expected))
             {
                 expected = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             }
-#else
-            string expected = FileUtilities.GetFolderPath(FileUtilities.SpecialFolder.LocalApplicationData);
-            if (String.IsNullOrEmpty(expected))
-            {
-                expected = FileUtilities.GetFolderPath(FileUtilities.SpecialFolder.ApplicationData);
-            }
-#endif
 
             Project project = new Project();
 
@@ -4321,7 +4297,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         public void VerifyConditionEvaluatorResetStateOnFailure()
         {
             PropertyDictionary<ProjectPropertyInstance> propertyBag = new PropertyDictionary<ProjectPropertyInstance>();
-            Expander<ProjectPropertyInstance, ProjectItemInstance> expander = new Expander<ProjectPropertyInstance, ProjectItemInstance>(propertyBag);
+            Expander<ProjectPropertyInstance, ProjectItemInstance> expander = new Expander<ProjectPropertyInstance, ProjectItemInstance>(propertyBag, FileSystems.Default);
             string condition = " '$(TargetOSFamily)' >= '3' ";
 
             // Give an incorrect value for the property "TargetOSFamily", and then the evaluation should throw an exception.
@@ -4336,7 +4312,8 @@ namespace Microsoft.Build.UnitTests.Evaluation
                     Directory.GetCurrentDirectory(),
                     MockElementLocation.Instance,
                     null,
-                    new BuildEventContext(1, 2, 3, 4));
+                    new BuildEventContext(1, 2, 3, 4),
+                    FileSystems.Default);
                 Assert.True(false, "Expect exception due to the value of property \"TargetOSFamily\" is not a number.");
             }
             catch (InvalidProjectFileException e)
@@ -4354,7 +4331,8 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 Directory.GetCurrentDirectory(),
                 MockElementLocation.Instance,
                 null,
-                new BuildEventContext(1, 2, 3, 4)));
+                new BuildEventContext(1, 2, 3, 4),
+                FileSystems.Default));
         }
 
         /// <summary>
@@ -4443,6 +4421,60 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 bool result = project.Build(logger);
 
                 Assert.True(result);
+            }
+        }
+
+        [Fact]
+        public void VerifyMSBuildLastModifiedProjectForImport()
+        {
+            using (TestEnvironment testEnvironment = TestEnvironment.Create())
+            {
+                var project1 = testEnvironment.CreateTestProjectWithFiles("<Project />");
+                var project2 = testEnvironment.CreateTestProjectWithFiles("<Project />");
+
+                var primaryProject = testEnvironment.CreateTestProjectWithFiles($@"<Project>
+<Import Project=""{project1.ProjectFile}"" />
+<Import Project=""{project2.ProjectFile}"" />
+</Project>");
+
+                // Project1 and primary project last modified an hour ago, project2 is the newest
+                File.SetLastWriteTime(project1.ProjectFile, DateTime.Now.AddHours(-1));
+                File.SetLastWriteTime(project2.ProjectFile, DateTime.Now);
+                File.SetLastWriteTime(primaryProject.ProjectFile, DateTime.Now.AddHours(-1));
+
+                Project project = new Project(primaryProject.ProjectFile, null, null);
+
+                string propertyValue = project.GetPropertyValue(Constants.MSBuildAllProjectsPropertyName);
+
+                propertyValue.ShouldStartWith(project2.ProjectFile);
+
+                propertyValue.ShouldNotContain(primaryProject.ProjectFile, Case.Insensitive);
+                propertyValue.ShouldNotContain(project1.ProjectFile, Case.Insensitive);
+            }
+        }
+
+        [Fact]
+        public void VerifyMSBuildLastModifiedProjectIsProject()
+        {
+            using (TestEnvironment testEnvironment = TestEnvironment.Create())
+            {
+                var project1 = testEnvironment.CreateTestProjectWithFiles("<Project />");
+                var project2 = testEnvironment.CreateTestProjectWithFiles("<Project />");
+
+                var primaryProject = testEnvironment.CreateTestProjectWithFiles($@"<Project>
+<Import Project=""{project1.ProjectFile}"" />
+<Import Project=""{project2.ProjectFile}"" />
+</Project>");
+
+                // Project1 and project2 last modified an hour ago, primaryProject is the newest
+                File.SetLastWriteTime(project1.ProjectFile, DateTime.Now.AddHours(-1));
+                File.SetLastWriteTime(project2.ProjectFile, DateTime.Now.AddHours(-1));
+                File.SetLastWriteTime(primaryProject.ProjectFile, DateTime.Now);
+
+
+                Project project = new Project(primaryProject.ProjectFile, null, null);
+
+                project.GetPropertyValue(Constants.MSBuildAllProjectsPropertyName).ShouldStartWith(primaryProject.ProjectFile);
             }
         }
 

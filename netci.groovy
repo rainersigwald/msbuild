@@ -8,14 +8,10 @@ project = GithubProject
 branch = GithubBranchName
 
 // What this repo is using for its machine images at the current time
-imageVersionMap = ['Windows_NT':'latest-dev15-5',
-                    'OSX10.13':'latest-or-auto',
-                    'Ubuntu14.04':'latest-or-auto',
-                    'Ubuntu16.04':'20170731',
-                    'RHEL7.2' : 'latest']
+imageVersionMap = ['RHEL7.2' : 'latest']
 
-def CreateJob(script, runtime, osName, isPR, shouldSkipTestsWhenResultsNotFound=false, isSourceBuild = false) {
-    def newJobName = Utilities.getFullJobName("innerloop_${osName}_${runtime}${isSourceBuild ? '_SourceBuild' : ''}", isPR)
+def CreateJob(script, runtime, osName, isPR, machineAffinityOverride = null, shouldSkipTestsWhenResultsNotFound = false, isSourceBuild = false) {
+    def newJobName = Utilities.getFullJobName("innerloop_${osName}_${runtime}${isSourceBuild ? '_SourceBuild_' : ''}", isPR)
 
     // Create a new job with the specified name.  The brace opens a new closure
     // and calls made within that closure apply to the newly created job.
@@ -37,8 +33,15 @@ def CreateJob(script, runtime, osName, isPR, shouldSkipTestsWhenResultsNotFound=
 
     // Add xunit result archiving. Skip if no results found.
     Utilities.addXUnitDotNETResults(newJob, 'artifacts/**/TestResults/*.xml', skipTestsWhenResultsNotFound)
-    def imageVersion = imageVersionMap[osName];
-    Utilities.setMachineAffinity(newJob, osName, imageVersion)
+
+    if (machineAffinityOverride == null) {
+        def imageVersion = imageVersionMap[osName];
+        Utilities.setMachineAffinity(newJob, osName, imageVersion)
+    }
+    else {
+        Utilities.setMachineAffinity(newJob, machineAffinityOverride)
+    }
+
     Utilities.standardJobSetup(newJob, project, isPR, "*/${branch}")
     // Add archiving of logs (even if the build failed)
     Utilities.addArchival(newJob,
@@ -68,80 +71,13 @@ def CreateJob(script, runtime, osName, isPR, shouldSkipTestsWhenResultsNotFound=
     }
 }
 
-[true, false].each { isPR ->
-    ['Windows_NT', 'OSX10.13', 'Ubuntu14.04', 'Ubuntu16.04'].each {osName ->
-        def runtimes = ['CoreCLR']
-
-        if (osName == 'Windows_NT') {
-            runtimes.add('Full')
-        }
-
-        // TODO: make this !windows once Mono 5.0+ is available in an OSX image
-        // if (osName.startsWith('Ubuntu')) {
-        //     runtimes.add('Mono')
-        //     runtimes.add('MonoTest')
-        // }
-
-        def script = "NA"
-
-        runtimes.each { runtime ->
-            switch(osName) {
-                case 'Windows_NT':
-
-                    // Protect against VsDevCmd behaviour of changing the current working directory https://developercommunity.visualstudio.com/content/problem/26780/vsdevcmdbat-changes-the-current-working-directory.html
-                    script = "set VSCMD_START_DIR=\"%CD%\" && call \"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\Tools\\VsDevCmd.bat\""
-
-                    if (runtime == "Full") {
-                        script += " && build\\cibuild.cmd"
-                    }
-                    else if (runtime == "CoreCLR") {
-                        script += " && build\\cibuild.cmd -hostType Core"
-                    }
-
-                    break;
-                case 'OSX10.13':
-                    script = "./build/cibuild.sh"
-
-                    if (runtime == "Mono") {
-                        // tests are failing on mono right now
-                        script += " --scope Compile"
-                    }
-
-                    if (runtime.startsWith("Mono")) {
-                        // Redundantly specify target to override
-                        // "MonoTest" which cibuild.sh doesn't know
-                        script += " --host Mono --target Mono"
-                    }
-
-                    break;
-                case { it.startsWith('Ubuntu') }:
-                    script = "./build/cibuild.sh"
-
-                    if (runtime == "Mono") {
-                        // tests are failing on mono right now
-                        script += " --scope Compile"
-                    }
-
-                    if (runtime.startsWith("Mono")) {
-                        // Redundantly specify target to override
-                        // "MonoTest" which cibuild.sh doesn't know
-                        script += " --host Mono --target Mono"
-                    }
-
-                    break;
-            }
-
-            CreateJob(script, runtime, osName, isPR)
-        }
-    }
-}
-
-//sourcebuild
+// sourcebuild simulation
 CreateJob(
     "./build/build.sh build -dotnetBuildFromSource -bootstraponly -skiptests -pack -configuration Release",
     "CoreCLR",
     "RHEL7.2",
     true,
+    null,
     true,
     true)
 
