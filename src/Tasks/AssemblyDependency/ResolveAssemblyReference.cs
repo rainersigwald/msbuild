@@ -1792,6 +1792,8 @@ namespace Microsoft.Build.Tasks
                         TargetProcessorArchitecture = TargetProcessorArchitecture,
                         UnresolveFrameworkAssembliesFromHigherFrameworks = UnresolveFrameworkAssembliesFromHigherFrameworks,
                         WarnOrErrorOnTargetArchitectureMismatch = _warnOrErrorOnTargetArchitectureMismatch,
+
+                        Log = Log,
                     };
 
                     FrameworkNameVersioning frameworkMoniker = null;

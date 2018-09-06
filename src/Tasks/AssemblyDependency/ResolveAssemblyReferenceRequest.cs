@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace Microsoft.Build.Tasks.AssemblyDependency
 {
@@ -46,5 +47,8 @@ namespace Microsoft.Build.Tasks.AssemblyDependency
         public string TargetProcessorArchitecture { get; set; }
         public bool UnresolveFrameworkAssembliesFromHigherFrameworks { get; set; }
         public WarnOrErrorOnTargetArchitectureMismatchBehavior WarnOrErrorOnTargetArchitectureMismatch { get; set; }
+
+
+        public TaskLoggingHelper Log { get; set; }
     }
 }

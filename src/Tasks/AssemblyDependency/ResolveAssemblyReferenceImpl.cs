@@ -35,6 +35,8 @@ namespace Microsoft.Build.Tasks
 
         public ResolveAssemblyReferenceResponse _response { get; } = new ResolveAssemblyReferenceResponse();
 
+        private TaskLoggingHelper _log;
+
         /// <summary>
         /// key assembly used to trigger inclusion of facade references. 
         /// </summary>
@@ -70,6 +72,7 @@ namespace Microsoft.Build.Tasks
         public ResolveAssemblyReferenceImpl(ResolveAssemblyReferenceRequest request)
         {
             _request = request;
+            _log = request.Log;
         }
 
         #region Properties
