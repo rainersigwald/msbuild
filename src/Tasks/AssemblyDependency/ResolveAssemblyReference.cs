@@ -1796,6 +1796,9 @@ namespace Microsoft.Build.Tasks
                         Log = Log,
                     };
 
+                    var impl = new ResolveAssemblyReferenceImpl(request);
+                    impl.Execute();
+
                     FrameworkNameVersioning frameworkMoniker = null;
                     if (!String.IsNullOrEmpty(TargetFrameworkMoniker))
                     {
