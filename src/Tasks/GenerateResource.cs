@@ -3060,7 +3060,22 @@ namespace Microsoft.Build.Tasks
                             {
                                 string name = dataElem.Attribute("name").Value;
                                 string value = dataElem.Element("value").Value;
-                                AddResource(reader, name, value, filename);
+
+                                if (dataElem.Attribute("type").Value == "System.Drawing.Bitmap, System.Drawing")
+                                {
+                                    var e = new Entry(name, null)
+                                    {
+                                        hasSerializedData = true,
+                                        typeName = "System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a",
+                                        serializedData = Convert.FromBase64String(value),
+                                    };
+
+                                    AddResource(reader, filename, 0, 0, e);
+                                }
+                                else
+                                {
+                                    AddResource(reader, name, value, filename);
+                                }
                             }
                         }
                         break;
@@ -3677,7 +3692,14 @@ namespace Microsoft.Build.Tasks
                 {
                     string key = entry.name;
                     object value = entry.value;
-                    writer.AddResource(key, value);
+                    if (writer is ResourceWriter w && entry.hasSerializedData)
+                    {
+                        w.AddResourceData(entry.name, entry.typeName, entry.serializedData);
+                    }
+                    else
+                    {
+                        writer.AddResource(key, value);
+                    }
                 }
             }
             catch (Exception e)
@@ -3748,14 +3770,19 @@ namespace Microsoft.Build.Tasks
         {
             Entry entry = new Entry(name, value);
 
-            if (reader.resourcesHashTable.ContainsKey(name))
+            AddResource(reader, inputFileName, lineNumber, linePosition, entry);
+        }
+
+        private void AddResource(ReaderInfo reader, string inputFileName, int lineNumber, int linePosition, Entry entry)
+        {
+            if (reader.resourcesHashTable.ContainsKey(entry.name))
             {
-                _logger.LogWarningWithCodeFromResources(null, inputFileName, lineNumber, linePosition, 0, 0, "GenerateResource.DuplicateResourceName", name);
+                _logger.LogWarningWithCodeFromResources(null, inputFileName, lineNumber, linePosition, 0, 0, "GenerateResource.DuplicateResourceName", entry.name);
                 return;
             }
 
             reader.resources.Add(entry);
-            reader.resourcesHashTable.Add(name, value);
+            reader.resourcesHashTable.Add(entry.name, entry.value);
         }
 
         /// <summary>
@@ -3928,6 +3955,10 @@ namespace Microsoft.Build.Tasks
 
             public string name;
             public object value;
+
+            internal string typeName;
+            internal bool hasSerializedData;
+            internal byte[] serializedData;
         }
 #endregion // Code from ResGen.EXE
     }
