@@ -3864,12 +3864,15 @@ $(
             string tempSquiggleFilePath = Path.Combine(ObjectModelHelpers.TempProjectDir, ".squiggle");
             Directory.CreateDirectory(ObjectModelHelpers.TempProjectDir);
             File.WriteAllText(tempSquiggleFilePath, string.Empty);
+            System.Console.WriteLine($"Wrote to {tempSquiggleFilePath}");
             string betaSquiggleFilePath = Path.Combine(betaDirectory, ".squiggle");
             Directory.CreateDirectory(betaDirectory);
             File.WriteAllText(betaSquiggleFilePath, string.Empty);
+            System.Console.WriteLine($"Wrote to {betaSquiggleFilePath}");
             string gammaSquiggleFilePath = FileUtilities.CombinePaths(gammaDirectory, ".squiggle");
             Directory.CreateDirectory(gammaDirectory);
             File.WriteAllText(gammaSquiggleFilePath, string.Empty);
+            System.Console.WriteLine($"Wrote to {gammaSquiggleFilePath}");
 
             MockElementLocation projectLocation = new MockElementLocation(Path.Combine(alphaDirectory, Path.GetRandomFileName()));
 
@@ -3886,6 +3889,7 @@ $(
 
             File.WriteAllText(projectLocation.File, projectFileContents);
             Project project = new Project(projectLocation.File);
+            System.Console.WriteLine($"Project at {projectLocation.File}");
 
             ProjectInstance projectInstance = project.CreateProjectInstance();
             ICollection<ProjectItemInstance> squiggleItems = projectInstance.GetItems("Squiggle");

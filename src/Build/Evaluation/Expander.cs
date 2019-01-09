@@ -2209,6 +2209,8 @@ namespace Microsoft.Build.Evaluation
 
                     string fileName = arguments[0];
 
+                    System.Console.WriteLine($"Looking for {fileName}");
+
                     // Phase 1: find all the applicable directories.
 
                     SortedSet<string> directories = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -2259,6 +2261,8 @@ namespace Microsoft.Build.Evaluation
                                 break;
                             }
 
+                            System.Console.WriteLine($"Adding {directoryName}");
+
                             directories.Add(directoryName);
                             directoryName = Path.GetDirectoryName(directoryName);
                         }
@@ -2269,8 +2273,11 @@ namespace Microsoft.Build.Evaluation
                     foreach (string directoryPath in directories)
                     {
                         string possibleFile = Path.Combine(directoryPath, fileName);
+
+                        System.Console.WriteLine($"Looking for {possibleFile}");
                         if (File.Exists(possibleFile))
                         {
+                        System.Console.WriteLine($"Found {possibleFile}");
                             yield return new Pair<string, S>(EscapingUtilities.Escape(possibleFile), null);
                         }
                     }
