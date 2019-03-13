@@ -338,15 +338,17 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
         /// <summary>
         ///  Force out-of-date with ShouldRebuildResgenOutputFile on the linked file
         /// </summary>
-#if FEATURE_LINKED_RESOURCES
         [Fact]
-#else
-        [Fact(Skip = "https://github.com/Microsoft/msbuild/issues/1247")]
-#endif
         public void ForceOutOfDateLinked()
         {
-            string bitmap = Utilities.CreateWorldsSmallestBitmap();
-            string resxFile = Utilities.WriteTestResX(false, bitmap, null, false);
+            string linkedTextFile = Utilities.CreateTextFile(nameof(ForceOutOfDateLinked));
+            string resxFile = Utilities.WriteTestResX(
+                useType: false,
+                linkedBitmap: null,
+                extraToken: null,
+                useInvalidType: false,
+                resxFileToWrite: null,
+                linkedTextFile: linkedTextFile);
 
             GenerateResource t = Utilities.CreateTask(_output);
             t.StateFile = new TaskItem(Utilities.GetTempFileName(".cache"));
@@ -372,7 +374,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
 
                 DateTime time = File.GetLastWriteTime(t.OutputResources[0].ItemSpec);
                 System.Threading.Thread.Sleep(200);
-                File.SetLastWriteTime(bitmap, DateTime.Now);
+                File.SetLastWriteTime(linkedTextFile, DateTime.Now);
 
                 Utilities.ExecuteTask(t2);
 
@@ -382,7 +384,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
             {
                 // Done, so clean up.
                 File.Delete(t.Sources[0].ItemSpec);
-                File.Delete(bitmap);
+                File.Delete(linkedTextFile);
                 foreach (ITaskItem item in t.FilesWritten)
                 {
                     if (File.Exists(item.ItemSpec))
@@ -3394,7 +3396,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests
         /// <param name="linkedBitmap">The name of a linked-in bitmap.  use 'null' for no bitmap.</param>
         /// <returns>The content of the resx blob as a string</returns>
         /// <returns>The name of the text file</returns>
-        public static string GetTestResXContent(bool useType, string linkedBitmap, string extraToken, bool useInvalidType)
+        public static string GetTestResXContent(bool useType, string linkedBitmap, string extraToken, bool useInvalidType, string linkedTextFile = null)
         {
             StringBuilder resgenFileContents = new StringBuilder();
 
@@ -3465,6 +3467,28 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests
                     );
             }
 
+            if (linkedTextFile != null)
+            {
+                // A linked-in string from a text file.
+                resgenFileContents.Append(
+                     "  <data name='TextFileString' type='System.Resources.ResXFileRef, System.Windows.Forms'>\xd\xa"
+                    + "    <value>"
+                    );
+
+                // The linked file may have a different case than reported by the filesystem
+                // simulate this by lower-casing our file before writing it into the resx.
+                resgenFileContents.Append(
+                    NativeMethodsShared.IsWindows
+                        ? linkedTextFile.ToUpperInvariant()
+                        : linkedTextFile);
+
+                resgenFileContents.Append(
+                     ";System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>\xd\xa"
+                    + "  </data>\xd\xa"
+                    );
+            }
+
+
             resgenFileContents.Append("</root>\xd\xa");
 
             return resgenFileContents.ToString();
@@ -3487,7 +3511,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests
         /// <param name="useType">Indicates whether to include an enum to test type-specific resource encoding with assembly references</param>
         /// <param name="linkedBitmap">The name of a linked-in bitmap.  use 'null' for no bitmap.</param>
         /// <returns>The name of the resx file</returns>
-        public static string WriteTestResX(bool useType, string linkedBitmap, string extraToken, bool useInvalidType, string resxFileToWrite = null)
+        public static string WriteTestResX(bool useType, string linkedBitmap, string extraToken, bool useInvalidType, string resxFileToWrite = null, string linkedTextFile = null)
         {
             string resgenFile = resxFileToWrite;
             if (string.IsNullOrEmpty(resgenFile))
@@ -3496,7 +3520,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests
                 File.Delete(resgenFile);
             }
 
-            File.WriteAllText(resgenFile, GetTestResXContent(useType, linkedBitmap, extraToken, useInvalidType));
+            File.WriteAllText(resgenFile, GetTestResXContent(useType, linkedBitmap, extraToken, useInvalidType, linkedTextFile));
             return resgenFile;
         }
 
@@ -3539,6 +3563,20 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests
                 NativeMethodsShared.IsWindows ? smallestBitmapFile.ToUpperInvariant() : smallestBitmapFile,
                 bmp);
             return smallestBitmapFile;
+        }
+
+        /// <summary>
+        /// Create a plain text file at a temporary location.
+        /// </summary>
+        /// <returns>The contents of the text file.</returns>
+        public static string CreateTextFile(string content)
+        {
+            string file = GetTempFileName(".txt");
+
+            File.Delete(file);
+            File.WriteAllText(NativeMethodsShared.IsWindows ? file.ToUpperInvariant() : file,
+                content);
+            return file;
         }
 
         /// <summary>
