@@ -69,9 +69,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 resourcesFile = t.FilesWritten[0].ItemSpec;
                 Assert.Equal(".resources", Path.GetExtension(resourcesFile));
 
-#if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t);
-#endif
 
                 Utilities.AssertLogContainsResource(t, "GenerateResource.ProcessingFile", resxFile, resourcesFile);
                 Utilities.AssertLogContainsResource(t, "GenerateResource.ReadResourceMessage", 1, resxFile);
@@ -157,9 +155,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 resourcesFile = t.FilesWritten[0].ItemSpec;
                 Assert.Equal(".resources", Path.GetExtension(resourcesFile));
 
-#if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t);
-#endif
 
                 Utilities.AssertLogContainsResource(t, "GenerateResource.ProcessingFile", textFile, resourcesFile);
                 Utilities.AssertLogContainsResource(t, "GenerateResource.ReadResourceMessage", 4, textFile);
@@ -319,9 +315,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
             Path.GetExtension(resourceOutput).ShouldBe(".resources");
             Path.GetExtension(t.FilesWritten[0].ItemSpec).ShouldBe(".resources");
 
-#if FEATURE_RESGENCACHE
             Utilities.AssertStateFileWasWritten(t);
-#endif
 
             GenerateResource t2 = Utilities.CreateTask(_output);
             t2.StateFile = new TaskItem(t.StateFile);
@@ -364,9 +358,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 resourcesFile = t.FilesWritten[0].ItemSpec;
                 Path.GetExtension(resourcesFile).ShouldBe(".resources");
 
-#if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t);
-#endif
 
                 GenerateResource t2 = Utilities.CreateTask(_output);
                 t2.StateFile = new TaskItem(t.StateFile);
@@ -535,9 +527,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 Assert.Equal(t.OutputResources[1].ItemSpec, resourcesFile2);
                 Assert.Equal(t.FilesWritten[1].ItemSpec, resourcesFile2);
 
-#if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t);
-#endif
 
                 // Repeat, and it should do nothing as they are up to date
                 GenerateResource t2 = Utilities.CreateTask(_output);
@@ -556,9 +546,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 Assert.Equal(t2.OutputResources[1].ItemSpec, resourcesFile2);
                 Assert.Equal(t2.FilesWritten[1].ItemSpec, resourcesFile2);
 
-#if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t2);
-#endif
 
                 Assert.True(time.Equals(File.GetLastWriteTime(t2.OutputResources[0].ItemSpec)));
                 Assert.True(time2.Equals(File.GetLastWriteTime(t2.OutputResources[1].ItemSpec)));
@@ -1389,9 +1377,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 // Task should have failed
                 Assert.False(success);
 
-#if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t);
-#endif
                 // Should not have created an output for the invalid resx
                 // Should have created the other file
                 Assert.False(File.Exists(resourcesFile1));
@@ -1443,9 +1429,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 // Task should have failed
                 Assert.False(success);
 
-#if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t);
-#endif
 
                 // Should not have created an output for the invalid resx
                 // Should have created the other file
@@ -1794,9 +1778,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 Assert.True(File.Exists(t.FilesWritten[i].ItemSpec));
             }
 
-#if FEATURE_RESGENCACHE
             Utilities.AssertStateFileWasWritten(t);
-#endif
 
             // Done, so clean up.
             File.Delete(t.StateFile.ItemSpec);
@@ -1857,9 +1839,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 Assert.Equal(t.FilesWritten[1].ItemSpec, Path.ChangeExtension(t.Sources[1].ItemSpec, ".resources"));
                 Assert.Equal(t.FilesWritten[2].ItemSpec, Path.ChangeExtension(t.Sources[3].ItemSpec, ".resources"));
 
-#if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t);
-#endif
 
                 // Make sure there was an error on the second resource
                 // "unsupported square bracket keyword"
@@ -2087,12 +2067,7 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
         /// <summary>
         ///  Read-only StateFile yields message
         /// </summary>
-#if FEATURE_RESGENCACHE
         [Fact]
-#else
-        [Fact(Skip = "https://github.com/Microsoft/msbuild/issues/297")]
-#endif
-        [PlatformSpecific(TestPlatforms.Windows)]
         public void StateFileUnwritable()
         {
             GenerateResource t = Utilities.CreateTask(_output);
