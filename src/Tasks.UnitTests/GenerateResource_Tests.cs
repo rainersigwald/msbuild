@@ -360,9 +360,9 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 Utilities.ExecuteTask(t);
 
                 string resourcesFile = t.OutputResources[0].ItemSpec;
-                Assert.Equal(".resources", Path.GetExtension(resourcesFile));
+                Path.GetExtension(resourcesFile).ShouldBe(".resources");
                 resourcesFile = t.FilesWritten[0].ItemSpec;
-                Assert.Equal(".resources", Path.GetExtension(resourcesFile));
+                Path.GetExtension(resourcesFile).ShouldBe(".resources");
 
 #if FEATURE_RESGENCACHE
                 Utilities.AssertStateFileWasWritten(t);
@@ -372,13 +372,13 @@ namespace Microsoft.Build.UnitTests.GenerateResource_Tests.InProc
                 t2.StateFile = new TaskItem(t.StateFile);
                 t2.Sources = new ITaskItem[] { new TaskItem(resxFile) };
 
-                DateTime time = File.GetLastWriteTime(t.OutputResources[0].ItemSpec);
+                DateTime firstOutputTime = File.GetLastWriteTime(t.OutputResources[0].ItemSpec);
                 System.Threading.Thread.Sleep(200);
                 File.SetLastWriteTime(linkedTextFile, DateTime.Now);
 
                 Utilities.ExecuteTask(t2);
 
-                Assert.True(DateTime.Compare(File.GetLastWriteTime(t2.OutputResources[0].ItemSpec), time) > 0);
+                File.GetLastWriteTime(t2.OutputResources[0].ItemSpec).ShouldBeGreaterThan(firstOutputTime);
             }
             finally
             {
