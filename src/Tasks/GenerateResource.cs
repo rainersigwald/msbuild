@@ -1971,7 +1971,6 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private bool NeedSeparateAppDomainBasedOnSerializedType(XmlReader reader)
         {
-#if FEATURE_RESGENCACHE
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -1995,12 +1994,10 @@ namespace Microsoft.Build.Tasks
 
             // We didn't find any element at all -- the .resx is malformed.
             // Return true to err on the side of caution. Error will appear later.
-#endif
             return true;
         }
 #endif
 
-#if FEATURE_RESGENCACHE
         /// <summary>
         /// Deserializes a base64 block from a resx in order to figure out if its type is in the GAC.
         /// Because we're not providing any assembly resolution callback, deserialization
@@ -2055,7 +2052,6 @@ namespace Microsoft.Build.Tasks
                 return Convert.FromBase64String(text);
             }
         }
-#endif // FEATURE_RESGENCACHE
 
         /// <summary>
         /// Make sure that OutputResources has 1 file name for each name in Sources.
