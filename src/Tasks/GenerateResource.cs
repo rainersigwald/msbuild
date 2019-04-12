@@ -3961,9 +3961,9 @@ namespace Microsoft.Build.Tasks
             public string name;
             public object value;
 
-            internal string typeName;
-            internal bool hasSerializedData;
-            internal byte[] serializedData;
+            internal string typeName = null;
+            internal bool hasSerializedData = false;
+            internal byte[] serializedData = null;
         }
 #endregion // Code from ResGen.EXE
     }
