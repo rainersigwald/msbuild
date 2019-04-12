@@ -289,8 +289,8 @@ namespace PassThroughResources
 
             // Write out class name of IResourceReader capable of handling 
             // this file.
-            resMgrHeaderPart.Write(_requiresNewReader ? 
-                typeof(ResourceReader).AssemblyQualifiedName :
+            resMgrHeaderPart.Write(_requiresNewReader ?
+                "PassThroughResources.ResourceReader, PassThroughResources, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" :
                 ResourceReaderFullyQualifiedName);
 
             // Write out class name of the ResourceSet class best suited to

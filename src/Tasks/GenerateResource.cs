@@ -3704,6 +3704,7 @@ namespace Microsoft.Build.Tasks
                     else
                     {
                         writer.AddResource(key, value);
+                        throw new NotImplementedException($"{writer} {entry.name}");
                     }
                 }
             }
