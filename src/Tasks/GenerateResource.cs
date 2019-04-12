@@ -3350,7 +3350,7 @@ namespace Microsoft.Build.Tasks
 
                 case Format.Binary:
 
-                    WriteResources(reader, new ResourceWriter(File.OpenWrite(filename))); // closes writer for us
+                    WriteResources(reader, new PassThroughResources.ResourceWriter(File.OpenWrite(filename))); // closes writer for us
                     break;
 
 
@@ -3697,9 +3697,9 @@ namespace Microsoft.Build.Tasks
                 {
                     string key = entry.name;
                     object value = entry.value;
-                    if (writer is ResourceWriter w && entry.hasSerializedData)
+                    if (writer is PassThroughResources.ResourceWriter w && entry.hasSerializedData)
                     {
-                        w.AddResourceData(entry.name, entry.typeName, entry.serializedData);
+                        w.AddResourceData(entry.name, entry.typeName, entry.serializedData, PassThroughResources.SerializationFormat.TypeConverter);
                     }
                     else
                     {
