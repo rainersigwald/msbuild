@@ -2617,6 +2617,30 @@ namespace Microsoft.Build.Tasks.Xaml
         protected override bool ValidateParameters() { throw null; }
     }
 }
+namespace PassThroughResources
+{
+    public sealed partial class ResourceWriter : System.IDisposable, System.Resources.IResourceWriter
+    {
+        public ResourceWriter(System.IO.Stream stream) { }
+        public ResourceWriter(string fileName) { }
+        public System.Func<System.Type, string> TypeNameConverter { get { throw null; } set { } }
+        public void AddResource(string name, byte[] value) { }
+        public void AddResource(string name, System.IO.Stream value) { }
+        public void AddResource(string name, System.IO.Stream value, bool closeAfterWrite) { }
+        public void AddResource(string name, object value) { }
+        public void AddResource(string name, string value) { }
+        public void AddResourceData(string name, string typeName, byte[] serializedData, PassThroughResources.SerializationFormat format=(PassThroughResources.SerializationFormat)(1)) { }
+        public void Close() { }
+        public void Dispose() { }
+        public void Generate() { }
+    }
+    public enum SerializationFormat : byte
+    {
+        BinaryFormatter = (byte)1,
+        Stream = (byte)3,
+        TypeConverter = (byte)2,
+    }
+}
 namespace System.Deployment.Internal.CodeSigning
 {
     public sealed partial class RSAPKCS1SHA256SignatureDescription : System.Security.Cryptography.SignatureDescription

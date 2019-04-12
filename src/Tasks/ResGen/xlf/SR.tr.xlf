@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="tr" original="../SR.resx">
+    <body>
+      <trans-unit id="ArgumentOutOfRange_StreamLength">
+        <source>Stream length must be non-negative and less than 2^31 - 1 - origin.</source>
+        <target state="new">Stream length must be non-negative and less than 2^31 - 1 - origin.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Argument_StreamNotReadable">
+        <source>Stream was not readable</source>
+        <target state="new">Stream was not readable</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Argument_StreamNotWritable">
+        <source>Stream was not writable.</source>
+        <target state="new">Stream was not writable.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="InvalidOperation_ResourceWriterSaved">
+        <source>The resource writer has already been closed and cannot be edited.</source>
+        <target state="new">The resource writer has already been closed and cannot be edited.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NotSupported_BinarySerializedResources">
+        <source>This platform does not support binary serialized resources.</source>
+        <target state="new">This platform does not support binary serialized resources.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NotSupported_UnseekableStream">
+        <source>Stream does not support seeking.</source>
+        <target state="new">Stream does not support seeking.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NotSupported_WrongResourceReader_Type">
+        <source>This .resources file should not be read with this reader. The resource reader type is "{0}".</source>
+        <target state="new">This .resources file should not be read with this reader. The resource reader type is "{0}".</target>
+        <note />
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

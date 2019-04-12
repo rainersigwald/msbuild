@@ -19,6 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ResGen\SR.resx" />
     <EmbeddedResource Include="system.design\system.design.txt">
       <Type>Resx</Type>
       <WithCulture>false</WithCulture>
@@ -334,6 +335,7 @@
     <Compile Include="CommandLineBuilderExtension.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="ResGen\*.cs" />
     <Compile Include="ResolveComReference.cs" />
     <Compile Include="BuildCacheDisposeWrapper.cs" />
     <Compile Include="DownloadFile.cs" />
