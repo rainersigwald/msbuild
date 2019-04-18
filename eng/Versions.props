@@ -9,7 +9,8 @@
         https://dotnet.myget.org/F/roslyn/api/v3/index.json;
         https://dotnet.myget.org/F/nuget-build/api/v3/index.json;
         https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json;
-        https://dotnet.myget.org/F/dotnet-buildtools/api/v3/index.json
+        https://dotnet.myget.org/F/dotnet-buildtools/api/v3/index.json;
+        $(MSBuildThisFileDirectory)\..\HackyLocalPackageStore
     </RestoreSources>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>

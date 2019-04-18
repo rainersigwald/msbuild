@@ -46,6 +46,8 @@
     <PackageReference Update="xunit.assert" Version="$(XUnitVersion)" />
     <PackageReference Update="xunit.console" Version="$(XUnitVersion)" />
     <PackageReference Update="xunit.core" Version="$(XUnitVersion)" />
+
+    <PackageReference Update="System.Resources.Binary.Writer" Version="4.6.0-dev.19217.1" />
   </ItemGroup>
 
   <ItemGroup>
