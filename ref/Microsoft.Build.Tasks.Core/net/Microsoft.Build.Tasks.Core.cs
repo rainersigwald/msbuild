@@ -519,6 +519,7 @@ namespace Microsoft.Build.Tasks
         public Microsoft.Build.Framework.ITaskItem[] ExcludedInputPaths { get { throw null; } set { } }
         public bool ExecuteAsTool { get { throw null; } set { } }
         public bool ExtractResWFiles { get { throw null; } set { } }
+        public bool FancyNewWay { get { throw null; } set { } }
         [Microsoft.Build.Framework.OutputAttribute]
         public Microsoft.Build.Framework.ITaskItem[] FilesWritten { get { throw null; } }
         public bool MinimalRebuildFromTracking { get { throw null; } set { } }

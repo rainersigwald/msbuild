@@ -532,6 +532,11 @@ namespace Microsoft.Build.Tasks
             set;
         }
 
+        /// <summary>
+        /// TODO: rename. Use fancy new resx reading/resource embedding.
+        /// </summary>
+        public bool FancyNewWay { get; set; }
+
 #endregion // properties
 
         /// <summary>
@@ -827,7 +832,7 @@ namespace Microsoft.Build.Tasks
                             process.Run(Log, _references, inputsToProcess, _satelliteInputs, outputsToProcess, UseSourcePath,
                                 StronglyTypedLanguage, _stronglyTypedNamespace, _stronglyTypedManifestPrefix,
                                 StronglyTypedFileName, StronglyTypedClassName, PublicClass,
-                                ExtractResWFiles, OutputDirectory);
+                                ExtractResWFiles, OutputDirectory, FancyNewWay);
 
                             this.StronglyTypedClassName = process.StronglyTypedClassName; // in case a default was chosen
                             this.StronglyTypedFileName = process.StronglyTypedFilename;   // in case a default was chosen
@@ -2386,6 +2391,8 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private string _resWOutputDirectory;
 
+        private bool _fancyNewWay;
+
         internal List<ITaskItem> ExtractedResWFiles
         {
             get
@@ -2452,7 +2459,7 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         internal void Run(TaskLoggingHelper log, ITaskItem[] assemblyFilesList, List<ITaskItem> inputs, List<ITaskItem> satelliteInputs, List<ITaskItem> outputs, bool sourcePath,
                           string language, string namespacename, string resourcesNamespace, string filename, string classname, bool publicClass,
-                          bool extractingResWFiles, string resWOutputDirectory)
+                          bool extractingResWFiles, string resWOutputDirectory, bool fancyNewWay)
         {
             _logger = log;
             _assemblyFiles = assemblyFilesList;
@@ -2469,6 +2476,7 @@ namespace Microsoft.Build.Tasks
             _readers = new List<ReaderInfo>();
             _extractResWFiles = extractingResWFiles;
             _resWOutputDirectory = resWOutputDirectory;
+            _fancyNewWay = fancyNewWay;
 #if FEATURE_RESGENCACHE
             _portableLibraryCacheInfo = new List<ResGenDependencies.PortableLibraryFile>();
 #endif
