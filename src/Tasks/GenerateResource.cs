@@ -536,7 +536,7 @@ namespace Microsoft.Build.Tasks
         /// <summary>
         /// TODO: rename. Use fancy new resx reading/resource embedding.
         /// </summary>
-        public bool FancyNewWay { get; set; }
+        public bool FancyNewWay { get; set; } = true; // TODO: should default false, plumb in targets
 
 #endregion // properties
 
