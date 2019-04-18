@@ -3044,40 +3044,9 @@ namespace Microsoft.Build.Tasks
                         break;
 
                     case Format.XML:
-#if FEATURE_RESX_RESOURCE_READER
-                        ResXResourceReader resXReader = null;
-                        if (_typeResolver != null)
-                        {
-                            resXReader = new ResXResourceReader(filename, _typeResolver);
-                        }
-                        else
-                        {
-                            resXReader = new ResXResourceReader(filename);
-                        }
-
-                        if (shouldUseSourcePath)
-                        {
-                            String fullPath = Path.GetFullPath(filename);
-                            resXReader.BasePath = Path.GetDirectoryName(fullPath);
-                        }
-                        // ReadResources closes the reader for us
-                        ReadResources(reader, resXReader, filename);
+                        ReadXmlResources(reader, filename, shouldUseSourcePath);
                         break;
-#else
 
-                        using (var xmlReader = new XmlTextReader(filename))
-                        {
-                            xmlReader.WhitespaceHandling = WhitespaceHandling.None;
-                            XDocument doc = XDocument.Load(xmlReader, LoadOptions.PreserveWhitespace);
-                            foreach (XElement dataElem in doc.Element("root").Elements("data"))
-                            {
-                                string name = dataElem.Attribute("name").Value;
-                                string value = dataElem.Element("value").Value;
-                                AddResource(reader, name, value, filename);
-                            }
-                        }
-                        break;
-#endif
                     case Format.Binary:
 #if FEATURE_RESX_RESOURCE_READER
                         ReadResources(reader, new ResourceReader(filename), filename); // closes reader for us
@@ -3674,6 +3643,41 @@ namespace Microsoft.Build.Tasks
             }
         }
 
+        private void ReadXmlResources(ReaderInfo reader, string filename, bool shouldUseSourcePath)
+        {
+#if FEATURE_RESX_RESOURCE_READER
+            ResXResourceReader resXReader = null;
+            if (_typeResolver != null)
+            {
+                resXReader = new ResXResourceReader(filename, _typeResolver);
+            }
+            else
+            {
+                resXReader = new ResXResourceReader(filename);
+            }
+
+            if (shouldUseSourcePath)
+            {
+                String fullPath = Path.GetFullPath(filename);
+                resXReader.BasePath = Path.GetDirectoryName(fullPath);
+            }
+            // ReadResources closes the reader for us
+            ReadResources(reader, resXReader, filename);
+#else
+
+            using (var xmlReader = new XmlTextReader(filename))
+            {
+                xmlReader.WhitespaceHandling = WhitespaceHandling.None;
+                XDocument doc = XDocument.Load(xmlReader, LoadOptions.PreserveWhitespace);
+                foreach (XElement dataElem in doc.Element("root").Elements("data"))
+                {
+                    string name = dataElem.Attribute("name").Value;
+                    string value = dataElem.Element("value").Value;
+                    AddResource(reader, name, value, filename);
+                }
+            }
+#endif
+        }
 
         /// <summary>
         /// Write resources to an XML or binary format resources file.
