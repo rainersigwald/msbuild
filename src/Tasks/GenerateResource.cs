@@ -44,6 +44,7 @@ using System.Runtime.Versioning;
 using Microsoft.Build.Utilities;
 using System.Xml.Linq;
 using Microsoft.Build.Shared.FileSystem;
+using System.Resources.Binary;
 
 namespace Microsoft.Build.Tasks
 {
@@ -3320,7 +3321,9 @@ namespace Microsoft.Build.Tasks
 
                 case Format.Binary:
 
-                    WriteResources(reader, new ResourceWriter(File.OpenWrite(filename))); // closes writer for us
+                    WriteResources(reader, _fancyNewWay
+                        ? (IResourceWriter)new System.Resources.Binary.BinaryResourceWriter(File.OpenWrite(filename))
+                        : (IResourceWriter)new ResourceWriter(File.OpenWrite(filename))); // closes writer for us
                     break;
 
 
@@ -3729,11 +3732,23 @@ namespace Microsoft.Build.Tasks
             Exception capturedException = null;
             try
             {
+                var bw = writer as BinaryResourceWriter;
+
                 foreach (Entry entry in reader.resources)
                 {
                     string key = entry.name;
                     object value = entry.value;
-                    writer.AddResource(key, value);
+
+                    if (entry.hasSerializedData)
+                    {
+                        ErrorUtilities.VerifyThrowInternalNull(bw, "shouldn't see serialized data without using a BinaryResourceWriter");
+
+                        bw.AddResourceData(entry.name, entry.typeName, entry.serializedData);
+                    }
+                    else
+                    {
+                        writer.AddResource(key, value);
+                    }
                 }
             }
             catch (Exception e)
