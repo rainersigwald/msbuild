@@ -3743,7 +3743,8 @@ namespace Microsoft.Build.Tasks
                     {
                         ErrorUtilities.VerifyThrowInternalNull(bw, "shouldn't see serialized data without using a BinaryResourceWriter");
 
-                        bw.AddResourceData(entry.name, entry.typeName, entry.serializedData);
+                        // TODO: not everything is TypeConverter. Handle that
+                        bw.AddTypeConverterResource(entry.name, entry.typeName, entry.serializedData);
                     }
                     else
                     {
