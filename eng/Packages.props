@@ -47,7 +47,7 @@
     <PackageReference Update="xunit.console" Version="$(XUnitVersion)" />
     <PackageReference Update="xunit.core" Version="$(XUnitVersion)" />
 
-    <PackageReference Update="System.Resources.Binary.Writer" Version="4.6.0-dev.19218.1" />
+    <PackageReference Update="System.Resources.Extensions" Version="4.6.0-preview6.19225.8" />
   </ItemGroup>
 
   <ItemGroup>

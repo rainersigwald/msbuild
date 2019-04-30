@@ -44,7 +44,7 @@ using System.Runtime.Versioning;
 using Microsoft.Build.Utilities;
 using System.Xml.Linq;
 using Microsoft.Build.Shared.FileSystem;
-using System.Resources.Binary;
+using System.Resources.Extensions;
 
 namespace Microsoft.Build.Tasks
 {
@@ -3322,7 +3322,7 @@ namespace Microsoft.Build.Tasks
                 case Format.Binary:
 
                     WriteResources(reader, _fancyNewWay
-                        ? (IResourceWriter)new System.Resources.Binary.BinaryResourceWriter(File.OpenWrite(filename))
+                        ? (IResourceWriter)new System.Resources.Extensions.PreserializedResourceWriter(File.OpenWrite(filename))
                         : (IResourceWriter)new ResourceWriter(File.OpenWrite(filename))); // closes writer for us
                     break;
 
@@ -3732,7 +3732,7 @@ namespace Microsoft.Build.Tasks
             Exception capturedException = null;
             try
             {
-                var bw = writer as BinaryResourceWriter;
+                var bw = writer as PreserializedResourceWriter;
 
                 foreach (Entry entry in reader.resources)
                 {
