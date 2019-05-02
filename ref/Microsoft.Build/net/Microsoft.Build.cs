@@ -812,10 +812,10 @@ namespace Microsoft.Build.Evaluation
     [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public partial struct ResolvedImport
     {
-        public Microsoft.Build.Construction.ProjectRootElement ImportedProject { get { throw null; } }
-        public Microsoft.Build.Construction.ProjectImportElement ImportingElement { get { throw null; } }
-        public bool IsImported { get { throw null; } }
-        public Microsoft.Build.Framework.SdkResult SdkResult { get { throw null; } }
+        public Microsoft.Build.Construction.ProjectRootElement ImportedProject { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public Microsoft.Build.Construction.ProjectImportElement ImportingElement { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public bool IsImported { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public Microsoft.Build.Framework.SdkResult SdkResult { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
     }
     public partial class SubToolset
     {
@@ -1435,8 +1435,8 @@ namespace Microsoft.Build.Experimental.Graph
     {
         public ProjectGraphEntryPoint(string projectFile) { throw null;}
         public ProjectGraphEntryPoint(string projectFile, System.Collections.Generic.IDictionary<string, string> globalProperties) { throw null;}
-        public System.Collections.Generic.IDictionary<string, string> GlobalProperties { get { throw null; } }
-        public string ProjectFile { get { throw null; } }
+        public System.Collections.Generic.IDictionary<string, string> GlobalProperties { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public string ProjectFile { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
     }
     public sealed partial class ProjectGraphNode
     {
@@ -1473,10 +1473,10 @@ namespace Microsoft.Build.Globbing
         [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public partial struct MatchInfoResult
         {
-            public string FilenamePartMatchGroup { get { throw null; } }
-            public string FixedDirectoryPartMatchGroup { get { throw null; } }
-            public bool IsMatch { get { throw null; } }
-            public string WildcardDirectoryPartMatchGroup { get { throw null; } }
+            public string FilenamePartMatchGroup { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+            public string FixedDirectoryPartMatchGroup { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+            public bool IsMatch { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+            public string WildcardDirectoryPartMatchGroup { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
         }
     }
     public partial class MSBuildGlobWithGaps : Microsoft.Build.Globbing.IMSBuildGlob

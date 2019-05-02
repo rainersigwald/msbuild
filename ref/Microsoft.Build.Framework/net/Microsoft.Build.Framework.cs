@@ -571,17 +571,17 @@ namespace Microsoft.Build.Framework.Profiler
         public EvaluationLocation(Microsoft.Build.Framework.Profiler.EvaluationPass evaluationPass, string evaluationPassDescription, string file, System.Nullable<int> line, string elementName, string elementDescription, Microsoft.Build.Framework.Profiler.EvaluationLocationKind kind) { throw null;}
         public EvaluationLocation(long id, System.Nullable<long> parentId, Microsoft.Build.Framework.Profiler.EvaluationPass evaluationPass, string evaluationPassDescription, string file, System.Nullable<int> line, string elementName, string elementDescription, Microsoft.Build.Framework.Profiler.EvaluationLocationKind kind) { throw null;}
         public EvaluationLocation(System.Nullable<long> parentId, Microsoft.Build.Framework.Profiler.EvaluationPass evaluationPass, string evaluationPassDescription, string file, System.Nullable<int> line, string elementName, string elementDescription, Microsoft.Build.Framework.Profiler.EvaluationLocationKind kind) { throw null;}
-        public string ElementDescription { get { throw null; } }
-        public string ElementName { get { throw null; } }
+        public string ElementDescription { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public string ElementName { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
         public static Microsoft.Build.Framework.Profiler.EvaluationLocation EmptyLocation { get { throw null; } }
-        public Microsoft.Build.Framework.Profiler.EvaluationPass EvaluationPass { get { throw null; } }
-        public string EvaluationPassDescription { get { throw null; } }
-        public string File { get { throw null; } }
-        public long Id { get { throw null; } }
+        public Microsoft.Build.Framework.Profiler.EvaluationPass EvaluationPass { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public string EvaluationPassDescription { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public string File { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public long Id { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
         public bool IsEvaluationPass { get { throw null; } }
-        public Microsoft.Build.Framework.Profiler.EvaluationLocationKind Kind { get { throw null; } }
-        public System.Nullable<int> Line { get { throw null; } }
-        public System.Nullable<long> ParentId { get { throw null; } }
+        public Microsoft.Build.Framework.Profiler.EvaluationLocationKind Kind { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public System.Nullable<int> Line { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public System.Nullable<long> ParentId { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
         public static Microsoft.Build.Framework.Profiler.EvaluationLocation CreateLocationForAggregatedGlob() { throw null; }
         public static Microsoft.Build.Framework.Profiler.EvaluationLocation CreateLocationForCondition(System.Nullable<long> parentId, Microsoft.Build.Framework.Profiler.EvaluationPass evaluationPass, string evaluationDescription, string file, System.Nullable<int> line, string condition) { throw null; }
         public static Microsoft.Build.Framework.Profiler.EvaluationLocation CreateLocationForGlob(System.Nullable<long> parentId, Microsoft.Build.Framework.Profiler.EvaluationPass evaluationPass, string evaluationDescription, string file, System.Nullable<int> line, string globDescription) { throw null; }
@@ -618,9 +618,9 @@ namespace Microsoft.Build.Framework.Profiler
     public partial struct ProfiledLocation
     {
         public ProfiledLocation(System.TimeSpan inclusiveTime, System.TimeSpan exclusiveTime, int numberOfHits) { throw null;}
-        public System.TimeSpan ExclusiveTime { get { throw null; } }
-        public System.TimeSpan InclusiveTime { get { throw null; } }
-        public int NumberOfHits { get { throw null; } }
+        public System.TimeSpan ExclusiveTime { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public System.TimeSpan InclusiveTime { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
+        public int NumberOfHits { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
         public override bool Equals(object obj) { throw null; }
         public override int GetHashCode() { throw null; }
         public override string ToString() { throw null; }
@@ -629,7 +629,7 @@ namespace Microsoft.Build.Framework.Profiler
     public partial struct ProfilerResult
     {
         public ProfilerResult(System.Collections.Generic.IDictionary<Microsoft.Build.Framework.Profiler.EvaluationLocation, Microsoft.Build.Framework.Profiler.ProfiledLocation> profiledLocations) { throw null;}
-        public System.Collections.Generic.IReadOnlyDictionary<Microsoft.Build.Framework.Profiler.EvaluationLocation, Microsoft.Build.Framework.Profiler.ProfiledLocation> ProfiledLocations { get { throw null; } }
+        public System.Collections.Generic.IReadOnlyDictionary<Microsoft.Build.Framework.Profiler.EvaluationLocation, Microsoft.Build.Framework.Profiler.ProfiledLocation> ProfiledLocations { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } }
         public override bool Equals(object obj) { throw null; }
         public override int GetHashCode() { throw null; }
     }

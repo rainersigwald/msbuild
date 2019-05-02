@@ -324,8 +324,8 @@ namespace Microsoft.Build.Tasks
     [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public partial struct ExtractedClassName
     {
-        public bool IsInsideConditionalBlock { get { throw null; } set { } }
-        public string Name { get { throw null; } set { } }
+        public bool IsInsideConditionalBlock { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } set { } }
+        public string Name { [System.Runtime.CompilerServices.IsReadOnlyAttribute]get { throw null; } set { } }
     }
     public partial class FindAppConfigFile : Microsoft.Build.Tasks.TaskExtension
     {
