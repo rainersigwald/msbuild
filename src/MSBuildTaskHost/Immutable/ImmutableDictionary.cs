@@ -31,7 +31,7 @@ namespace System.Collections.Immutable
         /// <summary>
         /// The underlying dictionary.
         /// </summary>
-        private Dictionary<K, V> _backing;
+        public Dictionary<K, V> Backing;
 
         //
         // READ-ONLY OPERATIONS
@@ -41,7 +41,7 @@ namespace System.Collections.Immutable
         {
             get
             {
-                return _backing.Keys;
+                return Backing.Keys;
             }
         }
 
@@ -49,7 +49,7 @@ namespace System.Collections.Immutable
         {
             get
             {
-                return _backing.Values;
+                return Backing.Values;
             }
         }
 
@@ -57,7 +57,7 @@ namespace System.Collections.Immutable
         {
             get
             {
-                return _backing.Count;
+                return Backing.Count;
             }
         }
 
@@ -65,28 +65,28 @@ namespace System.Collections.Immutable
         {
             get
             {
-                return _backing[key];
+                return Backing[key];
             }
         }
 
         internal bool TryGetValue(K key, out V value)
         {
-            return _backing.TryGetValue(key, out value);
+            return Backing.TryGetValue(key, out value);
         }
 
         internal bool Contains(KeyValuePair<K, V> item)
         {
-            return _backing.Contains(item);
+            return Backing.Contains(item);
         }
 
         internal bool ContainsKey(K key)
         {
-            return _backing.ContainsKey(key);
+            return Backing.ContainsKey(key);
         }
 
         internal IEnumerator<KeyValuePair<K, V>> GetEnumerator()
         {
-            return _backing.GetEnumerator();
+            return Backing.GetEnumerator();
         }
 
         //
@@ -95,44 +95,57 @@ namespace System.Collections.Immutable
 
         internal ImmutableDictionary<K, V> SetItem(K key, V value)
         {
-            var clone = new ImmutableDictionary<K, V>(_backing);
-            clone._backing.Add(key, value);
+            var clone = new ImmutableDictionary<K, V>(Backing);
+            clone.Backing.Add(key, value);
 
             return clone;
         }
 
+        internal ImmutableDictionary<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> serializableList)
+        {
+            var clone = new ImmutableDictionary<K, V>(Backing);
+
+            foreach (var item in serializableList)
+            {
+                clone.Backing.Add(item.Key, item.Value);
+            }
+
+            return clone;
+        }
+
+
         internal ImmutableDictionary<K, V> Remove(K key)
         {
-            var clone = new ImmutableDictionary<K, V>(_backing);
-            clone._backing.Remove(key);
+            var clone = new ImmutableDictionary<K, V>(Backing);
+            clone.Backing.Remove(key);
 
             return clone;
         }
 
         internal ImmutableDictionary<K, V> Clear()
         {
-            return new ImmutableDictionary<K, V>(_backing.Comparer);
+            return new ImmutableDictionary<K, V>(Backing.Comparer);
         }
 
         internal ImmutableDictionary()
         {
-            _backing = new Dictionary<K, V>();
+            Backing = new Dictionary<K, V>();
         }
 
         internal ImmutableDictionary(IEqualityComparer<K> comparer)
         {
-            _backing = new Dictionary<K, V>(comparer);
+            Backing = new Dictionary<K, V>(comparer);
         }
 
         internal ImmutableDictionary(IDictionary<K, V> source)
         {
             if (source is ImmutableDictionary<K, V> imm)
             {
-                _backing = new Dictionary<K, V>(imm._backing, imm._backing.Comparer);
+                Backing = new Dictionary<K, V>(imm.Backing, imm.Backing.Comparer);
             }
             else
             {
-                _backing = new Dictionary<K, V>(source);
+                Backing = new Dictionary<K, V>(source);
             }
         }
 

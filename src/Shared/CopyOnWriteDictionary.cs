@@ -39,9 +39,15 @@ namespace Microsoft.Build.Collections
     {
         /// <summary>
         /// The backing dictionary.
-        /// Lazily created.
         /// </summary>
+        /// <remarks>
+        /// ImmutableDictionary isn't serializable, so jump through hoops for that.
+        /// </remarks>
+        [NonSerialized]
         private ImmutableDictionary<K, V> backing;
+
+        private Dictionary<K, V> serializableBackingStore = null;
+        private List<KeyValuePair<K, V>> serializableList = null;
 
         /// <summary>
         /// Constructor. Consider supplying a comparer instead.
@@ -74,14 +80,14 @@ namespace Microsoft.Build.Collections
             Comparer = keyComparer;
         }
 
-        /// <summary>
-        /// Serialization constructor, for crossing appdomain boundaries
-        /// </summary>
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "info", Justification = "Not needed")]
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "context", Justification = "Not needed")]
-        protected CopyOnWriteDictionary(SerializationInfo info, StreamingContext context)
-        {
-        }
+        ///// <summary>
+        ///// Serialization constructor, for crossing appdomain boundaries
+        ///// </summary>
+        //[SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "info", Justification = "Not needed")]
+        //[SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "context", Justification = "Not needed")]
+        //protected CopyOnWriteDictionary(SerializationInfo info, StreamingContext context)
+        //{
+        //}
 
         /// <summary>
         /// Cloning constructor. Defers the actual clone.
@@ -414,5 +420,51 @@ namespace Microsoft.Build.Collections
         {
             return ReferenceEquals(other.backing, backing);
         }
+
+        /// <summary>
+        /// Populate a [Serializable] form of the backing data before BinaryFormatter does its thing.
+        /// </summary>
+        /// <param name="context"></param>
+        [OnSerializing]
+        internal void PopulateSerializationDictionary(StreamingContext context) {
+#if NET35
+            serializableBackingStore = backing.Backing;
+#else
+            serializableBackingStore = new Dictionary<K, V>(backing);
+
+            if (serializableBackingStore is Dictionary<int,string> d)
+            {
+                d.Add(999, "bar");
+            }
+
+            var snapshot = new List<KeyValuePair<K, V>>(backing.Count);
+            foreach (var keyValuePair in backing)
+            {
+                snapshot.Add(keyValuePair);
+            }
+            serializableList = snapshot;
+#endif
+
+        }
+
+        /// <summary>
+        /// Clean up temporary fields used only for serialization.
+        /// </summary>
+        /// <param name="context"></param>
+        [OnSerialized]
+        internal void ClearSerializationState(StreamingContext context)
+        {
+            //serializableBackingStore = null;
+        }
+
+        [OnDeserialized]
+        internal void PopulateImmutableDictionary(StreamingContext context)
+        {
+            //backing = serializableBackingStore.ToImmutableDictionary();
+            backing = WriteOperation.AddRange(serializableList);
+
+            ClearSerializationState(context);
+        }
+
     }
 }
