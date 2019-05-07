@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
+using System.Threading;
 using Microsoft.Build.Shared;
 
 namespace Microsoft.Build.Collections
@@ -195,7 +196,7 @@ namespace Microsoft.Build.Collections
         {
             if (backing == null && serializableBackingStore != null)
             {
-                backing = serializableBackingStore.ToImmutableDictionary();
+                Interlocked.CompareExchange(ref backing, serializableBackingStore.ToImmutableDictionary(), null);
                 serializableBackingStore = null;
             }
         }
@@ -226,9 +227,25 @@ namespace Microsoft.Build.Collections
             {
                 if (!IsDummy)
                 {
-                    backing = WriteOperation.SetItem(key, value);
+                    SetItem(key, value);
                 }
             }
+        }
+
+        private void SetItem(K key, V value)
+        {
+            EnsureBackingDictionaryPopulated();
+
+            var priorCollection = Volatile.Read(ref backing);
+            bool successful;
+            do
+            {
+                var updatedCollection = priorCollection.SetItem(key, value);
+                var interlockedResult = Interlocked.CompareExchange(ref backing, updatedCollection, priorCollection);
+                successful = object.ReferenceEquals(priorCollection, interlockedResult);
+                priorCollection = interlockedResult; // we already have a volatile read that we can reuse for the next loop
+            }
+            while (!successful);
         }
 
         /// <summary>
@@ -252,7 +269,7 @@ namespace Microsoft.Build.Collections
         {
             if (!IsDummy)
             {
-                backing = WriteOperation.SetItem(key, value);
+                SetItem(key, value);
             }
         }
 
@@ -269,11 +286,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Remove(K key)
         {
-            ImmutableDictionary<K, V> initial = ReadOperation;
-
-            backing = initial.Remove(key);
-
-            return initial != backing; // if the removal occured, the dictionaries will differ
+            return ImmutableInterlocked.TryRemove(ref backing, key, out _);
         }
 
         /// <summary>
@@ -291,7 +304,7 @@ namespace Microsoft.Build.Collections
         {
             if (!IsDummy)
             {
-                backing = WriteOperation.SetItem(item.Key, item.Value);
+                SetItem(item.Key, item.Value);
             }
         }
 
@@ -327,11 +340,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Remove(KeyValuePair<K, V> item)
         {
-            ImmutableDictionary<K, V> initial = WriteOperation;
-
-            backing = initial.Remove(item.Key);
-
-            return initial != backing; // if the removal occured, the dictionaries won't be the same object
+            return ImmutableInterlocked.TryRemove(ref backing, item.Key, out _);
         }
 
         /// <summary>
