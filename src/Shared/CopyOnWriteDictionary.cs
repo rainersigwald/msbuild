@@ -47,7 +47,6 @@ namespace Microsoft.Build.Collections
         private ImmutableDictionary<K, V> backing;
 
         private Dictionary<K, V> serializableBackingStore = null;
-        private List<KeyValuePair<K, V>> serializableList = null;
 
         /// <summary>
         /// Constructor. Consider supplying a comparer instead.
@@ -80,22 +79,13 @@ namespace Microsoft.Build.Collections
             Comparer = keyComparer;
         }
 
-        ///// <summary>
-        ///// Serialization constructor, for crossing appdomain boundaries
-        ///// </summary>
-        //[SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "info", Justification = "Not needed")]
-        //[SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "context", Justification = "Not needed")]
-        //protected CopyOnWriteDictionary(SerializationInfo info, StreamingContext context)
-        //{
-        //}
-
         /// <summary>
         /// Cloning constructor. Defers the actual clone.
         /// </summary>
         private CopyOnWriteDictionary(CopyOnWriteDictionary<K, V> that)
         {
             Comparer = that.Comparer;
-            backing = that.backing;
+            backing = that.backing ?? that.serializableBackingStore?.ToImmutableDictionary();
         }
 
         public CopyOnWriteDictionary(IDictionary<K, V> dictionary)
@@ -193,6 +183,12 @@ namespace Microsoft.Build.Collections
         {
             get
             {
+                if (backing == null && serializableBackingStore != null)
+                {
+                    backing = serializableBackingStore.ToImmutableDictionary();
+                    serializableBackingStore = null;
+                }
+
                 ErrorUtilities.VerifyThrow(!IsDummy || backing == null || backing.Count == 0, "count"); // check count without recursion
 
                 return backing ?? ImmutableDictionary<K,V>.Empty;
@@ -210,7 +206,8 @@ namespace Microsoft.Build.Collections
 
                 if (backing == null)
                 {
-                    backing = ImmutableDictionary.Create<K,V>(Comparer);
+                    backing = serializableBackingStore?.ToImmutableDictionary() ?? ImmutableDictionary.Create<K,V>(Comparer);
+                    serializableBackingStore = null;
                 }
 
                 return backing;
@@ -271,11 +268,11 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Remove(K key)
         {
-            ImmutableDictionary<K, V> initial = backing;
+            ImmutableDictionary<K, V> initial = ReadOperation;
 
-            backing = backing.Remove(key);
+            backing = initial.Remove(key);
 
-            return initial != backing; // if the removal occured, the 
+            return initial != backing; // if the removal occured, the dictionaries will differ
         }
 
         /// <summary>
@@ -293,7 +290,7 @@ namespace Microsoft.Build.Collections
         {
             if (!IsDummy)
             {
-                backing = backing.SetItem(item.Key, item.Value);
+                backing = WriteOperation.SetItem(item.Key, item.Value);
             }
         }
 
@@ -304,7 +301,7 @@ namespace Microsoft.Build.Collections
         {
             if (!IsDummy)
             {
-                backing = backing.Clear();
+                backing = WriteOperation.Clear();
             }
         }
 
@@ -329,11 +326,11 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Remove(KeyValuePair<K, V> item)
         {
-            ImmutableDictionary<K, V> initial = backing;
+            ImmutableDictionary<K, V> initial = WriteOperation;
 
-            backing = backing.Remove(item.Key);
+            backing = initial.Remove(item.Key);
 
-            return initial != backing; // if the removal occured, the 
+            return initial != backing; // if the removal occured, the dictionaries won't be the same object
         }
 
         /// <summary>
@@ -418,7 +415,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         internal bool HasSameBacking(CopyOnWriteDictionary<K, V> other)
         {
-            return ReferenceEquals(other.backing, backing);
+            return ReferenceEquals(other.ReadOperation, ReadOperation);
         }
 
         /// <summary>
@@ -430,21 +427,8 @@ namespace Microsoft.Build.Collections
 #if NET35
             serializableBackingStore = backing.Backing;
 #else
-            serializableBackingStore = new Dictionary<K, V>(backing);
-
-            if (serializableBackingStore is Dictionary<int,string> d)
-            {
-                d.Add(999, "bar");
-            }
-
-            var snapshot = new List<KeyValuePair<K, V>>(backing.Count);
-            foreach (var keyValuePair in backing)
-            {
-                snapshot.Add(keyValuePair);
-            }
-            serializableList = snapshot;
+            serializableBackingStore = new Dictionary<K, V>(ReadOperation);
 #endif
-
         }
 
         /// <summary>
@@ -456,15 +440,5 @@ namespace Microsoft.Build.Collections
         {
             //serializableBackingStore = null;
         }
-
-        [OnDeserialized]
-        internal void PopulateImmutableDictionary(StreamingContext context)
-        {
-            //backing = serializableBackingStore.ToImmutableDictionary();
-            backing = WriteOperation.AddRange(serializableList);
-
-            ClearSerializationState(context);
-        }
-
     }
 }
