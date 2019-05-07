@@ -85,7 +85,7 @@ namespace Microsoft.Build.Collections
         private CopyOnWriteDictionary(CopyOnWriteDictionary<K, V> that)
         {
             Comparer = that.Comparer;
-            backing = that.backing ?? that.serializableBackingStore?.ToImmutableDictionary();
+            backing = that.ReadOperation;
         }
 
         public CopyOnWriteDictionary(IDictionary<K, V> dictionary)
@@ -183,15 +183,20 @@ namespace Microsoft.Build.Collections
         {
             get
             {
-                if (backing == null && serializableBackingStore != null)
-                {
-                    backing = serializableBackingStore.ToImmutableDictionary();
-                    serializableBackingStore = null;
-                }
+                EnsureBackingDictionaryPopulated();
 
                 ErrorUtilities.VerifyThrow(!IsDummy || backing == null || backing.Count == 0, "count"); // check count without recursion
 
-                return backing ?? ImmutableDictionary<K,V>.Empty;
+                return backing ?? ImmutableDictionary<K, V>.Empty;
+            }
+        }
+
+        private void EnsureBackingDictionaryPopulated()
+        {
+            if (backing == null && serializableBackingStore != null)
+            {
+                backing = serializableBackingStore.ToImmutableDictionary();
+                serializableBackingStore = null;
             }
         }
 
@@ -204,11 +209,7 @@ namespace Microsoft.Build.Collections
             {
                 ErrorUtilities.VerifyThrow(!IsDummy, "dummy");
 
-                if (backing == null)
-                {
-                    backing = serializableBackingStore?.ToImmutableDictionary() ?? ImmutableDictionary.Create<K,V>(Comparer);
-                    serializableBackingStore = null;
-                }
+                EnsureBackingDictionaryPopulated();
 
                 return backing;
             }
@@ -438,7 +439,7 @@ namespace Microsoft.Build.Collections
         [OnSerialized]
         internal void ClearSerializationState(StreamingContext context)
         {
-            //serializableBackingStore = null;
+            EnsureBackingDictionaryPopulated();
         }
     }
 }
