@@ -123,7 +123,7 @@ namespace Microsoft.Build.Tasks
             IBuildEngine buildEngine,
             string[] searchPaths,
             string[] candidateAssemblyFiles,
-            System.Reflection.ProcessorArchitecture targetProcessorArchitecture,
+            SystemProcessorArchitecture targetProcessorArchitecture,
             string[] frameworkPaths,
             FileExists fileExists,
             GetAssemblyName getAssemblyName,
@@ -166,7 +166,7 @@ namespace Microsoft.Build.Tasks
 #if FEATURE_GAC
                 else if (0 == String.Compare(basePath, AssemblyResolutionConstants.gacSentinel, StringComparison.OrdinalIgnoreCase))
                 {
-                    resolvers[p] = new GacResolver(targetProcessorArchitecture, searchPaths[p], getAssemblyName, fileExists, getRuntimeVersion, targetedRuntimeVersion, getAssemblyPathInGac);
+                    resolvers[p] = new GacResolver(ArchSwizzler.GetReflectionProcessorArchitecture(targetProcessorArchitecture), searchPaths[p], getAssemblyName, fileExists, getRuntimeVersion, targetedRuntimeVersion, getAssemblyPathInGac);
                 }
 #endif
                 else if (0 == String.Compare(basePath, AssemblyResolutionConstants.assemblyFoldersSentinel, StringComparison.OrdinalIgnoreCase))

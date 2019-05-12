@@ -949,7 +949,7 @@ namespace Microsoft.Build.Tasks
         (
             AssemblyNameExtension assemblyName,
             string[] frameworkPaths,
-            ProcessorArchitecture targetProcessorArchitecture,
+            SystemProcessorArchitecture targetProcessorArchitecture,
             GetAssemblyRuntimeVersion getRuntimeVersion,
             Version targetedRuntimeVersion,
             FileExists fileExists,

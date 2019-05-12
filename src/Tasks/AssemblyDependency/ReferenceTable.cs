@@ -18,10 +18,66 @@ using Microsoft.Build.Utilities;
 using Microsoft.Internal.Performance;
 #endif
 using FrameworkNameVersioning = System.Runtime.Versioning.FrameworkName;
-using SystemProcessorArchitecture = System.Reflection.ProcessorArchitecture;
 
 namespace Microsoft.Build.Tasks
 {
+    internal enum SystemProcessorArchitecture
+    {
+        //
+        // Summary:
+        //     An unknown or unspecified combination of processor and bits-per-word.
+        None,
+        //
+        // Summary:
+        //     Neutral with respect to processor and bits-per-word.
+        MSIL,
+        //
+        // Summary:
+        //     A 32-bit Intel processor, either native or in the Windows on Windows environment
+        //     on a 64-bit platform (WOW64).
+        X86,
+        //
+        // Summary:
+        //     A 64-bit Intel processor only.
+        IA64,
+        //
+        // Summary:
+        //     A 64-bit AMD processor only.
+        Amd64,
+        //
+        // Summary:
+        //     An ARM processor.
+        Arm,
+        Arm64
+    }
+
+    internal class ArchSwizzler
+    {
+        public static System.Reflection.ProcessorArchitecture GetReflectionProcessorArchitecture(SystemProcessorArchitecture msbuildArchitecture)
+        {
+            switch (msbuildArchitecture)
+            {
+                case SystemProcessorArchitecture.None:
+                case SystemProcessorArchitecture.Arm64: // No equivalent in the framework
+                    return System.Reflection.ProcessorArchitecture.None;
+                case SystemProcessorArchitecture.MSIL:
+                    return System.Reflection.ProcessorArchitecture.MSIL;
+                case SystemProcessorArchitecture.X86:
+                    return System.Reflection.ProcessorArchitecture.X86;
+                case SystemProcessorArchitecture.IA64:
+                    return System.Reflection.ProcessorArchitecture.IA64;
+                case SystemProcessorArchitecture.Amd64:
+                    return System.Reflection.ProcessorArchitecture.Amd64;
+                case SystemProcessorArchitecture.Arm:
+                    return System.Reflection.ProcessorArchitecture.Arm;
+            }
+
+            throw new InternalErrorException($"Unknown {nameof(SystemProcessorArchitecture)}: {msbuildArchitecture}");
+        }
+
+        public static SystemProcessorArchitecture GetMSBuildProcessorArchitcture()
+    }
+
     /// <summary>
     /// A table of references.
     /// </summary>
@@ -215,7 +271,7 @@ namespace Microsoft.Build.Tasks
             ITaskItem[] resolvedSDKItems,
             string[] frameworkPaths,
             InstalledAssemblies installedAssemblies,
-            System.Reflection.ProcessorArchitecture targetProcessorArchitecture,
+            SystemProcessorArchitecture targetProcessorArchitecture,
             FileExists fileExists,
             DirectoryExists directoryExists,
             GetDirectories getDirectories,
@@ -2798,6 +2854,10 @@ namespace Microsoft.Build.Tasks
                     case NativeMethods.IMAGE_FILE_MACHINE_ARMV7:
                         dllArchitecture = SystemProcessorArchitecture.Arm;
                         break;
+                    case NativeMethods.IMAGE_FILE_MACHINE_ARM64:
+                        dllArchitecture = SystemProcessorArchitecture.Arm64;
+                        break;
+
                     case NativeMethods.IMAGE_FILE_MACHINE_I386:
                         dllArchitecture = SystemProcessorArchitecture.X86;
                         break;

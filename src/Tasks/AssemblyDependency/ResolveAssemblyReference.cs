@@ -2939,7 +2939,7 @@ namespace Microsoft.Build.Tasks
         private string GetAssemblyPathInGac(AssemblyNameExtension assemblyName, SystemProcessorArchitecture targetProcessorArchitecture, GetAssemblyRuntimeVersion getRuntimeVersion, Version targetedRuntimeVersion, FileExists fileExists, bool fullFusionName, bool specificVersion)
         {
 #if FEATURE_GAC
-            return GlobalAssemblyCache.GetLocation(BuildEngine as IBuildEngine4, assemblyName, targetProcessorArchitecture, getRuntimeVersion, targetedRuntimeVersion, fullFusionName, fileExists, null, null, specificVersion /* this value does not matter if we are passing a full fusion name*/);
+            return GlobalAssemblyCache.GetLocation(BuildEngine as IBuildEngine4, assemblyName, ArchSwizzler.GetReflectionProcessorArchitecture(targetProcessorArchitecture), getRuntimeVersion, targetedRuntimeVersion, fullFusionName, fileExists, null, null, specificVersion /* this value does not matter if we are passing a full fusion name*/);
 #else
             return string.Empty;
 #endif

@@ -101,7 +101,7 @@ namespace Microsoft.Build.Tasks
     /// <summary>
     /// Delegate to get the path to an assembly in the GAC.
     /// </summary>
-    internal delegate string GetAssemblyPathInGac(AssemblyNameExtension assemblyName, System.Reflection.ProcessorArchitecture targetProcessorArchitecture, GetAssemblyRuntimeVersion getRuntimeVersion, Version targetedRuntimeVersion, FileExists fileExists, bool fullFusionName, bool specificVersion);
+    internal delegate string GetAssemblyPathInGac(AssemblyNameExtension assemblyName, SystemProcessorArchitecture targetProcessorArchitecture, GetAssemblyRuntimeVersion getRuntimeVersion, Version targetedRuntimeVersion, FileExists fileExists, bool fullFusionName, bool specificVersion);
 
     /// <summary>
     /// Determines if a assembly is an winmd file 
