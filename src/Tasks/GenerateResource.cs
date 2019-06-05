@@ -2758,7 +2758,7 @@ namespace Microsoft.Build.Tasks
                 if (currentOutputFile != null)
                 {
                     _logger.LogErrorWithCodeFromResources("GenerateResource.CannotWriteOutput",
-                        FileUtilities.GetFullPathNoThrow(currentOutputFile), io.Message);
+                        FileUtilities.GetFullPathNoThrow(currentOutputFile), io.ToString());
                     if (FileSystems.Default.FileExists(currentOutputFile))
                     {
                         if (GetFormat(currentOutputFile) != Format.Assembly)
@@ -2796,7 +2796,7 @@ namespace Microsoft.Build.Tasks
                 // SerializationException and TargetInvocationException can occur when trying to serialize a type into a resource format (typically with other exceptions inside)
                 // This is a bug in the type being serialized, so the best we can do is dump diagnostic information and move on to the next input resource file.
                 _logger.LogErrorWithCodeFromResources("GenerateResource.CannotWriteOutput",
-                    FileUtilities.GetFullPathNoThrow(inFile), e.Message); // Input file is more useful to log
+                    FileUtilities.GetFullPathNoThrow(inFile), e.ToString()); // Input file is more useful to log
 
                 // Log the stack, so the problem with the type in the .resx is diagnosable by the customer
                 _logger.LogErrorFromException(e, /* stack */ true, /* inner exceptions */ true,
@@ -2807,7 +2807,7 @@ namespace Microsoft.Build.Tasks
             {
                 // Regular IO error
                 _logger.LogErrorWithCodeFromResources("GenerateResource.CannotWriteOutput",
-                    FileUtilities.GetFullPathNoThrow(currentOutputFile), e.Message);
+                    FileUtilities.GetFullPathNoThrow(currentOutputFile), e.ToString());
                 return false;
             }
 
