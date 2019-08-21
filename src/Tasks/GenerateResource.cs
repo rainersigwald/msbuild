@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -3716,7 +3717,7 @@ namespace Microsoft.Build.Tasks
         private void WriteResources(ReaderInfo reader,
             IResourceWriter writer)
         {
-            Exception capturedException = null;
+            ExceptionDispatchInfo capturedException = null;
             try
             {
                 foreach (IResource entry in reader.resources)
@@ -3726,7 +3727,7 @@ namespace Microsoft.Build.Tasks
             }
             catch (Exception e)
             {
-                capturedException = e; // Rethrow this after catching exceptions thrown by Close().
+                capturedException = ExceptionDispatchInfo.Capture(e); // Rethrow this after catching exceptions thrown by Close().
             }
             finally
             {
@@ -3744,7 +3745,7 @@ namespace Microsoft.Build.Tasks
                     // The second time we catch the out of disk space exception.
                     try { writer.Dispose(); }
                     catch (Exception) { } // We agressively catch all exception types since we already have one we will throw.
-                    throw capturedException; // In the event of a full disk, this is an out of disk space IOException.
+                    capturedException.Throw(); // In the event of a full disk, this is an out of disk space IOException.
                 }
             }
         }
