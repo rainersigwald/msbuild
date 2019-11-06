@@ -53,7 +53,9 @@ then
   InitializeDotNetCli true
 
   _InitializeBuildTool="$_InitializeDotNetCli/dotnet"
-  _InitializeBuildToolCommand="$bootstrapRoot/netcoreapp2.1/MSBuild/MSBuild.dll"
+  _InitializeBuildToolCommand="$bootstrapRoot/netcoreapp3.0/MSBuild/MSBuild.dll"
+  # Note: this isn't MSBuild's runtime, it must match the runtime of the
+  # Arcade logger
   _InitializeBuildToolFramework="netcoreapp2.1"
 else
   echo "Unsupported hostType ($host_type)"

@@ -148,7 +148,12 @@ namespace Microsoft.Build.Shared
         private static bool ValidDecimalNumber(string number)
         {
             double value;
-            return Double.TryParse(number, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture.NumberFormat, out value);
+            return Double.TryParse(number, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture.NumberFormat, out value)
+                // CoreCLR 3.0+ correctly rounds unrepresentably large numbers to infinity,
+                // but desktop and prior versions do not; match the old behavior since users
+                // are unlikely to want to deal with floating-point infinity calculations in
+                // the context of MSBuild.
+                && !double.IsInfinity(value);
         }
 
         /// <summary>

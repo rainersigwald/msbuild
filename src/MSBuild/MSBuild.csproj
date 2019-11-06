@@ -13,6 +13,9 @@
          versions of this project -->
     <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
 
+    <!-- Don't produce the .exe, because the CLI directly invokes the DLL and so should tests -->
+    <UseAppHost>false</UseAppHost>
+
     <EnableDefaultItems>false</EnableDefaultItems>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>MSBuild</AssemblyName>
