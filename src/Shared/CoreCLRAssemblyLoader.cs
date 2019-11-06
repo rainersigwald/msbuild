@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Loader;
-using Microsoft.Build.Shared.FileSystem;
 
 namespace Microsoft.Build.Shared
 {
@@ -19,8 +17,6 @@ namespace Microsoft.Build.Shared
         private readonly Dictionary<string, Assembly> _namesToAssemblies = new Dictionary<string, Assembly>();
         private readonly HashSet<string> _dependencyPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly object _guard = new object();
-
-        private bool _resolvingHandlerHookedUp = false;
 
         private static readonly string[] _extensions = new[] { "ni.dll", "ni.exe", "dll", "exe" };
         private static readonly Version _currentAssemblyVersion = new Version(Microsoft.Build.Shared.MSBuildConstants.CurrentAssemblyVersion);
@@ -57,12 +53,6 @@ namespace Microsoft.Build.Shared
 
             lock (_guard)
             {
-                if (!_resolvingHandlerHookedUp)
-                {
-                    AssemblyLoadContext.Default.Resolving += TryResolveAssembly;
-                    _resolvingHandlerHookedUp = true;
-                }
-
                 Assembly assembly;
                 if (_pathsToAssemblies.TryGetValue(fullPath, out assembly))
                 {
@@ -150,9 +140,11 @@ namespace Microsoft.Build.Shared
         /// <remarks>
         /// Assumes we have a lock on _guard
         /// </remarks>
-        private Assembly LoadAndCache(AssemblyLoadContext context, string fullPath)
+        private Assembly LoadAndCache(AssemblyLoadContext _, string fullPath)
         {
-            var assembly = context.LoadFromAssemblyPath(fullPath);
+            var cxt = new MSBuildLoadContext(fullPath);
+
+            var assembly = cxt.LoadFromAssemblyPath(fullPath);
             var name = assembly.FullName;
 
             _pathsToAssemblies[fullPath] = assembly;
