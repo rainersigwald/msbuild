@@ -18,7 +18,7 @@ namespace Microsoft.Build.Shared
     /// </summary>
     internal class TypeLoader
     {
-#if !FEATURE_ASSEMBLY_LOADFROM
+#if FEATURE_ASSEMBLYLOADCONTEXT
         /// <summary>
         /// AssemblyContextLoader used to load DLLs outside of msbuild.exe directory
         /// </summary>
@@ -40,7 +40,7 @@ namespace Microsoft.Build.Shared
         /// </summary>
         private Func<Type, object, bool> _isDesiredType;
 
-#if !FEATURE_ASSEMBLY_LOADFROM
+#if FEATURE_ASSEMBLYLOADCONTEXT
         static TypeLoader()
         {
             s_coreClrAssemblyLoader = new CoreClrAssemblyLoader();
@@ -155,7 +155,7 @@ namespace Microsoft.Build.Shared
                 }
                 else
                 {
-#if FEATURE_ASSEMBLY_LOADFROM
+#if !FEATURE_ASSEMBLYLOADCONTEXT
                     loadedAssembly = Assembly.UnsafeLoadFrom(assemblyLoadInfo.AssemblyFile);
 #else
                     loadedAssembly = s_coreClrAssemblyLoader.LoadFromPath(assemblyLoadInfo.AssemblyFile);
