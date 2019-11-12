@@ -41,6 +41,7 @@ namespace Microsoft.Build.Shared
         {
             if (_wellKnownAssemblyNames.Contains(assemblyName.Name!))
             {
+                // MSBuild assemblies should be loaded from the default context
                 return null;
             }
 

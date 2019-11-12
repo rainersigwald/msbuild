@@ -151,35 +151,14 @@ namespace Microsoft.Build.Shared
             {
                 if (assemblyLoadInfo.AssemblyName != null)
                 {
-#if FEATURE_ASSEMBLY_LOADFROM
                     loadedAssembly = Assembly.Load(assemblyLoadInfo.AssemblyName);
-#else
-                    loadedAssembly = Assembly.Load(new AssemblyName(assemblyLoadInfo.AssemblyName));
-#endif
                 }
                 else
                 {
 #if FEATURE_ASSEMBLY_LOADFROM
                     loadedAssembly = Assembly.UnsafeLoadFrom(assemblyLoadInfo.AssemblyFile);
 #else
-                    // If the Assembly is provided via a file path, the following rules are used to load the assembly:
-                    // - if the simple name of the assembly exists in the same folder as msbuild.exe, then that assembly gets loaded, indifferent of the user specified path
-                    // - otherwise, the assembly from the user specified path is loaded, if it exists.
-
-                    var assemblyNameInExecutableDirectory = Path.Combine(BuildEnvironmentHelper.Instance.CurrentMSBuildToolsDirectory,
-                        Path.GetFileName(assemblyLoadInfo.AssemblyFile));
-
-                    if (FileSystems.Default.FileExists(assemblyNameInExecutableDirectory))
-                    {
-                        var simpleName = Path.GetFileNameWithoutExtension(assemblyLoadInfo.AssemblyFile);
-                        loadedAssembly = Assembly.Load(new AssemblyName(simpleName));
-                    }
-                    else
-                    {
-                        var baseDir = Path.GetDirectoryName(assemblyLoadInfo.AssemblyFile);
-                        s_coreClrAssemblyLoader.AddDependencyLocation(baseDir);
-                        loadedAssembly = s_coreClrAssemblyLoader.LoadFromPath(assemblyLoadInfo.AssemblyFile);
-                    }
+                    loadedAssembly = s_coreClrAssemblyLoader.LoadFromPath(assemblyLoadInfo.AssemblyFile);
 #endif
                 }
             }
