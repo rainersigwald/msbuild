@@ -17,7 +17,6 @@ namespace Microsoft.Build.Shared
     internal class MSBuildLoadContext : AssemblyLoadContext
     {
         private readonly AssemblyDependencyResolver _resolver;
-        private readonly string _directory;
 
         private static readonly ImmutableHashSet<string> _wellKnownAssemblyNames =
             new[]
@@ -33,8 +32,7 @@ namespace Microsoft.Build.Shared
         public MSBuildLoadContext(string assemblyPath) :
             base(name: assemblyPath, isCollectible: false) // TODO: make this collectible?
         {
-            _directory = assemblyPath;
-            _resolver = new AssemblyDependencyResolver(_directory);
+            _resolver = new AssemblyDependencyResolver(assemblyPath);
         }
 
         protected override Assembly? Load(AssemblyName assemblyName)
