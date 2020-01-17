@@ -150,7 +150,7 @@ stages:
       displayName: 'Publish Artifact: symbols'
       inputs:
         path: 'artifacts\bin'
-        artifactName: symbols
+        artifactName: bin
       condition: succeededOrFailed()
 
     # Publishes setup VSIXes to a drop.
