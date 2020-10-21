@@ -53,7 +53,7 @@ namespace Microsoft.Build.Execution
         /// Unordered set of task parameter names and unevaluated values.
         /// This is a dead, read-only collection.
         /// </summary>
-        private CopyOnWriteDictionary<string, (string, ElementLocation)> _parameters;
+        private CopyOnWriteDictionary<(string, ElementLocation)> _parameters;
 
         /// <summary>
         /// Output properties and items below this task. This is an ordered collection
@@ -98,8 +98,8 @@ namespace Microsoft.Build.Execution
             IList<ProjectTaskInstanceChild> outputs
             )
         {
-            ErrorUtilities.VerifyThrowInternalNull(element, "element");
-            ErrorUtilities.VerifyThrowInternalNull(outputs, "outputs");
+            ErrorUtilities.VerifyThrowInternalNull(element, nameof(element));
+            ErrorUtilities.VerifyThrowInternalNull(outputs, nameof(outputs));
 
             // These are all immutable
             _name = element.Name;
@@ -138,7 +138,7 @@ namespace Microsoft.Build.Execution
             continueOnError,
             msbuildRuntime,
             msbuildArchitecture,
-            new CopyOnWriteDictionary<string, (string, ElementLocation)>(8, StringComparer.OrdinalIgnoreCase),
+            new CopyOnWriteDictionary<(string, ElementLocation)>(8, StringComparer.OrdinalIgnoreCase),
             new List<ProjectTaskInstanceChild>(),
             location,
             condition == string.Empty ? null : ElementLocation.EmptyLocation,
@@ -155,7 +155,7 @@ namespace Microsoft.Build.Execution
             string continueOnError,
             string msbuildRuntime,
             string msbuildArchitecture,
-            CopyOnWriteDictionary<string, (string, ElementLocation)> parameters,
+            CopyOnWriteDictionary<(string, ElementLocation)> parameters,
             List<ProjectTaskInstanceChild> outputs,
             ElementLocation location,
             ElementLocation conditionLocation,
@@ -163,9 +163,9 @@ namespace Microsoft.Build.Execution
             ElementLocation msbuildRuntimeLocation,
             ElementLocation msbuildArchitectureLocation)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, "name");
-            ErrorUtilities.VerifyThrowArgumentNull(condition, "condition");
-            ErrorUtilities.VerifyThrowArgumentNull(continueOnError, "continueOnError");
+            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+            ErrorUtilities.VerifyThrowArgumentNull(condition, nameof(condition));
+            ErrorUtilities.VerifyThrowArgumentNull(continueOnError, nameof(continueOnError));
 
             _name = name;
             _condition = condition;
@@ -339,8 +339,8 @@ namespace Microsoft.Build.Execution
         /// <param name="condition">The condition.</param>
         internal void AddOutputItem(string taskOutputParameterName, string itemName, string condition)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(taskOutputParameterName, "taskOutputParameterName");
-            ErrorUtilities.VerifyThrowArgumentLength(itemName, "itemName");
+            ErrorUtilities.VerifyThrowArgumentLength(taskOutputParameterName, nameof(taskOutputParameterName));
+            ErrorUtilities.VerifyThrowArgumentLength(itemName, nameof(itemName));
             _outputs.Add(new ProjectTaskOutputItemInstance(itemName, taskOutputParameterName, condition ?? String.Empty, ElementLocation.EmptyLocation, ElementLocation.EmptyLocation, ElementLocation.EmptyLocation, condition == null ? null : ElementLocation.EmptyLocation));
         }
 
@@ -352,8 +352,8 @@ namespace Microsoft.Build.Execution
         /// <param name="condition">The condition.</param>
         internal void AddOutputProperty(string taskOutputParameterName, string propertyName, string condition)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(taskOutputParameterName, "taskOutputParameterName");
-            ErrorUtilities.VerifyThrowArgumentLength(propertyName, "propertyName");
+            ErrorUtilities.VerifyThrowArgumentLength(taskOutputParameterName, nameof(taskOutputParameterName));
+            ErrorUtilities.VerifyThrowArgumentLength(propertyName, nameof(propertyName));
             _outputs.Add(new ProjectTaskOutputPropertyInstance(propertyName, taskOutputParameterName, condition ?? String.Empty, ElementLocation.EmptyLocation, ElementLocation.EmptyLocation, ElementLocation.EmptyLocation, condition == null ? null : ElementLocation.EmptyLocation));
         }
 
@@ -382,11 +382,11 @@ namespace Microsoft.Build.Execution
                 ref localParameters,
                 ParametersKeyTranslator,
                 ParametersValueTranslator,
-                count => new CopyOnWriteDictionary<string, (string, ElementLocation)>(count));
+                count => new CopyOnWriteDictionary<(string, ElementLocation)>(count));
 
             if (translator.Mode == TranslationDirection.ReadFromStream && localParameters != null)
             {
-                _parameters = (CopyOnWriteDictionary<string, (string, ElementLocation)>) localParameters;
+                _parameters = (CopyOnWriteDictionary<(string, ElementLocation)>) localParameters;
             }
         }
 

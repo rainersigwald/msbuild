@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.Build.Construction;
-using Microsoft.Build.Execution;
 using Microsoft.Build.Shared;
 using System.Collections.Immutable;
 using System.Linq;
@@ -35,7 +34,7 @@ namespace Microsoft.Build.Evaluation
                 var matchOnMetadataValid = !_matchOnMetadata.IsEmpty && _itemSpec.Fragments.Count == 1
                     && _itemSpec.Fragments.First() is ItemSpec<ProjectProperty, ProjectItem>.ItemExpressionFragment;
                 ProjectFileErrorUtilities.VerifyThrowInvalidProjectFile(
-                    _matchOnMetadata.IsEmpty || matchOnMetadataValid && _matchOnMetadata.Count == 1,
+                    _matchOnMetadata.IsEmpty || (matchOnMetadataValid && _matchOnMetadata.Count == 1),
                     new BuildEventFileInfo(string.Empty),
                     "OM_MatchOnMetadataIsRestrictedToOnlyOneReferencedItem");
 

@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.Build.Framework
 {
@@ -58,14 +55,14 @@ namespace Microsoft.Build.Framework
         public override int GetHashCode()
         {
             int hashCode = -849885975;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ItemSpec);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(ItemSpec);
 
             if (Metadata != null)
             {
                 foreach (var kvp in Metadata)
                 {
-                    hashCode = hashCode * -1521134295 + kvp.Key.GetHashCode();
-                    hashCode = hashCode * -1521134295 + kvp.Value.GetHashCode();
+                    hashCode = (hashCode * -1521134295) + kvp.Key.GetHashCode();
+                    hashCode = (hashCode * -1521134295) + kvp.Value.GetHashCode();
                 }
             }
 

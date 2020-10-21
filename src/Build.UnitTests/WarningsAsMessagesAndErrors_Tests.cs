@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.UnitTests;
@@ -276,7 +275,6 @@ namespace Microsoft.Build.Engine.UnitTests
         [Fact]
         public void TaskReturnsFailureButDoesNotLogError_ShouldCauseBuildFailure()
         {
-
             using (TestEnvironment env = TestEnvironment.Create(_output))
             {
                 TransientTestProjectWithFiles proj = env.CreateTestProjectWithFiles($@"
@@ -296,7 +294,6 @@ namespace Microsoft.Build.Engine.UnitTests
         [Fact]
         public void TaskReturnsFailureButDoesNotLogError_ContinueOnError_WarnAndContinue()
         {
-
             using (TestEnvironment env = TestEnvironment.Create(_output))
             {
                 TransientTestProjectWithFiles proj = env.CreateTestProjectWithFiles($@"
@@ -319,7 +316,6 @@ namespace Microsoft.Build.Engine.UnitTests
         [Fact]
         public void TaskReturnsFailureButDoesNotLogError_ContinueOnError_True()
         {
-
             using (TestEnvironment env = TestEnvironment.Create(_output))
             {
                 TransientTestProjectWithFiles proj = env.CreateTestProjectWithFiles($@"
@@ -340,7 +336,6 @@ namespace Microsoft.Build.Engine.UnitTests
         [Fact]
         public void TaskReturnsFailureButDoesNotLogError_ContinueOnError_ErrorAndStop()
         {
-
             using (TestEnvironment env = TestEnvironment.Create(_output))
             {
                 TransientTestProjectWithFiles proj = env.CreateTestProjectWithFiles($@"
@@ -361,7 +356,6 @@ namespace Microsoft.Build.Engine.UnitTests
         [Fact]
         public void TaskReturnsFailureButDoesNotLogError_ContinueOnError_False()
         {
-
             using (TestEnvironment env = TestEnvironment.Create(_output))
             {
                 TransientTestProjectWithFiles proj = env.CreateTestProjectWithFiles($@"

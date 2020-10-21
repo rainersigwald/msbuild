@@ -3,7 +3,6 @@
 
 using System.IO;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -222,7 +221,6 @@ namespace Microsoft.Build.UnitTests
             string unformattedMessage = ResourceUtilities.GetResourceString("CodeTaskFactory.AttributeEmpty");
             mockLogger.AssertLogContains(String.Format(unformattedMessage, "Language"));
         }
-
 
         /// <summary>
         /// Verify we get an error if a the Type attribute is set but it is empty
@@ -509,7 +507,7 @@ namespace Microsoft.Build.UnitTests
                     </Project>";
 
             MockLogger mockLogger = Helpers.BuildProjectWithNewOMExpectSuccess(projectFileContents);
-            string linqString = System.Linq.Expressions.ExpressionType.Add.ToString();
+            string linqString = nameof(System.Linq.Expressions.ExpressionType.Add);
             mockLogger.AssertLogContains(linqString + ":Hello, World!");
         }
 
@@ -538,7 +536,6 @@ namespace Microsoft.Build.UnitTests
                             <Message Text=`Current Date and Time: [[$(CurrentDate)]]` Importance=`High` />
                         </Target>
                     </Project>";
-
 
             MockLogger mockLogger = Helpers.BuildProjectWithNewOMExpectSuccess(projectFileContents);
             mockLogger.AssertLogContains("Current Date and Time:");
@@ -875,7 +872,6 @@ namespace Microsoft.Build.UnitTests
             string unformattedMessage = ResourceUtilities.GetResourceString("CodeTaskFactory.NeedsITaskInterface");
             mockLogger.AssertLogContains(unformattedMessage);
         }
-
 
         /// <summary>
         /// Verify we get an error if a the Type attribute is set but it is empty

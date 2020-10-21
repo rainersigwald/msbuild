@@ -437,15 +437,35 @@ namespace Microsoft.Build.UnitTests
         }
 
         [Fact]
-        public void Help()
+        public void GetLengthOfSwitchIndicatorTest()
         {
-                MSBuildApp.Execute(
+            var commandLineSwitchWithSlash = "/Switch";
+            var commandLineSwitchWithSingleDash = "-Switch";
+            var commandLineSwitchWithDoubleDash = "--Switch";
+
+            var commandLineSwitchWithNoneOrIncorrectIndicator = "zSwitch";
+
+            MSBuildApp.GetLengthOfSwitchIndicator(commandLineSwitchWithSlash).ShouldBe(1);
+            MSBuildApp.GetLengthOfSwitchIndicator(commandLineSwitchWithSingleDash).ShouldBe(1);
+            MSBuildApp.GetLengthOfSwitchIndicator(commandLineSwitchWithDoubleDash).ShouldBe(2);
+
+            MSBuildApp.GetLengthOfSwitchIndicator(commandLineSwitchWithNoneOrIncorrectIndicator).ShouldBe(0);
+        }
+
+        [Theory]
+        [InlineData("-?")]
+        [InlineData("-h")]
+        [InlineData("--help")]
+        [InlineData(@"/h")]
+        public void Help(string indicator)
+        {
+            MSBuildApp.Execute(
 #if FEATURE_GET_COMMANDLINE
-                    @"c:\bin\msbuild.exe -? "
+                @$"c:\bin\msbuild.exe {indicator} "
 #else
-                    new [] {@"c:\bin\msbuild.exe", "-?"}
+                new [] {@"c:\bin\msbuild.exe", indicator}
 #endif
-                ).ShouldBe(MSBuildApp.ExitType.Success);
+            ).ShouldBe(MSBuildApp.ExitType.Success);
         }
 
         [Fact]
@@ -658,7 +678,6 @@ namespace Microsoft.Build.UnitTests
             // If there's a space in the %TEMP% path, the config file is read in the static constructor by the URI class and we catch there;
             // if there's not, we will catch when we try to read the toolsets. Either is fine; we just want to not crash.
             (output.Contains("MSB1043") || output.Contains("MSB4136")).ShouldBeTrue("Output should contain 'MSB1043' or 'MSB4136'");
-
 
         }
 #endif
@@ -1260,7 +1279,23 @@ namespace Microsoft.Build.UnitTests
             logContents.ShouldContain(expected, () => logContents);
         }
 
-#region IgnoreProjectExtensionTests
+        /// <summary>
+        /// Test the default file to build in cases involving at least one solution filter file.
+        /// </summary>
+        [Theory]
+        [InlineData(new string[] { "my.proj", "my.sln", "my.slnf" }, "my.sln")]
+        [InlineData(new string[] { "abc.proj", "bcd.csproj", "slnf.slnf", "other.slnf" }, "abc.proj")]
+        [InlineData(new string[] { "abc.sln", "slnf.slnf", "abc.slnf" }, "abc.sln")]
+        [InlineData(new string[] { "abc.csproj", "abc.slnf", "not.slnf" }, "abc.csproj")]
+        [InlineData(new string[] { "abc.slnf" }, "abc.slnf")]
+        public void TestDefaultBuildWithSolutionFilter(string[] projects, string answer)
+        {
+            string[] extensionsToIgnore = Array.Empty<string>();
+            IgnoreProjectExtensionsHelper projectHelper = new IgnoreProjectExtensionsHelper(projects);
+            MSBuildApp.ProcessProjectSwitch(Array.Empty<string>(), extensionsToIgnore, projectHelper.GetFiles).ShouldBe(answer, StringCompareShould.IgnoreCase);
+        }
+
+        #region IgnoreProjectExtensionTests
 
         /// <summary>
         /// Test the case where the extension is a valid extension but is not a project
@@ -1286,6 +1321,7 @@ namespace Microsoft.Build.UnitTests
             IgnoreProjectExtensionsHelper projectHelper = new IgnoreProjectExtensionsHelper(projects);
             MSBuildApp.ProcessProjectSwitch(new string[0] { }, extensionsToIgnore, projectHelper.GetFiles).ShouldBe("my.proj", StringCompareShould.IgnoreCase); // "Expected my.proj to be only project found"
         }
+
         /// <summary>
         /// Pass a null and an empty list of project extensions to ignore, this simulates the switch not being set on the commandline
         /// </summary>
@@ -1316,6 +1352,7 @@ namespace Microsoft.Build.UnitTests
             }
            );
         }
+
         /// <summary>
         /// Pass in one extension and an empty string
         /// </summary>
@@ -1424,13 +1461,11 @@ namespace Microsoft.Build.UnitTests
             projectHelper = new IgnoreProjectExtensionsHelper(projects);
             MSBuildApp.ProcessProjectSwitch(new string[0] { }, extensionsToIgnore, projectHelper.GetFiles).ShouldBe("test.sln", StringCompareShould.IgnoreCase); // "Expected test.sln to be only solution found"
 
-
             projects = new string[] { "test.sln~", "test.sln" };
             extensionsToIgnore = new string[] { };
             projectHelper = new IgnoreProjectExtensionsHelper(projects);
             MSBuildApp.ProcessProjectSwitch(new string[0] { }, extensionsToIgnore, projectHelper.GetFiles).ShouldBe("test.sln", StringCompareShould.IgnoreCase); // "Expected test.sln to be only solution found"
         }
-
 
         /// <summary>
         /// Ignore .sln and .vcproj files to replicate Building_DF_LKG functionality
@@ -1443,7 +1478,6 @@ namespace Microsoft.Build.UnitTests
             IgnoreProjectExtensionsHelper projectHelper = new IgnoreProjectExtensionsHelper(projects);
             MSBuildApp.ProcessProjectSwitch(new string[0] { }, extensionsToIgnore, projectHelper.GetFiles).ShouldBe("test.proj"); // "Expected test.proj to be only project found"
         }
-
 
         /// <summary>
         /// Test the case where we remove all of the project extensions that exist in the directory
@@ -1584,14 +1618,14 @@ namespace Microsoft.Build.UnitTests
                 List<string> fileNamesToReturn = new List<string>();
                 foreach (string file in _directoryFileNameList)
                 {
-                    if (String.Compare(searchPattern, "*.sln", StringComparison.OrdinalIgnoreCase) == 0)
+                    if (String.Equals(searchPattern, "*.sln", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (String.Compare(Path.GetExtension(file), ".sln", StringComparison.OrdinalIgnoreCase) == 0)
+                        if (FileUtilities.IsSolutionFilename(file))
                         {
                             fileNamesToReturn.Add(file);
                         }
                     }
-                    else if (String.Compare(searchPattern, "*.*proj", StringComparison.OrdinalIgnoreCase) == 0)
+                    else if (String.Equals(searchPattern, "*.*proj", StringComparison.OrdinalIgnoreCase))
                     {
                         if (Path.GetExtension(file).Contains("proj"))
                         {
@@ -1903,7 +1937,7 @@ namespace Microsoft.Build.UnitTests
         {
             ArrayList loggers = new ArrayList();
             LoggerVerbosity verbosity = LoggerVerbosity.Normal;
-            List<DistributedLoggerRecord> distributedLoggerRecords = new List<DistributedLoggerRecord>(); ;
+            List<DistributedLoggerRecord> distributedLoggerRecords = new List<DistributedLoggerRecord>(); 
             string[] consoleLoggerParameters = new string[6] { "Parameter1", ";Parameter;", "", ";", ";Parameter", "Parameter;" };
 
             MSBuildApp.ProcessConsoleLoggerSwitch
@@ -2207,7 +2241,6 @@ namespace Microsoft.Build.UnitTests
         }
 
 #endif
-
 
         private string CopyMSBuild()
         {

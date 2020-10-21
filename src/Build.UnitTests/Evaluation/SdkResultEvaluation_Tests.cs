@@ -12,8 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -140,9 +138,11 @@ namespace Microsoft.Build.UnitTests.Evaluation
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SdkResolverCanReturnSinglePath(bool includePropertiesAndItems)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void SdkResolverCanReturnSinglePath(bool includePropertiesAndItems, bool useSinglePathResult)
         {
             Dictionary<string, string> propertiesToAdd = null;
             Dictionary<string, SdkResultItem> itemsToAdd = null;
@@ -152,16 +152,23 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 CreateMockSdkResultPropertiesAndItems(out propertiesToAdd, out itemsToAdd);
             }
 
-            var projectOptions = SdkUtilities.CreateProjectOptionsWithResolver(new SdkUtilities.ConfigurableMockSdkResolver(
+            var sdkResult = useSinglePathResult ?
                 new Build.BackEnd.SdkResolution.SdkResult(
-                        new SdkReference("TestPropsAndItemsFromResolverSdk", null, null),
-                        new[] { Path.Combine(_testFolder, "Sdk") },
-                        version: null,
-                        propertiesToAdd,
-                        itemsToAdd,
-                        warnings: null
-                    ))
-                );
+                    new SdkReference("TestPropsAndItemsFromResolverSdk", null, null),
+                    Path.Combine(_testFolder, "Sdk"),
+                    version: null,
+                    warnings: null,
+                    propertiesToAdd,
+                    itemsToAdd) :
+                new Build.BackEnd.SdkResolution.SdkResult(
+                    new SdkReference("TestPropsAndItemsFromResolverSdk", null, null),
+                    new[] { Path.Combine(_testFolder, "Sdk") },
+                    version: null,
+                    propertiesToAdd,
+                    itemsToAdd,
+                    warnings: null);
+
+            var projectOptions = SdkUtilities.CreateProjectOptionsWithResolver(new SdkUtilities.ConfigurableMockSdkResolver(sdkResult));
 
             string projectContent = @"
                     <Project>
@@ -339,9 +346,8 @@ namespace Microsoft.Build.UnitTests.Evaluation
         [Fact]
         public void SdkResolverCanReturnTheSamePropertiesAndItemsMultipleTimes()
         {
-            Dictionary<string, string> propertiesToAdd = null;
-            Dictionary<string, SdkResultItem> itemsToAdd = null;
-
+            Dictionary<string, string> propertiesToAdd;
+            Dictionary<string, SdkResultItem> itemsToAdd;
             CreateMockSdkResultPropertiesAndItems(out propertiesToAdd, out itemsToAdd);
 
             var projectOptions = SdkUtilities.CreateProjectOptionsWithResolver(new SdkUtilities.ConfigurableMockSdkResolver(
@@ -459,7 +465,6 @@ namespace Microsoft.Build.UnitTests.Evaluation
 
             _logger.ErrorCount.ShouldBe(0);
             _logger.WarningCount.ShouldBe(0);
-
         }
 
         public void Dispose()

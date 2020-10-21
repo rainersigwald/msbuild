@@ -5,8 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.IO;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Shared;
 
@@ -230,10 +228,7 @@ namespace Microsoft.Build.BackEnd
                 BuildResult removedResult;
                 _resultsByConfiguration.TryRemove(configurationId, out removedResult);
 
-                if (removedResult != null)
-                {
-                    removedResult.ClearCachedFiles();
-                }
+                removedResult?.ClearCachedFiles();
             }
         }
 
@@ -277,7 +272,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="host">The component host.</param>
         public void InitializeComponent(IBuildComponentHost host)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(host, "host");
+            ErrorUtilities.VerifyThrowArgumentNull(host, nameof(host));
         }
 
         /// <summary>
@@ -315,7 +310,7 @@ namespace Microsoft.Build.BackEnd
             {
                 if (!result.HasResultsForTarget(target) || (result[target].ResultCode == TargetResultCode.Skipped && !skippedResultsAreOK))
                 {
-                    if (null != targetsMissingResults)
+                    if (targetsMissingResults != null)
                     {
                         targetsMissingResults.Add(target);
                         returnValue = false;

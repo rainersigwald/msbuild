@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Xml;
 
 using InvalidProjectFileException = Microsoft.Build.Exceptions.InvalidProjectFileException;
 
@@ -84,7 +83,6 @@ namespace Microsoft.Build.Shared
         /// PERF WARNING: calling a method that takes a variable number of arguments is expensive, because memory is allocated for
         /// the array of arguments -- do not call this method repeatedly in performance-critical scenarios
         /// </summary>
-        /// <param name="condition">The condition to check.</param>
         /// <param name="errorSubCategoryResourceName">The resource string for the error sub-category (can be null).</param>
         /// <param name="projectFile">The invalid project file.</param>
         /// <param name="resourceName">The resource string for the error message.</param>

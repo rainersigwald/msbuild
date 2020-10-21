@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 #if FEATURE_SYSTEM_CONFIGURATION
 using System.Configuration;
 #endif
@@ -13,7 +14,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Resources;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -293,7 +293,7 @@ namespace Microsoft.Build.CommandLine
 
             if (!initializeOnly)
             {
-                Console.WriteLine("\n{0}{1}{0}", new String('=', 41 - "Process".Length / 2), "Process");
+                Console.WriteLine("\n{0}{1}{0}", new String('=', 41 - ("Process".Length / 2)), "Process");
                 Console.WriteLine("||{0,50}|{1,20:N0}|{2,8}|", "Peak Working Set", currentProcess.PeakWorkingSet64, "bytes");
                 Console.WriteLine("||{0,50}|{1,20:N0}|{2,8}|", "Peak Paged Memory", currentProcess.PeakPagedMemorySize64, "bytes"); // Not very useful one
                 Console.WriteLine("||{0,50}|{1,20:N0}|{2,8}|", "Peak Virtual Memory", currentProcess.PeakVirtualMemorySize64, "bytes"); // Not very useful one
@@ -363,7 +363,7 @@ namespace Microsoft.Build.CommandLine
 
             if (!initializeOnly)
             {
-                Console.WriteLine("\n{0}{1}{0}", new String('=', 41 - category.CategoryName.Length / 2), category.CategoryName);
+                Console.WriteLine("\n{0}{1}{0}", new String('=', 41 - (category.CategoryName.Length / 2)), category.CategoryName);
             }
 
             foreach (PerformanceCounter counter in counters)
@@ -394,12 +394,11 @@ namespace Microsoft.Build.CommandLine
                 if (!initializeOnly)
                 {
                     string friendlyCounterType = GetFriendlyCounterType(counter.CounterType, counter.CounterName);
-                    string valueFormat;
-
+                    
                     // At least some (such as % in GC; maybe all) "%" counters are already multiplied by 100. So we don't do that here.
 
                     // Show decimal places if meaningful
-                    valueFormat = value < 10 ? "{0,20:N2}" : "{0,20:N0}";
+                    string valueFormat = value < 10 ? "{0,20:N2}" : "{0,20:N0}";
 
                     string valueString = String.Format(CultureInfo.CurrentCulture, valueFormat, value);
 
@@ -509,7 +508,11 @@ namespace Microsoft.Build.CommandLine
             }
 
 #if FEATURE_GET_COMMANDLINE
-            ErrorUtilities.VerifyThrowArgumentLength(commandLine, "commandLine");
+            ErrorUtilities.VerifyThrowArgumentLength(commandLine, nameof(commandLine));
+#endif
+
+#if FEATURE_APPDOMAIN_UNHANDLED_EXCEPTION
+            AppDomain.CurrentDomain.UnhandledException += ExceptionHandling.UnhandledExceptionHandler;
 #endif
 
             ExitType exitType = ExitType.Success;
@@ -521,7 +524,7 @@ namespace Microsoft.Build.CommandLine
                 MSBuildEventSource.Log.MSBuildExeStart(commandLine);
 #else
                 if (MSBuildEventSource.Log.IsEnabled()) {
-                    MSBuildEventSource.Log.MSBuildExeStop(string.Join(" ", commandLine));
+                    MSBuildEventSource.Log.MSBuildExeStart(string.Join(" ", commandLine));
                 }
 #endif
                 Console.CancelKeyPress += cancelHandler;
@@ -627,11 +630,17 @@ namespace Microsoft.Build.CommandLine
 
                     // Honor the low priority flag, we place our selves below normal priority and let sub processes inherit
                     // that priority. Idle priority would prevent the build from proceeding as the user does normal actions.
-                    // We avoid increasing priority because that causes failures on mac/linux.
-                    if (lowPriority && Process.GetCurrentProcess().PriorityClass != ProcessPriorityClass.Idle)
+                    try
                     {
-                        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.BelowNormal;
+                        if (lowPriority && Process.GetCurrentProcess().PriorityClass != ProcessPriorityClass.Idle)
+                        {
+                            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.BelowNormal;
+                        }
                     }
+                    // We avoid increasing priority because that causes failures on mac/linux, but there is no good way to
+                    // verify that a particular priority is lower than "BelowNormal." If the error appears, ignore it and
+                    // leave priority where it was.
+                    catch (Win32Exception) { }
 
                     DateTime t1 = DateTime.Now;
 
@@ -742,7 +751,7 @@ namespace Microsoft.Build.CommandLine
             catch (LoggerException e)
             {
                 // display the localized message from the outer exception in canonical format
-                if (null != e.ErrorCode)
+                if (e.ErrorCode != null)
                 {
                     // Brief prefix to indicate that it's a logger failure, and provide the "error" indication
                     Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("LoggerFailurePrefixNoErrorCode", e.ErrorCode, e.Message));
@@ -754,7 +763,7 @@ namespace Microsoft.Build.CommandLine
                     Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("LoggerFailurePrefixWithErrorCode", e.Message));
                 }
 
-                if (null != e.InnerException)
+                if (e.InnerException != null)
                 {
                     // write out exception details -- don't bother triggering Watson, because most of these exceptions will be coming
                     // from buggy loggers written by users
@@ -1096,7 +1105,7 @@ namespace Microsoft.Build.CommandLine
                 if (needToValidateProject && !FileUtilities.IsSolutionFilename(projectFile))
                 {
                     Microsoft.Build.Evaluation.Project project = projectCollection.LoadProject(projectFile, globalProperties, toolsVersion);
-                    Microsoft.Build.Evaluation.Toolset toolset = projectCollection.GetToolset((toolsVersion == null) ? project.ToolsVersion : toolsVersion);
+                    Microsoft.Build.Evaluation.Toolset toolset = projectCollection.GetToolset(toolsVersion ?? project.ToolsVersion);
 
                     if (toolset == null)
                     {
@@ -1312,10 +1321,7 @@ namespace Microsoft.Build.CommandLine
             finally
             {
                 FileUtilities.ClearCacheDirectory();
-                if (projectCollection != null)
-                {
-                    projectCollection.Dispose();
-                }
+                projectCollection?.Dispose();
 
                 BuildManager.DefaultBuildManager.Dispose();
             }
@@ -1668,8 +1674,8 @@ namespace Microsoft.Build.CommandLine
                         string switchName;
                         string switchParameters;
 
-                        // all switches should start with - or / unless a project is being specified
-                        if (!unquotedCommandLineArg.StartsWith("-", StringComparison.Ordinal) && (!unquotedCommandLineArg.StartsWith("/", StringComparison.Ordinal) || FileUtilities.LooksLikeUnixFilePath(unquotedCommandLineArg)))
+                        // all switches should start with - or / or -- unless a project is being specified
+                        if (!ValidateSwitchIndicatorInUnquotedArgument(unquotedCommandLineArg) || FileUtilities.LooksLikeUnixFilePath(unquotedCommandLineArg))
                         {
                             switchName = null;
                             // add a (fake) parameter indicator for later parsing
@@ -1680,17 +1686,20 @@ namespace Microsoft.Build.CommandLine
                             // check if switch has parameters (look for the : parameter indicator)
                             int switchParameterIndicator = unquotedCommandLineArg.IndexOf(':');
 
+                            // get the length of the beginning sequence considered as a switch indicator (- or / or --)
+                            int switchIndicatorsLength = GetLengthOfSwitchIndicator(unquotedCommandLineArg);
+
                             // extract the switch name and parameters -- the name is sandwiched between the switch indicator (the
-                            // leading - or /) and the parameter indicator (if the switch has parameters); the parameters (if any)
+                            // leading - or / or --) and the parameter indicator (if the switch has parameters); the parameters (if any)
                             // follow the parameter indicator
                             if (switchParameterIndicator == -1)
                             {
-                                switchName = unquotedCommandLineArg.Substring(1);
+                                switchName = unquotedCommandLineArg.Substring(switchIndicatorsLength);
                                 switchParameters = String.Empty;
                             }
                             else
                             {
-                                switchName = unquotedCommandLineArg.Substring(1, switchParameterIndicator - 1);
+                                switchName = unquotedCommandLineArg.Substring(switchIndicatorsLength, switchParameterIndicator - 1);
                                 switchParameters = ExtractSwitchParameters(commandLineArg, unquotedCommandLineArg, doubleQuotesRemovedFromArg, switchName, switchParameterIndicator);
                             }
                         }
@@ -1714,6 +1723,23 @@ namespace Microsoft.Build.CommandLine
                                 String.Equals(switchName, "maxcpucount", StringComparison.OrdinalIgnoreCase))
                             {
                                 int numberOfCpus = Environment.ProcessorCount;
+#if !MONO
+                                // .NET Core on Windows returns a core count limited to the current NUMA node
+                                //     https://github.com/dotnet/runtime/issues/29686
+                                // so always double-check it.
+                                if (NativeMethodsShared.IsWindows && ChangeWaves.AreFeaturesEnabled(ChangeWaves.Wave16_8)
+#if NETFRAMEWORK
+                                     // .NET Framework calls Windows APIs that have a core count limit (32/64 depending on process bitness).
+                                     // So if we get a high core count on full framework, double-check it.
+                                     && (numberOfCpus >= 32)
+#endif
+                                    )
+                                {
+                                    var result = NativeMethodsShared.GetLogicalCoreCount();
+                                    if(result != -1)
+                                        numberOfCpus = result;
+                                }
+#endif
                                 switchParameters = ":" + numberOfCpus;
                             }
                             else if (String.Equals(switchName, "bl", StringComparison.OrdinalIgnoreCase) ||
@@ -1768,7 +1794,6 @@ namespace Microsoft.Build.CommandLine
             int switchParameterIndicator
         )
         {
-            string switchParameters = null;
 
             // find the parameter indicator again using the quoted arg
             // NOTE: since the parameter indicator cannot be part of a switch name, quoting around it is not relevant, because a
@@ -1785,6 +1810,7 @@ namespace Microsoft.Build.CommandLine
             ErrorUtilities.VerifyThrow(doubleQuotesRemovedFromArg >= doubleQuotesRemovedFromSwitchIndicatorAndName,
                 "The name portion of the switch cannot contain more quoting than the arg itself.");
 
+            string switchParameters;
             // if quoting in the name portion of the switch was terminated
             if ((doubleQuotesRemovedFromSwitchIndicatorAndName % 2) == 0)
             {
@@ -1851,7 +1877,7 @@ namespace Microsoft.Build.CommandLine
 
                     foreach (string includedResponseFile in s_includedResponseFiles)
                     {
-                        if (String.Compare(responseFile, includedResponseFile, StringComparison.OrdinalIgnoreCase) == 0)
+                        if (String.Equals(responseFile, includedResponseFile, StringComparison.OrdinalIgnoreCase))
                         {
                             commandLineSwitches.SetParameterError("RepeatedResponseFileError", unquotedCommandLineArg);
                             isRepeatedResponseFile = true;
@@ -2186,7 +2212,7 @@ namespace Microsoft.Build.CommandLine
                         if (!String.Equals(projectDirectory, s_exePath, StringComparison.OrdinalIgnoreCase))
                         {
                             // this combines any found, with higher precedence, with the switches from the original auto response file switches
-                            found = found | GatherAutoResponseFileSwitches(projectDirectory, switchesFromAutoResponseFile);
+                            found |= GatherAutoResponseFileSwitches(projectDirectory, switchesFromAutoResponseFile);
                         }
 
                         if (found)
@@ -2574,7 +2600,6 @@ namespace Microsoft.Build.CommandLine
                     ex.Message);
             }
 
-
             var logger = new ProfilerLogger(profilerFile);
             loggers.Add(logger);
 
@@ -2624,7 +2649,8 @@ namespace Microsoft.Build.CommandLine
 
                         // If FEATURE_NODE_REUSE is OFF, just validates that the switch is OK, and always returns False
                         bool nodeReuse = ProcessNodeReuseSwitch(commandLineSwitches[CommandLineSwitches.ParameterizedSwitch.NodeReuse]);
-                        bool lowpriority = commandLineSwitches[CommandLineSwitches.ParameterizedSwitch.LowPriority][0].Equals("true");
+                        string[] lowPriorityInput = commandLineSwitches[CommandLineSwitches.ParameterizedSwitch.LowPriority];
+                        bool lowpriority = lowPriorityInput.Length > 0 ? lowPriorityInput[0].Equals("true") : false;
 
                         shutdownReason = node.Run(nodeReuse, lowpriority, out nodeException);
 
@@ -2637,9 +2663,8 @@ namespace Microsoft.Build.CommandLine
                     }
                     else
                     {
-                        CommandLineSwitchException.Throw("InvalidNodeNumberValue", input[0]);
+                        CommandLineSwitchException.Throw("InvalidNodeNumberValue", nodeModeNumber.ToString());
                     }
-
 
                     if (shutdownReason == NodeEngineShutdownReason.Error)
                     {
@@ -2749,98 +2774,85 @@ namespace Microsoft.Build.CommandLine
             // We need to look in a directory for a project file...
             if (projectFile == null)
             {
+                ValidateExtensions(projectsExtensionsToIgnore);
+                HashSet<string> extensionsToIgnore = new HashSet<string>(projectsExtensionsToIgnore ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
                 // Get all files in the current directory that have a proj-like extension
                 string[] potentialProjectFiles = getFiles(projectDirectory ?? ".", "*.*proj");
-                // Get all files in the current directory that have a sln extension
-                string[] potentialSolutionFiles = getFiles(projectDirectory ?? ".", "*.sln");
-
-                List<string> extensionsToIgnore = new List<string>();
-                if (projectsExtensionsToIgnore != null)
-                {
-                    extensionsToIgnore.AddRange(projectsExtensionsToIgnore);
-                }
-
+                List<string> actualProjectFiles = new List<string>();
                 if (potentialProjectFiles != null)
                 {
                     foreach (string s in potentialProjectFiles)
                     {
-                        if (s.EndsWith("~", StringComparison.CurrentCultureIgnoreCase))
+                        if (!extensionsToIgnore.Contains(Path.GetExtension(s)) && !s.EndsWith("~", StringComparison.CurrentCultureIgnoreCase))
                         {
-                            extensionsToIgnore.Add(Path.GetExtension(s));
+                            actualProjectFiles.Add(s);
                         }
                     }
                 }
 
-
+                // Get all files in the current directory that have a sln extension
+                string[] potentialSolutionFiles = getFiles(projectDirectory ?? ".", "*.sln");
+                List<string> actualSolutionFiles = new List<string>();
+                List<string> solutionFilterFiles = new List<string>();
                 if (potentialSolutionFiles != null)
                 {
                     foreach (string s in potentialSolutionFiles)
                     {
-                        if (!FileUtilities.IsSolutionFilename(s))
+                        if (!extensionsToIgnore.Contains(Path.GetExtension(s)))
                         {
-                            extensionsToIgnore.Add(Path.GetExtension(s));
+                            if (FileUtilities.IsSolutionFilterFilename(s))
+                            {
+                                solutionFilterFiles.Add(s);
+                            }
+                            else if (FileUtilities.IsSolutionFilename(s))
+                            {
+                                actualSolutionFiles.Add(s);
+                            }
                         }
                     }
                 }
 
-                Dictionary<string, object> extensionsToIgnoreDictionary = ValidateExtensions(extensionsToIgnore.ToArray());
-
-                // Remove projects that are in the projectExtensionsToIgnore List
-                // If we have no extensions to ignore we can skip removing any extensions
-                if (extensionsToIgnoreDictionary.Count > 0)
-                {
-                    // No point removing extensions if we have no project files
-                    if (potentialProjectFiles != null && potentialProjectFiles.Length > 0)
-                    {
-                        potentialProjectFiles = RemoveFilesWithExtensionsToIgnore(potentialProjectFiles, extensionsToIgnoreDictionary);
-                    }
-
-                    // No point removing extensions if we have no solutions
-                    if (potentialSolutionFiles != null && potentialSolutionFiles.Length > 0)
-                    {
-                        potentialSolutionFiles = RemoveFilesWithExtensionsToIgnore(potentialSolutionFiles, extensionsToIgnoreDictionary);
-                    }
-                }
                 // If there is exactly 1 project file and exactly 1 solution file
-                if ((potentialProjectFiles.Length == 1) && (potentialSolutionFiles.Length == 1))
+                if (actualProjectFiles.Count == 1 && actualSolutionFiles.Count == 1)
                 {
                     // Grab the name of both project and solution without extensions
-                    string solutionName = Path.GetFileNameWithoutExtension(potentialSolutionFiles[0]);
-                    string projectName = Path.GetFileNameWithoutExtension(potentialProjectFiles[0]);
+                    string solutionName = Path.GetFileNameWithoutExtension(actualSolutionFiles[0]);
+                    string projectName = Path.GetFileNameWithoutExtension(actualProjectFiles[0]);
                     // Compare the names and error if they are not identical
-                    InitializationException.VerifyThrow(String.Compare(solutionName, projectName, StringComparison.OrdinalIgnoreCase) == 0, projectDirectory == null ? "AmbiguousProjectError" : "AmbiguousProjectDirectoryError", null, projectDirectory);
+                    InitializationException.VerifyThrow(String.Equals(solutionName, projectName, StringComparison.OrdinalIgnoreCase), projectDirectory == null ? "AmbiguousProjectError" : "AmbiguousProjectDirectoryError", null, projectDirectory);
+                    projectFile = actualSolutionFiles[0];
                 }
                 // If there is more than one solution file in the current directory we have no idea which one to use
-                else if (potentialSolutionFiles.Length > 1)
+                else if (actualSolutionFiles.Count > 1)
                 {
                     InitializationException.VerifyThrow(false, projectDirectory == null ? "AmbiguousProjectError" : "AmbiguousProjectDirectoryError", null, projectDirectory);
                 }
                 // If there is more than one project file in the current directory we may be able to figure it out
-                else if (potentialProjectFiles.Length > 1)
+                else if (actualProjectFiles.Count > 1)
                 {
                     // We have more than one project, it is ambiguous at the moment
                     bool isAmbiguousProject = true;
 
                     // If there are exactly two projects and one of them is a .proj use that one and ignore the other
-                    if (potentialProjectFiles.Length == 2)
+                    if (actualProjectFiles.Count == 2)
                     {
-                        string firstPotentialProjectExtension = Path.GetExtension(potentialProjectFiles[0]);
-                        string secondPotentialProjectExtension = Path.GetExtension(potentialProjectFiles[1]);
+                        string firstPotentialProjectExtension = Path.GetExtension(actualProjectFiles[0]);
+                        string secondPotentialProjectExtension = Path.GetExtension(actualProjectFiles[1]);
 
                         // If the two projects have the same extension we can't decide which one to pick
-                        if (String.Compare(firstPotentialProjectExtension, secondPotentialProjectExtension, StringComparison.OrdinalIgnoreCase) != 0)
+                        if (!String.Equals(firstPotentialProjectExtension, secondPotentialProjectExtension, StringComparison.OrdinalIgnoreCase))
                         {
                             // Check to see if the first project is the proj, if it is use it
-                            if (String.Compare(firstPotentialProjectExtension, ".proj", StringComparison.OrdinalIgnoreCase) == 0)
+                            if (String.Equals(firstPotentialProjectExtension, ".proj", StringComparison.OrdinalIgnoreCase))
                             {
-                                potentialProjectFiles = new string[] { potentialProjectFiles[0] };
+                                projectFile = actualProjectFiles[0];
                                 // We have made a decision
                                 isAmbiguousProject = false;
                             }
                             // If the first project is not the proj check to see if the second one is the proj, if so use it
-                            else if (String.Compare(secondPotentialProjectExtension, ".proj", StringComparison.OrdinalIgnoreCase) == 0)
+                            else if (String.Equals(secondPotentialProjectExtension, ".proj", StringComparison.OrdinalIgnoreCase))
                             {
-                                potentialProjectFiles = new string[] { potentialProjectFiles[1] };
+                                projectFile = actualProjectFiles[1];
                                 // We have made a decision
                                 isAmbiguousProject = false;
                             }
@@ -2848,108 +2860,84 @@ namespace Microsoft.Build.CommandLine
                     }
                     InitializationException.VerifyThrow(!isAmbiguousProject, projectDirectory == null ? "AmbiguousProjectError" : "AmbiguousProjectDirectoryError", null, projectDirectory);
                 }
-                // if there are no project or solution files in the directory, we can't build
-                else if ((potentialProjectFiles.Length == 0) &&
-                         (potentialSolutionFiles.Length == 0))
+                // if there are no project, solution filter, or solution files in the directory, we can't build
+                else if (actualProjectFiles.Count == 0 &&
+                         actualSolutionFiles.Count== 0 &&
+                         solutionFilterFiles.Count == 0)
                 {
                     InitializationException.VerifyThrow(false, "MissingProjectError");
                 }
-
-                // We are down to only one project or solution.
-                // If only 1 solution build the solution.  If only 1 project build the project
-                // If 1 solution and 1 project and they are of the same name build the solution
-                projectFile = (potentialSolutionFiles.Length == 1) ? potentialSolutionFiles[0] : potentialProjectFiles[0];
+                else
+                {
+                    // We are down to only one project, solution, or solution filter.
+                    // If only 1 solution build the solution.  If only 1 project build the project. Otherwise, build the solution filter.
+                    projectFile = actualSolutionFiles.Count == 1 ? actualSolutionFiles[0] : actualProjectFiles.Count == 1 ? actualProjectFiles[0] : solutionFilterFiles[0];
+                    InitializationException.VerifyThrow(actualSolutionFiles.Count == 1 || actualProjectFiles.Count == 1 || solutionFilterFiles.Count == 1, projectDirectory == null ? "AmbiguousProjectError" : "AmbiguousProjectDirectoryError", null, projectDirectory);
+                }
             }
 
             return projectFile;
         }
 
-        /// <summary>
-        ///  This method takes in a list of file name extensions to ignore. It will then validate the extensions
-        ///  to make sure they start with a period, have atleast one character after the period and do not contain
-        ///  any invalid path chars or wild cards
-        /// </summary>
-        /// <param name="projectsExtensionsToIgnore"></param>
-        /// <returns></returns>
-        private static Dictionary<string, object> ValidateExtensions(string[] projectsExtensionsToIgnore)
+        private static void ValidateExtensions(string[] projectExtensionsToIgnore)
         {
-            // Dictionary to contain the list of files which match the extensions to ignore. We are using a dictionary for fast lookups of extensions to ignore
-            Dictionary<string, object> extensionsToIgnoreDictionary = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-            // Go through each of the extensions to ignore and add them as a key in the dictionary
-            if (projectsExtensionsToIgnore != null && projectsExtensionsToIgnore.Length > 0)
+            if (projectExtensionsToIgnore?.Length > 0)
             {
-                string extension = null;
-
-                foreach (string extensionToIgnore in projectsExtensionsToIgnore)
+                foreach (string extension in projectExtensionsToIgnore)
                 {
-                    // Use the path get extension method to figure out if there is an extension in the passed 
-                    // in extension to ignore. Will return null or empty if there is no extension in the string
-                    try
-                    {
-                        // Use GetExtension to parse the extension from the extensionToIgnore
-                        extension = Path.GetExtension(extensionToIgnore);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // There has been an invalid char in the extensionToIgnore
-                        InitializationException.Throw("InvalidExtensionToIgnore", extensionToIgnore, null, false);
-                    }
+                    // There has to be more than a . passed in as the extension.
+                    InitializationException.VerifyThrow(extension?.Length >= 2, "InvalidExtensionToIgnore", extension);
 
-                    // if null or empty is returned that means that there was not extension able to be parsed from the string
-                    InitializationException.VerifyThrow(!string.IsNullOrEmpty(extension), "InvalidExtensionToIgnore", extensionToIgnore);
+                    // There is an invalid char in the extensionToIgnore.
+                    InitializationException.VerifyThrow(extension.IndexOfAny(Path.GetInvalidPathChars()) == -1, "InvalidExtensionToIgnore", extension, null, false);
 
-                    // There has to be more than a . passed in as the extension
-                    InitializationException.VerifyThrow(extension.Length >= 2, "InvalidExtensionToIgnore", extensionToIgnore);
+                    // There were characters before the extension.
+                    InitializationException.VerifyThrow(String.Equals(extension, Path.GetExtension(extension), StringComparison.OrdinalIgnoreCase), "InvalidExtensionToIgnore", extension, null, false);
 
-                    // The parsed extension does not match the passed in extension, this means that there were
-                    // some other chars before the last extension
-                    if (string.Compare(extension, extensionToIgnore, StringComparison.OrdinalIgnoreCase) != 0)
-                    {
-                        InitializationException.Throw("InvalidExtensionToIgnore", extensionToIgnore, null, false);
-                    }
-
-                    // Make sure that no wild cards are in the string because for now we dont allow wild card extensions
-                    if (extensionToIgnore.IndexOfAny(s_wildcards) > -1)
-                    {
-                        InitializationException.Throw("InvalidExtensionToIgnore", extensionToIgnore, null, false);
-                    };
-                    if (!extensionsToIgnoreDictionary.ContainsKey(extensionToIgnore))
-                    {
-                        extensionsToIgnoreDictionary.Add(extensionToIgnore, null);
-                    }
+                    // Make sure that no wild cards are in the string because for now we dont allow wild card extensions.
+                    InitializationException.VerifyThrow(extension.IndexOfAny(s_wildcards) == -1, "InvalidExtensionToIgnore", extension, null, false);
                 }
             }
-            return extensionsToIgnoreDictionary;
         }
 
         /// <summary>
-        /// Removes filenames from the given list whose extensions are on the list of extensions to ignore
+        /// Checks whether an argument given as a parameter starts with valid indicator,
+        /// <br/>which means, whether switch begins with one of: "/", "-", "--"
         /// </summary>
-        /// <param name="potentialProjectOrSolutionFiles">A list of project or solution file names</param>
-        /// <param name="extensionsToIgnore">A list of extensions to ignore</param>
-        /// <returns>Array of project or solution files names which do not have an extension to be ignored </returns>
-        private static string[] RemoveFilesWithExtensionsToIgnore
-                                (
-                                    string[] potentialProjectOrSolutionFiles,
-                                    Dictionary<string, object> extensionsToIgnoreDictionary
-                                )
+        /// <param name="unquotedCommandLineArgument">Command line argument with beginning indicator (e.g. --help).
+        /// <br/>This argument has to be unquoted, otherwise the first character will always be a quote character "</param>
+        /// <returns>true if argument's beginning matches one of possible indicators
+        /// <br/>false if argument's beginning doesn't match any of correct indicator
+        /// </returns>
+        private static bool ValidateSwitchIndicatorInUnquotedArgument(string unquotedCommandLineArgument)
         {
-            // If we got to this method we should have to possible projects or solutions and some extensions to ignore
-            ErrorUtilities.VerifyThrow(((potentialProjectOrSolutionFiles != null) && (potentialProjectOrSolutionFiles.Length > 0)), "There should be some potential project or solution files");
-            ErrorUtilities.VerifyThrow(((extensionsToIgnoreDictionary != null) && (extensionsToIgnoreDictionary.Count > 0)), "There should be some extensions to Ignore");
+            return unquotedCommandLineArgument.StartsWith("-", StringComparison.Ordinal) // superset of "--"
+                || unquotedCommandLineArgument.StartsWith("/", StringComparison.Ordinal);
+        }
 
-            List<string> filesToKeep = new List<string>();
-            foreach (string projectOrSolutionFile in potentialProjectOrSolutionFiles)
+        /// <summary>
+        /// Gets the length of the switch indicator (- or / or --)
+        /// <br/>The length returned from this method is deduced from the beginning sequence of unquoted argument.
+        /// <br/>This way it will "assume" that there's no further error (e.g. //  or ---) which would also be considered as a correct indicator.
+        /// </summary>
+        /// <param name="unquotedSwitch">Unquoted argument with leading indicator and name</param>
+        /// <returns>Correct length of used indicator
+        /// <br/>0 if no leading sequence recognized as correct indicator</returns>
+        /// Internal for testing purposes
+        internal static int GetLengthOfSwitchIndicator(string unquotedSwitch)
+        {
+            if (unquotedSwitch.StartsWith("--", StringComparison.Ordinal))
             {
-                string extension = Path.GetExtension(projectOrSolutionFile);
-                // Check to see if the file extension of the project is in our ignore list. If not keep the file
-                if (!extensionsToIgnoreDictionary.ContainsKey(extension))
-                {
-                    filesToKeep.Add(projectOrSolutionFile);
-                }
+                return 2;
             }
-            return filesToKeep.ToArray();
+            else if (unquotedSwitch.StartsWith("-", StringComparison.Ordinal) || unquotedSwitch.StartsWith("/", StringComparison.Ordinal))
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         /// <summary>
@@ -3193,7 +3181,7 @@ namespace Microsoft.Build.CommandLine
                 ConsoleLogger logger = new ConsoleLogger(verbosity);
                 string consoleParameters = "SHOWPROJECTFILE=TRUE;";
 
-                if ((consoleLoggerParameters != null) && (consoleLoggerParameters.Length > 0))
+                if ((consoleLoggerParameters?.Length > 0))
                 {
                     consoleParameters = AggregateParameters(consoleParameters, consoleLoggerParameters);
                 }
@@ -3260,7 +3248,7 @@ namespace Microsoft.Build.CommandLine
             if (distributedFileLogger)
             {
                 string fileParameters = string.Empty;
-                if ((fileLoggerParameters != null) && (fileLoggerParameters.Length > 0))
+                if ((fileLoggerParameters?.Length > 0))
                 {
                     // Join the file logger parameters into one string seperated by semicolons
                     fileParameters = AggregateParameters(null, fileLoggerParameters);
@@ -3534,7 +3522,7 @@ namespace Microsoft.Build.CommandLine
             // DDB Bug msbuild.exe -Logger:FileLogger,Microsoft.Build.Engine fails due to moved engine file.
             // Only add strong naming if the assembly is a non-strong named 'Microsoft.Build.Engine' (i.e, no additional characteristics)
             // Concat full Strong Assembly to match v4.0
-            if (String.Compare(loggerAssemblySpec, "Microsoft.Build.Engine", StringComparison.OrdinalIgnoreCase) == 0)
+            if (String.Equals(loggerAssemblySpec, "Microsoft.Build.Engine", StringComparison.OrdinalIgnoreCase))
             {
                 loggerAssemblySpec = "Microsoft.Build.Engine,Version=4.0.0.0,Culture=neutral,PublicKeyToken=b03f5f7f11d50a3a";
             }
@@ -3615,7 +3603,6 @@ namespace Microsoft.Build.CommandLine
                     logger.Parameters = loggerDescription.LoggerSwitchParameters;
                 }
             }
-
             catch (LoggerException)
             {
                 // Logger failed politely during parameter/verbosity setting

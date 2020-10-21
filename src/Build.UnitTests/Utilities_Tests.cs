@@ -21,9 +21,6 @@ using XmlElementWithLocation = Microsoft.Build.Construction.XmlElementWithLocati
 using Xunit;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Build.Internal;
-using Shouldly;
-using System.Linq;
 using Xunit.Abstractions;
 
 namespace Microsoft.Build.UnitTests
@@ -63,26 +60,6 @@ namespace Microsoft.Build.UnitTests
             string xmlContents = GetXmlContents(xmlText);
             // Should get XML; note space after x added
             Assert.Equal("<!-- bar; baz; --><!-- bar --><x />", xmlContents);
-        }
-
-        [Fact]
-        public void HandshakesDiffer()
-        {
-            int numHandshakeOptions = (int)Math.Pow(2, Enum.GetNames(typeof(HandshakeOptions)).Length - 1);
-            Dictionary<long, int> handshakes = new Dictionary<long, int>();
-            for (int i = 0; i < numHandshakeOptions; i++)
-            {
-                long nextKey = CommunicationsUtilities.GetHostHandshake((HandshakeOptions)i);
-                if (handshakes.TryGetValue(nextKey, out int collision))
-                {
-                    _output.WriteLine("There was a collision between {0} and {1}.", collision, i);
-                }
-                else
-                {
-                    handshakes.Add(nextKey, i);
-                }
-            }
-            handshakes.Count.ShouldBe(numHandshakeOptions, "two or more combinations of handshake options hashed to the same value");
         }
     }
 

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Build.BackEnd;
 using Microsoft.Build.Construction;
@@ -66,7 +65,7 @@ namespace Microsoft.Build.Engine.UnitTests.Instance
             IDictionary<string, (string, MockElementLocation)> parameters,
             List<ProjectTaskInstanceChild> outputs)
         {
-            parameters = parameters ?? new Dictionary<string, (string, MockElementLocation)>();
+            parameters ??= new Dictionary<string, (string, MockElementLocation)>();
 
             var parametersCopy = new Dictionary<string, (string, ElementLocation)>(parameters.Count);
             foreach (var param in parameters)
