@@ -119,8 +119,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     This is the full Output Path, and is derived from BaseOutputPath, if none specified
     (eg. bin\Debug). If this property is overridden, then setting BaseOutputPath has no effect.
 
-    For projects loaded with MPFProj (Legacy project system):
-    This property is usually specified in the project file and is used to initialize OutDir.
+    For projects that use only common targets, this property is usually specified in the project file
+    and is used to initialize OutDir. Some SDKs including the .NET Core SDK derive this automatically.
     OutDir and OutputPath are distinguished for legacy reasons, and OutDir should be used if at all possible.
 
     BaseIntermediateOutputPath:
@@ -189,11 +189,12 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   </PropertyGroup>
 
   <!--
-    For projects loaded with MPFProj (Legacy project system) that defines the properties per Configuration/Platform
-    combination by the IDE itself, the validation of an invalid Configuration/Platform is determined by the non-empty
-    value of the 'OutputPath' property specified under the IDE generated Configuration/Platform 'PropertyGroup' section.
+    For projects that that define properties per Configuration/Platform combination in the project, the validity of an
+    invalid Configuration/Platform is determined by the non-empty value of the 'OutputPath' property specified under the
+    IDE generated Configuration/Platform 'PropertyGroup' section.
 
-    If 'BaseOutputPath' is not specified, then, we should fallback to the existing behavior, as described above.
+    If 'BaseOutputPath' is specified, the project has opted into newer behavior (derived paths) so don't check validity
+    this way.
   -->
   <PropertyGroup Condition="'$(BaseOutputPathWasSpecified)' != 'true' and '$(_OutputPathWasMissing)' == 'true'">
     <!--
