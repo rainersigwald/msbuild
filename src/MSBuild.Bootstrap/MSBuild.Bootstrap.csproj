@@ -31,12 +31,18 @@
     <!-- This is for the second build. Copy over the resolvers from the bootstrap directory, which will include the
          nuget resolver also -->
     <Content
-            Condition="'$(CreateBootstrap)' != 'true'"
-            Include="$(MSBuildBinPath)\SdkResolvers\**\*" LinkBase="SdkResolvers" CopyToOutputDirectory="PreserveNewest" />
+      Condition="'$(CreateBootstrap)' != 'true'"
+      Include="$(MSBuildBinPath)\SdkResolvers\**\*" LinkBase="SdkResolvers" CopyToOutputDirectory="PreserveNewest" />
 
     <Content Include="$(MSBuildExtensionsPath)\**\*" LinkBase="Extensions" CopyToOutputDirectory="PreserveNewest" />
 
     <Content Include="$(RepoRoot).dotnet\sdk\$(DotNetCliVersion)\RuntimeIdentifierGraph.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MonoBuild)' != 'true'">
+    <!-- Include DependencyModel libraries. -->
+    <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" />
   </ItemGroup>
 
   <!-- Use deps file from this project with additional dependencies listed instead of the one generated in the MSBuild project -->
@@ -47,7 +53,7 @@
     <Copy SourceFiles="$(PublishDir)$(AssemblyName).deps.json" DestinationFiles="$(PublishDir)MSBuild.deps.json" />
   </Target>
 
-  <Import Project="..\Package\GetBinPaths.targets" Condition="$(TargetFramework.StartsWith('net4'))"/>
+  <Import Project="..\Package\GetBinPaths.targets" Condition="$(TargetFramework.StartsWith('net4'))" />
 
   <Import Project="$(RepoRoot)eng\BootStrapMSBuild.targets" />
 
