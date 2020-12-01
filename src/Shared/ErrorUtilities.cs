@@ -101,15 +101,14 @@ namespace Microsoft.Build.Shared
         /// Indicates the code path followed should not have been possible.
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
+        [Conditional("DEBUG")]
         internal static void ThrowIfTypeDoesNotImplementToString(object param)
         {
-#if DEBUG
             // Check it has a real implementation of ToString()
             if (String.Equals(param.GetType().ToString(), param.ToString(), StringComparison.Ordinal))
             {
                 ErrorUtilities.ThrowInternalError("This type does not implement ToString() properly {0}", param.GetType().FullName);
             }
-#endif
         }
 
         /// <summary>
