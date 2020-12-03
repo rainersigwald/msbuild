@@ -17,10 +17,10 @@
     <!-- Set output type of test projects to EXE.  This will allow us to run tests on .NET Core via F5 or "dotnet run" -->
     <OutputType>Exe</OutputType>
     <GenerateProgramFile>false</GenerateProgramFile>
-    
+
     <!-- Makes xunit print all test names in stdout -->
     <XunitOptions>$(XunitOptions) -diagnostics</XunitOptions>
-    
+
     <!-- Respect the traits set up by PlatformSpecific attribute. -->
     <XunitOptions Condition="'$(OsEnvironment)'=='windows'">$(XunitOptions) -notrait category=nonwindowstests</XunitOptions>
     <XunitOptions Condition="'$(OsEnvironment)'=='linux'">$(XunitOptions) -notrait category=nonlinuxtests</XunitOptions>
@@ -39,7 +39,7 @@
     <XunitOptions>$(XunitOptions) -notrait category=failing</XunitOptions>
 
     <TestRunnerAdditionalArguments>$(XunitOptions)</TestRunnerAdditionalArguments>
-    
+
     <PackageOutputPath Condition="'$(IsVisualStudioInsertionPackage)' == 'true'">$(DevDivPackagesDir)</PackageOutputPath>
 
     <!-- Arcade sdk also carries an xunit.runner.json which sometimes overrides the one in this repo. Assign a value to the arcade properties XUnitDesktopSettingsFile and XUnitCoreSettingsFile to prevent the arcade version of the file being added. -->
@@ -73,7 +73,7 @@
     <!-- Disable reference assembly source when building for Mono, as some APIs are excluded when compiling for Mono -->
     <GenerateReferenceAssemblySources>false</GenerateReferenceAssemblySources>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(GenerateReferenceAssemblySources)' == 'true' and '$(OsEnvironment)'=='windows'">
     <GenAPIAssemblyName>$(AssemblyName)</GenAPIAssemblyName>
     <GenAPIAssemblyName Condition="'$(GenAPIAssemblyName)' == ''">$(MSBuildProjectName)</GenAPIAssemblyName>
@@ -82,13 +82,17 @@
     <GenAPIShortFrameworkIdentifier Condition="$(TargetFramework.StartsWith('netcoreapp'))">netstandard</GenAPIShortFrameworkIdentifier>
     <GenAPITargetPath>$(RepoRoot)ref\$(GenAPIAssemblyName)\$(GenAPIShortFrameworkIdentifier)\$(GenAPIAssemblyName).cs</GenAPITargetPath>
   </PropertyGroup>
-  
+
   <ItemGroup Condition="'$(GenerateReferenceAssemblySources)' == 'true' and '$(OsEnvironment)'=='windows'">
     <PackageReference Include="Microsoft.DotNet.BuildTools.GenAPI" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsUnitTestProject)' == 'true' And '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
     <PackageReference Include="xunit.console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nullable" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(OutputType)' == 'Exe'">

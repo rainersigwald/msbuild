@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 
+#nullable enable
+
 #if BUILDINGAPPXTASKS
 namespace Microsoft.Build.AppxPackage.Shared
 #else
@@ -50,6 +52,7 @@ namespace Microsoft.Build.Shared
         /// Throws InternalErrorException. 
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
+        [DoesNotReturn]
         internal static void ThrowInternalError(string message, params object[] args)
         {
             if (s_throwExceptions)
@@ -62,7 +65,8 @@ namespace Microsoft.Build.Shared
         /// Throws InternalErrorException. 
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
-        internal static void ThrowInternalError(string message, Exception innerException, params object[] args)
+        [DoesNotReturn]
+        internal static void ThrowInternalError(string message, Exception? innerException, params object[]? args)
         {
             if (s_throwExceptions)
             {
@@ -75,6 +79,7 @@ namespace Microsoft.Build.Shared
         /// Indicates the code path followed should not have been possible.
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
+        [DoesNotReturn]
         internal static void ThrowInternalErrorUnreachable()
         {
             if (s_throwExceptions)
@@ -88,7 +93,7 @@ namespace Microsoft.Build.Shared
         /// Indicates the code path followed should not have been possible.
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
-        internal static void VerifyThrowInternalErrorUnreachable(bool condition)
+        internal static void VerifyThrowInternalErrorUnreachable([DoesNotReturnIf(false)] bool condition)
         {
             if (s_throwExceptions && !condition)
             {
@@ -194,7 +199,7 @@ namespace Microsoft.Build.Shared
         /// <param name="unformattedMessage"></param>
         internal static void VerifyThrow
         (
-            bool condition,
+            [DoesNotReturnIf(false)] bool condition,
             string unformattedMessage
         )
         {
@@ -214,7 +219,7 @@ namespace Microsoft.Build.Shared
         /// <param name="arg0"></param>
         internal static void VerifyThrow
         (
-            bool condition,
+            [DoesNotReturnIf(false)] bool condition,
             string unformattedMessage,
             object arg0
         )
@@ -315,7 +320,7 @@ namespace Microsoft.Build.Shared
         /// </summary>
         /// <param name="resourceName">Resource to use in the exception</param>
         /// <param name="args">Formatting args.</param>
-        internal static void ThrowInvalidOperation(string resourceName, params object[] args)
+        internal static void ThrowInvalidOperation(string resourceName, params object[]? args)
         {
 #if DEBUG
             ResourceUtilities.VerifyResourceStringExists(resourceName);
@@ -459,7 +464,7 @@ namespace Microsoft.Build.Shared
         internal static void ThrowArgument
         (
             string resourceName,
-            params object[] args
+            params object[]? args
         )
         {
             ThrowArgument(null, resourceName, args);
@@ -480,9 +485,9 @@ namespace Microsoft.Build.Shared
         /// <param name="args"></param>
         private static void ThrowArgument
         (
-            Exception innerException,
+            Exception? innerException,
             string resourceName,
-            params object[] args
+            params object[]? args
         )
         {
 #if DEBUG
@@ -589,7 +594,7 @@ namespace Microsoft.Build.Shared
         internal static void VerifyThrowArgument
         (
             bool condition,
-            Exception innerException,
+            Exception? innerException,
             string resourceName
         )
         {
@@ -612,7 +617,7 @@ namespace Microsoft.Build.Shared
         internal static void VerifyThrowArgument
         (
             bool condition,
-            Exception innerException,
+            Exception? innerException,
             string resourceName,
             object arg0
         )
@@ -638,7 +643,7 @@ namespace Microsoft.Build.Shared
         internal static void VerifyThrowArgument
         (
             bool condition,
-            Exception innerException,
+            Exception? innerException,
             string resourceName,
             object arg0,
             object arg1
@@ -660,7 +665,7 @@ namespace Microsoft.Build.Shared
         internal static void VerifyThrowArgument
         (
             bool condition,
-            Exception innerException,
+            Exception? innerException,
             string resourceName,
             object arg0,
             object arg1,
@@ -683,7 +688,7 @@ namespace Microsoft.Build.Shared
         internal static void VerifyThrowArgument
         (
             bool condition,
-            Exception innerException,
+            Exception? innerException,
             string resourceName,
             object arg0,
             object arg1,
@@ -794,7 +799,7 @@ namespace Microsoft.Build.Shared
                 // So use the one overload that doesn't.
                 throw new ArgumentNullException(
                     ResourceUtilities.FormatResourceStringStripCodeAndKeyword(resourceName, parameterName),
-                    (Exception)null);
+                    (Exception?)null);
             }
         }
 
