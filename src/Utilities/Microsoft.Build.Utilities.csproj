@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Framework\Microsoft.Build.Framework.csproj" />
-    
+
     <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 
@@ -117,6 +117,9 @@
     </Compile>
     <Compile Include="..\Shared\NativeMethodsShared.cs">
       <Link>Shared\NativeMethodsShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NullableAttributes.cs">
+      <Link>Shared\NullableAttributes.cs</Link>
     </Compile>
     <Compile Include="..\Shared\AssemblyUtilities.cs">
       <Link>Shared\AssemblyUtilities.cs</Link>

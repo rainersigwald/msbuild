@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\Shared\FileSystemSources.proj" />
   <Import Project="..\Shared\DebuggingSources.proj" />
@@ -34,9 +34,9 @@
     <PackageReference Include="System.Collections.Immutable" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" />
     <PackageReference Include="System.Memory" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe"/>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" />
     <PackageReference Include="System.Text.Json" />
-    
+
 
     <PackageReference Include="System.Reflection.Metadata" Condition="'$(MonoBuild)' == 'true'" />
   </ItemGroup>
@@ -734,6 +734,7 @@
       <Link>SharedUtilities\NativeMethodsShared.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="..\Shared\NullableAttributes.cs" />
     <Compile Include="..\Shared\AssemblyUtilities.cs">
       <Link>SharedUtilities\AssemblyUtilities.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>

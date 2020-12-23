@@ -6,6 +6,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -47,7 +48,7 @@ namespace Microsoft.Build.Shared
 
 #if !BUILDINGAPPXTASKS
         #region VerifyThrow -- for internal errors
-
+#pragma warning disable 8763 // s_throwExceptions is hardly ever set so just suppress the warning.
         /// <summary>
         /// Throws InternalErrorException. 
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
@@ -87,6 +88,7 @@ namespace Microsoft.Build.Shared
                 throw new InternalErrorException("Unreachable?");
             }
         }
+#pragma warning restore 8763
 
         /// <summary>
         /// Throws InternalErrorException. 
@@ -112,7 +114,7 @@ namespace Microsoft.Build.Shared
             // Check it has a real implementation of ToString()
             if (String.Equals(param.GetType().ToString(), param.ToString(), StringComparison.Ordinal))
             {
-                ErrorUtilities.ThrowInternalError("This type does not implement ToString() properly {0}", param.GetType().FullName);
+                ErrorUtilities.ThrowInternalError("This type does not implement ToString() properly {0}", param.GetType().FullName!);
             }
         }
 
