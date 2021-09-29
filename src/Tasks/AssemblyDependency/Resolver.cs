@@ -214,13 +214,32 @@ namespace Microsoft.Build.Tasks
 
                     // ...falling through and relying on the targetAssemblyName==null behavior below...
                 }
-                catch (BadImageFormatException)
+                catch (BadImageFormatException e)
                 {
                     // As above, this is weird: there's a valid reference to an assembly with a file on disk
                     // that isn't a valid .NET assembly. Might be the result of mid-build corruption, but
                     // could just be a name collision on one of the possible resolution paths.
 
                     // as above, fall through.
+
+                    // HACK HACK HACK
+                    // Something seems to be corrupting files somehow and hitting this codepath. But what?
+                    // Copy the file as it currently is into TEMP for investigation
+
+                    string disambiguator = Guid.NewGuid().ToString();
+
+                    File.Copy(
+                        pathToCandidateAssembly,
+                        Path.Combine(
+                            Path.GetTempPath(),
+                            Path.GetFileNameWithoutExtension(pathToCandidateAssembly) + disambiguator + Path.GetExtension(pathToCandidateAssembly)),
+                        overwrite: false);
+
+                    File.WriteAllText(
+                        Path.Combine(
+                            Path.GetTempPath(),
+                            $"Exception_{disambiguator}"),
+                        e.ToString());
                 }
 
                 if (searchLocation != null)
