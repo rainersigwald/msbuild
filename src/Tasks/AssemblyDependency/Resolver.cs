@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.Build.Shared;
+using System.Security.Cryptography;
 
 namespace Microsoft.Build.Tasks
 {
@@ -204,17 +205,22 @@ namespace Microsoft.Build.Tasks
                 AssemblyNameExtension targetAssemblyName = null;
                 try
                 {
-                    targetAssemblyName = getAssemblyName(pathToCandidateAssembly);
-                }
-                catch (FileLoadException)
-                {
-                    // Its pretty hard to get here, you need an assembly that contains a valid reference
-                    // to a dependent assembly that, in turn, throws a FileLoadException during GetAssemblyName.
-                    // Still it happened once, with an older version of the CLR. 
+                    var hashBytes = SHA1.Create().ComputeHash(File.OpenRead(pathToCandidateAssembly));
 
-                    // ...falling through and relying on the targetAssemblyName==null behavior below...
+                    targetAssemblyName = getAssemblyName(pathToCandidateAssembly);
+
+                    searchLocation.InfoDump.Append("Hash of ");
+                    searchLocation.InfoDump.Append(pathToCandidateAssembly);
+                    searchLocation.InfoDump.Append(": ");
+
+                    for (int i = 0; i < hashBytes.Length; i++)
+                    {
+                        searchLocation.InfoDump.Append(hashBytes[i].ToString("x2"));
+                    }
+
+                    searchLocation.InfoDump.AppendLine();
                 }
-                catch (BadImageFormatException e)
+                catch (Exception e)
                 {
                     // As above, this is weird: there's a valid reference to an assembly with a file on disk
                     // that isn't a valid .NET assembly. Might be the result of mid-build corruption, but
@@ -228,18 +234,17 @@ namespace Microsoft.Build.Tasks
 
                     string disambiguator = Guid.NewGuid().ToString();
 
+                    searchLocation.InfoDump.AppendLine($"Exception loading {pathToCandidateAssembly}: {e}");
+
+                    string tempcopy = Path.Combine(
+                                                Path.GetTempPath(),
+                                                Path.GetFileNameWithoutExtension(pathToCandidateAssembly) + disambiguator + Path.GetExtension(pathToCandidateAssembly));
                     File.Copy(
                         pathToCandidateAssembly,
-                        Path.Combine(
-                            Path.GetTempPath(),
-                            Path.GetFileNameWithoutExtension(pathToCandidateAssembly) + disambiguator + Path.GetExtension(pathToCandidateAssembly)),
+                        tempcopy,
                         overwrite: false);
 
-                    File.WriteAllText(
-                        Path.Combine(
-                            Path.GetTempPath(),
-                            $"Exception_{disambiguator}"),
-                        e.ToString());
+                    searchLocation.InfoDump.AppendLine($"Copied it to {tempcopy}");
                 }
 
                 if (searchLocation != null)

@@ -1770,6 +1770,8 @@ namespace Microsoft.Build.Tasks
                         }
                     }
 
+                    Log.LogMessage(MessageImportance.High, location.InfoDump.ToString());
+
                     // Show a message based on the reason.
                     switch (location.Reason)
                     {

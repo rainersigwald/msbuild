@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Text;
+
 using Microsoft.Build.Shared;
 
 namespace Microsoft.Build.Tasks
@@ -30,5 +32,7 @@ namespace Microsoft.Build.Tasks
         /// The reason there was no macth.
         /// </summary>
         internal NoMatchReason Reason { get; set; } = NoMatchReason.Unknown;
+
+        internal StringBuilder InfoDump { get; set; } = new ();
     }
 }
