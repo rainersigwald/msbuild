@@ -207,8 +207,6 @@ namespace Microsoft.Build.Tasks
                 {
                     var hashBytes = SHA1.Create().ComputeHash(File.OpenRead(pathToCandidateAssembly));
 
-                    targetAssemblyName = getAssemblyName(pathToCandidateAssembly);
-
                     searchLocation.InfoDump.Append("Hash of ");
                     searchLocation.InfoDump.Append(pathToCandidateAssembly);
                     searchLocation.InfoDump.Append(": ");
@@ -219,6 +217,8 @@ namespace Microsoft.Build.Tasks
                     }
 
                     searchLocation.InfoDump.AppendLine();
+
+                    targetAssemblyName = getAssemblyName(pathToCandidateAssembly);
                 }
                 catch (Exception e)
                 {
