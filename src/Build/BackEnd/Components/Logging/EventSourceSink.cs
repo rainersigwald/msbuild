@@ -269,6 +269,7 @@ namespace Microsoft.Build.BackEnd.Logging
                     RaiseTelemetryEvent(null, (TelemetryEventArgs)buildEvent);
                     break;
                 case TaskProgressEventArgs tpea:
+                    // TODO: something fishy is happening somewhere and the progress messages are logged TWICE EACH
                     RaiseTaskProgressEvent(null, tpea);
                     break;
                 default:
