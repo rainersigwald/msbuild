@@ -145,7 +145,7 @@ namespace Microsoft.Build.Logging
                     eventSource3.IncludeEvaluationMetaprojects();
                 }
 
-                if (logPropertiesAndItemsAfterEvaluation && eventSource is IEventSource4 eventSource4)
+                if (logPropertiesAndItemsAfterEvaluation && eventSource is IEventSource5 eventSource4)
                 {
                     eventSource4.IncludeEvaluationPropertiesAndItems();
                 }

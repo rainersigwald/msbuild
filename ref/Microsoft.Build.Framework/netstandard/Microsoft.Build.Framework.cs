@@ -280,8 +280,7 @@ namespace Microsoft.Build.Framework
     }
     public partial interface IEventSource5 : Microsoft.Build.Framework.IEventSource, Microsoft.Build.Framework.IEventSource2, Microsoft.Build.Framework.IEventSource3, Microsoft.Build.Framework.IEventSource4
     {
-        event Microsoft.Build.Framework.IEventSource5.TaskProgressEventHandler TaskProgressRaised;
-        public delegate void TaskProgressEventHandler(object sender, Microsoft.Build.Framework.TaskProgressEventArgs e);
+        event Microsoft.Build.Framework.TaskProgressEventHandler TaskProgressRaised;
     }
     public partial interface IForwardingLogger : Microsoft.Build.Framework.ILogger, Microsoft.Build.Framework.INodeLogger
     {
@@ -671,6 +670,7 @@ namespace Microsoft.Build.Framework
         public TaskProgressEventArgs(string currentStatus) { }
         public string CurrentStatus { get { throw null; } }
     }
+    public delegate void TaskProgressEventHandler(object sender, Microsoft.Build.Framework.TaskProgressEventArgs e);
     public partial class TaskPropertyInfo
     {
         public TaskPropertyInfo(string name, System.Type typeOfParameter, bool output, bool required) { }

@@ -1794,7 +1794,7 @@ namespace Microsoft.Build.Evaluation
         /// The ReusableLogger wraps a logger and allows it to be used for both design-time and build-time.  It internally swaps
         /// between the design-time and build-time event sources in response to Initialize and Shutdown events.
         /// </summary>
-        internal class ReusableLogger : INodeLogger, IEventSource4
+        internal class ReusableLogger : INodeLogger, IEventSource5
         {
             /// <summary>
             /// The logger we are wrapping.
@@ -1891,6 +1891,8 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             private TelemetryEventHandler _telemetryEventHandler;
 
+            private TaskProgressEventHandler _taskProgressEventHandler;
+
             private bool _includeEvaluationMetaprojects;
 
             private bool _includeEvaluationProfiles;
@@ -1985,6 +1987,9 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public event TelemetryEventHandler TelemetryLogged;
 
+            public event TaskProgressEventHandler TaskProgressRaised;
+
+
             /// <summary>
             /// Should evaluation events include generated metaprojects?
             /// </summary>
@@ -2046,7 +2051,7 @@ namespace Microsoft.Build.Evaluation
                     buildEventSource4.IncludeEvaluationPropertiesAndItems();
                 }
 
-                if (_designTimeEventSource is IEventSource4 designTimeEventSource4)
+                if (_designTimeEventSource is IEventSource5 designTimeEventSource4)
                 {
                     designTimeEventSource4.IncludeEvaluationPropertiesAndItems();
                 }
@@ -2158,6 +2163,7 @@ namespace Microsoft.Build.Evaluation
                 _taskStartedEventHandler = TaskStartedHandler;
                 _buildWarningEventHandler = WarningRaisedHandler;
                 _telemetryEventHandler = TelemetryLoggedHandler;
+                _taskProgressEventHandler = TaskProgressHandler;
 
                 // Register for the events.
                 eventSource.AnyEventRaised += _anyEventHandler;
@@ -2198,12 +2204,17 @@ namespace Microsoft.Build.Evaluation
                     }
                 }
 
-                if (eventSource is IEventSource4 eventSource4)
+                if (eventSource is IEventSource5 eventSource4)
                 {
                     if (_includeEvaluationPropertiesAndItems)
                     {
                         eventSource4.IncludeEvaluationPropertiesAndItems();
                     }
+                }
+
+                if (eventSource is IEventSource5 eventSource5)
+                {
+                    eventSource5.TaskProgressRaised += _taskProgressEventHandler;
                 }
             }
 
@@ -2370,6 +2381,12 @@ namespace Microsoft.Build.Evaluation
             {
                 TelemetryLogged?.Invoke(sender, e);
             }
+
+            private void TaskProgressHandler(object sender, TaskProgressEventArgs e)
+            {
+                TaskProgressRaised?.Invoke(sender, e);
+            }
+
         }
 
         /// <summary>

@@ -99,7 +99,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// </summary>
         public event TelemetryEventHandler TelemetryLogged;
 
-        public event IEventSource5.TaskProgressEventHandler TaskProgressRaised;
+        public event TaskProgressEventHandler TaskProgressRaised;
         #endregion
 
         #region Properties
@@ -269,7 +269,7 @@ namespace Microsoft.Build.BackEnd.Logging
                     RaiseTelemetryEvent(null, (TelemetryEventArgs)buildEvent);
                     break;
                 case TaskProgressEventArgs tpea:
-                    //RaiseProgressEvent(null, tpea);
+                    RaiseTaskProgressEvent(null, tpea);
                     break;
                 default:
                     ErrorUtilities.VerifyThrow(false, "Unknown event args type.");

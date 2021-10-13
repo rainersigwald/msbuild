@@ -177,7 +177,7 @@ namespace Microsoft.Build.Utilities
                 }
             }
 
-            if (_eventSourceForBuild is IEventSource4 eventSource4)
+            if (_eventSourceForBuild is IEventSource5 eventSource4)
             {
                 if (IncludeEvaluationPropertiesAndItems)
                 {
@@ -456,6 +456,8 @@ namespace Microsoft.Build.Utilities
             /// </summary>
             private TelemetryEventHandler _telemetryEventHandler;
 
+            private TaskProgressEventHandler _taskProgressEventHandler;
+
             #endregion
 
             /// <summary>
@@ -548,6 +550,8 @@ namespace Microsoft.Build.Utilities
             /// This event is raised when telemetry is sent.
             /// </summary>
             public event TelemetryEventHandler TelemetryLogged;
+
+            public event TaskProgressEventHandler TaskProgressLogged;
 
             #endregion
 
@@ -1280,6 +1284,31 @@ namespace Microsoft.Build.Utilities
                     }
                 }
             }
+
+            private void RaiseProgressEvent(object sender, TaskProgressEventArgs buildEvent)
+            {
+                lock (_syncLock)
+                {
+                    try
+                    {
+                        TaskProgressLogged?.Invoke(sender, buildEvent);
+                    }
+                    catch (LoggerException)
+                    {
+                        // if a logger has failed politely, abort immediately
+                        // first unregister all loggers, since other loggers may receive remaining events in unexpected orderings
+                        // if a fellow logger is throwing in an event handler.
+                        UnregisterAllEventHandlers();
+                        throw;
+                    }
+                    catch (Exception)
+                    {
+                        // first unregister all loggers, since other loggers may receive remaining events in unexpected orderings
+                        // if a fellow logger is throwing in an event handler.
+                        UnregisterAllEventHandlers();
+                    }
+                }
+            }
             #endregion
 
             #region private methods
@@ -1303,6 +1332,7 @@ namespace Microsoft.Build.Utilities
                 _taskStartedEventHandler = RaiseTaskStartedEvent;
                 _buildWarningEventHandler = RaiseWarningEvent;
                 _telemetryEventHandler = RaiseTelemetryEvent;
+                _taskProgressEventHandler = RaiseProgressEvent;
 
                 _eventSourceForBuild.AnyEventRaised += _anyEventHandler;
                 _eventSourceForBuild.BuildFinished += _buildFinishedEventHandler;
@@ -1322,6 +1352,11 @@ namespace Microsoft.Build.Utilities
                 if (_eventSourceForBuild is IEventSource2 eventSource2)
                 {
                     eventSource2.TelemetryLogged += _telemetryEventHandler;
+                }
+
+                if (_eventSourceForBuild is IEventSource5 eventSource5)
+                {
+                    eventSource5.TaskProgressRaised += _taskProgressEventHandler;
                 }
             }
 

@@ -85,6 +85,11 @@ namespace Microsoft.Build.BackEnd.Logging
                 // Telemetry events aren't part of "all" so they need to be forwarded separately
                 eventSource2.TelemetryLogged += EventSource_AnyEventRaised;
             }
+
+            if (eventSource is IEventSource5 eventSource5)
+            {
+                eventSource5.TaskProgressRaised += EventSource_AnyEventRaised;
+            }
         }
 
         /// <summary>

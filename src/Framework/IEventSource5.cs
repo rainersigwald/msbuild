@@ -3,14 +3,14 @@
 
 namespace Microsoft.Build.Framework
 {
+    /// <summary>
+    /// Type of handler for TaskProgressEventArgs events
+    /// </summary>
+    public delegate void TaskProgressEventHandler(object sender, TaskProgressEventArgs e);
+
     /// <inheritdoc />
     public interface IEventSource5 : IEventSource4
     {
-        /// <summary>
-        /// Type of handler for TaskProgressEventArgs events
-        /// </summary>
-        public delegate void TaskProgressEventHandler(object sender, TaskProgressEventArgs e);
-
         event TaskProgressEventHandler TaskProgressRaised;
     }
 }

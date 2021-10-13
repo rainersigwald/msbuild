@@ -172,6 +172,11 @@ namespace Microsoft.Build.BackEnd.Logging
             // Parameters are parsed in Initialize
             base.Initialize(eventSource);
             CheckIfOutputSupportsAlignment();
+
+            if (eventSource is IEventSource5 ies5)
+            {
+                ies5.TaskProgressRaised += TaskProgressHandler;
+            }
         }
 
         /// <summary>
@@ -931,6 +936,11 @@ namespace Microsoft.Build.BackEnd.Logging
                 MPPerformanceCounter counter = GetPerformanceCounter(e.TaskName, ref taskPerformanceCounters);
                 counter.AddEventStarted(null, e.BuildEventContext, e.Timestamp, null);
             }
+        }
+
+        public void TaskProgressHandler(object sender, TaskProgressEventArgs e)
+        {
+            Console.Out.WriteLine(e.CurrentStatus);
         }
 
         /// <summary>

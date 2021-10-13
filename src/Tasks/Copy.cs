@@ -574,13 +574,14 @@ namespace Microsoft.Build.Tasks
                         else
                         {
                             MSBuildEventSource.Log.CopyUpToDateStop(destItem.ItemSpec, true);
-                            Log.LogProgress($"{Interlocked.Increment(ref _completed)} / {SourceFiles.Length}");
                         }
 
                         if (copyComplete)
                         {
                             sourceItem.CopyMetadataTo(destItem);
                             successFlags[fileIndex] = (IntPtr)1;
+
+                            Log.LogProgress($"{Interlocked.Increment(ref _completed)} / {SourceFiles.Length}");
                         }
                     }
                 },
