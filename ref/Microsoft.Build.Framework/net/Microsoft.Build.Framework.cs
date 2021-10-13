@@ -155,9 +155,11 @@ namespace Microsoft.Build.Framework
     public abstract partial class EngineServices
     {
         public const int Version1 = 1;
+        public const int Version2 = 2;
         protected EngineServices() { }
         public virtual bool IsTaskInputLoggingEnabled { get { throw null; } }
         public virtual int Version { get { throw null; } }
+        public virtual void LogProgress(Microsoft.Build.Framework.TaskProgressEventArgs progressEvent) { }
         public virtual bool LogsMessagesOfImportance(Microsoft.Build.Framework.MessageImportance importance) { throw null; }
     }
     public partial class EnvironmentVariableReadEventArgs : Microsoft.Build.Framework.BuildMessageEventArgs
@@ -275,6 +277,11 @@ namespace Microsoft.Build.Framework
     public partial interface IEventSource4 : Microsoft.Build.Framework.IEventSource, Microsoft.Build.Framework.IEventSource2, Microsoft.Build.Framework.IEventSource3
     {
         void IncludeEvaluationPropertiesAndItems();
+    }
+    public partial interface IEventSource5 : Microsoft.Build.Framework.IEventSource, Microsoft.Build.Framework.IEventSource2, Microsoft.Build.Framework.IEventSource3, Microsoft.Build.Framework.IEventSource4
+    {
+        event Microsoft.Build.Framework.IEventSource5.TaskProgressEventHandler TaskProgressRaised;
+        public delegate void TaskProgressEventHandler(object sender, Microsoft.Build.Framework.TaskProgressEventArgs e);
     }
     public partial interface IForwardingLogger : Microsoft.Build.Framework.ILogger, Microsoft.Build.Framework.INodeLogger
     {
@@ -659,6 +666,12 @@ namespace Microsoft.Build.Framework
         RemoveItem = 3,
         SkippedTargetInputs = 4,
         SkippedTargetOutputs = 5,
+    }
+    public partial class TaskProgressEventArgs : Microsoft.Build.Framework.BuildEventArgs
+    {
+        public TaskProgressEventArgs(int completed, int total) { }
+        public int Completed { get { throw null; } }
+        public int Total { get { throw null; } }
     }
     public partial class TaskPropertyInfo
     {

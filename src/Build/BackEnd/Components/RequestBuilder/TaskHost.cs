@@ -905,6 +905,16 @@ namespace Microsoft.Build.BackEnd
 
             /// <inheritdoc/>
             public override bool IsTaskInputLoggingEnabled => _taskHost._host.BuildParameters.LogTaskInputs;
+
+            public override void LogProgress(TaskProgressEventArgs e)
+            {
+                if (_taskHost._taskLoggingContext is TaskLoggingContext context)
+                {
+                    e.BuildEventContext = context.BuildEventContext;
+
+                    context.LoggingService.LogTaskProgress(e);
+                }
+            }
         }
 
         public EngineServices EngineServices { get; }

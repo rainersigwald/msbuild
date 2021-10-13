@@ -820,6 +820,17 @@ namespace Microsoft.Build.BackEnd.Logging
             }
         }
 
+        public void LogTaskProgress(TaskProgressEventArgs e)
+        {
+            lock (_lockObject)
+            {
+                if (!OnlyLogCriticalEvents)
+                {
+                    ProcessLoggingEvent(e);
+                }
+            }
+        }
+
         #endregion
 
         #region Log telemetry

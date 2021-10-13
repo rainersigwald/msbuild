@@ -18,7 +18,7 @@ namespace Microsoft.Build.BackEnd.Logging
 #if FEATURE_APPDOMAIN
         MarshalByRefObject,
 #endif
-        IEventSource4, IBuildEventSink
+        IEventSource5, IBuildEventSink
     {
         #region Events
 
@@ -98,6 +98,8 @@ namespace Microsoft.Build.BackEnd.Logging
         /// This event is raised to log telemetry.
         /// </summary>
         public event TelemetryEventHandler TelemetryLogged;
+
+        public event IEventSource5.TaskProgressEventHandler TaskProgressRaised;
         #endregion
 
         #region Properties
@@ -265,6 +267,9 @@ namespace Microsoft.Build.BackEnd.Logging
                     break;
                 case TelemetryEventArgs:
                     RaiseTelemetryEvent(null, (TelemetryEventArgs)buildEvent);
+                    break;
+                case TaskProgressEventArgs tpea:
+                    //RaiseProgressEvent(null, tpea);
                     break;
                 default:
                     ErrorUtilities.VerifyThrow(false, "Unknown event args type.");
@@ -938,6 +943,35 @@ namespace Microsoft.Build.BackEnd.Logging
 
                     InternalLoggerException.Throw(exception, buildEvent, "FatalErrorWhileLogging", false);
                 }
+            }
+        }
+
+        private void RaiseTaskProgressEvent(object sender, TaskProgressEventArgs buildEvent)
+        {
+            try
+            {
+                TaskProgressRaised?.Invoke(sender, buildEvent);
+            }
+            catch (LoggerException)
+            {
+                // if a logger has failed politely, abort immediately
+                // first unregister all loggers, since other loggers may receive remaining events in unexpected orderings
+                // if a fellow logger is throwing in an event handler.
+                this.UnregisterAllEventHandlers();
+                throw;
+            }
+            catch (Exception exception)
+            {
+                // first unregister all loggers, since other loggers may receive remaining events in unexpected orderings
+                // if a fellow logger is throwing in an event handler.
+                this.UnregisterAllEventHandlers();
+
+                if (ExceptionHandling.IsCriticalException(exception))
+                {
+                    throw;
+                }
+
+                InternalLoggerException.Throw(exception, buildEvent, "FatalErrorWhileLogging", false);
             }
         }
 

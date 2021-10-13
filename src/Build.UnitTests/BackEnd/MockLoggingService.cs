@@ -600,6 +600,8 @@ namespace Microsoft.Build.UnitTests.BackEnd
             throw new NotImplementedException();
         }
 
+        public void LogTaskProgress(TaskProgressEventArgs progressEvent) => throw new NotImplementedException();
+
         #endregion
     }
 }

@@ -548,6 +548,8 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <param name="projectFileOfTaskNode">The file in which the task is defined - typically a .targets file</param>
         /// <param name="success">True of the task finished successfully, false otherwise.</param>
         void LogTaskFinished(BuildEventContext taskBuildEventContext, string taskName, string projectFile, string projectFileOfTaskNode, bool success);
+
+        void LogTaskProgress(TaskProgressEventArgs progressEvent);
         #endregion
 
         #region Log telemetry

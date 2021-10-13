@@ -21,10 +21,15 @@ namespace Microsoft.Build.Framework
         public const int Version1 = 1;
 
         /// <summary>
+        /// Adds TaskProgress
+        /// </summary>
+        public const int Version2 = 2;
+
+        /// <summary>
         /// An explicit version of this class. Must be incremented whenever new members are added. Derived classes should override
         /// the property to return the version actually being implemented.
         /// </summary>
-        public virtual int Version => Version1; // Not updated since we have not shipped 17.0 yet
+        public virtual int Version => Version2;
 
         /// <summary>
         /// Returns <see langword="true"/> if the given message importance is not guaranteed to be ignored by registered loggers.
@@ -45,5 +50,7 @@ namespace Microsoft.Build.Framework
         /// This is a performance optimization allowing tasks to skip expensive double-logging.
         /// </remarks>
         public virtual bool IsTaskInputLoggingEnabled => throw new NotImplementedException();
+
+        public virtual void LogProgress(TaskProgressEventArgs progressEvent) => throw new NotImplementedException();
     }
 }
