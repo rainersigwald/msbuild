@@ -669,9 +669,8 @@ namespace Microsoft.Build.Framework
     }
     public partial class TaskProgressEventArgs : Microsoft.Build.Framework.BuildEventArgs
     {
-        public TaskProgressEventArgs(int completed, int total) { }
-        public int Completed { get { throw null; } }
-        public int Total { get { throw null; } }
+        public TaskProgressEventArgs(string currentStatus) { }
+        public string CurrentStatus { get { throw null; } }
     }
     public partial class TaskPropertyInfo
     {

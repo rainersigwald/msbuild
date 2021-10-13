@@ -471,7 +471,7 @@ namespace Microsoft.Build.Tasks
                 {
                     SourceFiles[i].CopyMetadataTo(DestinationFiles[i]);
                     destinationFilesSuccessfullyCopied.Add(DestinationFiles[i]);
-                    Log.LogProgress(Interlocked.Increment(ref _completed), SourceFiles.Length);
+                    Log.LogProgress($"{Interlocked.Increment(ref _completed)} / {SourceFiles.Length}");
                 }
             }
 
@@ -574,7 +574,7 @@ namespace Microsoft.Build.Tasks
                         else
                         {
                             MSBuildEventSource.Log.CopyUpToDateStop(destItem.ItemSpec, true);
-                            Log.LogProgress(Interlocked.Increment(ref _completed), SourceFiles.Length);
+                            Log.LogProgress($"{Interlocked.Increment(ref _completed)} / {SourceFiles.Length}");
                         }
 
                         if (copyComplete)

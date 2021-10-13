@@ -511,9 +511,9 @@ namespace Microsoft.Build.Utilities
 #endif
         }
 
-        public void LogProgress(int complete, int total)
+        public void LogProgress(string currentStatus)
         {
-            TaskProgressEventArgs e = new(complete, total);
+            TaskProgressEventArgs e = new(currentStatus);
             // TODO{raines}: I don't understand the BuildEngine thing. Get Ladi to explain.
             ((IBuildEngine10)BuildEngine).EngineServices.LogProgress(e);
         }

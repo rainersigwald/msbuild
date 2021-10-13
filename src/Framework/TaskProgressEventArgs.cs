@@ -11,22 +11,14 @@ namespace Microsoft.Build.Framework
     [Serializable]
     public class TaskProgressEventArgs : BuildEventArgs
     {
-        private int _completed;
-        private int _total;
+        private string _currentStatus;
 
-        public int Completed => _completed;
-        public int Total => _total;
+        public string CurrentStatus => _currentStatus;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="completed"></param>
-        /// <param name="total"></param>
-        public TaskProgressEventArgs(int completed, int total)
+        public TaskProgressEventArgs(string currentStatus)
             : base()
         {
-            _completed = completed;
-            _total = total;
+            _currentStatus = currentStatus;
         }
     }
 }

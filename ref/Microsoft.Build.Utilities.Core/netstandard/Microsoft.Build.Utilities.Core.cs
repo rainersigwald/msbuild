@@ -266,7 +266,7 @@ namespace Microsoft.Build.Utilities
         public bool LogMessagesFromFile(string fileName) { throw null; }
         public bool LogMessagesFromFile(string fileName, Microsoft.Build.Framework.MessageImportance messageImportance) { throw null; }
         public bool LogMessagesFromStream(System.IO.TextReader stream, Microsoft.Build.Framework.MessageImportance messageImportance) { throw null; }
-        public void LogProgress(int complete, int total) { }
+        public void LogProgress(string currentStatus) { }
         public bool LogsMessagesOfImportance(Microsoft.Build.Framework.MessageImportance importance) { throw null; }
         public void LogTelemetry(string eventName, System.Collections.Generic.IDictionary<string, string> properties) { }
         public void LogWarning(string message, params object[] messageArgs) { }
