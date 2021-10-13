@@ -780,6 +780,9 @@ namespace Microsoft.Build.Tasks
                 try
                 {
                     bool? result = copyFile(sourceFileState, destinationFileState);
+
+                    Thread.Sleep(1000);
+
                     if (result.HasValue)
                     {
                         return result.Value;
@@ -925,7 +928,7 @@ namespace Microsoft.Build.Tasks
         /// <returns></returns>
         public override bool Execute()
         {
-            return Execute(CopyFileWithLogging, s_parallelism);
+            return Execute(CopyFileWithLogging, 1);
         }
 
         #endregion
