@@ -67,9 +67,31 @@ namespace Microsoft.Build.BackEnd.Logging
             ColorResetter colorReset
         )
         {
-            InitializeConsoleMethods(verbosity, write, colorSet, colorReset);
+            InitializeConsoleMethods(verbosity, WriteWithStatus, colorSet, colorReset);
+
             _deferredMessages = new Dictionary<BuildEventContext, List<BuildMessageEventArgs>>(s_compareContextNodeId);
             _buildEventManager = new BuildEventManager();
+
+            void WriteWithStatus(string text)
+            {
+                if (_lastThingWrittenWasProgress is not null)
+                {
+                    // Cursor is currently at the end of the progress message line, so set it to the beginning of the line
+                    Console.SetCursorPosition(0, Console.CursorTop);
+
+                    // If the logged message is shorter than the current progress message, we need to clear the progress message, so it doesn't pollute the line
+
+                    Console.Write(new string(' ', Console.WindowWidth));
+                    Console.SetCursorPosition(0, Console.CursorTop);
+                }
+
+                write(text);
+
+                if (_lastThingWrittenWasProgress is not null)
+                {
+                    Console.Out.Write(_lastThingWrittenWasProgress);
+                }
+            }
         }
 
         /// <summary>
@@ -246,6 +268,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <param name="e">event arguments</param>
         public override void BuildFinishedHandler(object sender, BuildFinishedEventArgs e)
         {
+            _lastThingWrittenWasProgress = null;
             // If for some reason we have deferred messages at the end of the build they should be displayed
             // so that the reason why they are still buffered can be determined.
             if (!showOnlyErrors && !showOnlyWarnings && _deferredMessages.Count > 0)
@@ -938,9 +961,23 @@ namespace Microsoft.Build.BackEnd.Logging
             }
         }
 
+        private string _lastThingWrittenWasProgress = null;
+
         public void TaskProgressHandler(object sender, TaskProgressEventArgs e)
         {
-            Console.Out.WriteLine(e.CurrentStatus);
+            if (_lastThingWrittenWasProgress is not null)
+            {
+                // Cursor is currently at the end of the progress message line, so set it to the beginning of the line
+                Console.SetCursorPosition(0, Console.CursorTop);
+
+                // If the logged message is shorter than the current progress message, we need to clear the progress message, so it doesn't pollute the line
+
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, Console.CursorTop);
+            }
+            Console.Out.Write(e.CurrentStatus);
+
+            _lastThingWrittenWasProgress=e.CurrentStatus;
         }
 
         /// <summary>
