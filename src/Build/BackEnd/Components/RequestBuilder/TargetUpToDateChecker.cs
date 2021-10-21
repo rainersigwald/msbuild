@@ -17,6 +17,8 @@ using ProjectItemInstanceFactory = Microsoft.Build.Execution.ProjectItemInstance
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     using ILoggingService = Microsoft.Build.BackEnd.Logging.ILoggingService;

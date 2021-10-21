@@ -6,6 +6,8 @@ using Microsoft.Build.BackEnd;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Logging
 {
     /// <summary>

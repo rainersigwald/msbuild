@@ -9,6 +9,8 @@ using Microsoft.Build.Collections;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Utilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>

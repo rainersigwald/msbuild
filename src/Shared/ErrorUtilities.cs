@@ -9,8 +9,12 @@ using System.Globalization;
 using System.Threading;
 
 #if BUILDINGAPPXTASKS
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.AppxPackage.Shared
 #else
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Shared
 #endif
 {

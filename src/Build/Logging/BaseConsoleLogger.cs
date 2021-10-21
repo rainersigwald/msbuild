@@ -20,6 +20,8 @@ using WriteHandler = Microsoft.Build.Logging.WriteHandler;
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.BackEnd.Logging
 {
     #region Delegates

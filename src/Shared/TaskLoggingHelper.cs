@@ -16,13 +16,13 @@ using System.Runtime.Remoting;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 
-#if BUILD_ENGINE
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
+#if BUILD_ENGINE
 namespace Microsoft.Build.BackEnd
 #else
-using static Microsoft.Build.Shared.ErrorUtilities;
-
 namespace Microsoft.Build.Utilities
 #endif
 {

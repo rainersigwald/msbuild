@@ -2,6 +2,8 @@
 using System.IO;
 using System.Xml;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.BackEnd.SdkResolution
 {
     /// <summary>

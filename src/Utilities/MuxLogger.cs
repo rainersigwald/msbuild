@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Utilities
 {
     /// <summary>

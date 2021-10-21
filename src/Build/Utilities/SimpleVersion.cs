@@ -6,6 +6,8 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Utilities
 {
     /// <summary>

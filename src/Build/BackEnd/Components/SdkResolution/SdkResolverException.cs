@@ -6,6 +6,8 @@ using System;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.BackEnd.SdkResolution
 {
     /// <summary>

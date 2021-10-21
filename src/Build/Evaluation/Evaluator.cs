@@ -36,6 +36,8 @@ using SdkReferencePropertyExpansionMode = Microsoft.Build.Utilities.EscapeHatche
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>

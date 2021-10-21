@@ -16,6 +16,8 @@ using InvalidProjectFileException = Microsoft.Build.Exceptions.InvalidProjectFil
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

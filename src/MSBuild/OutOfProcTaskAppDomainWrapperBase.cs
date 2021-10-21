@@ -14,6 +14,8 @@ using Microsoft.Build.Shared;
 using System.Runtime.Remoting;
 #endif
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.CommandLine
 {
     /// <summary>

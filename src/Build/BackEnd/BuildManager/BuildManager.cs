@@ -40,6 +40,8 @@ using Microsoft.NET.StringTools;
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

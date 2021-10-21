@@ -8,6 +8,8 @@ using System.Security.Permissions;
 #endif
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Exceptions
 {
     /// <summary>

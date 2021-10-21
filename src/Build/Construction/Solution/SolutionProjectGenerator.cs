@@ -30,6 +30,8 @@ using Microsoft.Build.Utilities;
 
 using Microsoft.NET.StringTools;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Construction
 {
     /// <summary>

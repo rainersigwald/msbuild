@@ -28,6 +28,8 @@ using Task = System.Threading.Tasks.Task;
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>
