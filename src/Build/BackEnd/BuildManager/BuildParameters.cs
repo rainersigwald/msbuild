@@ -230,7 +230,7 @@ namespace Microsoft.Build.Execution
         /// <param name="projectCollection">The ProjectCollection from which the BuildParameters should populate itself.</param>
         public BuildParameters(ProjectCollection projectCollection)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
 
             Initialize(new PropertyDictionary<ProjectPropertyInstance>(projectCollection.EnvironmentProperties), projectCollection.ProjectRootElementCache, new ToolsetProvider(projectCollection.Toolsets));
 
@@ -255,7 +255,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal BuildParameters(BuildParameters other, bool resetEnvironment = false)
         {
-            ErrorUtilities.VerifyThrowInternalNull(other, nameof(other));
+            VerifyThrowInternalNull(other, nameof(other));
 
             _buildId = other._buildId;
             _culture = other._culture;
@@ -432,7 +432,7 @@ namespace Microsoft.Build.Execution
                 {
                     foreach (ForwardingLoggerRecord logger in value)
                     {
-                        ErrorUtilities.VerifyThrowArgumentNull(logger, nameof(ForwardingLoggers), "NullLoggerNotAllowed");
+                        VerifyThrowArgumentNull(logger, nameof(ForwardingLoggers), "NullLoggerNotAllowed");
                     }
                 }
 
@@ -492,7 +492,7 @@ namespace Microsoft.Build.Execution
                 {
                     foreach (ILogger logger in value)
                     {
-                        ErrorUtilities.VerifyThrowArgumentNull(logger, "Loggers", "NullLoggerNotAllowed");
+                        VerifyThrowArgumentNull(logger, "Loggers", "NullLoggerNotAllowed");
                     }
                 }
 
@@ -509,7 +509,7 @@ namespace Microsoft.Build.Execution
 
             set
             {
-                ErrorUtilities.VerifyThrowArgument(value > 0, "InvalidMaxNodeCount");
+                VerifyThrowArgument(value > 0, "InvalidMaxNodeCount");
                 _maxNodeCount = value;
             }
         }
@@ -688,7 +688,7 @@ namespace Microsoft.Build.Execution
 
             set
             {
-                ErrorUtilities.VerifyThrowInternalNull(value, "EnvironmentPropertiesInternal");
+                VerifyThrowInternalNull(value, "EnvironmentPropertiesInternal");
                 _environmentProperties = value;
             }
         }

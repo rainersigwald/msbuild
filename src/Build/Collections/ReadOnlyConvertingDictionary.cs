@@ -32,8 +32,8 @@ namespace Microsoft.Build.Collections
         /// </summary>
         internal ReadOnlyConvertingDictionary(IDictionary<K, V> backing, Func<V, N> converter)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(backing, nameof(backing));
-            ErrorUtilities.VerifyThrowArgumentNull(converter, nameof(converter));
+            VerifyThrowArgumentNull(backing, nameof(backing));
+            VerifyThrowArgumentNull(converter, nameof(converter));
 
             _backing = backing;
             _converter = converter;
@@ -53,7 +53,7 @@ namespace Microsoft.Build.Collections
         {
             get
             {
-                ErrorUtilities.ThrowInternalError("Values is not supported on ReadOnlyConvertingDictionary.");
+                ThrowInternalError("Values is not supported on ReadOnlyConvertingDictionary.");
 
                 // Show the compiler that this always throws:
                 throw new NotImplementedException();
@@ -76,7 +76,7 @@ namespace Microsoft.Build.Collections
         public N this[K key]
         {
             get => _converter(_backing[key]);
-            set => ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            set => ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public void Add(K key, N value)
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Remove(K key)
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
             return false;
         }
 
@@ -128,7 +128,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public void Add(KeyValuePair<K, N> item)
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public void Clear()
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Contains(KeyValuePair<K, N> item)
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedConvertingCollectionValueToBacking");
+            ThrowInvalidOperation("OM_NotSupportedConvertingCollectionValueToBacking");
             return false;
         }
 
@@ -153,7 +153,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public void CopyTo(KeyValuePair<K, N>[] array, int arrayIndex)
         {
-            ErrorUtilities.VerifyThrow(array.Length - arrayIndex >= _backing.Count, "Specified array size insufficient to hold the contents of the collection.");
+            VerifyThrow(array.Length - arrayIndex >= _backing.Count, "Specified array size insufficient to hold the contents of the collection.");
 
             foreach (KeyValuePair<K, V> pair in _backing)
             {
@@ -166,7 +166,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Remove(KeyValuePair<K, N> item)
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
             return false;
         }
 

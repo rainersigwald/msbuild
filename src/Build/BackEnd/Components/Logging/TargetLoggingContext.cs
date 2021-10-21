@@ -89,7 +89,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// </summary>
         internal void LogTargetBatchFinished(string projectFullPath, bool success, IEnumerable<TaskItem> targetOutputs)
         {
-            ErrorUtilities.VerifyThrow(IsValid, "Should be valid");
+            VerifyThrow(IsValid, "Should be valid");
 
             TargetOutputItemsInstanceEnumeratorProxy targetOutputWrapper = null;
 
@@ -108,7 +108,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// </summary>
         internal TaskLoggingContext LogTaskBatchStarted(string projectFullPath, ProjectTargetInstanceChild task)
         {
-            ErrorUtilities.VerifyThrow(IsValid, "Should be valid");
+            VerifyThrow(IsValid, "Should be valid");
 
             return new TaskLoggingContext(this, projectFullPath, task);
         }
@@ -119,7 +119,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// </summary>
         /// <remarks>
         /// This class is designed to be passed to loggers.
-        /// The expense of copying items is only incurred if and when 
+        /// The expense of copying items is only incurred if and when
         /// a logger chooses to enumerate over it.
         /// </remarks>
         internal class TargetOutputItemsInstanceEnumeratorProxy : IEnumerable<TaskItem>

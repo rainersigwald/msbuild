@@ -217,7 +217,7 @@ namespace Microsoft.Build.Evaluation
             bool? preserveFormatting)
         {
             // Should already have been canonicalized
-            ErrorUtilities.VerifyThrowInternalRooted(projectFile);
+            VerifyThrowInternalRooted(projectFile);
 
             ProjectRootElement projectRootElement;
             lock (_locker)
@@ -274,8 +274,8 @@ namespace Microsoft.Build.Evaluation
                 // it is not likely that two threads would use Get function for the same project simulteniously and it is not a big deal if in some cases we load the same project twice.
 
                 projectRootElement = openProjectRootElement(projectFile, this);
-                ErrorUtilities.VerifyThrowInternalNull(projectRootElement, "projectRootElement");
-                ErrorUtilities.VerifyThrow(projectRootElement.FullPath == projectFile, "Got project back with incorrect path");
+                VerifyThrowInternalNull(projectRootElement, "projectRootElement");
+                VerifyThrow(projectRootElement.FullPath == projectFile, "Got project back with incorrect path");
 
                 // An implicit load will never reset the explicit flag.
                 if (isExplicitlyLoaded)
@@ -318,7 +318,7 @@ namespace Microsoft.Build.Evaluation
         {
             lock (_locker)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(oldFullPath, nameof(oldFullPath));
+                VerifyThrowArgumentLength(oldFullPath, nameof(oldFullPath));
                 RenameEntryInternal(oldFullPath, projectRootElement);
             }
         }
@@ -446,7 +446,7 @@ namespace Microsoft.Build.Evaluation
         /// </remarks>
         internal override void DiscardAnyWeakReference(ProjectRootElement projectRootElement)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectRootElement, nameof(projectRootElement));
+            VerifyThrowArgumentNull(projectRootElement, nameof(projectRootElement));
 
             // A PRE may be unnamed if it was only used in memory.
             if (projectRootElement.FullPath != null)
@@ -467,12 +467,12 @@ namespace Microsoft.Build.Evaluation
         /// </remarks>
         private void RenameEntryInternal(string oldFullPathIfAny, ProjectRootElement projectRootElement)
         {
-            ErrorUtilities.VerifyThrowInternalNull(projectRootElement.FullPath, "FullPath");
+            VerifyThrowInternalNull(projectRootElement.FullPath, "FullPath");
 
             if (oldFullPathIfAny != null)
             {
-                ErrorUtilities.VerifyThrowInternalRooted(oldFullPathIfAny);
-                ErrorUtilities.VerifyThrow(_weakCache[oldFullPathIfAny] == projectRootElement, "Should already be present");
+                VerifyThrowInternalRooted(oldFullPathIfAny);
+                VerifyThrow(_weakCache[oldFullPathIfAny] == projectRootElement, "Should already be present");
                 _weakCache.Remove(oldFullPathIfAny);
             }
 

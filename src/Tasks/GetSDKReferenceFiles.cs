@@ -90,7 +90,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(CacheFileFolderPath));
+                VerifyThrowArgumentNull(value, nameof(CacheFileFolderPath));
                 _cacheFilePath = value;
             }
         }
@@ -104,7 +104,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(ResolvedSDKReferences));
+                VerifyThrowArgumentNull(value, nameof(ResolvedSDKReferences));
                 _resolvedSDKReferences = value;
             }
         }
@@ -119,7 +119,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(ReferenceExtensions));
+                VerifyThrowArgumentNull(value, nameof(ReferenceExtensions));
                 _referenceExtensions = value;
             }
         }
@@ -238,7 +238,7 @@ namespace Microsoft.Build.Tasks
 
             try
             {
-                // Filter out all references tagged as RuntimeReferenceOnly 
+                // Filter out all references tagged as RuntimeReferenceOnly
                 IEnumerable<ITaskItem> filteredResolvedSDKReferences = ResolvedSDKReferences.Where(
                     sdkReference => !MetadataConversionUtilities.TryConvertItemMetadataToBool(sdkReference, "RuntimeReferenceOnly")
                 );
@@ -658,7 +658,7 @@ namespace Microsoft.Build.Tasks
             foreach (ITaskItem sdk in sdks)
             {
                 string sdkIdentity = sdk.GetMetadata("OriginalItemSpec");
-                ErrorUtilities.VerifyThrowArgument(sdkIdentity.Length != 0, "GetSDKReferenceFiles.NoOriginalItemSpec", sdk.ItemSpec);
+                VerifyThrowArgument(sdkIdentity.Length != 0, "GetSDKReferenceFiles.NoOriginalItemSpec", sdk.ItemSpec);
                 string sdkRoot = sdk.ItemSpec;
 
                 // Try and get the cache file for this SDK if it already exists
@@ -788,7 +788,7 @@ namespace Microsoft.Build.Tasks
                 }
 
                 // We only care about the file name and not the path because if they have the same file name but different paths then they will likely contain
-                // the same namespaces and the compiler does not like to have two references with the same namespace passed at once without aliasing and 
+                // the same namespaces and the compiler does not like to have two references with the same namespace passed at once without aliasing and
                 // we have no way to do aliasing per assembly since we are grabbing a bunch of files at once.)
                 return String.Equals(FileName, other.FileName, StringComparison.OrdinalIgnoreCase);
             }

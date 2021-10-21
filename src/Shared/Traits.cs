@@ -347,7 +347,7 @@ namespace Microsoft.Build.Utilities
                 return result;
             }
 
-            ErrorUtilities.ThrowInternalError($"Environment variable \"{environmentVariable}\" should have values \"true\", \"false\" or undefined");
+            ThrowInternalError($"Environment variable \"{environmentVariable}\" should have values \"true\", \"false\" or undefined");
 
             return null;
         }
@@ -371,7 +371,7 @@ namespace Microsoft.Build.Utilities
                 return ProjectInstanceTranslationMode.Partial;
             }
 
-            ErrorUtilities.ThrowInternalError($"Invalid escape hatch for project instance translation: {mode}");
+            ThrowInternalError($"Invalid escape hatch for project instance translation: {mode}");
 
             return null;
         }
@@ -411,7 +411,7 @@ namespace Microsoft.Build.Utilities
                 return SdkReferencePropertyExpansionMode.ExpandLeaveEscaped;
             }
 
-            ErrorUtilities.ThrowInternalError($"Invalid escape hatch for SdkReference property expansion: {mode}");
+            ThrowInternalError($"Invalid escape hatch for SdkReference property expansion: {mode}");
 
             return null;
         }

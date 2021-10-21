@@ -70,7 +70,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         internal Token(TokenType type, string tokenString, bool expandable)
         {
-            ErrorUtilities.VerifyThrow
+            VerifyThrow
                 (
                 type == TokenType.Property ||
                 type == TokenType.String ||
@@ -81,7 +81,7 @@ namespace Microsoft.Build.Evaluation
                 "Unexpected token type"
                 );
 
-            ErrorUtilities.VerifyThrowInternalNull(tokenString, nameof(tokenString));
+            VerifyThrowInternalNull(tokenString, nameof(tokenString));
 
             _tokenType = type;
             _tokenString = tokenString;
@@ -99,7 +99,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
@@ -117,7 +117,7 @@ namespace Microsoft.Build.Evaluation
                     return _tokenString;
                 }
 
-                // Return a token string for 
+                // Return a token string for
                 // an error message.
                 switch (_tokenType)
                 {
@@ -148,7 +148,7 @@ namespace Microsoft.Build.Evaluation
                     case TokenType.EndOfInput:
                         return null;
                     default:
-                        ErrorUtilities.ThrowInternalErrorUnreachable();
+                        ThrowInternalErrorUnreachable();
                         return null;
                 }
             }

@@ -34,7 +34,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
 
         public ProxyTargets(IReadOnlyDictionary<string, string> proxyTargetToRealTargetMap)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(proxyTargetToRealTargetMap, nameof(proxyTargetToRealTargetMap));
+            VerifyThrowArgumentLength(proxyTargetToRealTargetMap, nameof(proxyTargetToRealTargetMap));
 
             _proxyTargetToRealTargetMap = proxyTargetToRealTargetMap.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
         }

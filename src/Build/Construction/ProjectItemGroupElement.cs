@@ -38,7 +38,7 @@ namespace Microsoft.Build.Construction
         internal ProjectItemGroupElement(XmlElementWithLocation xmlElement, ProjectElementContainer parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -98,16 +98,16 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectItemElement AddItem(string itemType, string include, IEnumerable<KeyValuePair<string, string>> metadata)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(itemType, nameof(itemType));
-            ErrorUtilities.VerifyThrowArgumentLength(include, nameof(include));
+            VerifyThrowArgumentLength(itemType, nameof(itemType));
+            VerifyThrowArgumentLength(include, nameof(include));
 
-            // If there are no items, or it turns out that there are only items with 
+            // If there are no items, or it turns out that there are only items with
             // item types that sort earlier, then we should go after the last child
             ProjectElement reference = LastChild;
 
             foreach (ProjectItemElement item in Items)
             {
-                // If it's the same item type, and 
+                // If it's the same item type, and
                 if (MSBuildNameIgnoreCaseComparer.Default.Equals(itemType, item.ItemType))
                 {
                     // the include sorts after us,
@@ -173,7 +173,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectRootElement || parent is ProjectTargetElement || parent is ProjectWhenElement || parent is ProjectOtherwiseElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectRootElement || parent is ProjectTargetElement || parent is ProjectWhenElement || parent is ProjectOtherwiseElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

@@ -123,7 +123,7 @@ namespace Microsoft.Build.BackEnd
         private List<TaskItem> _remotedTaskItems;
 
         /// <summary>
-        /// We need access to the build component host so that we can get at the 
+        /// We need access to the build component host so that we can get at the
         /// task host node provider when running a task wrapped by TaskHostTask
         /// </summary>
         private readonly IBuildComponentHost _buildComponentHost;
@@ -152,7 +152,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// Constructor, for unit testing only.  
+        /// Constructor, for unit testing only.
         /// </summary>
         internal TaskExecutionHost()
         {
@@ -278,8 +278,8 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         bool ITaskExecutionHost.InitializeForBatch(TaskLoggingContext loggingContext, ItemBucket batchBucket, IDictionary<string, string> taskIdentityParameters)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(loggingContext, nameof(loggingContext));
-            ErrorUtilities.VerifyThrowArgumentNull(batchBucket, nameof(batchBucket));
+            VerifyThrowArgumentNull(loggingContext, nameof(loggingContext));
+            VerifyThrowArgumentNull(batchBucket, nameof(batchBucket));
 
             _taskLoggingContext = loggingContext;
             _batchBucket = batchBucket;
@@ -324,7 +324,7 @@ namespace Microsoft.Build.BackEnd
         /// <returns>True if the parameters were set correctly, false otherwise.</returns>
         bool ITaskExecutionHost.SetTaskParameters(IDictionary<string, (string, ElementLocation)> parameters)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parameters, nameof(parameters));
+            VerifyThrowArgumentNull(parameters, nameof(parameters));
 
             bool taskInitialized = true;
 
@@ -397,7 +397,7 @@ namespace Microsoft.Build.BackEnd
         /// <returns>True of the outputs were gathered successfully, false otherwise.</returns>
         bool ITaskExecutionHost.GatherTaskOutputs(string parameterName, ElementLocation parameterLocation, bool outputTargetIsItem, string outputTargetName)
         {
-            ErrorUtilities.VerifyThrow(_taskFactoryWrapper != null, "Need a taskFactoryWrapper to retrieve outputs from.");
+            VerifyThrow(_taskFactoryWrapper != null, "Need a taskFactoryWrapper to retrieve outputs from.");
 
             bool gatheredGeneratedOutputsSuccessfully = true;
 
@@ -552,7 +552,7 @@ namespace Microsoft.Build.BackEnd
             _taskHost = null;
             CleanupCancellationToken();
 
-            ErrorUtilities.VerifyThrow(TaskInstance == null, "Task Instance should be null");
+            VerifyThrow(TaskInstance == null, "Task Instance should be null");
         }
 
         /// <summary>
@@ -850,15 +850,15 @@ namespace Microsoft.Build.BackEnd
         /// 2) checks the global task declarations (in *.TASKS in MSbuild bin dir), searching by exact name and task identity parameters
         /// 3) checks the tasks declared by the project, searching by fuzzy match (missing namespace, etc.) and task identity parameters
         /// 4) checks the global task declarations (in *.TASKS in MSbuild bin dir), searching by fuzzy match (missing namespace, etc.) and task identity parameters
-        /// 5) 1-4 again in order without the task identity parameters, to gather additional information for the user (if the task identity 
-        ///    parameters don't match, it is an error, but at least we can return them a more useful error in this case than just "could not 
+        /// 5) 1-4 again in order without the task identity parameters, to gather additional information for the user (if the task identity
+        ///    parameters don't match, it is an error, but at least we can return them a more useful error in this case than just "could not
         ///    find task")
-        /// 
+        ///
         /// The search ordering is meant to reduce the number of assemblies we scan, because loading assemblies can be expensive.
         /// The tasks and assemblies declared by the project are scanned first, on the assumption that if the project declared
         /// them, they are likely used.
-        /// 
-        /// If the set of task identity parameters are defined, only tasks that match that identity are chosen. 
+        ///
+        /// If the set of task identity parameters are defined, only tasks that match that identity are chosen.
         /// </summary>
         /// <returns>The Type of the task, or null if it was not found.</returns>
         private TaskFactoryWrapper FindTaskInRegistry(IDictionary<string, string> taskIdentityParameters)
@@ -915,7 +915,7 @@ namespace Microsoft.Build.BackEnd
                                 taskArchitecture ?? XMakeAttributes.MSBuildArchitectureValues.any
                             );
 
-                        // if we've logged this error, even though we've found something, we want to act like we didn't.  
+                        // if we've logged this error, even though we've found something, we want to act like we didn't.
                         return null;
                     }
                 }
@@ -1294,14 +1294,14 @@ namespace Microsoft.Build.BackEnd
             out bool taskParameterSet
         )
         {
-            ErrorUtilities.VerifyThrow(parameterValue != null, "Didn't expect null parameterValue in InitializeTaskVectorParameter");
+            VerifyThrow(parameterValue != null, "Didn't expect null parameterValue in InitializeTaskVectorParameter");
 
             taskParameterSet = false;
             bool success;
             IList<TaskItem> finalTaskItems = _batchBucket.Expander.ExpandIntoTaskItemsLeaveEscaped(parameterValue, ExpanderOptions.ExpandAll, parameterLocation);
 
-            // If there were no items, don't change the parameter's value.  EXCEPT if it's marked as a required 
-            // parameter, in which case we made an explicit decision to pass in an empty array.  This is 
+            // If there were no items, don't change the parameter's value.  EXCEPT if it's marked as a required
+            // parameter, in which case we made an explicit decision to pass in an empty array.  This is
             // to avoid project authors having to add Conditions on all their tasks to avoid calling them
             // when a particular item list is empty.  This way, we just call the task with an empty list,
             // the task will loop over an empty list, and return quickly.
@@ -1446,7 +1446,7 @@ namespace Microsoft.Build.BackEnd
 
                             if (outputAsProjectItem != null)
                             {
-                                // The common case -- all items involved are Microsoft.Build.Execution.ProjectItemInstance.TaskItems.  
+                                // The common case -- all items involved are Microsoft.Build.Execution.ProjectItemInstance.TaskItems.
                                 // Furthermore, because that is true, we know by definition that they also implement ITaskItem2.
                                 newItem = new ProjectItemInstance(_projectInstance, outputTargetName, outputAsProjectItem.IncludeEscaped, parameterLocationEscaped);
 
@@ -1456,10 +1456,10 @@ namespace Microsoft.Build.BackEnd
                             {
                                 if (output is ITaskItem2 outputAsITaskItem2)
                                 {
-                                    // Probably a Microsoft.Build.Utilities.TaskItem.  Not quite as good, but we can still preserve escaping. 
+                                    // Probably a Microsoft.Build.Utilities.TaskItem.  Not quite as good, but we can still preserve escaping.
                                     newItem = new ProjectItemInstance(_projectInstance, outputTargetName, outputAsITaskItem2.EvaluatedIncludeEscaped, parameterLocationEscaped);
 
-                                    // It would be nice to be copy-on-write here, but Utilities.TaskItem doesn't know about CopyOnWritePropertyDictionary. 
+                                    // It would be nice to be copy-on-write here, but Utilities.TaskItem doesn't know about CopyOnWritePropertyDictionary.
                                     foreach (DictionaryEntry entry in outputAsITaskItem2.CloneCustomMetadataEscaped())
                                     {
                                         newItem.SetMetadataOnTaskOutput((string)entry.Key, (string)entry.Value);
@@ -1467,8 +1467,8 @@ namespace Microsoft.Build.BackEnd
                                 }
                                 else
                                 {
-                                    // Not a ProjectItemInstance.TaskItem or even a ITaskItem2, so we have to fake it.  
-                                    // Setting an item spec expects the escaped value, as does setting metadata. 
+                                    // Not a ProjectItemInstance.TaskItem or even a ITaskItem2, so we have to fake it.
+                                    // Setting an item spec expects the escaped value, as does setting metadata.
                                     newItem = new ProjectItemInstance(_projectInstance, outputTargetName, EscapingUtilities.Escape(output.ItemSpec), parameterLocationEscaped);
 
                                     foreach (DictionaryEntry entry in output.CloneCustomMetadata())
@@ -1497,7 +1497,7 @@ namespace Microsoft.Build.BackEnd
                     // to store an ITaskItem array in a property, join all the item-specs with semi-colons to make the
                     // property value, and ignore/discard the attributes on the ITaskItems.
                     //
-                    // An empty ITaskItem[] should create a blank value property, for compatibility.                 
+                    // An empty ITaskItem[] should create a blank value property, for compatibility.
                     StringBuilder joinedOutputs = (outputs.Length == 0) ? new StringBuilder() : null;
 
                     foreach (ITaskItem output in outputs)
@@ -1542,7 +1542,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void GatherArrayStringAndValueOutputs(bool outputTargetIsItem, string outputTargetName, string[] outputs, ElementLocation parameterLocation, TaskPropertyInfo parameter)
         {
-            // if the task has generated outputs (if it didn't, don't do anything)            
+            // if the task has generated outputs (if it didn't, don't do anything)
             if (outputs != null)
             {
                 if (outputTargetIsItem)
@@ -1573,7 +1573,7 @@ namespace Microsoft.Build.BackEnd
                     // to store an object array in a property, join all the string representations of the objects with
                     // semi-colons to make the property value
                     //
-                    // An empty ITaskItem[] should create a blank value property, for compatibility.                 
+                    // An empty ITaskItem[] should create a blank value property, for compatibility.
                     StringBuilder joinedOutputs = (outputs.Length == 0) ? new StringBuilder() : null;
 
                     foreach (string output in outputs)
@@ -1613,7 +1613,7 @@ namespace Microsoft.Build.BackEnd
         /// <returns>Gets a list of properties which are required.</returns>
         private IDictionary<string, string> GetNamesOfPropertiesWithRequiredAttribute()
         {
-            ErrorUtilities.VerifyThrow(_taskFactoryWrapper != null, "Expected taskFactoryWrapper to not be null");
+            VerifyThrow(_taskFactoryWrapper != null, "Expected taskFactoryWrapper to not be null");
             IDictionary<string, string> requiredParameters = null;
 
             try

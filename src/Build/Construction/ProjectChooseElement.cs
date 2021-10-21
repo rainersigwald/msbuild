@@ -32,7 +32,7 @@ namespace Microsoft.Build.Construction
         internal ProjectChooseElement(XmlElement xmlElement, ProjectElementContainer parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -44,13 +44,13 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Condition should never be set, but the getter returns null instead of throwing 
+        /// Condition should never be set, but the getter returns null instead of throwing
         /// because a nonexistent condition is implicitly true
         /// </summary>
         public override string Condition
         {
             get => null;
-            set => ErrorUtilities.ThrowInvalidOperation("OM_CannotGetSetCondition");
+            set => ThrowInvalidOperation("OM_CannotGetSetCondition");
         }
 
         #region ChildEnumerators
@@ -81,7 +81,7 @@ namespace Microsoft.Build.Construction
         {
             get
             {
-                ErrorUtilities.ThrowInternalError("Should not evaluate this");
+                ThrowInternalError("Should not evaluate this");
                 return null;
             }
         }
@@ -92,7 +92,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal static ProjectChooseElement CreateDisconnected(ProjectRootElement containingProject)
         {
-            ErrorUtilities.VerifyThrow(containingProject.Link == null, "External project");
+            VerifyThrow(containingProject.Link == null, "External project");
 
             XmlElementWithLocation element = containingProject.CreateElement(XMakeElements.choose);
             return new ProjectChooseElement(element, containingProject);
@@ -104,7 +104,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectRootElement || parent is ProjectWhenElement || parent is ProjectOtherwiseElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectRootElement || parent is ProjectWhenElement || parent is ProjectOtherwiseElement, "OM_CannotAcceptParent");
 
             int nestingDepth = 0;
             ProjectElementContainer immediateParent = parent;

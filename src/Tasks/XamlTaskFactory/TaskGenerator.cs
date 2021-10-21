@@ -395,7 +395,7 @@ namespace Microsoft.Build.Tasks.Xaml
                 // generate the constructor for this class
                 GenerateConstructor(taskClass);
 
-                // generate the property for ToolName 
+                // generate the property for ToolName
                 GenerateToolNameProperty(taskClass);
 
                 // generate all of the properties
@@ -607,7 +607,7 @@ namespace Microsoft.Build.Tasks.Xaml
         /// </summary>
         private static void GenerateAssignPropertyToValue(CodeMemberProperty propertyName, string property, CodeExpression value)
         {
-            ErrorUtilities.VerifyThrow(value != null, "NullValue", property);
+            VerifyThrow(value != null, "NullValue", property);
             CodeAssignStatement setStatement = new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression(SwitchToAdd), property), value);
             propertyName.SetStatements.Add(setStatement);
         }
@@ -759,7 +759,7 @@ namespace Microsoft.Build.Tasks.Xaml
             // set statments
             GenerateCommon(property, propertyName, TypeInteger, typeof(Int32), NumberProperty);
 
-            // if a min or max exists, check those boundaries        
+            // if a min or max exists, check those boundaries
             CodeExpression[] parameters;
             string name = property.SwitchName != String.Empty ? property.Prefix + property.SwitchName : property.Name;
             if (!String.IsNullOrEmpty(property.Min) && !String.IsNullOrEmpty(property.Max))
@@ -834,7 +834,7 @@ namespace Microsoft.Build.Tasks.Xaml
                 {
                     if (ContainsCurrentPlatform(val.SwitchName))
                     {
-                        // Create the array of argument expressions.                        
+                        // Create the array of argument expressions.
                         var argumentInitializers = new List<CodeObjectCreateExpression>(val.Arguments.Count);
                         foreach (Argument arg in val.Arguments)
                         {

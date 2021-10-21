@@ -33,7 +33,7 @@ namespace Microsoft.Build.Construction
         internal UsingTaskParameterGroupElement(XmlElementWithLocation xmlElement, ProjectElementContainer parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
             VerifyCorrectParent(parent);
         }
 
@@ -46,13 +46,13 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Condition should never be set, but the getter returns null instead of throwing 
+        /// Condition should never be set, but the getter returns null instead of throwing
         /// because a nonexistent condition is implicitly true
         /// </summary>
         public override string Condition
         {
             get => null;
-            set => ErrorUtilities.ThrowInvalidOperation("OM_CannotGetSetCondition");
+            set => ThrowInvalidOperation("OM_CannotGetSetCondition");
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Microsoft.Build.Construction
         {
             get
             {
-                ErrorUtilities.ThrowInternalError("Should not evaluate this");
+                ThrowInternalError("Should not evaluate this");
                 return null;
             }
         }
@@ -78,7 +78,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectUsingTaskParameterElement AddParameter(string name, string output, string required, string parameterType)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentLength(name, nameof(name));
 
             ProjectUsingTaskParameterElement newParameter = ContainingProject.CreateUsingTaskParameterElement(name, output, required, parameterType);
             AppendChild(newParameter);
@@ -127,13 +127,13 @@ namespace Microsoft.Build.Construction
         private static void VerifyCorrectParent(ProjectElementContainer parent)
         {
             ProjectUsingTaskElement parentUsingTask = parent as ProjectUsingTaskElement;
-            ErrorUtilities.VerifyThrowInvalidOperation(parentUsingTask != null, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parentUsingTask != null, "OM_CannotAcceptParent");
 
-            // Now since there is not goign to be a TaskElement on the using task we need to validate and make sure there is a TaskFactory attribute on the parent element and 
+            // Now since there is not goign to be a TaskElement on the using task we need to validate and make sure there is a TaskFactory attribute on the parent element and
             // that it is not empty
             if (parentUsingTask.TaskFactory.Length == 0)
             {
-                ErrorUtilities.VerifyThrow(parentUsingTask.Link == null, "TaskFactory");
+                VerifyThrow(parentUsingTask.Link == null, "TaskFactory");
                 ProjectXmlUtilities.VerifyThrowProjectRequiredAttribute(parent.XmlElement, "TaskFactory");
             }
 

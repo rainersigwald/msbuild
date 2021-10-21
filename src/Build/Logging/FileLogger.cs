@@ -13,7 +13,7 @@ namespace Microsoft.Build.Logging
 {
     /// <summary>
     /// A specialization of the ConsoleLogger that logs to a file instead of the console.
-    /// The output in terms of what is written and how it looks is identical. For example you can 
+    /// The output in terms of what is written and how it looks is identical. For example you can
     /// log verbosely to a file using the FileLogger while simultaneously logging only high priority events
     /// to the console using a ConsoleLogger.
     /// </summary>
@@ -48,7 +48,7 @@ namespace Microsoft.Build.Logging
         /// <param name="eventSource">Available events.</param>
         public override void Initialize(IEventSource eventSource)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(eventSource, nameof(eventSource));
+            VerifyThrowArgumentNull(eventSource, nameof(eventSource));
             eventSource.BuildFinished += FileLoggerBuildFinished;
             InitializeFileLogger(eventSource, 1);
         }

@@ -70,13 +70,13 @@ namespace Microsoft.Build.BackEnd
         /// <param name="config">The configuration to add.</param>
         public void AddConfiguration(BuildRequestConfiguration config)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(config, nameof(config));
-            ErrorUtilities.VerifyThrow(config.ConfigurationId != 0, "Invalid configuration ID");
+            VerifyThrowArgumentNull(config, nameof(config));
+            VerifyThrow(config.ConfigurationId != 0, "Invalid configuration ID");
 
             lock (_lockObject)
             {
                 int configId = GetKeyForConfiguration(config);
-                ErrorUtilities.VerifyThrow(!_configurations.ContainsKey(configId), "Configuration {0} already cached", config.ConfigurationId);
+                VerifyThrow(!_configurations.ContainsKey(configId), "Configuration {0} already cached", config.ConfigurationId);
                 _configurations.Add(configId, config);
                 _configurationIdsByMetadata.Add(new ConfigurationMetadata(config), configId);
             }
@@ -104,7 +104,7 @@ namespace Microsoft.Build.BackEnd
         /// <returns>A matching configuration if one exists, null otherwise.</returns>
         public BuildRequestConfiguration GetMatchingConfiguration(BuildRequestConfiguration config)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(config, nameof(config));
+            VerifyThrowArgumentNull(config, nameof(config));
             return GetMatchingConfiguration(new ConfigurationMetadata(config));
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.Build.BackEnd
         /// <returns>A matching configuration if one exists, null otherwise.</returns>
         public BuildRequestConfiguration GetMatchingConfiguration(ConfigurationMetadata configMetadata)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(configMetadata, nameof(configMetadata));
+            VerifyThrowArgumentNull(configMetadata, nameof(configMetadata));
             lock (_lockObject)
             {
                 int configId;
@@ -146,7 +146,7 @@ namespace Microsoft.Build.BackEnd
                 else if (loadProject)
                 {
                     // We already had a configuration, load the project
-                    // If it exists but it cached, retrieve it 
+                    // If it exists but it cached, retrieve it
                     if (configuration.IsCached)
                     {
                         configuration.RetrieveFromCache();
@@ -162,7 +162,7 @@ namespace Microsoft.Build.BackEnd
                 // In either case, make sure the project is loaded if it was requested.
                 if (loadProject)
                 {
-                    ErrorUtilities.VerifyThrow(configuration.IsLoaded, "Request to create configuration did not honor request to also load project.");
+                    VerifyThrow(configuration.IsLoaded, "Request to create configuration did not honor request to also load project.");
                 }
 
                 return configuration;
@@ -325,7 +325,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="host">The build component host.</param>
         public void InitializeComponent(IBuildComponentHost host)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(host, nameof(host));
+            VerifyThrowArgumentNull(host, nameof(host));
         }
 
         /// <summary>
@@ -372,7 +372,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         static internal IBuildComponent CreateComponent(BuildComponentType componentType)
         {
-            ErrorUtilities.VerifyThrow(componentType == BuildComponentType.ConfigCache, "Cannot create components of type {0}", componentType);
+            VerifyThrow(componentType == BuildComponentType.ConfigCache, "Cannot create components of type {0}", componentType);
             return new ConfigCache();
         }
 

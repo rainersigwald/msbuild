@@ -19,7 +19,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_directories, nameof(Directories));
+                VerifyThrowArgumentNull(_directories, nameof(Directories));
                 return _directories;
             }
 

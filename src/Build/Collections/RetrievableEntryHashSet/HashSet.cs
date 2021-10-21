@@ -26,15 +26,15 @@ using Microsoft.Build.Internal;
     * require T implements IKeyed, and accept IKeyed directly where necessary
     * all constructors require a comparer -- an IEqualityComparer<IKeyed> -- to avoid mistakes
     * change Contains to give you back the found entry, rather than a boolean
-    * change Add so that it always adds, even if there's an entry already present with the same name. 
+    * change Add so that it always adds, even if there's an entry already present with the same name.
            We want "replacement" semantics, like a dictionary keyed on name.
     * constructor that allows the collection to be read-only
     * implement IDictionary<string, T>
     * some convenience methods taking 'string' as overloads of methods taking IKeyed
-    
-    Other than this it is modified absolutely minimally to make it easy to diff with the originals (in the Originals folder) 
-    to verify that no errors were introduced, and make it easier to possibly pick up any future bug fixes to the original. 
-    The care taken to minimally modify this means that it is not necessary to carefully code review this complex class, 
+
+    Other than this it is modified absolutely minimally to make it easy to diff with the originals (in the Originals folder)
+    to verify that no errors were introduced, and make it easier to possibly pick up any future bug fixes to the original.
+    The care taken to minimally modify this means that it is not necessary to carefully code review this complex class,
     nor unit test it directly.
     ==================================================================================================================
 */
@@ -45,36 +45,36 @@ namespace Microsoft.Build.Collections
     /// Implementation notes:
     /// This uses an array-based implementation similar to <see cref="T:Dictionary{T}" />, using a buckets array
     /// to map hash values to the Slots array. Items in the Slots array that hash to the same value
-    /// are chained together through the "next" indices. 
-    /// 
+    /// are chained together through the "next" indices.
+    ///
     /// The capacity is always prime; so during resizing, the capacity is chosen as the next prime
-    /// greater than double the last capacity. 
-    /// 
-    /// The underlying data structures are lazily initialized. Because of the observation that, 
+    /// greater than double the last capacity.
+    ///
+    /// The underlying data structures are lazily initialized. Because of the observation that,
     /// in practice, hashtables tend to contain only a few elements, the initial capacity is
     /// set very small (3 elements) unless the ctor with a collection is used.
-    /// 
-    /// The +/- 1 modifications in methods that add, check for containment, etc allow us to 
-    /// distinguish a hash code of 0 from an uninitialized bucket. This saves us from having to 
+    ///
+    /// The +/- 1 modifications in methods that add, check for containment, etc allow us to
+    /// distinguish a hash code of 0 from an uninitialized bucket. This saves us from having to
     /// reset each bucket to -1 when resizing. See Contains, for example.
-    /// 
+    ///
     /// Set methods such as UnionWith, IntersectWith, ExceptWith, and SymmetricExceptWith modify
     /// this set.
-    /// 
+    ///
     /// Some operations can perform faster if we can assume "other" contains unique elements
     /// according to this equality comparer. The only times this is efficient to check is if
     /// other is a hashset. Note that checking that it's a hashset alone doesn't suffice; we
-    /// also have to check that the hashset is using the same equality comparer. If other 
+    /// also have to check that the hashset is using the same equality comparer. If other
     /// has a different equality comparer, it will have unique elements according to its own
-    /// equality comparer, but not necessarily according to ours. Therefore, to go these 
+    /// equality comparer, but not necessarily according to ours. Therefore, to go these
     /// optimized routes we check that other is a hashset using the same equality comparer.
-    /// 
-    /// A HashSet with no elements has the properties of the empty set. (See IsSubset, etc. for 
+    ///
+    /// A HashSet with no elements has the properties of the empty set. (See IsSubset, etc. for
     /// special empty set checks.)
-    /// 
-    /// A couple of methods have a special case if other is this (e.g. SymmetricExceptWith). 
+    ///
+    /// A couple of methods have a special case if other is this (e.g. SymmetricExceptWith).
     /// If we didn't have these checks, we could be iterating over the set and modifying at
-    /// the same time. 
+    /// the same time.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DebuggerTypeProxy(typeof(Microsoft.Build.Collections.HashSetDebugView<>))]
@@ -93,7 +93,7 @@ namespace Microsoft.Build.Collections
         private const int Lower31BitMask = 0x7FFFFFFF;
         // cutoff point, above which we won't do stackallocs. This corresponds to 100 integers.
         private const int StackAllocThreshold = 100;
-        // when constructing a hashset from an existing collection, it may contain duplicates, 
+        // when constructing a hashset from an existing collection, it may contain duplicates,
         // so this is used as the max acceptable excess ratio of capacity to count. Note that
         // this is only used on the ctor and not to automatically shrink if the hashset has, e.g,
         // a lot of adds followed by removes. Users must explicitly shrink by calling TrimExcess.
@@ -125,7 +125,7 @@ namespace Microsoft.Build.Collections
         {
             if (comparer == null)
             {
-                ErrorUtilities.ThrowInternalError("use explicit comparer");
+                ThrowInternalError("use explicit comparer");
             }
 
             _comparer = comparer;
@@ -150,8 +150,8 @@ namespace Microsoft.Build.Collections
 
         /// <summary>
         /// Implementation Notes:
-        /// Since resizes are relatively expensive (require rehashing), this attempts to minimize 
-        /// the need to resize by setting the initial capacity based on size of collection. 
+        /// Since resizes are relatively expensive (require rehashing), this attempts to minimize
+        /// the need to resize by setting the initial capacity based on size of collection.
         /// </summary>
         public RetrievableEntryHashSet(int suggestedCapacity, IEqualityComparer<string> comparer)
             : this(comparer)
@@ -161,8 +161,8 @@ namespace Microsoft.Build.Collections
 
         /// <summary>
         /// Implementation Notes:
-        /// Since resizes are relatively expensive (require rehashing), this attempts to minimize 
-        /// the need to resize by setting the initial capacity based on size of collection. 
+        /// Since resizes are relatively expensive (require rehashing), this attempts to minimize
+        /// the need to resize by setting the initial capacity based on size of collection.
         /// </summary>
         public RetrievableEntryHashSet(IEnumerable<T> collection, IEqualityComparer<string> comparer)
             : this(comparer)
@@ -195,9 +195,9 @@ namespace Microsoft.Build.Collections
 
         protected RetrievableEntryHashSet(SerializationInfo info, StreamingContext context)
         {
-            // We can't do anything with the keys and values until the entire graph has been 
-            // deserialized and we have a reasonable estimate that GetHashCode is not going to 
-            // fail.  For the time being, we'll just cache this.  The graph is not valid until 
+            // We can't do anything with the keys and values until the entire graph has been
+            // deserialized and we have a reasonable estimate that GetHashCode is not going to
+            // fail.  For the time being, we'll just cache this.  The graph is not valid until
             // OnDeserialization has been called.
             _siInfo = info;
         }
@@ -256,14 +256,14 @@ namespace Microsoft.Build.Collections
         }
 
         /// <summary>
-        /// Remove all items from this set. This clears the elements but not the underlying 
+        /// Remove all items from this set. This clears the elements but not the underlying
         /// buckets and slots array. Follow this call by TrimExcess to release these.
         /// </summary>
         public void Clear()
         {
             if (_readOnly)
             {
-                ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+                ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
             }
 
             if (_lastIndex > 0)
@@ -271,7 +271,7 @@ namespace Microsoft.Build.Collections
                 Debug.Assert(_buckets != null, "m_buckets was null but m_lastIndex > 0");
 
                 // clear the elements so that the gc can reclaim the references.
-                // clear only up to m_lastIndex for m_slots 
+                // clear only up to m_lastIndex for m_slots
                 Array.Clear(_slots, 0, _lastIndex);
                 Array.Clear(_buckets, 0, _buckets.Length);
                 _lastIndex = 0;
@@ -348,7 +348,7 @@ namespace Microsoft.Build.Collections
 
             if (_constrainedComparer == null)
                 throw new InvalidOperationException("Cannot do a constrained lookup on this collection.");
-        
+
             return GetCore(key, index, length);
         }
 
@@ -389,7 +389,7 @@ namespace Microsoft.Build.Collections
 
         /// <summary>
         /// Remove entry that compares equal to T
-        /// </summary>        
+        /// </summary>
         public bool Remove(T item)
         {
             return Remove(item.Key);
@@ -410,7 +410,7 @@ namespace Microsoft.Build.Collections
         {
             if (_readOnly)
             {
-                ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+                ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
             }
 
             if (_buckets != null)
@@ -539,9 +539,9 @@ namespace Microsoft.Build.Collections
         {
             if (_siInfo == null)
             {
-                // It might be necessary to call OnDeserialization from a container if the 
-                // container object also implements OnDeserialization. However, remoting will 
-                // call OnDeserialization again. We can return immediately if this function is 
+                // It might be necessary to call OnDeserialization from a container if the
+                // container object also implements OnDeserialization. However, remoting will
+                // call OnDeserialization again. We can return immediately if this function is
                 // called twice. Note we set m_siInfo to null at the end of this method.
                 return;
             }
@@ -583,7 +583,7 @@ namespace Microsoft.Build.Collections
         #region HashSet methods
 
         /// <summary>
-        /// Add item to this HashSet. 
+        /// Add item to this HashSet.
         /// *** MSBUILD NOTE: Always added - overwrite semantics
         /// </summary>
         public void Add(T item)
@@ -608,9 +608,9 @@ namespace Microsoft.Build.Collections
 
         /// <summary>
         /// Take the union of this HashSet with other. Modifies this set.
-        /// 
-        /// Implementation note: GetSuggestedCapacity (to increase capacity in advance avoiding 
-        /// multiple resizes ended up not being useful in practice; quickly gets to the 
+        ///
+        /// Implementation note: GetSuggestedCapacity (to increase capacity in advance avoiding
+        /// multiple resizes ended up not being useful in practice; quickly gets to the
         /// point where it's a wasteful check.
         /// </summary>
         /// <param name="other">enumerable with items to add</param>
@@ -628,18 +628,18 @@ namespace Microsoft.Build.Collections
             }
         }
 
-#if NEVER 
+#if NEVER
                                                                                                                                                         /// <summary>
                                                                                                                                                         /// Takes the intersection of this set with other. Modifies this set.
-                                                                                                                                                        /// 
-                                                                                                                                                        /// Implementation Notes: 
-                                                                                                                                                        /// We get better perf if other is a hashset using same equality comparer, because we 
+                                                                                                                                                        ///
+                                                                                                                                                        /// Implementation Notes:
+                                                                                                                                                        /// We get better perf if other is a hashset using same equality comparer, because we
                                                                                                                                                         /// get constant contains check in other. Resulting cost is O(n1) to iterate over this.
-                                                                                                                                                        /// 
+                                                                                                                                                        ///
                                                                                                                                                         /// If we can't go above route, iterate over the other and mark intersection by checking
-                                                                                                                                                        /// contains in this. Then loop over and delete any unmarked elements. Total cost is n2+n1. 
-                                                                                                                                                        /// 
-                                                                                                                                                        /// Attempts to return early based on counts alone, using the property that the 
+                                                                                                                                                        /// contains in this. Then loop over and delete any unmarked elements. Total cost is n2+n1.
+                                                                                                                                                        ///
+                                                                                                                                                        /// Attempts to return early based on counts alone, using the property that the
                                                                                                                                                         /// intersection of anything with the empty set is the empty set.
                                                                                                                                                         /// </summary>
                                                                                                                                                         /// <param name="other">enumerable with items to add </param>
@@ -664,7 +664,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                 }
 
                                                                                                                                                                 RetrievableEntryHashSet<T> otherAsSet = other as RetrievableEntryHashSet<T>;
-                                                                                                                                                                // faster if other is a hashset using same equality comparer; so check 
+                                                                                                                                                                // faster if other is a hashset using same equality comparer; so check
                                                                                                                                                                 // that other is a hashset using the same equality comparer.
                                                                                                                                                                 if (otherAsSet != null && AreEqualityComparersEqual(this, otherAsSet)) {
                                                                                                                                                                     IntersectWithHashSetWithSameEC(otherAsSet);
@@ -741,14 +741,14 @@ namespace Microsoft.Build.Collections
 
                                                                                                                                                         /// <summary>
                                                                                                                                                         /// Checks if this is a subset of other.
-                                                                                                                                                        /// 
+                                                                                                                                                        ///
                                                                                                                                                         /// Implementation Notes:
                                                                                                                                                         /// The following properties are used up-front to avoid element-wise checks:
                                                                                                                                                         /// 1. If this is the empty set, then it's a subset of anything, including the empty set
                                                                                                                                                         /// 2. If other has unique elements according to this equality comparer, and this has more
                                                                                                                                                         /// elements than other, then it can't be a subset.
-                                                                                                                                                        /// 
-                                                                                                                                                        /// Furthermore, if other is a hashset using the same equality comparer, we can use a 
+                                                                                                                                                        ///
+                                                                                                                                                        /// Furthermore, if other is a hashset using the same equality comparer, we can use a
                                                                                                                                                         /// faster element-wise check.
                                                                                                                                                         /// </summary>
                                                                                                                                                         /// <param name="other"></param>
@@ -765,7 +765,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                             }
 
                                                                                                                                                             RetrievableEntryHashSet<T> otherAsSet = other as RetrievableEntryHashSet<T>;
-                                                                                                                                                            // faster if other has unique elements according to this equality comparer; so check 
+                                                                                                                                                            // faster if other has unique elements according to this equality comparer; so check
                                                                                                                                                             // that other is a hashset using the same equality comparer.
                                                                                                                                                             if (otherAsSet != null && AreEqualityComparersEqual(this, otherAsSet)) {
                                                                                                                                                                 // if this has more elements then it can't be a subset
@@ -773,7 +773,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                     return false;
                                                                                                                                                                 }
 
-                                                                                                                                                                // already checked that we're using same equality comparer. simply check that 
+                                                                                                                                                                // already checked that we're using same equality comparer. simply check that
                                                                                                                                                                 // each element in this is contained in other.
                                                                                                                                                                 return IsSubsetOfHashSetWithSameEC(otherAsSet);
                                                                                                                                                             }
@@ -785,15 +785,15 @@ namespace Microsoft.Build.Collections
 
                                                                                                                                                         /// <summary>
                                                                                                                                                         /// Checks if this is a proper subset of other (i.e. strictly contained in)
-                                                                                                                                                        /// 
+                                                                                                                                                        ///
                                                                                                                                                         /// Implementation Notes:
                                                                                                                                                         /// The following properties are used up-front to avoid element-wise checks:
                                                                                                                                                         /// 1. If this is the empty set, then it's a proper subset of a set that contains at least
                                                                                                                                                         /// one element, but it's not a proper subset of the empty set.
                                                                                                                                                         /// 2. If other has unique elements according to this equality comparer, and this has >=
                                                                                                                                                         /// the number of elements in other, then this can't be a proper subset.
-                                                                                                                                                        /// 
-                                                                                                                                                        /// Furthermore, if other is a hashset using the same equality comparer, we can use a 
+                                                                                                                                                        ///
+                                                                                                                                                        /// Furthermore, if other is a hashset using the same equality comparer, we can use a
                                                                                                                                                         /// faster element-wise check.
                                                                                                                                                         /// </summary>
                                                                                                                                                         /// <param name="other"></param>
@@ -829,14 +829,14 @@ namespace Microsoft.Build.Collections
 
                                                                                                                                                         /// <summary>
                                                                                                                                                         /// Checks if this is a superset of other
-                                                                                                                                                        /// 
+                                                                                                                                                        ///
                                                                                                                                                         /// Implementation Notes:
                                                                                                                                                         /// The following properties are used up-front to avoid element-wise checks:
                                                                                                                                                         /// 1. If other has no elements (it's the empty set), then this is a superset, even if this
                                                                                                                                                         /// is also the empty set.
-                                                                                                                                                        /// 2. If other has unique elements according to this equality comparer, and this has less 
+                                                                                                                                                        /// 2. If other has unique elements according to this equality comparer, and this has less
                                                                                                                                                         /// than the number of elements in other, then this can't be a superset
-                                                                                                                                                        /// 
+                                                                                                                                                        ///
                                                                                                                                                         /// </summary>
                                                                                                                                                         /// <param name="other"></param>
                                                                                                                                                         /// <returns>true if this is a superset of other; false if not</returns>
@@ -868,19 +868,19 @@ namespace Microsoft.Build.Collections
 
                                                                                                                                                         /// <summary>
                                                                                                                                                         /// Checks if this is a proper superset of other (i.e. other strictly contained in this)
-                                                                                                                                                        /// 
-                                                                                                                                                        /// Implementation Notes: 
+                                                                                                                                                        ///
+                                                                                                                                                        /// Implementation Notes:
                                                                                                                                                         /// This is slightly more complicated than above because we have to keep track if there
                                                                                                                                                         /// was at least one element not contained in other.
-                                                                                                                                                        /// 
+                                                                                                                                                        ///
                                                                                                                                                         /// The following properties are used up-front to avoid element-wise checks:
-                                                                                                                                                        /// 1. If this is the empty set, then it can't be a proper superset of any set, even if 
+                                                                                                                                                        /// 1. If this is the empty set, then it can't be a proper superset of any set, even if
                                                                                                                                                         /// other is the empty set.
                                                                                                                                                         /// 2. If other is an empty set and this contains at least 1 element, then this is a proper
                                                                                                                                                         /// superset.
                                                                                                                                                         /// 3. If other has unique elements according to this equality comparer, and other's count
                                                                                                                                                         /// is greater than or equal to this count, then this can't be a proper superset
-                                                                                                                                                        /// 
+                                                                                                                                                        ///
                                                                                                                                                         /// Furthermore, if other has unique elements according to this equality comparer, we can
                                                                                                                                                         /// use a faster element-wise check.
                                                                                                                                                         /// </summary>
@@ -944,7 +944,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                         }
 
                                                                                                                                                         /// <summary>
-                                                                                                                                                        /// Checks if this and other contain the same elements. This is set equality: 
+                                                                                                                                                        /// Checks if this and other contain the same elements. This is set equality:
                                                                                                                                                         /// duplicates and order are ignored
                                                                                                                                                         /// </summary>
                                                                                                                                                         /// <param name="other"></param>
@@ -958,7 +958,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                             RetrievableEntryHashSet<T> otherAsSet = other as RetrievableEntryHashSet<T>;
                                                                                                                                                             // faster if other is a hashset and we're using same equality comparer
                                                                                                                                                             if (otherAsSet != null && AreEqualityComparersEqual(this, otherAsSet)) {
-                                                                                                                                                                // attempt to return early: since both contain unique elements, if they have 
+                                                                                                                                                                // attempt to return early: since both contain unique elements, if they have
                                                                                                                                                                 // different counts, then they can't be equal
                                                                                                                                                                 if (m_count != otherAsSet.Count) {
                                                                                                                                                                     return false;
@@ -1068,7 +1068,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                     }
 
         /// <summary>
-        /// Gets the IEqualityComparer that is used to determine equality of keys for 
+        /// Gets the IEqualityComparer that is used to determine equality of keys for
         /// the HashSet.
         /// </summary>
         public IEqualityComparer<IKeyed> Comparer
@@ -1082,13 +1082,13 @@ namespace Microsoft.Build.Collections
         /// <summary>
         /// Sets the capacity of this list to the size of the list (rounded up to nearest prime),
         /// unless count is 0, in which case we release references.
-        /// 
+        ///
         /// This method can be used to minimize a list's memory overhead once it is known that no
-        /// new elements will be added to the list. To completely clear a list and release all 
+        /// new elements will be added to the list. To completely clear a list and release all
         /// memory referenced by the list, execute the following statements:
-        /// 
+        ///
         /// list.Clear();
-        /// list.TrimExcess(); 
+        /// list.TrimExcess();
         /// </summary>
         public void TrimExcess()
         {
@@ -1111,7 +1111,7 @@ namespace Microsoft.Build.Collections
                 Slot[] newSlots = new Slot[newSize];
                 int[] newBuckets = new int[newSize];
 
-                // move down slots and rehash at the same time. newIndex keeps track of current 
+                // move down slots and rehash at the same time. newIndex keeps track of current
                 // position in newSlots array
                 int newIndex = 0;
                 for (int i = 0; i < _lastIndex; i++)
@@ -1170,9 +1170,9 @@ namespace Microsoft.Build.Collections
         }
 
         /// <summary>
-        /// Expand to new capacity. New capacity is next prime greater than or equal to suggested 
-        /// size. This is called when the underlying array is filled. This performs no 
-        /// defragmentation, allowing faster execution; note that this is reasonable since 
+        /// Expand to new capacity. New capacity is next prime greater than or equal to suggested
+        /// size. This is called when the underlying array is filled. This performs no
+        /// defragmentation, allowing faster execution; note that this is reasonable since
         /// AddEvenIfPresent attempts to insert new elements in re-opened spots.
         /// </summary>
         private void IncreaseCapacity()
@@ -1214,7 +1214,7 @@ namespace Microsoft.Build.Collections
         {
             if (_readOnly)
             {
-                ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+                ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
             }
 
             if (_buckets == null)
@@ -1292,7 +1292,7 @@ namespace Microsoft.Build.Collections
 
 #if NEVER
                                                                                                                                                                         /// <summary>
-                                                                                                                                                                        /// Checks if this contains of other's elements. Iterates over other's elements and 
+                                                                                                                                                                        /// Checks if this contains of other's elements. Iterates over other's elements and
                                                                                                                                                                         /// returns false as soon as it finds an element in other that's not in this.
                                                                                                                                                                         /// Used by SupersetOf, ProperSupersetOf, and SetEquals.
                                                                                                                                                                         /// </summary>
@@ -1309,12 +1309,12 @@ namespace Microsoft.Build.Collections
 
                                                                                                                                                                         /// <summary>
                                                                                                                                                                         /// Implementation Notes:
-                                                                                                                                                                        /// If other is a hashset and is using same equality comparer, then checking subset is 
+                                                                                                                                                                        /// If other is a hashset and is using same equality comparer, then checking subset is
                                                                                                                                                                         /// faster. Simply check that each element in this is in other.
-                                                                                                                                                                        /// 
+                                                                                                                                                                        ///
                                                                                                                                                                         /// Note: if other doesn't use same equality comparer, then Contains check is invalid,
                                                                                                                                                                         /// which is why callers must take are of this.
-                                                                                                                                                                        /// 
+                                                                                                                                                                        ///
                                                                                                                                                                         /// If callers are concerned about whether this is a proper subset, they take care of that.
                                                                                                                                                                         ///
                                                                                                                                                                         /// </summary>
@@ -1331,7 +1331,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                         }
 
                                                                                                                                                                         /// <summary>
-                                                                                                                                                                        /// If other is a hashset that uses same equality comparer, intersect is much faster 
+                                                                                                                                                                        /// If other is a hashset that uses same equality comparer, intersect is much faster
                                                                                                                                                                         /// because we can use other's Contains
                                                                                                                                                                         /// </summary>
                                                                                                                                                                         /// <param name="other"></param>
@@ -1349,7 +1349,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                         /// <summary>
                                                                                                                                                                         /// Iterate over other. If contained in this, mark an element in bit array corresponding to
                                                                                                                                                                         /// its position in m_slots. If anything is unmarked (in bit array), remove it.
-                                                                                                                                                                        /// 
+                                                                                                                                                                        ///
                                                                                                                                                                         /// This attempts to allocate on the stack, if below StackAllocThreshold.
                                                                                                                                                                         /// </summary>
                                                                                                                                                                         /// <param name="other"></param>
@@ -1380,7 +1380,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                                 }
                                                                                                                                                                             }
 
-                                                                                                                                                                            // if anything unmarked, remove it. Perf can be optimized here if BitHelper had a 
+                                                                                                                                                                            // if anything unmarked, remove it. Perf can be optimized here if BitHelper had a
                                                                                                                                                                             // FindFirstUnmarked method.
                                                                                                                                                                             for (int i = 0; i < originalLastIndex; i++) {
                                                                                                                                                                                 if (m_slots[i].hashCode >= 0 && !bitHelper.IsMarked(i)) {
@@ -1391,7 +1391,7 @@ namespace Microsoft.Build.Collections
 
                                                                                                                                                                     /// <summary>
                                                                                                                                                                     /// Used internally by set operations which have to rely on bit array marking. This is like
-                                                                                                                                                                    /// Contains but returns index in slots array. 
+                                                                                                                                                                    /// Contains but returns index in slots array.
                                                                                                                                                                     /// </summary>
                                                                                                                                                                     /// <param name="item"></param>
                                                                                                                                                                     /// <returns></returns>
@@ -1411,7 +1411,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                 /// <summary>
                                                                                                                                                                 /// if other is a set, we can assume it doesn't have duplicate elements, so use this
                                                                                                                                                                 /// technique: if can't remove, then it wasn't present in this set, so add.
-                                                                                                                                                                /// 
+                                                                                                                                                                ///
                                                                                                                                                                 /// As with other methods, callers take care of ensuring that other is a hashset using the
                                                                                                                                                                 /// same equality comparer.
                                                                                                                                                                 /// </summary>
@@ -1426,15 +1426,15 @@ namespace Microsoft.Build.Collections
 
                                                                                                                                                                 /// <summary>
                                                                                                                                                                 /// Implementation notes:
-                                                                                                                                                                /// 
-                                                                                                                                                                /// Used for symmetric except when other isn't a HashSet. This is more tedious because 
+                                                                                                                                                                ///
+                                                                                                                                                                /// Used for symmetric except when other isn't a HashSet. This is more tedious because
                                                                                                                                                                 /// other may contain duplicates. HashSet technique could fail in these situations:
-                                                                                                                                                                /// 1. Other has a duplicate that's not in this: HashSet technique would add then 
+                                                                                                                                                                /// 1. Other has a duplicate that's not in this: HashSet technique would add then
                                                                                                                                                                 /// remove it.
                                                                                                                                                                 /// 2. Other has a duplicate that's in this: HashSet technique would remove then add it
                                                                                                                                                                 /// back.
-                                                                                                                                                                /// In general, its presence would be toggled each time it appears in other. 
-                                                                                                                                                                /// 
+                                                                                                                                                                /// In general, its presence would be toggled each time it appears in other.
+                                                                                                                                                                ///
                                                                                                                                                                 /// This technique uses bit marking to indicate whether to add/remove the item. If already
                                                                                                                                                                 /// present in collection, it will get marked for deletion. If added from other, it will
                                                                                                                                                                 /// get marked as something not to remove.
@@ -1469,14 +1469,14 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                         if (added) {
                                                                                                                                                                             // wasn't already present in collection; flag it as something not to remove
                                                                                                                                                                             // *NOTE* if location is out of range, we should ignore. BitHelper will
-                                                                                                                                                                            // detect that it's out of bounds and not try to mark it. But it's 
+                                                                                                                                                                            // detect that it's out of bounds and not try to mark it. But it's
                                                                                                                                                                             // expected that location could be out of bounds because adding the item
                                                                                                                                                                             // will increase m_lastIndex as soon as all the free spots are filled.
                                                                                                                                                                             itemsAddedFromOther.MarkBit(location);
                                                                                                                                                                         }
                                                                                                                                                                         else {
-                                                                                                                                                                            // already there...if not added from other, mark for remove. 
-                                                                                                                                                                            // *NOTE* Even though BitHelper will check that location is in range, we want 
+                                                                                                                                                                            // already there...if not added from other, mark for remove.
+                                                                                                                                                                            // *NOTE* Even though BitHelper will check that location is in range, we want
                                                                                                                                                                             // to check here. There's no point in checking items beyond originalLastIndex
                                                                                                                                                                             // because they could not have been in the original collection
                                                                                                                                                                             if (location < originalLastIndex && !itemsAddedFromOther.IsMarked(location)) {
@@ -1494,7 +1494,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                 }
 
                                                                                                                                                                 /// <summary>
-                                                                                                                                                                /// Add if not already in hashset. Returns an out param indicating index where added. This 
+                                                                                                                                                                /// Add if not already in hashset. Returns an out param indicating index where added. This
                                                                                                                                                                 /// is used by SymmetricExcept because it needs to know the following things:
                                                                                                                                                                 /// - whether the item was already present in the collection or added from other
                                                                                                                                                                 /// - where it's located (if already present, it will get marked for removal, otherwise
@@ -1541,11 +1541,11 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                 /// <summary>
                                                                                                                                                                 /// Determines counts that can be used to determine equality, subset, and superset. This
                                                                                                                                                                 /// is only used when other is an IEnumerable and not a HashSet. If other is a HashSet
-                                                                                                                                                                /// these properties can be checked faster without use of marking because we can assume 
+                                                                                                                                                                /// these properties can be checked faster without use of marking because we can assume
                                                                                                                                                                 /// other has no duplicates.
-                                                                                                                                                                /// 
+                                                                                                                                                                ///
                                                                                                                                                                 /// The following count checks are performed by callers:
-                                                                                                                                                                /// 1. Equals: checks if unfoundCount = 0 and uniqueFoundCount = m_count; i.e. everything 
+                                                                                                                                                                /// 1. Equals: checks if unfoundCount = 0 and uniqueFoundCount = m_count; i.e. everything
                                                                                                                                                                 /// in other is in this and everything in this is in other
                                                                                                                                                                 /// 2. Subset: checks if unfoundCount >= 0 and uniqueFoundCount = m_count; i.e. other may
                                                                                                                                                                 /// have elements not in this and everything in this is in other
@@ -1554,7 +1554,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                 /// 4. Proper superset: checks if unfound count = 0 and uniqueFoundCount strictly less
                                                                                                                                                                 /// than m_count; i.e. everything in other was in this and this had at least one element
                                                                                                                                                                 /// not contained in other.
-                                                                                                                                                                /// 
+                                                                                                                                                                ///
                                                                                                                                                                 /// An earlier implementation used delegates to perform these checks rather than returning
                                                                                                                                                                 /// an ElementCount struct; however this was changed due to the perf overhead of delegates.
                                                                                                                                                                 /// </summary>
@@ -1566,7 +1566,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                 private unsafe ElementCount CheckUniqueAndUnfoundElements(IEnumerable<T> other, bool returnIfUnfound) {
                                                                                                                                                                     ElementCount result;
 
-                                                                                                                                                                    // need special case in case this has no elements. 
+                                                                                                                                                                    // need special case in case this has no elements.
                                                                                                                                                                     if (m_count == 0) {
                                                                                                                                                                         int numElementsInOther = 0;
                                                                                                                                                                         foreach (T item in other) {
@@ -1635,9 +1635,9 @@ namespace Microsoft.Build.Collections
 
 #if NEVER
                                                                                                                                                             /// <summary>
-                                                                                                                                                            /// Internal method used for HashSetEqualityComparer. Compares set1 and set2 according 
+                                                                                                                                                            /// Internal method used for HashSetEqualityComparer. Compares set1 and set2 according
                                                                                                                                                             /// to specified comparer.
-                                                                                                                                                            /// 
+                                                                                                                                                            ///
                                                                                                                                                             /// Because items are hashed according to a specific equality comparer, we have to resort
                                                                                                                                                             /// to n^2 search if they're using different equality comparers.
                                                                                                                                                             /// </summary>
@@ -1687,7 +1687,7 @@ namespace Microsoft.Build.Collections
 
                                                                                                                                                             /// <summary>
                                                                                                                                                             /// Checks if equality comparers are equal. This is used for algorithms that can
-                                                                                                                                                            /// speed up if it knows the other item has unique elements. I.e. if they're using 
+                                                                                                                                                            /// speed up if it knows the other item has unique elements. I.e. if they're using
                                                                                                                                                             /// different equality comparers, then uniqueness assumption between sets break.
                                                                                                                                                             /// </summary>
                                                                                                                                                             /// <param name="set1"></param>
@@ -1697,7 +1697,7 @@ namespace Microsoft.Build.Collections
                                                                                                                                                                 return set1.Comparer.Equals(set2.Comparer);
         }
 #endif
-       
+
         private int InternalGetHashCode(string item, int index, int length)
         {
             // No need to check for null 'item' as we own all comparers

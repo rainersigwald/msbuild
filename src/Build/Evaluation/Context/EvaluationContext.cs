@@ -54,7 +54,7 @@ namespace Microsoft.Build.Evaluation.Context
         {
             // Unsupported case: isolated context with non null file system.
             // Isolated means caches aren't reused, but the given file system might cache.
-            ErrorUtilities.VerifyThrowArgument(
+            VerifyThrowArgument(
                 policy == SharingPolicy.Shared || fileSystem == null,
                 "IsolatedContextDoesNotSupportFileSystem");
 
@@ -71,7 +71,7 @@ namespace Microsoft.Build.Evaluation.Context
         /// </summary>
         public static EvaluationContext Create(SharingPolicy policy)
         {
-            
+
             // ReSharper disable once IntroduceOptionalParameters.Global
             // do not remove this method to avoid breaking binary compatibility
             return Create(policy, fileSystem: null);
@@ -108,7 +108,7 @@ namespace Microsoft.Build.Evaluation.Context
 
         internal EvaluationContext ContextForNewProject()
         {
-            // Projects using isolated contexts need to get a new context instance 
+            // Projects using isolated contexts need to get a new context instance
             switch (Policy)
             {
                 case SharingPolicy.Shared:
@@ -120,7 +120,7 @@ namespace Microsoft.Build.Evaluation.Context
                         ? this
                         : CreateUsedIsolatedContext();
                 default:
-                    ErrorUtilities.ThrowInternalErrorUnreachable();
+                    ThrowInternalErrorUnreachable();
                     return null;
             }
         }

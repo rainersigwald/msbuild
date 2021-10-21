@@ -54,7 +54,7 @@ namespace Microsoft.Build.Tasks
                 }
                 else
                 {
-                    ErrorUtilities.VerifyThrow(false, "AssemblyFolder.AddFoldersFromRegistryKey expected a known hive.");
+                    VerifyThrow(false, "AssemblyFolder.AddFoldersFromRegistryKey expected a known hive.");
                 }
 
                 if (baseKey != null)
@@ -94,7 +94,7 @@ namespace Microsoft.Build.Tasks
                 directories
             );
 
-            // Then add the local machine.            
+            // Then add the local machine.
             AddFoldersFromRegistryKey
             (
                 Registry.LocalMachine,

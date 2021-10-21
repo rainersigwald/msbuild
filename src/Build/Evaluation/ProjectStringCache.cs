@@ -141,7 +141,7 @@ namespace Microsoft.Build.Construction
         {
             lock (_locker)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(key, nameof(key));
+                VerifyThrowArgumentNull(key, nameof(key));
 
                 if (key.Length == 0)
                 {
@@ -168,7 +168,7 @@ namespace Microsoft.Build.Construction
         {
             lock (_locker)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(document, nameof(document));
+                VerifyThrowArgumentNull(document, nameof(document));
 
                 VerifyState();
 
@@ -206,19 +206,19 @@ namespace Microsoft.Build.Construction
                 foreach (var entry in entries)
                 {
                     uniqueEntries.Add(entry);
-                    ErrorUtilities.VerifyThrow(entry.RefCount > 0, "extra deref");
+                    VerifyThrow(entry.RefCount > 0, "extra deref");
 
-                    // We only ever create one StringCacheEntry instance per unique string, and that instance should be 
+                    // We only ever create one StringCacheEntry instance per unique string, and that instance should be
                     // the same in both collections.
-                    ErrorUtilities.VerifyThrow(Object.ReferenceEquals(entry, _strings[entry.CachedString]), "bad state");
+                    VerifyThrow(Object.ReferenceEquals(entry, _strings[entry.CachedString]), "bad state");
                 }
             }
 
-            ErrorUtilities.VerifyThrow(uniqueEntries.Count == _strings.Count, "bad state");
+            VerifyThrow(uniqueEntries.Count == _strings.Count, "bad state");
         }
 
         /// <summary>
-        /// Handle event that is fired when an entry in the project root element cache is removed 
+        /// Handle event that is fired when an entry in the project root element cache is removed
         /// from its strong cache.
         /// </summary>
         /// <remarks>
@@ -228,7 +228,7 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         private void OnStrongCacheEntryRemoved(object sender, ProjectRootElement projectRootElement)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectRootElement, nameof(projectRootElement));
+            VerifyThrowArgumentNull(projectRootElement, nameof(projectRootElement));
             Clear(projectRootElement.XmlDocument);
         }
 
@@ -282,7 +282,7 @@ namespace Microsoft.Build.Construction
             {
                 get
                 {
-                    ErrorUtilities.VerifyThrow(_refCount > 0, "extra deref");
+                    VerifyThrow(_refCount > 0, "extra deref");
                     return _cachedString;
                 }
             }
@@ -302,7 +302,7 @@ namespace Microsoft.Build.Construction
             /// </summary>
             internal void Decrement()
             {
-                ErrorUtilities.VerifyThrow(_refCount > 0, "extra deref");
+                VerifyThrow(_refCount > 0, "extra deref");
                 _refCount--;
             }
         }

@@ -29,7 +29,7 @@ namespace Microsoft.Build.Construction
         internal ProjectOutputElement(XmlElement xmlElement, ProjectTaskElement parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Gets or sets the TaskParameter value. 
+        /// Gets or sets the TaskParameter value.
         /// Returns empty string if it is not present.
         /// </summary>
         public string TaskParameter
@@ -55,7 +55,7 @@ namespace Microsoft.Build.Construction
             [DebuggerStepThrough]
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, nameof(value));
+                VerifyThrowArgumentLength(value, nameof(value));
                 SetOrRemoveAttribute(XMakeAttributes.taskParameter, value, "Set Output TaskParameter {0}", value);
             }
         }
@@ -71,7 +71,7 @@ namespace Microsoft.Build.Construction
         public bool IsOutputProperty => PropertyName.Length > 0;
 
         /// <summary>
-        /// Gets or sets the ItemType value. 
+        /// Gets or sets the ItemType value.
         /// Returns empty string if it is not present.
         /// Removes the attribute if the value to set is empty.
         /// </summary>
@@ -88,13 +88,13 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowInvalidOperation(String.IsNullOrEmpty(PropertyName), "OM_EitherAttributeButNotBoth", ElementName, XMakeAttributes.itemName, XMakeAttributes.propertyName);
+                VerifyThrowInvalidOperation(String.IsNullOrEmpty(PropertyName), "OM_EitherAttributeButNotBoth", ElementName, XMakeAttributes.itemName, XMakeAttributes.propertyName);
                 SetOrRemoveAttribute(XMakeAttributes.itemName, value, "Set Output ItemType {0}", value);
             }
         }
 
         /// <summary>
-        /// Gets or sets the PropertyName value. 
+        /// Gets or sets the PropertyName value.
         /// Returns empty string if it is not present.
         /// Removes the attribute if the value to set is empty.
         /// </summary>
@@ -108,7 +108,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowInvalidOperation(String.IsNullOrEmpty(ItemType), "OM_EitherAttributeButNotBoth", ElementName, XMakeAttributes.itemName, XMakeAttributes.propertyName);
+                VerifyThrowInvalidOperation(String.IsNullOrEmpty(ItemType), "OM_EitherAttributeButNotBoth", ElementName, XMakeAttributes.itemName, XMakeAttributes.propertyName);
                 SetOrRemoveAttribute(XMakeAttributes.propertyName, value, "Set Output PropertyName {0}", value);
             }
         }
@@ -136,7 +136,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal static ProjectOutputElement CreateDisconnected(string taskParameter, string itemType, string propertyName, ProjectRootElement containingProject)
         {
-            ErrorUtilities.VerifyThrowArgument
+            VerifyThrowArgument
                 (
                 String.IsNullOrEmpty(itemType) ^ String.IsNullOrEmpty(propertyName),
                 "OM_EitherAttributeButNotBoth",
@@ -167,7 +167,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectTaskElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectTaskElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

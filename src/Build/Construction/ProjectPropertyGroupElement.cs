@@ -31,7 +31,7 @@ namespace Microsoft.Build.Construction
         internal ProjectPropertyGroupElement(XmlElementWithLocation xmlElement, ProjectElementContainer parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectPropertyElement AddProperty(string name, string unevaluatedValue)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
-            ErrorUtilities.VerifyThrowArgumentNull(unevaluatedValue, nameof(unevaluatedValue));
+            VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentNull(unevaluatedValue, nameof(unevaluatedValue));
 
             ProjectPropertyElement newProperty = ContainingProject.CreatePropertyElement(name);
             newProperty.Value = unevaluatedValue;
@@ -75,8 +75,8 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectPropertyElement SetProperty(string name, string unevaluatedValue)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
-            ErrorUtilities.VerifyThrowArgumentNull(unevaluatedValue, nameof(unevaluatedValue));
+            VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentNull(unevaluatedValue, nameof(unevaluatedValue));
 
             foreach (ProjectPropertyElement property in Properties)
             {
@@ -107,7 +107,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectRootElement || parent is ProjectTargetElement || parent is ProjectWhenElement || parent is ProjectOtherwiseElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectRootElement || parent is ProjectTargetElement || parent is ProjectWhenElement || parent is ProjectOtherwiseElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

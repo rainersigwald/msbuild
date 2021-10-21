@@ -184,7 +184,7 @@ namespace Microsoft.Build.BackEnd
 
                 // This is fatal: process will terminate: make sure the
                 // debugger launches
-                ErrorUtilities.ThrowInternalError(e.Message, e);
+                ThrowInternalError(e.Message, e);
                 throw;
             }
 
@@ -217,7 +217,7 @@ namespace Microsoft.Build.BackEnd
         public void DeserializeAndRoutePacket(int nodeId, NodePacketType packetType, ITranslator translator)
         {
             // The in-proc endpoint shouldn't be serializing, just routing.
-            ErrorUtilities.ThrowInternalError("Unexpected call to DeserializeAndRoutePacket on the in-proc node.");
+            ThrowInternalError("Unexpected call to DeserializeAndRoutePacket on the in-proc node.");
         }
 
         /// <summary>

@@ -650,7 +650,7 @@ namespace Microsoft.Build.BackEnd.Logging
                     }
                     else
                     {
-                        ErrorUtilities.ThrowInternalError("loggingQueue is null");
+                        ThrowInternalError("loggingQueue is null");
                         return false;
                     }
                 }
@@ -751,8 +751,8 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
-                ErrorUtilities.VerifyThrow(buildComponentHost != null, "BuildComponentHost was null");
+                VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
+                VerifyThrow(buildComponentHost != null, "BuildComponentHost was null");
 
                 _componentHost = buildComponentHost;
 
@@ -783,7 +783,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
+                VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
 
                 // Set the state to indicate we are starting the shutdown process.
                 _serviceState = LoggingServiceState.ShuttingDown;
@@ -858,13 +858,13 @@ namespace Microsoft.Build.BackEnd.Logging
         public void PacketReceived(int node, INodePacket packet)
         {
             // The packet cannot be null
-            ErrorUtilities.VerifyThrow(packet != null, "packet was null");
+            VerifyThrow(packet != null, "packet was null");
 
             // Expected the packet type to be a logging message packet
             // PERF: Not using VerifyThrow to avoid allocations for enum.ToString (boxing of NodePacketType) in the non-error case.
             if (packet.Type != NodePacketType.LogMessage)
             {
-                ErrorUtilities.ThrowInternalError("Expected packet type \"{0}\" but instead got packet type \"{1}\".", nameof(NodePacketType.LogMessage), packet.Type.ToString());
+                ThrowInternalError("Expected packet type \"{0}\" but instead got packet type \"{1}\".", nameof(NodePacketType.LogMessage), packet.Type.ToString());
             }
 
             LogMessagePacket loggingPacket = (LogMessagePacket)packet;
@@ -884,8 +884,8 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
-                ErrorUtilities.VerifyThrow(logger != null, "logger was null");
+                VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
+                VerifyThrow(logger != null, "logger was null");
 
                 // If the logger is already in the list it should not be registered again.
                 if (_loggers.Contains(logger))
@@ -917,13 +917,13 @@ namespace Microsoft.Build.BackEnd.Logging
 
                     // Get the Id of the eventSourceSink which was created for the first logger.
                     // We keep a reference to this Id so that all other central loggers registered on this logging service (from registerLogger)
-                    // will be attached to that eventSource sink so that they get all of the events forwarded by 
+                    // will be attached to that eventSource sink so that they get all of the events forwarded by
                     // forwarded by the CentralForwardingLogger
                     _centralForwardingLoggerSinkId = centralForwardingLoggerDescription.LoggerId;
                 }
                 else
                 {
-                    // We have already create a forwarding logger and have a single eventSink which 
+                    // We have already create a forwarding logger and have a single eventSink which
                     // a logger can listen to inorder to get all events in the system
                     EventSourceSink eventSource = (EventSourceSink)_eventSinkDictionary[_centralForwardingLoggerSinkId];
 
@@ -954,7 +954,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 }
             }
 
-            // UNDONE: (Logging) This should re-initialize this logging service. 
+            // UNDONE: (Logging) This should re-initialize this logging service.
         }
 
         /// <summary>
@@ -975,8 +975,8 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
-                ErrorUtilities.VerifyThrow(forwardingLogger != null, "forwardingLogger was null");
+                VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
+                VerifyThrow(forwardingLogger != null, "forwardingLogger was null");
                 if (centralLogger == null)
                 {
                     centralLogger = new NullCentralLogger();
@@ -1040,10 +1040,10 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
-                ErrorUtilities.VerifyThrow(forwardingLoggerSink != null, "forwardingLoggerSink was null");
-                ErrorUtilities.VerifyThrow(descriptions != null, "loggerDescriptions was null");
-                ErrorUtilities.VerifyThrow(descriptions.Count > 0, "loggerDescriptions was null");
+                VerifyThrow(_serviceState != LoggingServiceState.Shutdown, " The object is shutdown, should not do any operations on a shutdown component");
+                VerifyThrow(forwardingLoggerSink != null, "forwardingLoggerSink was null");
+                VerifyThrow(descriptions != null, "loggerDescriptions was null");
+                VerifyThrow(descriptions.Count > 0, "loggerDescriptions was null");
 
                 bool sinkAlreadyRegistered = false;
                 int sinkId = -1;
@@ -1097,7 +1097,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(buildEvent != null, "buildEvent is null");
+                VerifyThrow(buildEvent != null, "buildEvent is null");
 
                 BuildWarningEventArgs warningEvent = null;
                 BuildErrorEventArgs errorEvent = null;
@@ -1151,10 +1151,10 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <exception cref="InternalErrorException">buildEvent is null</exception>
         internal virtual void ProcessLoggingEvent(object buildEvent, bool allowThrottling = false)
         {
-            ErrorUtilities.VerifyThrow(buildEvent != null, "buildEvent is null");
+            VerifyThrow(buildEvent != null, "buildEvent is null");
             if (_logMode == LoggerMode.Asynchronous)
             {
-                // If the queue is at capacity, this call will block - the task returned by SendAsync only completes 
+                // If the queue is at capacity, this call will block - the task returned by SendAsync only completes
                 // when the message is actually consumed or rejected (permanently) by the buffer.
                 var task = _loggingQueue.SendAsync(buildEvent);
                 if (allowThrottling)
@@ -1179,7 +1179,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// </summary>
         internal void WaitForThreadToProcessEvents()
         {
-            // This method may be called in the shutdown submission callback, this callback may be called after the logging service has 
+            // This method may be called in the shutdown submission callback, this callback may be called after the logging service has
             // shutdown and nulled out the events we were going to wait on.
             if (_logMode == LoggerMode.Asynchronous && _loggingQueue != null)
             {
@@ -1220,7 +1220,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 var projectStartedEventArgs = loggingPacket.NodeBuildEvent.Value.Value as ProjectStartedEventArgs;
                 if (projectStartedEventArgs != null && _configCache.Value != null)
                 {
-                    ErrorUtilities.VerifyThrow(_configCache.Value.HasConfiguration(projectStartedEventArgs.ProjectId), "Cannot find the project configuration while injecting non-serialized data from out-of-proc node.");
+                    VerifyThrow(_configCache.Value.HasConfiguration(projectStartedEventArgs.ProjectId), "Cannot find the project configuration while injecting non-serialized data from out-of-proc node.");
                     BuildRequestConfiguration buildRequestConfiguration = _configCache.Value[projectStartedEventArgs.ProjectId];
 
                     // Always log GlobalProperties on ProjectStarted for compatibility.
@@ -1259,7 +1259,7 @@ namespace Microsoft.Build.BackEnd.Logging
             // When the capacity of the buffer is reached, further attempts to send messages to it will block.
             // The reason we can't just set the BoundedCapacity on the processing block is that ActionBlock has some weird behavior
             // when the queue capacity is reached.  Specifically, it will block new messages from being processed until it has
-            // entirely drained its input queue, as opposed to letting new ones in as old ones are processed.  This is logged as 
+            // entirely drained its input queue, as opposed to letting new ones in as old ones are processed.  This is logged as
             // a perf bug (305575) against Dataflow.  If they choose to fix it, we can eliminate the buffer node from the graph.
             var dataBlockOptions = new DataflowBlockOptions
             {
@@ -1417,7 +1417,7 @@ namespace Microsoft.Build.BackEnd.Logging
             }
             else
             {
-                ErrorUtilities.VerifyThrow(false, "Unknown logging item in queue:" + loggingEvent.GetType().FullName);
+                VerifyThrow(false, "Unknown logging item in queue:" + loggingEvent.GetType().FullName);
             }
 
             if (buildEventArgs is BuildWarningEventArgs warningEvent)
@@ -1519,10 +1519,10 @@ namespace Microsoft.Build.BackEnd.Logging
                 // them.
                 _filterEventSource.Consume(eventArg);
 
-                // Now that the forwarding loggers have been given the chance to log the build started and finished events we need to check the 
+                // Now that the forwarding loggers have been given the chance to log the build started and finished events we need to check the
                 // central logger sinks to see if they have received the events or not. If the sink has not received the event we need to send it to the
                 // logger for backwards compatibility with orcas.
-                // In addition we need to make sure we manually forward the events because in orcas the forwarding loggers were not allowed to 
+                // In addition we need to make sure we manually forward the events because in orcas the forwarding loggers were not allowed to
                 // forward build started or build finished events. In the new OM we allow the loggers to forward the events. However since orcas did not forward them
                 // we need to support loggers which cannot forward the events.
                 if (eventArg is BuildStartedEventArgs)
@@ -1708,7 +1708,7 @@ namespace Microsoft.Build.BackEnd.Logging
             // PERF: Not using VerifyThrow to avoid boxing an int in the non-error case.
             if (projectFile == null)
             {
-                ErrorUtilities.ThrowInternalError("ContextID {0} should have been in the ID-to-project file mapping but wasn't!", context.ProjectContextId);
+                ThrowInternalError("ContextID {0} should have been in the ID-to-project file mapping but wasn't!", context.ProjectContextId);
             }
 
             return projectFile;

@@ -41,8 +41,8 @@ namespace Microsoft.Build.Evaluation
         /// <param name="settingValue">Property tracking setting value</param>
         public PropertyTrackingEvaluatorDataWrapper(IEvaluatorData<P, I, M, D> dataToWrap, EvaluationLoggingContext evaluationLoggingContext, int settingValue)
         {
-            ErrorUtilities.VerifyThrowInternalNull(dataToWrap, nameof(dataToWrap));
-            ErrorUtilities.VerifyThrowInternalNull(evaluationLoggingContext, nameof(evaluationLoggingContext));
+            VerifyThrowInternalNull(dataToWrap, nameof(dataToWrap));
+            VerifyThrowInternalNull(evaluationLoggingContext, nameof(evaluationLoggingContext));
 
             _wrapped = dataToWrap;
             _evaluationLoggingContext = evaluationLoggingContext;

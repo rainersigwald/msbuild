@@ -3,14 +3,14 @@
 
 
 /******************************************************************************
- * 
+ *
  *                              !! WARNING !!
- * 
+ *
  * This class depends on the build engine assembly! Do not share this class
  * into any assembly that is not supposed to take a dependency on the build
  * engine assembly!
- * 
- * 
+ *
+ *
  ******************************************************************************/
 using InvalidProjectFileException = Microsoft.Build.Exceptions.InvalidProjectFileException;
 
@@ -28,8 +28,8 @@ namespace Microsoft.Build.Shared
     {
         /// <summary>
         /// This method is used to flag errors in the project file being processed.
-        /// Do NOT use this method in place of ErrorUtilities.VerifyThrow(), because
-        /// ErrorUtilities.VerifyThrow() is used to flag internal/programming errors.
+        /// Do NOT use this method in place of VerifyThrow(), because
+        /// VerifyThrow() is used to flag internal/programming errors.
         /// </summary>
         /// <param name="condition">The condition to check.</param>
         /// <param name="elementLocation">The <see cref="IElementLocation"/> of the element.</param>
@@ -222,8 +222,8 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// This method is used to flag errors in the project file being processed.
-        /// Do NOT use this method in place of ErrorUtilities.VerifyThrow(), because
-        /// ErrorUtilities.VerifyThrow() is used to flag internal/programming errors.
+        /// Do NOT use this method in place of VerifyThrow(), because
+        /// VerifyThrow() is used to flag internal/programming errors.
         /// </summary>
         /// <param name="condition">The condition to check.</param>
         /// <param name="errorSubCategoryResourceName">The resource string for the
@@ -368,11 +368,11 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// Throws an InvalidProjectFileException using the given data.
-        /// 
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments
         /// is expensive, because memory is allocated for the array of arguments -- do
         /// not call this method repeatedly in performance-critical scenarios
-        /// 
+        ///
         /// </summary>
         /// <param name="errorSubCategoryResourceName">The resource string for the
         /// error sub-category (can be null).</param>
@@ -387,7 +387,7 @@ namespace Microsoft.Build.Shared
             params object[] args
         )
         {
-            ErrorUtilities.VerifyThrowInternalNull(elementLocation, nameof(elementLocation));
+            VerifyThrowInternalNull(elementLocation, nameof(elementLocation));
 #if DEBUG
             if (errorSubCategoryResourceName != null)
             {

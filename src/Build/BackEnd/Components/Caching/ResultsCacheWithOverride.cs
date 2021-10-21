@@ -32,7 +32,7 @@ namespace Microsoft.Build.Execution
 
         public void Translate(ITranslator translator)
         {
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
         }
 
         public void AddResult(BuildResult result)
@@ -51,7 +51,7 @@ namespace Microsoft.Build.Execution
             if (overrideResult != null)
             {
 #if DEBUG
-                ErrorUtilities.VerifyThrow(CurrentCache.GetResultForRequest(request) == null, "caches should not overlap");
+                VerifyThrow(CurrentCache.GetResultForRequest(request) == null, "caches should not overlap");
 #endif
                 return overrideResult;
             }
@@ -65,7 +65,7 @@ namespace Microsoft.Build.Execution
             if (overrideResult != null)
             {
 #if DEBUG
-                ErrorUtilities.VerifyThrow(CurrentCache.GetResultsForConfiguration(configurationId) == null, "caches should not overlap");
+                VerifyThrow(CurrentCache.GetResultsForConfiguration(configurationId) == null, "caches should not overlap");
 #endif
                 return overrideResult;
             }
@@ -88,7 +88,7 @@ namespace Microsoft.Build.Execution
             if (overrideRequest.Type == ResultsCacheResponseType.Satisfied)
             {
 #if DEBUG
-                ErrorUtilities.VerifyThrow(
+                VerifyThrow(
                     CurrentCache.SatisfyRequest(
                         request,
                         configInitialTargets,

@@ -120,7 +120,7 @@ namespace Microsoft.Build.Shared
             // Check it has a real implementation of ToString()
             if (String.Equals(param.GetType().ToString(), param.ToString(), StringComparison.Ordinal))
             {
-                ErrorUtilities.ThrowInternalError("This type does not implement ToString() properly {0}", param.GetType().FullName);
+                ThrowInternalError("This type does not implement ToString() properly {0}", param.GetType().FullName);
             }
 #endif
         }

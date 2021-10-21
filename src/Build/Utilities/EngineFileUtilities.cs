@@ -129,7 +129,7 @@ namespace Microsoft.Build.Internal
             IEnumerable<string> excludeSpecsEscaped = null
             )
         {
-            ErrorUtilities.VerifyThrowInternalLength(filespecEscaped, nameof(filespecEscaped));
+            VerifyThrowInternalLength(filespecEscaped, nameof(filespecEscaped));
 
             string[] fileList;
 
@@ -143,7 +143,7 @@ namespace Microsoft.Build.Internal
             {
                 if (Traits.Instance.LogExpandedWildcards)
                 {
-                    ErrorUtilities.DebugTraceMessage("Expanding wildcard for file spec {0}", filespecEscaped);
+                    DebugTraceMessage("Expanding wildcard for file spec {0}", filespecEscaped);
                 }
 
                 // Unescape before handing it to the filesystem.
@@ -158,7 +158,7 @@ namespace Microsoft.Build.Internal
                 // back a bunch of absolute paths.
                 fileList = _fileMatcher.GetFiles(directoryUnescaped, filespecUnescaped, excludeSpecsUnescaped);
 
-                ErrorUtilities.VerifyThrow(fileList != null, "We must have a list of files here, even if it's empty.");
+                VerifyThrow(fileList != null, "We must have a list of files here, even if it's empty.");
 
                 // Before actually returning the file list, we sort them alphabetically.  This
                 // provides a certain amount of extra determinism and reproducability.  That is,

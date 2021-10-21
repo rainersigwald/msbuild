@@ -491,14 +491,14 @@ namespace Microsoft.Build.Evaluation
             {
                 using (_locker.EnterUpgradeableReadLock())
                 {
-                    ErrorUtilities.VerifyThrow(_defaultToolsVersion != null, "Should have a default");
+                    VerifyThrow(_defaultToolsVersion != null, "Should have a default");
                     return _defaultToolsVersion;
                 }
             }
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, nameof(DefaultToolsVersion));
+                VerifyThrowArgumentLength(value, nameof(DefaultToolsVersion));
 
                 bool sendEvent = false;
                 using (_locker.EnterWriteLock())
@@ -506,7 +506,7 @@ namespace Microsoft.Build.Evaluation
                     if (!_toolsets.ContainsKey(value))
                     {
                         string toolsVersionList = Utilities.CreateToolsVersionListString(Toolsets);
-                        ErrorUtilities.ThrowInvalidOperation("UnrecognizedToolsVersion", value, toolsVersionList);
+                        ThrowInvalidOperation("UnrecognizedToolsVersion", value, toolsVersionList);
                     }
 
                     if (_defaultToolsVersion != value)
@@ -971,7 +971,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         public void AddToolset(Toolset toolset)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(toolset, nameof(toolset));
+            VerifyThrowArgumentNull(toolset, nameof(toolset));
             using (_locker.EnterWriteLock())
             {
                 _toolsets[toolset.ToolsVersion] = toolset;
@@ -987,7 +987,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         public bool RemoveToolset(string toolsVersion)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentLength(toolsVersion, nameof(toolsVersion));
 
             bool changed;
             using (_locker.EnterWriteLock())
@@ -1031,7 +1031,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         public Toolset GetToolset(string toolsVersion)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentLength(toolsVersion, nameof(toolsVersion));
             using (_locker.EnterWriteLock())
             {
                 _toolsets.TryGetValue(toolsVersion, out var toolset);
@@ -1118,7 +1118,7 @@ namespace Microsoft.Build.Evaluation
         /// <returns>A loaded project.</returns>
         public Project LoadProject(string fileName, IDictionary<string, string> globalProperties, string toolsVersion)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(fileName, nameof(fileName));
+            VerifyThrowArgumentLength(fileName, nameof(fileName));
             fileName = FileUtilities.NormalizePath(fileName);
 
             using (_locker.EnterWriteLock())
@@ -1131,7 +1131,7 @@ namespace Microsoft.Build.Evaluation
                 {
                     // We need to update the set of global properties to merge in the ProjectCollection global properties --
                     // otherwise we might end up declaring "not matching" a project that actually does ... and then throw
-                    // an exception when we go to actually add the newly created project to the ProjectCollection. 
+                    // an exception when we go to actually add the newly created project to the ProjectCollection.
                     // BUT remember that project global properties win -- don't override a property that already exists.
                     foreach (KeyValuePair<string, string> globalProperty in GlobalProperties)
                     {
@@ -1148,9 +1148,9 @@ namespace Microsoft.Build.Evaluation
 
                 if (toolsVersion == null)
                 {
-                    // Load the project XML to get any ToolsVersion attribute. 
+                    // Load the project XML to get any ToolsVersion attribute.
                     // If there isn't already an equivalent project loaded, the real load we'll do will be satisfied from the cache.
-                    // If there is already an equivalent project loaded, we'll never need this XML -- but it'll already 
+                    // If there is already an equivalent project loaded, we'll never need this XML -- but it'll already
                     // have been loaded by that project so it will have been satisfied from the ProjectRootElementCache.
                     // Either way, no time wasted.
                     try
@@ -1309,7 +1309,7 @@ namespace Microsoft.Build.Evaluation
             using (_locker.EnterWriteLock())
             {
                 bool existed = _loadedProjects.RemoveProject(project);
-                ErrorUtilities.VerifyThrowInvalidOperation(existed, "OM_ProjectWasNotLoaded");
+                VerifyThrowInvalidOperation(existed, "OM_ProjectWasNotLoaded");
 
                 project.Zombify();
 
@@ -1327,7 +1327,7 @@ namespace Microsoft.Build.Evaluation
 
                 // Aggressively release any strings from all the contributing documents.
                 // It's fine if we cache less (by now we likely did a lot of loading and got the benefits)
-                // If we don't do this, we could be releasing the last reference to a 
+                // If we don't do this, we could be releasing the last reference to a
                 // ProjectRootElement, causing it to fall out of the weak cache leaving its strings and XML
                 // behind in the string cache.
                 project.Xml.XmlDocument.ClearAnyCachedStrings();
@@ -1352,7 +1352,7 @@ namespace Microsoft.Build.Evaluation
         /// </remarks>
         public void UnloadProject(ProjectRootElement projectRootElement)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectRootElement, nameof(projectRootElement));
+            VerifyThrowArgumentNull(projectRootElement, nameof(projectRootElement));
             if (projectRootElement.Link != null)
             {
                 return;
@@ -1363,7 +1363,7 @@ namespace Microsoft.Build.Evaluation
                 Project conflictingProject = GetLoadedProjects(false, null).FirstOrDefault(project => project.UsesProjectRootElement(projectRootElement));
                 if (conflictingProject != null)
                 {
-                    ErrorUtilities.ThrowInvalidOperation("OM_ProjectXmlCannotBeUnloadedDueToLoadedProjects", projectRootElement.FullPath, conflictingProject.FullPath);
+                    ThrowInvalidOperation("OM_ProjectXmlCannotBeUnloadedDueToLoadedProjects", projectRootElement.FullPath, conflictingProject.FullPath);
                 }
 
                 projectRootElement.XmlDocument.ClearAnyCachedStrings();
@@ -1503,7 +1503,7 @@ namespace Microsoft.Build.Evaluation
         /// <param name="projectRootElement">The project XML root element to unload.</param>
         public bool TryUnloadProject(ProjectRootElement projectRootElement)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectRootElement, nameof(projectRootElement));
+            VerifyThrowArgumentNull(projectRootElement, nameof(projectRootElement));
             if (projectRootElement.Link != null)
             {
                 return false;
@@ -1545,15 +1545,15 @@ namespace Microsoft.Build.Evaluation
                 if (oldFullPathIfAny != null)
                 {
                     bool existed = _loadedProjects.RemoveProject(oldFullPathIfAny, project);
-                    ErrorUtilities.VerifyThrowInvalidOperation(existed, "OM_ProjectWasNotLoaded");
+                    VerifyThrowInvalidOperation(existed, "OM_ProjectWasNotLoaded");
                 }
 
-                // The only time this ever gets called with a null full path is when the project is first being 
-                // constructed.  The mere fact that this method is being called means that this project will belong 
-                // to this project collection.  As such, it has already had all necessary global properties applied 
-                // when being constructed -- we don't need to do anything special here. 
-                // If we did add global properties here, we would just end up either duplicating work or possibly 
-                // wiping out global properties set on the project meant to override the ProjectCollection copies. 
+                // The only time this ever gets called with a null full path is when the project is first being
+                // constructed.  The mere fact that this method is being called means that this project will belong
+                // to this project collection.  As such, it has already had all necessary global properties applied
+                // when being constructed -- we don't need to do anything special here.
+                // If we did add global properties here, we would just end up either duplicating work or possibly
+                // wiping out global properties set on the project meant to override the ProjectCollection copies.
                 _loadedProjects.AddProject(project);
 
                 if (_hostServices != null)
@@ -1576,7 +1576,7 @@ namespace Microsoft.Build.Evaluation
         {
             using (_locker.EnterWriteLock())
             {
-                ErrorUtilities.VerifyThrowInvalidOperation(ReferenceEquals(project.ProjectCollection, this), "OM_IncorrectObjectAssociation", "Project", "ProjectCollection");
+                VerifyThrowInvalidOperation(ReferenceEquals(project.ProjectCollection, this), "OM_IncorrectObjectAssociation", "Project", "ProjectCollection");
 
                 if (project.FullPath == null)
                 {
@@ -1630,7 +1630,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         private void RegisterLoggerInternal(ILogger logger)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(logger, nameof(logger));
+            VerifyThrowArgumentNull(logger, nameof(logger));
             Debug.Assert(_locker.IsWriteLockHeld);
             _loggingService.RegisterLogger(new ReusableLogger(logger));
         }
@@ -1710,7 +1710,7 @@ namespace Microsoft.Build.Evaluation
                 {
                     // According to Framework Guidelines, Dispose methods should never throw except in dire circumstances.
                     // However if we throw at all, its a bug. Throw InternalErrorException to emphasize that.
-                    ErrorUtilities.ThrowInternalError("Throwing from logger shutdown", ex);
+                    ThrowInternalError("Throwing from logger shutdown", ex);
                     throw;
                 }
 
@@ -1904,7 +1904,7 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public ReusableLogger(ILogger originalLogger)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(originalLogger, nameof(originalLogger));
+                VerifyThrowArgumentNull(originalLogger, nameof(originalLogger));
                 _originalLogger = originalLogger;
             }
 
@@ -2099,7 +2099,7 @@ namespace Microsoft.Build.Evaluation
                 }
                 else
                 {
-                    ErrorUtilities.VerifyThrow(_buildTimeEventSource == null, "Already registered for build-time.");
+                    VerifyThrow(_buildTimeEventSource == null, "Already registered for build-time.");
                     _buildTimeEventSource = eventSource;
                     UnregisterForEvents(_designTimeEventSource);
                     RegisterForEvents(_buildTimeEventSource);
@@ -2129,7 +2129,7 @@ namespace Microsoft.Build.Evaluation
                 }
                 else
                 {
-                    ErrorUtilities.VerifyThrow(_designTimeEventSource != null, "Already unregistered for design-time.");
+                    VerifyThrow(_designTimeEventSource != null, "Already unregistered for design-time.");
                     UnregisterForEvents(_designTimeEventSource);
                     _originalLogger.Shutdown();
                 }
@@ -2496,7 +2496,7 @@ namespace Microsoft.Build.Evaluation
                     {
                         if (HasEquivalentGlobalPropertiesAndToolsVersion(existing, project.GlobalProperties, project.ToolsVersion))
                         {
-                            ErrorUtilities.ThrowInvalidOperation("OM_MatchingProjectAlreadyInCollection", existing.FullPath);
+                            ThrowInvalidOperation("OM_MatchingProjectAlreadyInCollection", existing.FullPath);
                         }
                     }
 

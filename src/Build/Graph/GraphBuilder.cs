@@ -21,7 +21,7 @@ namespace Microsoft.Build.Graph
     internal class GraphBuilder
     {
         internal static readonly string SolutionItemReference = "_SolutionReference";
-        
+
         /// <summary>
         /// The thread calling BuildGraph() will act as an implicit worker
         /// </summary>
@@ -59,7 +59,7 @@ namespace Microsoft.Build.Graph
             _solutionDependencies = solutionDependencies;
 
             _entryPointConfigurationMetadata = AddGraphBuildPropertyToEntryPoints(actualEntryPoints);
-            
+
             IEqualityComparer<ConfigurationMetadata> configComparer = EqualityComparer<ConfigurationMetadata>.Default;
 
             _graphWorkSet = new ParallelWorkSet<ConfigurationMetadata, ParsedProject>(
@@ -80,7 +80,7 @@ namespace Microsoft.Build.Graph
             }
 
             var allParsedProjects = FindGraphNodes();
-            
+
             AddEdges(allParsedProjects);
 
             EntryPointNodes = _entryPointConfigurationMetadata.Select(e => allParsedProjects[e].GraphNode).ToList();
@@ -209,12 +209,12 @@ namespace Microsoft.Build.Graph
             {
                 var referencingProjectPath = solutionDependency.Key;
 
-                ErrorUtilities.VerifyThrow(projectsByPath.TryGetValue(referencingProjectPath, out var referencingNodes), "nodes should include solution projects");
+                VerifyThrow(projectsByPath.TryGetValue(referencingProjectPath, out var referencingNodes), "nodes should include solution projects");
 
                 var referencedNodes = solutionDependency.Value.SelectMany(
                     referencedProjectPath =>
                     {
-                        ErrorUtilities.VerifyThrow(projectsByPath.TryGetValue(referencedProjectPath, out List<ProjectGraphNode> projectToReturn), "nodes should include solution projects");
+                        VerifyThrow(projectsByPath.TryGetValue(referencedProjectPath, out List<ProjectGraphNode> projectToReturn), "nodes should include solution projects");
                         return projectToReturn;
                     }).ToArray();
 
@@ -249,7 +249,7 @@ namespace Microsoft.Build.Graph
                         string.Join(";", entryPoints.Select(e => e.ProjectFile))));
             }
 
-            ErrorUtilities.VerifyThrowArgument(entryPoints.Count == 1, "StaticGraphAcceptsSingleSolutionEntryPoint");
+            VerifyThrowArgument(entryPoints.Count == 1, "StaticGraphAcceptsSingleSolutionEntryPoint");
 
             var solutionEntryPoint = entryPoints.Single();
             var solutionGlobalProperties = ImmutableDictionary.CreateRange(
@@ -358,9 +358,9 @@ namespace Microsoft.Build.Graph
                                     dependencyGuid);
                             }
 
-                            // Add it to the list of dependencies, but only if it should build in this solution configuration 
+                            // Add it to the list of dependencies, but only if it should build in this solution configuration
                             // (If a project is not selected for build in the solution configuration, it won't build even if it's depended on by something that IS selected for build)
-                            // .. and only if it's known to be MSBuild format, as projects can't use the information otherwise 
+                            // .. and only if it's known to be MSBuild format, as projects can't use the information otherwise
                             return dependencyProject?.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat
                                 ? dependencyProject.AbsolutePath
                                 : null;
@@ -420,7 +420,7 @@ namespace Microsoft.Build.Graph
                 }
                 else
                 {
-                    ErrorUtilities.VerifyThrow(
+                    VerifyThrow(
                         state == NodeVisitationState.Processed,
                         "entrypoints should get processed after a call to detect cycles");
                 }
@@ -454,7 +454,7 @@ namespace Microsoft.Build.Graph
                             }
 
                             // the project being evaluated has a circular dependency involving multiple projects
-                            // add this project to the list of projects involved in cycle 
+                            // add this project to the list of projects involved in cycle
                             var projectsInCycle = new List<string> {referenceNode.ProjectInstance.FullPath};
                             return (false, projectsInCycle);
                         }
@@ -553,7 +553,7 @@ namespace Microsoft.Build.Graph
                         referenceInfo.ReferenceConfiguration.ProjectFullPath
                         ));
                 }
-                
+
                 SubmitProjectForParsing(referenceInfo.ReferenceConfiguration);
 
                 referenceInfos.Add(referenceInfo);
@@ -613,7 +613,7 @@ namespace Microsoft.Build.Graph
             {
                 get
                 {
-                    ErrorUtilities.VerifyThrow(ReferenceItems.TryGetValue(key, out ProjectItemInstance referenceItem), "All requested keys should exist");
+                    VerifyThrow(ReferenceItems.TryGetValue(key, out ProjectItemInstance referenceItem), "All requested keys should exist");
                     return referenceItem;
                 }
 
@@ -623,7 +623,7 @@ namespace Microsoft.Build.Graph
 
             public void RemoveEdge((ProjectGraphNode node, ProjectGraphNode reference) key)
             {
-                ErrorUtilities.VerifyThrow(ReferenceItems.TryRemove(key, out _), "All requested keys should exist");
+                VerifyThrow(ReferenceItems.TryRemove(key, out _), "All requested keys should exist");
             }
 
             internal bool HasEdge((ProjectGraphNode node, ProjectGraphNode reference) key) => ReferenceItems.ContainsKey(key);

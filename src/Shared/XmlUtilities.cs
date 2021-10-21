@@ -48,11 +48,11 @@ namespace Microsoft.Build.Shared
                 newElement.AppendChild(oldElement.FirstChild);
             }
 
-               
-            
+
+
                 // Add the new element in the same place the old element was.
                 oldElement.ParentNode?.ReplaceChild(newElement, oldElement);
-            
+
 
             return newElement;
         }
@@ -68,13 +68,13 @@ namespace Microsoft.Build.Shared
         /// <param name="name">name to validate</param>
         internal static void VerifyThrowArgumentValidElementName(string name)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentLength(name, nameof(name));
 
             int firstInvalidCharLocation = LocateFirstInvalidElementNameCharacter(name);
 
             if (-1 != firstInvalidCharLocation)
             {
-                ErrorUtilities.ThrowArgument("OM_NameInvalid", name, name[firstInvalidCharLocation]);
+                ThrowArgument("OM_NameInvalid", name, name[firstInvalidCharLocation]);
             }
         }
 
@@ -87,7 +87,7 @@ namespace Microsoft.Build.Shared
         /// </remarks>
         internal static void VerifyThrowProjectValidElementName(string name, IElementLocation location)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentLength(name, nameof(name));
             int firstInvalidCharLocation = LocateFirstInvalidElementNameCharacter(name);
 
             if (-1 != firstInvalidCharLocation)
@@ -128,8 +128,8 @@ namespace Microsoft.Build.Shared
         }
 
         /// <summary>
-        /// Finds the location of the first invalid character, if any, in the name of an 
-        /// item, property, or piece of metadata. Returns the location of the first invalid character, or -1 if there are none. 
+        /// Finds the location of the first invalid character, if any, in the name of an
+        /// item, property, or piece of metadata. Returns the location of the first invalid character, or -1 if there are none.
         /// Valid names must match this pattern:  [A-Za-z_][A-Za-z_0-9\-.]*
         /// Note, this is a subset of all possible valid XmlElement names: we use a subset because we also
         /// have to match this same set in our regular expressions, and allowing all valid XmlElement name

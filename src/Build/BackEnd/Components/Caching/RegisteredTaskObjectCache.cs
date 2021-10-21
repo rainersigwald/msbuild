@@ -34,7 +34,7 @@ namespace Microsoft.Build.BackEnd.Components.Caching
         /// </summary>
         public void ShutdownComponent()
         {
-            ErrorUtilities.VerifyThrow(IsCollectionEmptyOrUncreated(RegisteredTaskObjectLifetime.Build), "Build lifetime objects were not disposed at the end of the build");
+            VerifyThrow(IsCollectionEmptyOrUncreated(RegisteredTaskObjectLifetime.Build), "Build lifetime objects were not disposed at the end of the build");
         }
 
         #endregion
@@ -57,7 +57,7 @@ namespace Microsoft.Build.BackEnd.Components.Caching
         /// </summary>
         internal static IBuildComponent CreateComponent(BuildComponentType type)
         {
-            ErrorUtilities.VerifyThrow(type == BuildComponentType.RegisteredTaskObjectCache, "Cannot create components of type {0}", type);
+            VerifyThrow(type == BuildComponentType.RegisteredTaskObjectCache, "Cannot create components of type {0}", type);
             return new RegisteredTaskObjectCache();
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Build.BackEnd.Components.Caching
         {
             if (disposing)
             {
-                ErrorUtilities.VerifyThrow(IsCollectionEmptyOrUncreated(RegisteredTaskObjectLifetime.Build), "Build lifetime objects were not disposed at the end of the build");
+                VerifyThrow(IsCollectionEmptyOrUncreated(RegisteredTaskObjectLifetime.Build), "Build lifetime objects were not disposed at the end of the build");
             }
         }
     }

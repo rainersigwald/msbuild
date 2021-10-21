@@ -53,7 +53,7 @@ namespace Microsoft.Build.Shared
         /// <returns>The awaiter.</returns>
         internal static TaskAwaiter GetAwaiter(this WaitHandle handle)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(handle, nameof(handle));
+            VerifyThrowArgumentNull(handle, nameof(handle));
             return handle.ToTask().GetAwaiter();
         }
 
@@ -64,7 +64,7 @@ namespace Microsoft.Build.Shared
         /// <returns>The awaiter.</returns>
         internal static TaskAwaiter<int> GetAwaiter(this WaitHandle[] handles)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(handles, "handle");
+            VerifyThrowArgumentNull(handles, "handle");
             return handles.ToTask().GetAwaiter();
         }
 
@@ -93,7 +93,7 @@ namespace Microsoft.Build.Shared
         /// </remarks>
         internal static Task<int> ToTask(this WaitHandle[] handles, int timeout = Timeout.Infinite)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(handles, "handle");
+            VerifyThrowArgumentNull(handles, "handle");
 
             var tcs = new TaskCompletionSource<int>();
             int signalledHandle = WaitHandle.WaitAny(handles, 0);
@@ -145,7 +145,7 @@ namespace Microsoft.Build.Shared
         }
 
         /// <summary>
-        /// A class which acts as a task scheduler and ensures each scheduled task gets its 
+        /// A class which acts as a task scheduler and ensures each scheduled task gets its
         /// own STA thread.
         /// </summary>
         private class OneSTAThreadPerTaskScheduler : TaskScheduler

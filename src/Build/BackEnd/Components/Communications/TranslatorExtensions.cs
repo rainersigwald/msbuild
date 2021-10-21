@@ -13,9 +13,9 @@ using Microsoft.Build.Shared;
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>
-    /// This class is responsible for serializing and deserializing anything that is not 
-    /// officially supported by ITranslator, but that we still want to do 
-    /// custom translation of.  
+    /// This class is responsible for serializing and deserializing anything that is not
+    /// officially supported by ITranslator, but that we still want to do
+    /// custom translation of.
     /// </summary>
     internal static class TranslatorExtensions
     {
@@ -70,11 +70,11 @@ namespace Microsoft.Build.BackEnd
             translator.Translate(ref typeName);
 
             var type = Type.GetType(typeName);
-            ErrorUtilities.VerifyThrowInvalidOperation(type != null, "type cannot be null");
-            ErrorUtilities.VerifyThrowInvalidOperation(
+            VerifyThrowInvalidOperation(type != null, "type cannot be null");
+            VerifyThrowInvalidOperation(
                 typeof(T).IsAssignableFrom(type),
                 $"{typeName} must be a {typeof(T).FullName}");
-            ErrorUtilities.VerifyThrowInvalidOperation(
+            VerifyThrowInvalidOperation(
                 typeof(ITranslatable).IsAssignableFrom(type),
                 $"{typeName} must be a {nameof(ITranslatable)}");
 
@@ -92,7 +92,7 @@ namespace Microsoft.Build.BackEnd
                             .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
                             .FirstOrDefault(c => c.GetParameters().Length == 0);
 #endif
-                    ErrorUtilities.VerifyThrowInvalidOperation(
+                    VerifyThrowInvalidOperation(
                         constructor != null,
                         $"{typeName} must have a private parameterless constructor");
                     return constructor;

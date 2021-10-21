@@ -80,8 +80,8 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal static string GetTemporaryFile(string directory, string extension, bool createFile = true)
         {
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(directory, nameof(directory));
-            ErrorUtilities.VerifyThrowArgumentLength(extension, nameof(extension));
+            VerifyThrowArgumentLengthIfNotNull(directory, nameof(directory));
+            VerifyThrowArgumentLength(extension, nameof(extension));
 
             if (extension[0] != '.')
             {
@@ -96,7 +96,7 @@ namespace Microsoft.Build.Shared
 
                 string file = Path.Combine(directory, $"tmp{Guid.NewGuid():N}{extension}");
 
-                ErrorUtilities.VerifyThrow(!FileSystems.Default.FileExists(file), "Guid should be unique");
+                VerifyThrow(!FileSystems.Default.FileExists(file), "Guid should be unique");
 
                 if (createFile)
                 {

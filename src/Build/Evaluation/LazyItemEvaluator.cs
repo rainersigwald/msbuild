@@ -278,13 +278,13 @@ namespace Microsoft.Build.Evaluation
                 // Cache results only on the LazyItemOperations whose results are required by an external caller (via GetItems). This means:
                 //   - Callers of GetItems who have announced ahead of time that they would reference an operation (via MarkAsReferenced())
                 // This includes: item references (Include="@(foo)") and metadata conditions (Condition="@(foo->Count()) == 0")
-                // Without ahead of time notifications more computation is done than needed when the results of a future operation are requested 
+                // Without ahead of time notifications more computation is done than needed when the results of a future operation are requested
                 // The future operation is part of another item list referencing this one (making this operation part of the tail).
                 // The future operation will compute this list but since no ahead of time notifications have been made by callers, it won't cache the
                 // intermediary operations that would be requested by those callers.
                 //   - Callers of GetItems that cannot announce ahead of time. This includes item referencing conditions on
                 // Item Groups and Item Elements. However, those conditions are performed eagerly outside of the LazyItemEvaluator, so they will run before
-                // any item referencing operations from inside the LazyItemEvaluator. This 
+                // any item referencing operations from inside the LazyItemEvaluator. This
                 //
                 // If the head of this LazyItemList is uncached, then the tail may contain cached and un-cached nodes.
                 // In this case we have to compute the head plus the part of the tail up to the first cached operation.
@@ -303,7 +303,7 @@ namespace Microsoft.Build.Evaluation
                 else
                 {
                     // tell the cache that this operation's result is needed by an external caller
-                    // this is required for callers that cannot tell the item list ahead of time that 
+                    // this is required for callers that cannot tell the item list ahead of time that
                     // they would be using an operation
                     MarkAsReferenced();
 
@@ -442,7 +442,7 @@ namespace Microsoft.Build.Evaluation
             private static void ProcessNonWildCardItemUpdates(Dictionary<string, UpdateOperation> itemsWithNoWildcards, OrderedItemDataCollection.Builder items)
             {
 #if DEBUG
-                ErrorUtilities.VerifyThrow(itemsWithNoWildcards.All(fragment => !MSBuildConstants.CharactersForExpansion.Any(fragment.Key.Contains)), $"{nameof(itemsWithNoWildcards)} should not contain any text fragments with wildcards.");
+                VerifyThrow(itemsWithNoWildcards.All(fragment => !MSBuildConstants.CharactersForExpansion.Any(fragment.Key.Contains)), $"{nameof(itemsWithNoWildcards)} should not contain any text fragments with wildcards.");
 #endif
                 if (itemsWithNoWildcards.Count > 0)
                 {
@@ -528,7 +528,7 @@ namespace Microsoft.Build.Evaluation
             }
             else
             {
-                ErrorUtilities.ThrowInternalErrorUnreachable();
+                ThrowInternalErrorUnreachable();
             }
 
             _itemLists.TryGetValue(itemElement.ItemType, out LazyItemList previousItemList);

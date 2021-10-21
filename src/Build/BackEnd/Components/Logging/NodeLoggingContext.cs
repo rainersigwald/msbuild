@@ -21,7 +21,7 @@ namespace Microsoft.Build.BackEnd.Logging
         internal NodeLoggingContext(ILoggingService loggingService, int nodeId, bool inProcNode)
             : base(loggingService, new BuildEventContext(nodeId, BuildEventContext.InvalidTargetId, BuildEventContext.InvalidProjectContextId, BuildEventContext.InvalidTaskId), inProcNode)
         {
-            ErrorUtilities.VerifyThrow(nodeId != BuildEventContext.InvalidNodeId, "Should not ever be given an invalid NodeId");
+            VerifyThrow(nodeId != BuildEventContext.InvalidNodeId, "Should not ever be given an invalid NodeId");
 
             // The in-proc node will have its BuildStarted, BuildFinished events sent by the BuildManager itself.
             if (!IsInProcNode)
@@ -38,7 +38,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <param name="success">Did the build succeed or not</param>
         internal void LogBuildFinished(bool success)
         {
-            ErrorUtilities.VerifyThrow(this.IsValid, "Build not started.");
+            VerifyThrow(this.IsValid, "Build not started.");
 
             // The in-proc node will have its BuildStarted, BuildFinished events sent by the BuildManager itself.
             if (!IsInProcNode)
@@ -56,7 +56,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <returns>The BuildEventContext to use for this project.</returns>
         internal ProjectLoggingContext LogProjectStarted(BuildRequestEntry requestEntry)
         {
-            ErrorUtilities.VerifyThrow(this.IsValid, "Build not started.");
+            VerifyThrow(this.IsValid, "Build not started.");
             return new ProjectLoggingContext(this, requestEntry, requestEntry.Request.ParentBuildEventContext);
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <returns>The BuildEventContext to use for this project.</returns>
         internal ProjectLoggingContext LogProjectStarted(BuildRequest request, BuildRequestConfiguration configuration)
         {
-            ErrorUtilities.VerifyThrow(this.IsValid, "Build not started.");
+            VerifyThrow(this.IsValid, "Build not started.");
 
             // If we can retrieve the evaluationId from the project, do so. Don't if it's not available or
             // if we'd have to retrieve it from the cache in order to access it.

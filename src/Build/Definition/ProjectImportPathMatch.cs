@@ -19,8 +19,8 @@ namespace Microsoft.Build.Evaluation
 
         internal ProjectImportPathMatch(string propertyName, List<string> searchPaths)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(propertyName, nameof(propertyName));
-            ErrorUtilities.VerifyThrowArgumentNull(searchPaths, nameof(searchPaths));
+            VerifyThrowArgumentNull(propertyName, nameof(propertyName));
+            VerifyThrowArgumentNull(searchPaths, nameof(searchPaths));
 
             PropertyName = propertyName;
             SearchPaths = searchPaths;

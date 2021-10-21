@@ -35,8 +35,8 @@ namespace Microsoft.Build.Collections
         /// <param name="syncRoot">The object used to synchronize access for copying.</param>
         public CopyOnReadEnumerable(IEnumerable<T> backingEnumerable, object syncRoot)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(backingEnumerable, nameof(backingEnumerable));
-            ErrorUtilities.VerifyThrowArgumentNull(syncRoot, nameof(syncRoot));
+            VerifyThrowArgumentNull(backingEnumerable, nameof(backingEnumerable));
+            VerifyThrowArgumentNull(syncRoot, nameof(syncRoot));
 
             _backingEnumerable = backingEnumerable;
             _syncRoot = syncRoot;

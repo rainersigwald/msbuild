@@ -37,21 +37,21 @@ namespace Microsoft.Build.Tasks
 
         /// <summary>
         /// LastModified information is purely instance-local. It doesn't make sense to
-        /// cache this for long periods of time since there's no way (without actually 
+        /// cache this for long periods of time since there's no way (without actually
         /// calling File.GetLastWriteTimeUtc) to tell whether the cache is out-of-date.
         /// </summary>
         private Dictionary<string, DateTime> instanceLocalLastModifiedCache = new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// DirectoryExists information is purely instance-local. It doesn't make sense to
-        /// cache this for long periods of time since there's no way (without actually 
+        /// cache this for long periods of time since there's no way (without actually
         /// calling Directory.Exists) to tell whether the cache is out-of-date.
         /// </summary>
         private Dictionary<string, bool> instanceLocalDirectoryExists = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// GetDirectories information is also purely instance-local. This information
-        /// is only considered good for the lifetime of the task (or whatever) that owns 
+        /// is only considered good for the lifetime of the task (or whatever) that owns
         /// this instance.
         /// </summary>
         private Dictionary<string, string[]> instanceLocalDirectories = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
@@ -158,7 +158,7 @@ namespace Microsoft.Build.Tasks
             /// </summary>
             public void Translate(ITranslator translator)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(translator, nameof(translator));
+                VerifyThrowArgumentNull(translator, nameof(translator));
 
                 translator.Translate(ref lastModified);
                 translator.Translate(ref assemblyName,
@@ -275,7 +275,7 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
-        /// Cache the results of a GetAssemblyName delegate. 
+        /// Cache the results of a GetAssemblyName delegate.
         /// </summary>
         /// <param name="getAssemblyNameValue">The delegate.</param>
         /// <returns>Cached version of the delegate.</returns>
@@ -286,7 +286,7 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
-        /// Cache the results of a GetAssemblyMetadata delegate. 
+        /// Cache the results of a GetAssemblyMetadata delegate.
         /// </summary>
         /// <param name="getAssemblyMetadataValue">The delegate.</param>
         /// <returns>Cached version of the delegate.</returns>
@@ -297,7 +297,7 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
-        /// Cache the results of a FileExists delegate. 
+        /// Cache the results of a FileExists delegate.
         /// </summary>
         /// <returns>Cached version of the delegate.</returns>
         internal FileExists CacheDelegate()
@@ -312,7 +312,7 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
-        /// Cache the results of a GetDirectories delegate. 
+        /// Cache the results of a GetDirectories delegate.
         /// </summary>
         /// <param name="getDirectoriesValue">The delegate.</param>
         /// <returns>Cached version of the delegate.</returns>
@@ -323,7 +323,7 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
-        /// Cache the results of a GetAssemblyRuntimeVersion delegate. 
+        /// Cache the results of a GetAssemblyRuntimeVersion delegate.
         /// </summary>
         /// <param name="getAssemblyRuntimeVersion">The delegate.</param>
         /// <returns>Cached version of the delegate.</returns>
@@ -359,7 +359,7 @@ namespace Microsoft.Build.Tasks
             DateTime lastModified = GetAndCacheLastModified(path);
             bool isCachedInInstance = instanceLocalFileStateCache.TryGetValue(path, out FileState cachedInstanceFileState);
             bool isCachedInProcess = s_processWideFileStateCache.TryGetValue(path, out FileState cachedProcessFileState);
-            
+
             bool isInstanceFileStateUpToDate = isCachedInInstance && lastModified == cachedInstanceFileState.LastModified;
             bool isProcessFileStateUpToDate = isCachedInProcess && lastModified == cachedProcessFileState.LastModified;
 
@@ -441,7 +441,7 @@ namespace Microsoft.Build.Tasks
                     }
                 }
             }
-            
+
             // Not a well-known FX assembly so now check the cache.
             FileState fileState = GetFileState(path);
             if (fileState.Assembly == null)
@@ -449,7 +449,7 @@ namespace Microsoft.Build.Tasks
                 fileState.Assembly = getAssemblyName(path);
 
                 // Certain assemblies, like mscorlib may not have metadata.
-                // Avoid continuously calling getAssemblyName on these files by 
+                // Avoid continuously calling getAssemblyName on these files by
                 // recording these as having an empty name.
                 if (fileState.Assembly == null)
                 {
@@ -483,7 +483,7 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
-        /// Cached implementation. Given an assembly name, crack it open and retrieve the list of dependent 
+        /// Cached implementation. Given an assembly name, crack it open and retrieve the list of dependent
         /// assemblies and  the list of scatter files.
         /// </summary>
         /// <param name="path">Path to the assembly.</param>
@@ -610,7 +610,7 @@ namespace Microsoft.Build.Tasks
                 return cached;
             }
 
-            // This path is currently uncalled. Use assert to tell the dev that adds a new code-path 
+            // This path is currently uncalled. Use assert to tell the dev that adds a new code-path
             // that this is an unoptimized path.
             Debug.Assert(false, "Using slow-path in SystemState.GetDirectories, was this intentional?");
 

@@ -25,7 +25,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// Logs a comment (BuildMessageEventArgs) with a certain MessageImportance level
         /// </summary>
         /// <param name="buildEventContext">Event context information which describes who is logging the event</param>
-        /// <param name="importance">How important is the message, this will determine which verbosities the message will show up on. 
+        /// <param name="importance">How important is the message, this will determine which verbosities the message will show up on.
         /// The higher the importance the lower the verbosity needs to be for the message to be seen</param>
         /// <param name="messageResourceName">String which identifies the message in the string resx</param>
         /// <param name="messageArgs">Arguments for the format string indexed by messageResourceName</param>
@@ -36,7 +36,7 @@ namespace Microsoft.Build.BackEnd.Logging
             {
                 if (!OnlyLogCriticalEvents)
                 {
-                    ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for comment message.");
+                    VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for comment message.");
 
                     LogCommentFromText(buildEventContext, importance, ResourceUtilities.GetResourceString(messageResourceName), messageArgs);
                 }
@@ -47,7 +47,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// Log a comment
         /// </summary>
         /// <param name="buildEventContext">Event context information which describes who is logging the event</param>
-        /// <param name="importance">How important is the message, this will determine which verbosities the message will show up on. 
+        /// <param name="importance">How important is the message, this will determine which verbosities the message will show up on.
         /// The higher the importance the lower the verbosity needs to be for the message to be seen</param>
         /// <param name="message">Message to log</param>
         /// <exception cref="InternalErrorException">BuildEventContext is null</exception>
@@ -64,7 +64,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// Log a comment
         /// </summary>
         /// <param name="buildEventContext">Event context information which describes who is logging the event</param>
-        /// <param name="importance">How important is the message, this will determine which verbosities the message will show up on. 
+        /// <param name="importance">How important is the message, this will determine which verbosities the message will show up on.
         /// The higher the importance the lower the verbosity needs to be for the message to be seen</param>
         /// <param name="message">Message to log</param>
         /// <param name="messageArgs">Message formatting arguments</param>
@@ -76,8 +76,8 @@ namespace Microsoft.Build.BackEnd.Logging
             {
                 if (!OnlyLogCriticalEvents)
                 {
-                    ErrorUtilities.VerifyThrow(buildEventContext != null, "buildEventContext was null");
-                    ErrorUtilities.VerifyThrow(message != null, "message was null");
+                    VerifyThrow(buildEventContext != null, "buildEventContext was null");
+                    VerifyThrow(message != null, "message was null");
 
                     BuildMessageEventArgs buildEvent = new BuildMessageEventArgs
                         (
@@ -131,7 +131,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for error message.");
+                VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for error message.");
 
                 string errorCode;
                 string helpKeyword;
@@ -156,9 +156,9 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(buildEventContext != null, "Must specify the buildEventContext");
-                ErrorUtilities.VerifyThrow(file != null, "Must specify the associated file.");
-                ErrorUtilities.VerifyThrow(message != null, "Need error message.");
+                VerifyThrow(buildEventContext != null, "Must specify the buildEventContext");
+                VerifyThrow(file != null, "Must specify the associated file.");
+                VerifyThrow(message != null, "Need error message.");
 
                 string subcategory = null;
 
@@ -187,7 +187,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 {
                     string projectFile;
                     _projectFileMap.TryGetValue(buildEventContext.ProjectContextId, out projectFile);
-                    ErrorUtilities.VerifyThrow(projectFile != null, "ContextID {0} should have been in the ID-to-project file mapping but wasn't!", buildEventContext.ProjectContextId);
+                    VerifyThrow(projectFile != null, "ContextID {0} should have been in the ID-to-project file mapping but wasn't!", buildEventContext.ProjectContextId);
                     buildEvent.ProjectFile = projectFile;
                 }
 
@@ -208,8 +208,8 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(invalidProjectFileException != null, "Need exception context.");
-                ErrorUtilities.VerifyThrow(buildEventContext != null, "buildEventContext is null");
+                VerifyThrow(invalidProjectFileException != null, "Need exception context.");
+                VerifyThrow(buildEventContext != null, "buildEventContext is null");
 
                 // Don't log the exception more than once.
                 if (!invalidProjectFileException.HasBeenLogged)
@@ -233,7 +233,7 @@ namespace Microsoft.Build.BackEnd.Logging
                     {
                         string projectFile;
                         _projectFileMap.TryGetValue(buildEventContext.ProjectContextId, out projectFile);
-                        ErrorUtilities.VerifyThrow(projectFile != null, "ContextID {0} should have been in the ID-to-project file mapping but wasn't!", buildEventContext.ProjectContextId);
+                        VerifyThrow(projectFile != null, "ContextID {0} should have been in the ID-to-project file mapping but wasn't!", buildEventContext.ProjectContextId);
                         buildEvent.ProjectFile = projectFile;
                     }
 
@@ -271,7 +271,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(taskName != null, "Must specify the name of the task that failed.");
+                VerifyThrow(taskName != null, "Must specify the name of the task that failed.");
 
                 LogFatalError(buildEventContext, exception, file, "FatalTaskError", taskName);
             }
@@ -291,7 +291,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for error message.");
+                VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for error message.");
 
                 string errorCode;
                 string helpKeyword;
@@ -330,7 +330,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(!String.IsNullOrEmpty(taskName), "Must specify the name of the task that failed.");
+                VerifyThrow(!String.IsNullOrEmpty(taskName), "Must specify the name of the task that failed.");
 
                 string warningCode;
                 string helpKeyword;
@@ -360,7 +360,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for warning message.");
+                VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for warning message.");
 
                 string warningCode;
                 string helpKeyword;
@@ -382,9 +382,9 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(file != null, "Must specify the associated file.");
-                ErrorUtilities.VerifyThrow(message != null, "Need warning message.");
-                ErrorUtilities.VerifyThrow(buildEventContext != null, "Need a BuildEventContext");
+                VerifyThrow(file != null, "Must specify the associated file.");
+                VerifyThrow(message != null, "Need warning message.");
+                VerifyThrow(buildEventContext != null, "Need a BuildEventContext");
 
                 string subcategory = null;
 
@@ -412,7 +412,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 {
                     string projectFile;
                     _projectFileMap.TryGetValue(buildEventContext.ProjectContextId, out projectFile);
-                    ErrorUtilities.VerifyThrow(projectFile != null, "ContextID {0} should have been in the ID-to-project file mapping but wasn't!", buildEventContext.ProjectContextId);
+                    VerifyThrow(projectFile != null, "ContextID {0} should have been in the ID-to-project file mapping but wasn't!", buildEventContext.ProjectContextId);
                     buildEvent.ProjectFile = projectFile;
                 }
 
@@ -425,7 +425,7 @@ namespace Microsoft.Build.BackEnd.Logging
         #region Log status
 
         /// <summary>
-        /// Logs that the build has started 
+        /// Logs that the build has started
         /// </summary>
         public void LogBuildStarted()
         {
@@ -524,7 +524,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(projectEvaluationEventContext != null, "projectBuildEventContext");
+                VerifyThrow(projectEvaluationEventContext != null, "projectBuildEventContext");
 
                 ProjectEvaluationFinishedEventArgs buildEvent =
                     new ProjectEvaluationFinishedEventArgs(ResourceUtilities.GetResourceString("EvaluationFinished"), projectFile)
@@ -559,20 +559,20 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(nodeBuildEventContext != null, "Need a nodeBuildEventContext");
+                VerifyThrow(nodeBuildEventContext != null, "Need a nodeBuildEventContext");
                 BuildEventContext projectBuildEventContext = new BuildEventContext(submissionId, nodeBuildEventContext.NodeId, evaluationId, projectInstanceId, NextProjectId, BuildEventContext.InvalidTargetId, BuildEventContext.InvalidTaskId);
 
                 // PERF: Not using VerifyThrow to avoid boxing of projectBuildEventContext.ProjectContextId in the non-error case.
                 if (_projectFileMap.ContainsKey(projectBuildEventContext.ProjectContextId))
                 {
-                    ErrorUtilities.ThrowInternalError("ContextID {0} for project {1} should not already be in the ID-to-file mapping!", projectBuildEventContext.ProjectContextId, projectFile);
+                    ThrowInternalError("ContextID {0} for project {1} should not already be in the ID-to-file mapping!", projectBuildEventContext.ProjectContextId, projectFile);
                 }
 
                 _projectFileMap[projectBuildEventContext.ProjectContextId] = projectFile;
 
-                ErrorUtilities.VerifyThrow(parentBuildEventContext != null, "Need a parentBuildEventContext");
+                VerifyThrow(parentBuildEventContext != null, "Need a parentBuildEventContext");
 
-                ErrorUtilities.VerifyThrow(_configCache.Value.HasConfiguration(projectInstanceId), "Cannot find the project configuration while injecting non-serialized data from out-of-proc node.");
+                VerifyThrow(_configCache.Value.HasConfiguration(projectInstanceId), "Cannot find the project configuration while injecting non-serialized data from out-of-proc node.");
                 var buildRequestConfiguration = _configCache.Value[projectInstanceId];
 
                 // Always log GlobalProperties on ProjectStarted
@@ -611,7 +611,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(projectBuildEventContext != null, "projectBuildEventContext");
+                VerifyThrow(projectBuildEventContext != null, "projectBuildEventContext");
 
                 ProjectFinishedEventArgs buildEvent = new ProjectFinishedEventArgs
                     (
@@ -626,7 +626,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 // PERF: Not using VerifyThrow to avoid boxing of projectBuildEventContext.ProjectContextId in the non-error case.
                 if (!_projectFileMap.Remove(projectBuildEventContext.ProjectContextId))
                 {
-                    ErrorUtilities.ThrowInternalError("ContextID {0} for project {1} should be in the ID-to-file mapping!", projectBuildEventContext.ProjectContextId, projectFile);
+                    ThrowInternalError("ContextID {0} for project {1} should be in the ID-to-file mapping!", projectBuildEventContext.ProjectContextId, projectFile);
                 }
             }
         }
@@ -646,7 +646,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(projectBuildEventContext != null, "projectBuildEventContext is null");
+                VerifyThrow(projectBuildEventContext != null, "projectBuildEventContext is null");
                 BuildEventContext targetBuildEventContext = new BuildEventContext
                     (
                         projectBuildEventContext.SubmissionId,
@@ -694,7 +694,7 @@ namespace Microsoft.Build.BackEnd.Logging
             {
                 if (!OnlyLogCriticalEvents)
                 {
-                    ErrorUtilities.VerifyThrow(targetBuildEventContext != null, "targetBuildEventContext is null");
+                    VerifyThrow(targetBuildEventContext != null, "targetBuildEventContext is null");
 
                     TargetFinishedEventArgs buildEvent = new TargetFinishedEventArgs
                         (
@@ -725,7 +725,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(taskBuildEventContext != null, "targetBuildEventContext is null");
+                VerifyThrow(taskBuildEventContext != null, "targetBuildEventContext is null");
                 if (!OnlyLogCriticalEvents)
                 {
                     TaskStartedEventArgs buildEvent = new TaskStartedEventArgs
@@ -757,7 +757,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(targetBuildEventContext != null, "targetBuildEventContext is null");
+                VerifyThrow(targetBuildEventContext != null, "targetBuildEventContext is null");
                 BuildEventContext taskBuildEventContext = new BuildEventContext
                     (
                         targetBuildEventContext.SubmissionId,
@@ -803,7 +803,7 @@ namespace Microsoft.Build.BackEnd.Logging
             {
                 if (!OnlyLogCriticalEvents)
                 {
-                    ErrorUtilities.VerifyThrow(taskBuildEventContext != null, "taskBuildEventContext is null");
+                    VerifyThrow(taskBuildEventContext != null, "taskBuildEventContext is null");
 
                     TaskFinishedEventArgs buildEvent = new TaskFinishedEventArgs
                         (
@@ -834,7 +834,7 @@ namespace Microsoft.Build.BackEnd.Logging
         {
             lock (_lockObject)
             {
-                ErrorUtilities.VerifyThrow(eventName != null, "eventName is null");
+                VerifyThrow(eventName != null, "eventName is null");
 
                 TelemetryEventArgs telemetryEvent = new TelemetryEventArgs
                 {

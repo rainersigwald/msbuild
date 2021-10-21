@@ -393,7 +393,7 @@ namespace Microsoft.Build.Evaluation
                 }
                 else
                 {
-                    ErrorUtilities.ThrowInternalErrorUnreachable();
+                    ThrowInternalErrorUnreachable();
                 }
             }
         }

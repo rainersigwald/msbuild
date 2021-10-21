@@ -51,9 +51,9 @@ namespace Microsoft.Build.Execution
             List<ProjectPropertyGroupTaskPropertyInstance> properties
             )
         {
-            ErrorUtilities.VerifyThrowInternalNull(condition, nameof(condition));
-            ErrorUtilities.VerifyThrowInternalNull(location, nameof(location));
-            ErrorUtilities.VerifyThrowInternalNull(properties, nameof(properties));
+            VerifyThrowInternalNull(condition, nameof(condition));
+            VerifyThrowInternalNull(location, nameof(location));
+            VerifyThrowInternalNull(properties, nameof(properties));
 
             _condition = condition;
             _location = location;

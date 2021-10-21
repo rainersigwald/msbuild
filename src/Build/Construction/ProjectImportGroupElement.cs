@@ -31,7 +31,7 @@ namespace Microsoft.Build.Construction
         internal ProjectImportGroupElement(XmlElementWithLocation xmlElement, ProjectElementContainer parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectImportElement AddImport(string project)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(project, nameof(project));
+            VerifyThrowArgumentLength(project, nameof(project));
 
             ProjectImportElement newImport = ContainingProject.CreateImportElement(project);
             AppendChild(newImport);
@@ -86,7 +86,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectRootElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectRootElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

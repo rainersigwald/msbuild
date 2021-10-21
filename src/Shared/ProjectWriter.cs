@@ -137,7 +137,7 @@ namespace Microsoft.Build.Shared
                 // NOTE: use the Regex with no (named) capturing groups, otherwise Regex.Split() will split on them
                 string[] surroundingTextPieces = itemVectorTransformRawPattern.Value.Split(text);
 
-                ErrorUtilities.VerifyThrow(itemVectorTransforms.Count == (surroundingTextPieces.Length - 1),
+                VerifyThrow(itemVectorTransforms.Count == (surroundingTextPieces.Length - 1),
                     "We must have two pieces of surrounding text for every item vector transform found.");
 
                 // write each piece of text before a transform, followed by the transform
@@ -149,7 +149,7 @@ namespace Microsoft.Build.Shared
                     // break up the transform into its constituent pieces
                     Match itemVectorTransform = itemVectorTransformPattern.Value.Match(itemVectorTransforms[i].Value);
 
-                    ErrorUtilities.VerifyThrow(itemVectorTransform.Success,
+                    VerifyThrow(itemVectorTransform.Success,
                         "Item vector transform must be matched by both the raw and decorated regular expressions.");
 
                     // write each piece of the transform normally, except for the arrow -- write that without escaping

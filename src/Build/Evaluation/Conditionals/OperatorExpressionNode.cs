@@ -17,7 +17,7 @@ namespace Microsoft.Build.Evaluation
         internal override double NumericEvaluate(ConditionEvaluator.IConditionEvaluationState state)
         {
             // Should be unreachable: all calls check CanNumericEvaluate() first
-            ErrorUtilities.VerifyThrow(false, "Cannot numeric evaluate an operator");
+            VerifyThrow(false, "Cannot numeric evaluate an operator");
             return 0.0D;
         }
 
@@ -26,7 +26,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         internal override Version VersionEvaluate(ConditionEvaluator.IConditionEvaluationState state)
         {
-            ErrorUtilities.VerifyThrow(false, "Cannot version evaluate an operator");
+            VerifyThrow(false, "Cannot version evaluate an operator");
             return null;
         }
 
@@ -75,7 +75,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// If any expression nodes cache any state for the duration of evaluation, 
+        /// If any expression nodes cache any state for the duration of evaluation,
         /// now's the time to clean it up
         /// </summary>
         internal override void ResetState()

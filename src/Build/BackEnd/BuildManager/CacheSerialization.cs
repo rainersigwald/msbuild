@@ -12,7 +12,7 @@ namespace Microsoft.Build.Execution
     {
         public static string SerializeCaches(IConfigCache configCache, IResultsCache resultsCache, string outputCacheFile)
         {
-            ErrorUtilities.VerifyThrowInternalNull(outputCacheFile, nameof(outputCacheFile));
+            VerifyThrowInternalNull(outputCacheFile, nameof(outputCacheFile));
 
             try
             {
@@ -41,7 +41,7 @@ namespace Microsoft.Build.Execution
                             configCacheToSerialize = configCacheWithOverride.CurrentCache;
                             break;
                         default:
-                            ErrorUtilities.ThrowInternalErrorUnreachable();
+                            ThrowInternalErrorUnreachable();
                             break;
                     }
 
@@ -54,7 +54,7 @@ namespace Microsoft.Build.Execution
                             resultsCacheToSerialize = resultsCacheWithOverride.CurrentCache;
                             break;
                         default:
-                            ErrorUtilities.ThrowInternalErrorUnreachable();
+                            ThrowInternalErrorUnreachable();
                             break;
                     }
 
@@ -85,8 +85,8 @@ namespace Microsoft.Build.Execution
                     translator.Translate(ref resultsCache);
                 }
 
-                ErrorUtilities.VerifyThrowInternalNull(configCache, nameof(configCache));
-                ErrorUtilities.VerifyThrowInternalNull(resultsCache, nameof(resultsCache));
+                VerifyThrowInternalNull(configCache, nameof(configCache));
+                VerifyThrowInternalNull(resultsCache, nameof(resultsCache));
 
                 return (configCache, resultsCache, null);
             }

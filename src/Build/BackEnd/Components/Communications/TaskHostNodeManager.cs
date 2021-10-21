@@ -8,13 +8,13 @@ using Microsoft.Build.Execution;
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>
-    /// The NodeManager class is responsible for marshalling data to/from the NodeProviders and organizing the 
+    /// The NodeManager class is responsible for marshalling data to/from the NodeProviders and organizing the
     /// creation of new nodes on request.
     /// </summary>
     internal class TaskHostNodeManager : INodeManager
     {
         /// <summary>
-        /// The node provider for task hosts. 
+        /// The node provider for task hosts.
         /// </summary>
         private INodeProvider _outOfProcTaskHostNodeProvider;
 
@@ -24,7 +24,7 @@ namespace Microsoft.Build.BackEnd
         private IBuildComponentHost _componentHost;
 
         /// <summary>
-        /// Tracks whether ShutdownComponent has been called.  
+        /// Tracks whether ShutdownComponent has been called.
         /// </summary>
         private bool _componentShutdown;
 
@@ -65,7 +65,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="enableReuse">Flag indicating if nodes should prepare for reuse.</param>
         public void ShutdownConnectedNodes(bool enableReuse)
         {
-            ErrorUtilities.VerifyThrow(!_componentShutdown, "We should never be calling ShutdownNodes after ShutdownComponent has been called");
+            VerifyThrow(!_componentShutdown, "We should never be calling ShutdownNodes after ShutdownComponent has been called");
             _outOfProcTaskHostNodeProvider?.ShutdownConnectedNodes(enableReuse);
         }
 
@@ -86,8 +86,8 @@ namespace Microsoft.Build.BackEnd
         /// <param name="host">The component host</param>
         public void InitializeComponent(IBuildComponentHost host)
         {
-            ErrorUtilities.VerifyThrow(_componentHost == null, "TaskHostNodeManager already initialized.");
-            ErrorUtilities.VerifyThrow(host != null, "We can't create a TaskHostNodeManager with a null componentHost");
+            VerifyThrow(_componentHost == null, "TaskHostNodeManager already initialized.");
+            VerifyThrow(host != null, "We can't create a TaskHostNodeManager with a null componentHost");
 
             _componentHost = host;
             _outOfProcTaskHostNodeProvider = _componentHost.GetComponent(BuildComponentType.OutOfProcTaskHostNodeProvider) as INodeProvider;
@@ -166,7 +166,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         static internal IBuildComponent CreateComponent(BuildComponentType type)
         {
-            ErrorUtilities.VerifyThrow(type == BuildComponentType.TaskHostNodeManager, "Cannot create component of type {0}", type);
+            VerifyThrow(type == BuildComponentType.TaskHostNodeManager, "Cannot create component of type {0}", type);
             return new TaskHostNodeManager();
         }
     }

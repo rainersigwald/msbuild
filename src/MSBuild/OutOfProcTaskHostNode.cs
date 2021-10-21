@@ -204,7 +204,7 @@ namespace Microsoft.Build.CommandLine
         {
             get
             {
-                ErrorUtilities.VerifyThrow(_currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
+                VerifyThrow(_currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
                 return _currentConfiguration.ContinueOnError;
             }
         }
@@ -216,7 +216,7 @@ namespace Microsoft.Build.CommandLine
         {
             get
             {
-                ErrorUtilities.VerifyThrow(_currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
+                VerifyThrow(_currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
                 return _currentConfiguration.LineNumberOfTask;
             }
         }
@@ -228,7 +228,7 @@ namespace Microsoft.Build.CommandLine
         {
             get
             {
-                ErrorUtilities.VerifyThrow(_currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
+                VerifyThrow(_currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
                 return _currentConfiguration.ColumnNumberOfTask;
             }
         }
@@ -240,7 +240,7 @@ namespace Microsoft.Build.CommandLine
         {
             get
             {
-                ErrorUtilities.VerifyThrow(_currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
+                VerifyThrow(_currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
                 return _currentConfiguration.ProjectFileOfTask;
             }
         }
@@ -519,7 +519,7 @@ namespace Microsoft.Build.CommandLine
             {
                 get
                 {
-                    ErrorUtilities.VerifyThrow(_taskHost._currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
+                    VerifyThrow(_taskHost._currentConfiguration != null, "We should never have a null configuration during a BuildEngine callback!");
                     return _taskHost._currentConfiguration.IsTaskInputLoggingEnabled;
                 }
             }
@@ -693,7 +693,7 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private void HandleTaskHostConfiguration(TaskHostConfiguration taskHostConfiguration)
         {
-            ErrorUtilities.VerifyThrow(!_isTaskExecuting, "Why are we getting a TaskHostConfiguration packet while we're still executing a task?");
+            VerifyThrow(!_isTaskExecuting, "Why are we getting a TaskHostConfiguration packet while we're still executing a task?");
             _currentConfiguration = taskHostConfiguration;
 
             // Kick off the task running thread.
@@ -707,14 +707,14 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private void CompleteTask()
         {
-            ErrorUtilities.VerifyThrow(!_isTaskExecuting, "The task should be done executing before CompleteTask.");
+            VerifyThrow(!_isTaskExecuting, "The task should be done executing before CompleteTask.");
             if (_nodeEndpoint.LinkStatus == LinkStatus.Active)
             {
                 TaskHostTaskComplete taskCompletePacketToSend;
 
                 lock (_taskCompleteLock)
                 {
-                    ErrorUtilities.VerifyThrowInternalNull(_taskCompletePacket, "taskCompletePacket");
+                    VerifyThrowInternalNull(_taskCompletePacket, "taskCompletePacket");
                     taskCompletePacketToSend = _taskCompletePacket;
                     _taskCompletePacket = null;
                 }
@@ -769,7 +769,7 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private void HandleNodeBuildComplete(NodeBuildComplete buildComplete)
         {
-            ErrorUtilities.VerifyThrow(!_isTaskExecuting, "We should never have a task in the process of executing when we receive NodeBuildComplete.");
+            VerifyThrow(!_isTaskExecuting, "We should never have a task in the process of executing when we receive NodeBuildComplete.");
 
             // TaskHostNodes lock assemblies with custom tasks produced by build scripts if NodeReuse is on. This causes failures if the user builds twice.
             _shutdownReason = buildComplete.PrepareForReuse && Traits.Instance.EscapeHatches.ReuseTaskHostNodes ? NodeEngineShutdownReason.BuildCompleteReuse : NodeEngineShutdownReason.BuildComplete;
@@ -985,7 +985,7 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private void SetTaskHostEnvironment(IDictionary<string, string> environment)
         {
-            ErrorUtilities.VerifyThrowInternalNull(s_mismatchedEnvironmentValues, "mismatchedEnvironmentValues");
+            VerifyThrowInternalNull(s_mismatchedEnvironmentValues, "mismatchedEnvironmentValues");
             IDictionary<string, string> updatedEnvironment = null;
 
             if (_updateEnvironment)
@@ -1048,7 +1048,7 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private IDictionary<string, string> UpdateEnvironmentForMainNode(IDictionary<string, string> environment)
         {
-            ErrorUtilities.VerifyThrowInternalNull(s_mismatchedEnvironmentValues, "mismatchedEnvironmentValues");
+            VerifyThrowInternalNull(s_mismatchedEnvironmentValues, "mismatchedEnvironmentValues");
             IDictionary<string, string> updatedEnvironment = null;
 
             if (_updateEnvironment)
@@ -1174,7 +1174,7 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private void LogMessageFromResource(MessageImportance importance, string messageResource, params object[] messageArgs)
         {
-            ErrorUtilities.VerifyThrow(_currentConfiguration != null, "We should never have a null configuration when we're trying to log messages!");
+            VerifyThrow(_currentConfiguration != null, "We should never have a null configuration when we're trying to log messages!");
 
             // Using the CLR 2 build event because this class is shared between MSBuildTaskHost.exe (CLR2) and MSBuild.exe (CLR4+)
             BuildMessageEventArgs message = new BuildMessageEventArgs
@@ -1193,7 +1193,7 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private void LogWarningFromResource(string messageResource, params object[] messageArgs)
         {
-            ErrorUtilities.VerifyThrow(_currentConfiguration != null, "We should never have a null configuration when we're trying to log warnings!");
+            VerifyThrow(_currentConfiguration != null, "We should never have a null configuration when we're trying to log warnings!");
 
             // Using the CLR 2 build event because this class is shared between MSBuildTaskHost.exe (CLR2) and MSBuild.exe (CLR4+)
             BuildWarningEventArgs warning = new BuildWarningEventArgs
@@ -1218,7 +1218,7 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private void LogErrorFromResource(string messageResource)
         {
-            ErrorUtilities.VerifyThrow(_currentConfiguration != null, "We should never have a null configuration when we're trying to log errors!");
+            VerifyThrow(_currentConfiguration != null, "We should never have a null configuration when we're trying to log errors!");
 
             // Using the CLR 2 build event because this class is shared between MSBuildTaskHost.exe (CLR2) and MSBuild.exe (CLR4+)
             BuildErrorEventArgs error = new BuildErrorEventArgs

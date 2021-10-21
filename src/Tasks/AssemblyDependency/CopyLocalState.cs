@@ -100,9 +100,9 @@ namespace Microsoft.Build.Tasks
                     throw new InternalErrorException("Unexpected CopyLocal flag.");
                     // Used to be:
                     //
-                    //   ErrorUtilities.VerifyThrow(false, "Unexpected CopyLocal flag.");
+                    //   VerifyThrow(false, "Unexpected CopyLocal flag.");
                     //
-                    // but this popped up constantly when debugging because its call 
+                    // but this popped up constantly when debugging because its call
                     // directly by a property accessor in Reference.
             }
         }

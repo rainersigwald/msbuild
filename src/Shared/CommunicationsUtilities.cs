@@ -183,7 +183,7 @@ namespace Microsoft.Build.Internal
             // The DebugUtils static constructor can set the MSBUILDDEBUGPATH environment variable to propagate the debug path to out of proc nodes.
             // Need to ensure that constructor is called before this method returns in order to capture its env var write.
             // Otherwise the env var is not captured and thus gets deleted when RequiestBuilder resets the environment based on the cached results of this method.
-            ErrorUtilities.VerifyThrowInternalNull(DebugUtils.ProcessInfoString, nameof(DebugUtils.DebugPath));
+            VerifyThrowInternalNull(DebugUtils.ProcessInfoString, nameof(DebugUtils.DebugPath));
 #endif
 
             Dictionary<string, string> table = new Dictionary<string, string>(200, StringComparer.OrdinalIgnoreCase); // Razzle has 150 environment variables
@@ -213,8 +213,8 @@ namespace Microsoft.Build.Internal
                         // Copy strings out, parsing into pairs and inserting into the table.
                         // The first few environment variable entries start with an '='!
                         // The current working directory of every drive (except for those drives
-                        // you haven't cd'ed into in your DOS window) are stored in the 
-                        // environment block (as =C:=pwd) and the program's exit code is 
+                        // you haven't cd'ed into in your DOS window) are stored in the
+                        // environment block (as =C:=pwd) and the program's exit code is
                         // as well (=ExitCode=00000000)  Skip all that start with =.
                         // Read docs about Environment Blocks on MSDN's CreateProcess page.
 
@@ -228,8 +228,8 @@ namespace Microsoft.Build.Internal
                             int startKey = i;
 
                             // Skip to key
-                            // On some old OS, the environment block can be corrupted. 
-                            // Some lines will not have '=', so we need to check for '\0'. 
+                            // On some old OS, the environment block can be corrupted.
+                            // Some lines will not have '=', so we need to check for '\0'.
                             while (*(pEnvironmentBlock + i) != '=' && *(pEnvironmentBlock + i) != '\0')
                             {
                                 i++;
@@ -306,7 +306,7 @@ namespace Microsoft.Build.Internal
                     }
                 }
 
-                // Then, make sure the old ones have their old values. 
+                // Then, make sure the old ones have their old values.
                 foreach (KeyValuePair<string, string> entry in newEnvironment)
                 {
                     Environment.SetEnvironmentVariable(entry.Key, entry.Value);
@@ -337,7 +337,7 @@ namespace Microsoft.Build.Internal
                 Array.Reverse(bytes);
             }
 
-            ErrorUtilities.VerifyThrow(bytes.Length == 4, "Int should be 4 bytes");
+            VerifyThrow(bytes.Length == 4, "Int should be 4 bytes");
 
             stream.Write(bytes, 0, bytes.Length);
         }
@@ -489,8 +489,8 @@ namespace Microsoft.Build.Internal
                 }
                 else
                 {
-                    ErrorUtilities.VerifyThrow(taskHostParameters.TryGetValue(XMakeAttributes.runtime, out string runtimeVersion), "Should always have an explicit runtime when we call this method.");
-                    ErrorUtilities.VerifyThrow(taskHostParameters.TryGetValue(XMakeAttributes.architecture, out string architecture), "Should always have an explicit architecture when we call this method.");
+                    VerifyThrow(taskHostParameters.TryGetValue(XMakeAttributes.runtime, out string runtimeVersion), "Should always have an explicit runtime when we call this method.");
+                    VerifyThrow(taskHostParameters.TryGetValue(XMakeAttributes.architecture, out string architecture), "Should always have an explicit architecture when we call this method.");
 
                     clrVersion = runtimeVersion.Equals(XMakeAttributes.MSBuildRuntimeValues.clr4, StringComparison.OrdinalIgnoreCase) ? 4 : 2;
                     is64Bit = architecture.Equals(XMakeAttributes.MSBuildArchitectureValues.x64);

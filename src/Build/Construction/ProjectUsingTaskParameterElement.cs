@@ -29,7 +29,7 @@ namespace Microsoft.Build.Construction
         internal ProjectUsingTaskParameterElement(XmlElementWithLocation xmlElement, UsingTaskParameterGroupElement parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -41,13 +41,13 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Condition should never be set, but the getter returns null instead of throwing 
+        /// Condition should never be set, but the getter returns null instead of throwing
         /// because a nonexistent condition is implicitly true
         /// </summary>
         public override string Condition
         {
             get => null;
-            set => ErrorUtilities.ThrowInvalidOperation("OM_CannotGetSetCondition");
+            set => ThrowInvalidOperation("OM_CannotGetSetCondition");
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, nameof(Name));
+                VerifyThrowArgumentLength(value, nameof(Name));
 
                 if (Link != null) { TaskParameterLink.Name = value; return; }
                 // TODO: There seems to be a bug here
@@ -137,7 +137,7 @@ namespace Microsoft.Build.Construction
         {
             get
             {
-                ErrorUtilities.ThrowInternalError("Should not evaluate this");
+                ThrowInternalError("Should not evaluate this");
                 return null;
             }
         }
@@ -188,7 +188,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is UsingTaskParameterGroupElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is UsingTaskParameterGroupElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

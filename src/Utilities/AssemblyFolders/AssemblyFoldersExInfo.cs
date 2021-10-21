@@ -21,9 +21,9 @@ namespace Microsoft.Build.Utilities
         /// </summary>
         public AssemblyFoldersExInfo(RegistryHive hive, RegistryView view, string registryKey, string directoryPath, Version targetFrameworkVersion)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(registryKey, nameof(registryKey));
-            ErrorUtilities.VerifyThrowArgumentNull(directoryPath, nameof(directoryPath));
-            ErrorUtilities.VerifyThrowArgumentNull(targetFrameworkVersion, nameof(targetFrameworkVersion));
+            VerifyThrowArgumentNull(registryKey, nameof(registryKey));
+            VerifyThrowArgumentNull(directoryPath, nameof(directoryPath));
+            VerifyThrowArgumentNull(targetFrameworkVersion, nameof(targetFrameworkVersion));
 
             Hive = hive;
             View = view;

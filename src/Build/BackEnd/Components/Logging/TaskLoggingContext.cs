@@ -123,7 +123,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// </summary>
         internal void LogTaskBatchFinished(string projectFullPath, bool success)
         {
-            ErrorUtilities.VerifyThrow(this.IsValid, "invalid");
+            VerifyThrow(this.IsValid, "invalid");
 
             LoggingService.LogTaskFinished
                 (
@@ -144,7 +144,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <param name="taskName">The task in which the warning occurred</param>
         internal void LogTaskWarningFromException(Exception exception, BuildEventFileInfo file, string taskName)
         {
-            ErrorUtilities.VerifyThrow(IsValid, "must be valid");
+            VerifyThrow(IsValid, "must be valid");
             LoggingService.LogTaskWarningFromException(BuildEventContext, exception, file, taskName);
         }
 

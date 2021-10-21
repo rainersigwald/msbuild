@@ -90,7 +90,7 @@ namespace Microsoft.Build.Globbing
         /// <inheritdoc />
         public bool IsMatch(string stringToMatch)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(stringToMatch, nameof(stringToMatch));
+            VerifyThrowArgumentNull(stringToMatch, nameof(stringToMatch));
 
             if (!IsLegal)
             {
@@ -114,7 +114,7 @@ namespace Microsoft.Build.Globbing
         /// <returns></returns>
         public MatchInfoResult MatchInfo(string stringToMatch)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(stringToMatch, nameof(stringToMatch));
+            VerifyThrowArgumentNull(stringToMatch, nameof(stringToMatch));
 
             if (FileUtilities.PathIsInvalid(stringToMatch) || !IsLegal)
             {
@@ -167,9 +167,9 @@ namespace Microsoft.Build.Globbing
         /// <returns></returns>
         public static MSBuildGlob Parse(string globRoot, string fileSpec)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(globRoot, nameof(globRoot));
-            ErrorUtilities.VerifyThrowArgumentNull(fileSpec, nameof(fileSpec));
-            ErrorUtilities.VerifyThrowArgumentInvalidPath(globRoot, nameof(globRoot));
+            VerifyThrowArgumentNull(globRoot, nameof(globRoot));
+            VerifyThrowArgumentNull(fileSpec, nameof(fileSpec));
+            VerifyThrowArgumentInvalidPath(globRoot, nameof(globRoot));
 
             if (string.IsNullOrEmpty(globRoot))
             {

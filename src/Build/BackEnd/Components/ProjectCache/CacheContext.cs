@@ -30,7 +30,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
             ProjectGraph? graph = null,
             IReadOnlyCollection<ProjectGraphEntryPoint>? graphEntryPoints = null)
         {
-            ErrorUtilities.VerifyThrow(
+            VerifyThrow(
                 (graph != null) ^ (graphEntryPoints != null),
                 "Either Graph is specified, or GraphEntryPoints is specified. Not both.");
 

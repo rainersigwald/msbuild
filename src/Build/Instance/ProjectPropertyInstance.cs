@@ -26,7 +26,7 @@ namespace Microsoft.Build.Execution
         private string _name;
 
         /// <summary>
-        /// Evaluated value: stored escaped. 
+        /// Evaluated value: stored escaped.
         /// </summary>
         private string _escapedValue;
 
@@ -43,7 +43,7 @@ namespace Microsoft.Build.Execution
         /// Name of the property
         /// </summary>
         /// <remarks>
-        /// This cannot be set, as it is used as the key into 
+        /// This cannot be set, as it is used as the key into
         /// the project's properties table.
         /// </remarks>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -66,7 +66,7 @@ namespace Microsoft.Build.Execution
             set
             {
                 ProjectInstance.VerifyThrowNotImmutable(IsImmutable);
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(value));
+                VerifyThrowArgumentNull(value, nameof(value));
                 _escapedValue = EscapingUtilities.Escape(value);
             }
         }
@@ -128,7 +128,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         void ITranslatable.Translate(ITranslator translator)
         {
-            ErrorUtilities.VerifyThrow(translator.Mode == TranslationDirection.WriteToStream, "write only");
+            VerifyThrow(translator.Mode == TranslationDirection.WriteToStream, "write only");
 
             translator.Translate(ref _name);
             translator.Translate(ref _escapedValue);
@@ -159,7 +159,7 @@ namespace Microsoft.Build.Execution
         }
 
         /// <summary>
-        /// Called before the build when virtual properties are added, 
+        /// Called before the build when virtual properties are added,
         /// and during the build when tasks emit properties.
         /// If name is invalid or reserved, throws ArgumentException.
         /// Creates mutable object.
@@ -173,7 +173,7 @@ namespace Microsoft.Build.Execution
         }
 
         /// <summary>
-        /// Called before the build when virtual properties are added, 
+        /// Called before the build when virtual properties are added,
         /// and during the build when tasks emit properties.
         /// If name is invalid or reserved, throws ArgumentException.
         /// Creates mutable object.
@@ -239,7 +239,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal static ProjectPropertyInstance FactoryForDeserialization(ITranslator translator)
         {
-            ErrorUtilities.VerifyThrow(translator.Mode == TranslationDirection.ReadFromStream, "read only");
+            VerifyThrow(translator.Mode == TranslationDirection.ReadFromStream, "read only");
 
             string name = null;
             string escapedValue = null;
@@ -291,11 +291,11 @@ namespace Microsoft.Build.Execution
         private static ProjectPropertyInstance Create(string name, string escapedValue, bool mayBeReserved, ElementLocation location, bool isImmutable)
         {
             // Does not check immutability as this is only called during build (which is already protected) or evaluation
-            ErrorUtilities.VerifyThrowArgumentNull(escapedValue, nameof(escapedValue));
+            VerifyThrowArgumentNull(escapedValue, nameof(escapedValue));
             if (location == null)
             {
-                ErrorUtilities.VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(name), "OM_ReservedName", name);
-                ErrorUtilities.VerifyThrowArgument(mayBeReserved || !ReservedPropertyNames.IsReservedProperty(name), "OM_CannotCreateReservedProperty", name);
+                VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(name), "OM_ReservedName", name);
+                VerifyThrowArgument(mayBeReserved || !ReservedPropertyNames.IsReservedProperty(name), "OM_CannotCreateReservedProperty", name);
                 XmlUtilities.VerifyThrowArgumentValidElementName(name);
             }
             else

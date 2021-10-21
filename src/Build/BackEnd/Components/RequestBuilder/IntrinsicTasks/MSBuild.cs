@@ -71,8 +71,8 @@ namespace Microsoft.Build.BackEnd
         public ITaskHost HostObject { get; set; }
 
         /// <summary>
-        /// A list of property name/value pairs to apply as global properties to 
-        /// the child project.  
+        /// A list of property name/value pairs to apply as global properties to
+        /// the child project.
         /// A typical input: "propname1=propvalue1", "propname2=propvalue2", "propname3=propvalue3".
         /// </summary>
         /// <remarks>
@@ -80,7 +80,7 @@ namespace Microsoft.Build.BackEnd
         ///     <MSBuild
         ///         Properties="TargetPath=@(OutputPathItem)" />
         /// The engine fails on this because it doesn't like item lists being concatenated with string
-        /// constants when the data is being passed into an array parameter.  So the workaround is to 
+        /// constants when the data is being passed into an array parameter.  So the workaround is to
         /// write this in the project file:
         ///     <MSBuild
         ///         Properties="@(OutputPathItem->'TargetPath=%(Identity)')" />
@@ -137,7 +137,7 @@ namespace Microsoft.Build.BackEnd
         public string ToolsVersion { get; set; } = null;
 
         /// <summary>
-        /// When this is true we call the engine with all the projects at once instead of 
+        /// When this is true we call the engine with all the projects at once instead of
         /// calling the engine once per project
         /// </summary>
         public bool BuildInParallel { get; set; }
@@ -172,11 +172,11 @@ namespace Microsoft.Build.BackEnd
                         return "True";
 
                     default:
-                        ErrorUtilities.ThrowInternalError("Unexpected case {0}", _skipNonexistentProjects);
+                        ThrowInternalError("Unexpected case {0}", _skipNonexistentProjects);
                         break;
                 }
 
-                ErrorUtilities.ThrowInternalErrorUnreachable();
+                ThrowInternalErrorUnreachable();
                 return null;
             }
 
@@ -188,7 +188,7 @@ namespace Microsoft.Build.BackEnd
                 }
                 else
                 {
-                    ErrorUtilities.VerifyThrowArgument(ConversionUtilities.CanConvertStringToBool(value), "MSBuild.InvalidSkipNonexistentProjectValue");
+                    VerifyThrowArgument(ConversionUtilities.CanConvertStringToBool(value), "MSBuild.InvalidSkipNonexistentProjectValue");
                     bool originalSkipValue = ConversionUtilities.ConvertStringToBool(value);
                     _skipNonexistentProjects = originalSkipValue ? SkipNonexistentProjectsBehavior.Skip : SkipNonexistentProjectsBehavior.Error;
                 }
@@ -197,7 +197,7 @@ namespace Microsoft.Build.BackEnd
 
         /// <summary>
         /// Un-escape Targets, Properties (including Properties and AdditionalProperties as Project item metadata)
-        /// will be un-escaped before processing. e.g. %3B (an escaped ';') in the string for any of them will 
+        /// will be un-escaped before processing. e.g. %3B (an escaped ';') in the string for any of them will
         /// be treated as if it were an un-escaped ';'
         /// </summary>
         public string[] TargetAndPropertyListSeparators { get; set; } = null;
@@ -207,7 +207,7 @@ namespace Microsoft.Build.BackEnd
         /// <see cref="Projects"/> to build. This only applies to this build request (if another target calls the
         /// "missing target" later this will still result in an error).
         /// <remarks>
-        /// This could be useful when implementing a breaking protocol change between projects or stubbing behavior 
+        /// This could be useful when implementing a breaking protocol change between projects or stubbing behavior
         /// which may not make sense in all project types (e.g. Restore).
         /// </remarks>
         /// </summary>
@@ -260,7 +260,7 @@ namespace Microsoft.Build.BackEnd
             }
 
             bool isRunningMultipleNodes = BuildEngine2.IsRunningMultipleNodes;
-            // If we are in single proc mode and stopOnFirstFailure is true, we cannot build in parallel because 
+            // If we are in single proc mode and stopOnFirstFailure is true, we cannot build in parallel because
             // building in parallel sends all of the projects to the engine at once preventing us from not sending
             // any more projects after the first failure. Therefore, to preserve compatibility with whidbey if we are in this situation disable buildInParallel.
             if (!isRunningMultipleNodes && StopOnFirstFailure && BuildInParallel)
@@ -280,8 +280,8 @@ namespace Microsoft.Build.BackEnd
             }
 
             // This is a list of string[].  That is, each element in the list is a string[].  Each
-            // string[] represents a set of target names to build.  Depending on the value 
-            // of the RunEachTargetSeparately parameter, we each just call the engine to run all 
+            // string[] represents a set of target names to build.  Depending on the value
+            // of the RunEachTargetSeparately parameter, we each just call the engine to run all
             // the targets together, or we call the engine separately for each target.
             List<string[]> targetLists = CreateTargetLists(Targets, RunEachTargetSeparately);
 
@@ -317,7 +317,7 @@ namespace Microsoft.Build.BackEnd
                     // Inform the user that we skipped the remaining projects because StopOnFirstFailure=true.
                     Log.LogMessageFromResources(MessageImportance.Low, "MSBuild.SkippingRemainingProjects");
 
-                    // We have encountered a failure.  Caller has requested that we not 
+                    // We have encountered a failure.  Caller has requested that we not
                     // continue with remaining projects.
                     break;
                 }
@@ -369,7 +369,7 @@ namespace Microsoft.Build.BackEnd
                     }
                     else
                     {
-                        ErrorUtilities.VerifyThrow(_skipNonexistentProjects == SkipNonexistentProjectsBehavior.Error, "skipNonexistentProjects has unexpected value {0}", _skipNonexistentProjects);
+                        VerifyThrow(_skipNonexistentProjects == SkipNonexistentProjectsBehavior.Error, "skipNonexistentProjects has unexpected value {0}", _skipNonexistentProjects);
                         Log.LogErrorWithCodeFromResources("MSBuild.ProjectFileNotFound", project.ItemSpec);
                         success = false;
                     }
@@ -479,8 +479,8 @@ namespace Microsoft.Build.BackEnd
             )
         {
             // This is a list of string[].  That is, each element in the list is a string[].  Each
-            // string[] represents a set of target names to build.  Depending on the value 
-            // of the RunEachTargetSeparately parameter, we each just call the engine to run all 
+            // string[] represents a set of target names to build.  Depending on the value
+            // of the RunEachTargetSeparately parameter, we each just call the engine to run all
             // the targets together, or we call the engine separately for each target.
             var targetLists = new List<string[]>();
             if (runEachTargetSeparately && targets?.Length > 0)
@@ -636,12 +636,12 @@ namespace Microsoft.Build.BackEnd
                     // Inform the user that we skipped the remaining targets StopOnFirstFailure=true.
                     log.LogMessageFromResources(MessageImportance.Low, "MSBuild.SkippingRemainingTargets");
 
-                    // We have encountered a failure.  Caller has requested that we not 
+                    // We have encountered a failure.  Caller has requested that we not
                     // continue with remaining targets.
                     break;
                 }
 
-                // Send the project off to the build engine.  By passing in null to the 
+                // Send the project off to the build engine.  By passing in null to the
                 // first param, we are indicating that the project to build is the same
                 // as the *calling* project file.
 
@@ -665,7 +665,7 @@ namespace Microsoft.Build.BackEnd
                             {
                                 foreach (ITaskItem outputItemFromTarget in outputItemsFromTarget)
                                 {
-                                    // No need to rebase if the calling project is the same as the callee project 
+                                    // No need to rebase if the calling project is the same as the callee project
                                     // (project == null).  Also no point in trying to copy item metadata either,
                                     // because no items were passed into the Projects parameter!
                                     if (projects[i] != null)

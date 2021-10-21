@@ -74,11 +74,11 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         public bool CreateNode(int nodeId, INodePacketFactory factory, NodeConfiguration configuration)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(factory, nameof(factory));
+            VerifyThrowArgumentNull(factory, nameof(factory));
 
             if (_nodeContexts.Count == ComponentHost.BuildParameters.MaxNodeCount)
             {
-                ErrorUtilities.ThrowInternalError("All allowable nodes already created ({0}).", _nodeContexts.Count);
+                ThrowInternalError("All allowable nodes already created ({0}).", _nodeContexts.Count);
                 return false;
             }
 
@@ -117,7 +117,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="packet">The packet to send.</param>
         public void SendData(int nodeId, INodePacket packet)
         {
-            ErrorUtilities.VerifyThrow(_nodeContexts.ContainsKey(nodeId), "Invalid node id specified: {0}.", nodeId);
+            VerifyThrow(_nodeContexts.ContainsKey(nodeId), "Invalid node id specified: {0}.", nodeId);
 
             SendData(_nodeContexts[nodeId], packet);
         }
@@ -185,7 +185,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         static internal IBuildComponent CreateComponent(BuildComponentType componentType)
         {
-            ErrorUtilities.VerifyThrow(componentType == BuildComponentType.OutOfProcNodeProvider, "Factory cannot create components of type {0}", componentType);
+            VerifyThrow(componentType == BuildComponentType.OutOfProcNodeProvider, "Factory cannot create components of type {0}", componentType);
             return new NodeProviderOutOfProc();
         }
 

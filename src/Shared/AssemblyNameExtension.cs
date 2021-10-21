@@ -197,7 +197,7 @@ namespace Microsoft.Build.Shared
             {
                 // Its pretty hard to get here, you need an assembly that contains a valid reference
                 // to a dependent assembly that, in turn, throws a FileLoadException during GetAssemblyName.
-                // Still it happened once, with an older version of the CLR. 
+                // Still it happened once, with an older version of the CLR.
 
                 // ...falling through and relying on the assemblyName == null behavior below...
             }
@@ -363,7 +363,7 @@ namespace Microsoft.Build.Shared
         /// <param name="version"></param>
         internal void ReplaceVersion(Version version)
         {
-            ErrorUtilities.VerifyThrow(!immutable, "Object is immutable cannot replace the version");
+            VerifyThrow(!immutable, "Object is immutable cannot replace the version");
             CreateAssemblyName();
             if (asAssemblyName.Version != version)
             {
@@ -420,7 +420,7 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal void AddRemappedAssemblyName(AssemblyNameExtension extensionToAdd)
         {
-            ErrorUtilities.VerifyThrow(extensionToAdd.Immutable, "ExtensionToAdd is not immutable");
+            VerifyThrow(extensionToAdd.Immutable, "ExtensionToAdd is not immutable");
             InitializeRemappedFrom();
             remappedFrom.Add(extensionToAdd);
         }
@@ -522,7 +522,7 @@ namespace Microsoft.Build.Shared
         /// <returns></returns>
         internal new int GetHashCode()
         {
-            // Ok, so this isn't a great hashing algorithm. However, basenames with different 
+            // Ok, so this isn't a great hashing algorithm. However, basenames with different
             // versions or PKTs are relatively uncommon and so collisions should be low.
             // Hashing on FullName is wrong because the order of tuple fields is undefined.
             int hash = StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name);
@@ -551,7 +551,7 @@ namespace Microsoft.Build.Shared
             }
 
             int baselineResult = string.Compare(a1.Name, a2.Name, StringComparison.OrdinalIgnoreCase);
-            ErrorUtilities.VerifyThrow(result == baselineResult, "Optimized version of CompareBaseNameTo didn't return the same result as the baseline.");
+            VerifyThrow(result == baselineResult, "Optimized version of CompareBaseNameTo didn't return the same result as the baseline.");
 #endif
             return result;
         }
@@ -1019,7 +1019,7 @@ namespace Microsoft.Build.Shared
             translator.Translate(ref isSimpleName);
             translator.Translate(ref hasProcessorArchitectureInFusionName);
             translator.Translate(ref immutable);
-            
+
             // TODO: consider some kind of protection against infinite loop during serialization, hint: pre serialize check for cycle in graph
             translator.TranslateHashSet(ref remappedFrom,
                 (ITranslator t) => new AssemblyNameExtension(t),

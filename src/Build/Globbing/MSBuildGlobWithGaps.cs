@@ -39,8 +39,8 @@ namespace Microsoft.Build.Globbing
         /// <param name="gaps">The gap glob</param>
         public MSBuildGlobWithGaps(IMSBuildGlob mainGlob, IEnumerable<IMSBuildGlob> gaps)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(mainGlob, nameof(mainGlob));
-            ErrorUtilities.VerifyThrowArgumentNull(gaps, nameof(gaps));
+            VerifyThrowArgumentNull(mainGlob, nameof(mainGlob));
+            VerifyThrowArgumentNull(gaps, nameof(gaps));
 
             MainGlob = mainGlob;
             Gaps = new CompositeGlob(gaps);

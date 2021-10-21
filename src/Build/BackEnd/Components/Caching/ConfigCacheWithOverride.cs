@@ -41,7 +41,7 @@ namespace Microsoft.Build.Execution
 
         public void Translate(ITranslator translator)
         {
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
         }
 
         public BuildRequestConfiguration this[int configId]
@@ -51,7 +51,7 @@ namespace Microsoft.Build.Execution
                 if (_override.HasConfiguration(configId))
                 {
 #if DEBUG
-                    ErrorUtilities.VerifyThrow(!CurrentCache.HasConfiguration(configId), "caches should not overlap");
+                    VerifyThrow(!CurrentCache.HasConfiguration(configId), "caches should not overlap");
 #endif
                     return _override[configId];
                 }
@@ -79,7 +79,7 @@ namespace Microsoft.Build.Execution
             if (overrideConfig != null)
             {
 #if DEBUG
-                ErrorUtilities.VerifyThrow(CurrentCache.GetMatchingConfiguration(config) == null, "caches should not overlap");
+                VerifyThrow(CurrentCache.GetMatchingConfiguration(config) == null, "caches should not overlap");
 #endif
                 return overrideConfig;
             }
@@ -96,7 +96,7 @@ namespace Microsoft.Build.Execution
             if (overrideConfig != null)
             {
 #if DEBUG
-                ErrorUtilities.VerifyThrow(CurrentCache.GetMatchingConfiguration(configMetadata) == null, "caches should not overlap");
+                VerifyThrow(CurrentCache.GetMatchingConfiguration(configMetadata) == null, "caches should not overlap");
 #endif
                 return overrideConfig;
             }
@@ -118,7 +118,7 @@ namespace Microsoft.Build.Execution
             if (overrideHasConfiguration)
             {
 #if DEBUG
-                ErrorUtilities.VerifyThrow(!CurrentCache.HasConfiguration(configId), "caches should not overlap");
+                VerifyThrow(!CurrentCache.HasConfiguration(configId), "caches should not overlap");
 #endif
                 return overrideHasConfiguration;
             }

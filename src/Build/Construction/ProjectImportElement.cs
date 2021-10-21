@@ -33,7 +33,7 @@ namespace Microsoft.Build.Construction
         internal ProjectImportElement(XmlElementWithLocation xmlElement, ProjectElementContainer parent, ProjectRootElement containingProject, SdkReference sdkReference = null)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
             SdkReference = sdkReference;
         }
 
@@ -46,14 +46,14 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Gets or sets the Project value. 
+        /// Gets or sets the Project value.
         /// </summary>
         public string Project
         {
             get => FileUtilities.FixFilePath(GetAttributeValue(XMakeAttributes.project));
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, XMakeAttributes.project);
+                VerifyThrowArgumentLength(value, XMakeAttributes.project);
 
                 SetOrRemoveAttribute(XMakeAttributes.project, value, "Set Import Project {0}", value);
             }
@@ -72,7 +72,7 @@ namespace Microsoft.Build.Construction
             get => FileUtilities.FixFilePath(GetAttributeValue(XMakeAttributes.sdk));
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, XMakeAttributes.sdk);
+                VerifyThrowArgumentLength(value, XMakeAttributes.sdk);
                 if (UpdateSdkReference(name: value, SdkReference?.Version, SdkReference?.MinimumVersion))
                 {
                     SetOrRemoveAttribute(XMakeAttributes.sdk, value, "Set Import Sdk {0}", value);
@@ -173,7 +173,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectRootElement || parent is ProjectImportGroupElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectRootElement || parent is ProjectImportGroupElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

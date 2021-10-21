@@ -383,8 +383,8 @@ namespace Microsoft.Build.Shared
             [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Pre-existing")]
             internal static string GetItemSpecModifier(string currentDirectory, string itemSpec, string definingProjectEscaped, string modifier, ref string fullPath)
             {
-                ErrorUtilities.VerifyThrow(itemSpec != null, "Need item-spec to modify.");
-                ErrorUtilities.VerifyThrow(modifier != null, "Need modifier to apply to item-spec.");
+                VerifyThrow(itemSpec != null, "Need item-spec to modify.");
+                VerifyThrow(modifier != null, "Need modifier to apply to item-spec.");
 
                 string modifiedItemSpec = null;
 
@@ -415,7 +415,7 @@ namespace Microsoft.Build.Shared
 
                         if (!EndsWithSlash(modifiedItemSpec))
                         {
-                            ErrorUtilities.VerifyThrow(FileUtilitiesRegex.StartsWithUncPattern(modifiedItemSpec),
+                            VerifyThrow(FileUtilitiesRegex.StartsWithUncPattern(modifiedItemSpec),
                                 "Only UNC shares should be missing trailing slashes.");
 
                             // restore/append trailing slash if Path.GetPathRoot() has either removed it, or failed to add it
@@ -476,7 +476,7 @@ namespace Microsoft.Build.Shared
 
                             if (length != -1)
                             {
-                                ErrorUtilities.VerifyThrow((modifiedItemSpec.Length > length) && IsSlash(modifiedItemSpec[length]),
+                                VerifyThrow((modifiedItemSpec.Length > length) && IsSlash(modifiedItemSpec[length]),
                                                            "Root directory must have a trailing slash.");
 
                                 modifiedItemSpec = modifiedItemSpec.Substring(length + 1);
@@ -484,7 +484,7 @@ namespace Microsoft.Build.Shared
                         }
                         else
                         {
-                            ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(modifiedItemSpec) && IsSlash(modifiedItemSpec[0]),
+                            VerifyThrow(!string.IsNullOrEmpty(modifiedItemSpec) && IsSlash(modifiedItemSpec[0]),
                                                        "Expected a full non-windows path rooted at '/'.");
 
                             // A full unix path is always rooted at
@@ -588,7 +588,7 @@ namespace Microsoft.Build.Shared
                                 }
                                 else
                                 {
-                                    ErrorUtilities.ThrowInternalError("\"{0}\" is not a valid item-spec modifier.", modifier);
+                                    ThrowInternalError("\"{0}\" is not a valid item-spec modifier.", modifier);
                                 }
 
                                 modifiedItemSpec = GetItemSpecModifier(currentDirectory, definingProjectEscaped, null, additionalModifier);
@@ -597,12 +597,12 @@ namespace Microsoft.Build.Shared
                     }
                     else
                     {
-                        ErrorUtilities.ThrowInternalError("\"{0}\" is not a valid item-spec modifier.", modifier);
+                        ThrowInternalError("\"{0}\" is not a valid item-spec modifier.", modifier);
                     }
                 }
                 catch (Exception e) when (ExceptionHandling.IsIoRelatedException(e))
                 {
-                    ErrorUtilities.VerifyThrowInvalidOperation(false, "Shared.InvalidFilespecForTransform", modifier, itemSpec, e.Message);
+                    VerifyThrowInvalidOperation(false, "Shared.InvalidFilespecForTransform", modifier, itemSpec, e.Message);
                 }
 
                 return modifiedItemSpec;

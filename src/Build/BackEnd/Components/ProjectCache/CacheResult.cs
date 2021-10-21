@@ -59,7 +59,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
         {
             if (resultType == CacheResultType.CacheHit)
             {
-                ErrorUtilities.VerifyThrow(
+                VerifyThrow(
                     buildResult != null ^ proxyTargets != null,
                     "Either buildResult is specified, or proxyTargets is specified. Not both.");
             }
@@ -87,14 +87,14 @@ namespace Microsoft.Build.Experimental.ProjectCache
 
         public static CacheResult IndicateCacheHit(IReadOnlyCollection<PluginTargetResult> targetResults)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(targetResults, nameof(targetResults));
+            VerifyThrowArgumentLength(targetResults, nameof(targetResults));
 
             return new CacheResult(CacheResultType.CacheHit, ConstructBuildResult(targetResults));
         }
 
         public static CacheResult IndicateNonCacheHit(CacheResultType resultType)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(resultType != CacheResultType.CacheHit, "CantBeCacheHit");
+            VerifyThrowInvalidOperation(resultType != CacheResultType.CacheHit, "CantBeCacheHit");
             return new CacheResult(resultType);
         }
 

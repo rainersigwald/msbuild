@@ -49,7 +49,7 @@ namespace Microsoft.Build.Execution
         void ITranslatable.Translate(ITranslator translator)
         {
             // all subclasses should be translateable
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
         }
 
         internal static ProjectTaskInstanceChild FactoryForDeserialization(ITranslator translator)

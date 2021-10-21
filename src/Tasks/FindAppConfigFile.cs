@@ -34,7 +34,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_primaryList, nameof(PrimaryList));
+                VerifyThrowArgumentNull(_primaryList, nameof(PrimaryList));
                 return _primaryList;
             }
             set => _primaryList = value;
@@ -48,7 +48,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_secondaryList, nameof(SecondaryList));
+                VerifyThrowArgumentNull(_secondaryList, nameof(SecondaryList));
                 return _secondaryList;
             }
             set => _secondaryList = value;

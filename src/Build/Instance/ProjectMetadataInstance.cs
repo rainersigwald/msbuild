@@ -59,15 +59,15 @@ namespace Microsoft.Build.Execution
         /// </remarks>
         internal ProjectMetadataInstance(string name, string escapedValue, bool allowItemSpecModifiers)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentLength(name, nameof(name));
 
             if (allowItemSpecModifiers)
             {
-                ErrorUtilities.VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(name), "OM_ReservedName", name);
+                VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(name), "OM_ReservedName", name);
             }
             else
             {
-                ErrorUtilities.VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(name) && !FileUtilities.ItemSpecModifiers.IsItemSpecModifier(name), "OM_ReservedName", name);
+                VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(name) && !FileUtilities.ItemSpecModifiers.IsItemSpecModifier(name), "OM_ReservedName", name);
             }
 
             _name = name;
@@ -97,7 +97,7 @@ namespace Microsoft.Build.Execution
         /// Name of the metadata
         /// </summary>
         /// <remarks>
-        /// This cannot be set, as it is used as the key into 
+        /// This cannot be set, as it is used as the key into
         /// the item's metadata table.
         /// </remarks>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -109,7 +109,7 @@ namespace Microsoft.Build.Execution
         }
 
         /// <summary>
-        /// Evaluated value of the metadatum. 
+        /// Evaluated value of the metadatum.
         /// Never null.
         /// </summary>
         public string EvaluatedValue
@@ -173,7 +173,7 @@ namespace Microsoft.Build.Execution
         void ITranslatable.Translate(ITranslator translator)
         {
             // Read implementation is directly in the constructor so that fields can be read-only
-            ErrorUtilities.VerifyThrow(translator.Mode == TranslationDirection.WriteToStream, "write only");
+            VerifyThrow(translator.Mode == TranslationDirection.WriteToStream, "write only");
 
             string mutableName = _name;
             string mutableValue = _escapedValue;

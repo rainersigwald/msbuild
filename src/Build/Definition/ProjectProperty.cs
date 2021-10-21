@@ -31,7 +31,7 @@ namespace Microsoft.Build.Evaluation
 
         internal ProjectProperty(Project project)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(project, nameof(project));
+            VerifyThrowArgumentNull(project, nameof(project));
             _project = project;
         }
 
@@ -40,8 +40,8 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         internal ProjectProperty(Project project, string evaluatedValueEscaped)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(project, nameof(project));
-            ErrorUtilities.VerifyThrowArgumentNull(evaluatedValueEscaped, nameof(evaluatedValueEscaped));
+            VerifyThrowArgumentNull(project, nameof(project));
+            VerifyThrowArgumentNull(evaluatedValueEscaped, nameof(evaluatedValueEscaped));
 
             _project = project;
             _evaluatedValueEscaped = evaluatedValueEscaped;
@@ -317,8 +317,8 @@ namespace Microsoft.Build.Evaluation
             internal ProjectPropertyXmlBacked(Project project, ProjectPropertyElement xml, string evaluatedValueEscaped)
                 : base(project, evaluatedValueEscaped)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(xml, nameof(xml));
-                ErrorUtilities.VerifyThrowInvalidOperation(!ProjectHasMatchingGlobalProperty(project, xml.Name), "OM_GlobalProperty", xml.Name);
+                VerifyThrowArgumentNull(xml, nameof(xml));
+                VerifyThrowInvalidOperation(!ProjectHasMatchingGlobalProperty(project, xml.Name), "OM_GlobalProperty", xml.Name);
 
                 _xml = xml;
             }
@@ -360,7 +360,7 @@ namespace Microsoft.Build.Evaluation
                 set
                 {
                     Project.VerifyThrowInvalidOperationNotImported(_xml.ContainingProject);
-                    ErrorUtilities.VerifyThrowInvalidOperation(_xml.Parent?.Parent != null, "OM_ObjectIsNoLongerActive");
+                    VerifyThrowInvalidOperation(_xml.Parent?.Parent != null, "OM_ObjectIsNoLongerActive");
 
                     _xml.Value = value;
 
@@ -462,7 +462,7 @@ namespace Microsoft.Build.Evaluation
             internal ProjectPropertyXmlBackedWithPredecessor(Project project, ProjectPropertyElement xml, string evaluatedValueEscaped, ProjectProperty predecessor)
                 : base(project, xml, evaluatedValueEscaped)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(predecessor, nameof(predecessor));
+                VerifyThrowArgumentNull(predecessor, nameof(predecessor));
 
                 _predecessor = predecessor;
             }
@@ -502,10 +502,10 @@ namespace Microsoft.Build.Evaluation
             internal ProjectPropertyNotXmlBacked(Project project, string name, string evaluatedValueEscaped, bool isGlobalProperty, bool mayBeReserved)
                 : base(project, evaluatedValueEscaped)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
-                ErrorUtilities.VerifyThrowInvalidOperation(isGlobalProperty || !ProjectHasMatchingGlobalProperty(project, name), "OM_GlobalProperty", name);
-                ErrorUtilities.VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(name), "OM_ReservedName", name);
-                ErrorUtilities.VerifyThrowArgument(mayBeReserved || !ReservedPropertyNames.IsReservedProperty(name), "OM_ReservedName", name);
+                VerifyThrowArgumentLength(name, nameof(name));
+                VerifyThrowInvalidOperation(isGlobalProperty || !ProjectHasMatchingGlobalProperty(project, name), "OM_GlobalProperty", name);
+                VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(name), "OM_ReservedName", name);
+                VerifyThrowArgument(mayBeReserved || !ReservedPropertyNames.IsReservedProperty(name), "OM_ReservedName", name);
 
                 _name = name;
             }
@@ -546,8 +546,8 @@ namespace Microsoft.Build.Evaluation
 
                 set
                 {
-                    ErrorUtilities.VerifyThrowInvalidOperation(!IsReservedProperty, "OM_ReservedName", _name);
-                    ErrorUtilities.VerifyThrowInvalidOperation(!IsGlobalProperty, "OM_GlobalProperty", _name);
+                    VerifyThrowInvalidOperation(!IsReservedProperty, "OM_ReservedName", _name);
+                    VerifyThrowInvalidOperation(!IsGlobalProperty, "OM_GlobalProperty", _name);
 
                     if (IsEnvironmentProperty)
                     {
@@ -561,7 +561,7 @@ namespace Microsoft.Build.Evaluation
                         return;
                     }
 
-                    ErrorUtilities.ThrowInternalErrorUnreachable();
+                    ThrowInternalErrorUnreachable();
                 }
             }
 

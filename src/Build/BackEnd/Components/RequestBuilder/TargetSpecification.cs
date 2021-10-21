@@ -23,8 +23,8 @@ namespace Microsoft.Build.BackEnd
         /// <param name="referenceLocation">The location from which it was referred.</param>
         internal TargetSpecification(string targetName, ElementLocation referenceLocation)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(targetName, nameof(targetName));
-            ErrorUtilities.VerifyThrowArgumentNull(referenceLocation, nameof(referenceLocation));
+            VerifyThrowArgumentLength(targetName, nameof(targetName));
+            VerifyThrowArgumentNull(referenceLocation, nameof(referenceLocation));
 
             this._targetName = targetName;
             this._referenceLocation = referenceLocation;
@@ -35,7 +35,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// Gets or sets the target name            
+        /// Gets or sets the target name
         /// </summary>
         public string TargetName => _targetName;
 

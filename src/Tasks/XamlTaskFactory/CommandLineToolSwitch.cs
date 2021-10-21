@@ -24,7 +24,7 @@ namespace Microsoft.Build.Tasks.Xaml
 
         /// <summary>
         /// The integer switch is used for properties that have several different integer values,
-        /// and depending on the value the property is set to, appends an integer to the end 
+        /// and depending on the value the property is set to, appends an integer to the end
         /// of a certain switch
         /// e.g. WarningLevel = "0" is /W0, WarningLevel = "2" is /W2
         /// </summary>
@@ -40,7 +40,7 @@ namespace Microsoft.Build.Tasks.Xaml
         String = 2,
 
         /// <summary>
-        /// The stringarray switch is used for properties that may have more 
+        /// The stringarray switch is used for properties that may have more
         /// than one string appended to the end of the switch
         /// e.g. InjectPrecompiledHeaderReference = myfile is /Ylmyfile
         /// </summary>
@@ -197,15 +197,15 @@ namespace Microsoft.Build.Tasks.Xaml
 
         /// <summary>
         /// The separator indicates the characters that go between the switch and the string
-        /// in the string typed case, the characters that go between each name for the 
-        /// string array case, or the characters that go between the switch and the 
+        /// in the string typed case, the characters that go between each name for the
+        /// string array case, or the characters that go between the switch and the
         /// appendage for the boolean case.
         /// </summary>
         public string Separator { get; set; } = String.Empty;
 
         /// <summary>
         /// The Fallback attribute is used to specify which property to look at in the
-        /// case that the argument property is not set, or if the file that the 
+        /// case that the argument property is not set, or if the file that the
         /// argument property indicates is nonexistent.
         /// </summary>
         public string FallbackArgumentParameter { get; set; } = String.Empty;
@@ -238,13 +238,13 @@ namespace Microsoft.Build.Tasks.Xaml
         {
             get
             {
-                ErrorUtilities.VerifyThrow(Type == CommandLineToolSwitchType.Boolean, "InvalidType", TypeBoolean);
+                VerifyThrow(Type == CommandLineToolSwitchType.Boolean, "InvalidType", TypeBoolean);
                 return _booleanValue;
             }
 
             set
             {
-                ErrorUtilities.VerifyThrow(Type == CommandLineToolSwitchType.Boolean, "InvalidType", TypeBoolean);
+                VerifyThrow(Type == CommandLineToolSwitchType.Boolean, "InvalidType", TypeBoolean);
                 _booleanValue = value;
             }
         }
@@ -256,13 +256,13 @@ namespace Microsoft.Build.Tasks.Xaml
         {
             get
             {
-                ErrorUtilities.VerifyThrow(Type == CommandLineToolSwitchType.Integer, "InvalidType", TypeInteger);
+                VerifyThrow(Type == CommandLineToolSwitchType.Integer, "InvalidType", TypeInteger);
                 return _number;
             }
 
             set
             {
-                ErrorUtilities.VerifyThrow(Type == CommandLineToolSwitchType.Integer, "InvalidType", TypeInteger);
+                VerifyThrow(Type == CommandLineToolSwitchType.Integer, "InvalidType", TypeInteger);
                 _number = value;
             }
         }
@@ -275,13 +275,13 @@ namespace Microsoft.Build.Tasks.Xaml
         {
             get
             {
-                ErrorUtilities.VerifyThrow(Type == CommandLineToolSwitchType.StringArray, "InvalidType", TypeStringArray);
+                VerifyThrow(Type == CommandLineToolSwitchType.StringArray, "InvalidType", TypeStringArray);
                 return _stringList;
             }
 
             set
             {
-                ErrorUtilities.VerifyThrow(Type == CommandLineToolSwitchType.StringArray, "InvalidType", TypeStringArray);
+                VerifyThrow(Type == CommandLineToolSwitchType.StringArray, "InvalidType", TypeStringArray);
                 _stringList = value;
             }
         }
@@ -294,13 +294,13 @@ namespace Microsoft.Build.Tasks.Xaml
         {
             get
             {
-                ErrorUtilities.VerifyThrow(Type == CommandLineToolSwitchType.ITaskItemArray, "InvalidType", TypeITaskItemArray);
+                VerifyThrow(Type == CommandLineToolSwitchType.ITaskItemArray, "InvalidType", TypeITaskItemArray);
                 return _taskItemArray;
             }
 
             set
             {
-                ErrorUtilities.VerifyThrow(Type == CommandLineToolSwitchType.ITaskItemArray, "InvalidType", TypeITaskItemArray);
+                VerifyThrow(Type == CommandLineToolSwitchType.ITaskItemArray, "InvalidType", TypeITaskItemArray);
                 _taskItemArray = value;
             }
         }

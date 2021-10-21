@@ -36,7 +36,7 @@ namespace Microsoft.Build.BackEnd.Components.Logging
         /// </summary>
         internal void LogProjectEvaluationFinished(IEnumerable globalProperties, IEnumerable properties, IEnumerable items, ProfilerResult? profilerResult)
         {
-            ErrorUtilities.VerifyThrow(IsValid, "invalid");
+            VerifyThrow(IsValid, "invalid");
             LoggingService.LogProjectEvaluationFinished(BuildEventContext, _projectFile, globalProperties, properties, items, profilerResult);
             IsValid = false;
         }

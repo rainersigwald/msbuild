@@ -26,7 +26,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_files, nameof(Files));
+                VerifyThrowArgumentNull(_files, nameof(Files));
                 return _files;
             }
 

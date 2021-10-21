@@ -98,8 +98,8 @@ namespace Microsoft.Build.Execution
             IList<ProjectTaskInstanceChild> outputs
             )
         {
-            ErrorUtilities.VerifyThrowInternalNull(element, nameof(element));
-            ErrorUtilities.VerifyThrowInternalNull(outputs, nameof(outputs));
+            VerifyThrowInternalNull(element, nameof(element));
+            VerifyThrowInternalNull(outputs, nameof(outputs));
 
             // These are all immutable
             _name = element.Name;
@@ -163,9 +163,9 @@ namespace Microsoft.Build.Execution
             ElementLocation msbuildRuntimeLocation,
             ElementLocation msbuildArchitectureLocation)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
-            ErrorUtilities.VerifyThrowArgumentNull(condition, nameof(condition));
-            ErrorUtilities.VerifyThrowArgumentNull(continueOnError, nameof(continueOnError));
+            VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentNull(condition, nameof(condition));
+            VerifyThrowArgumentNull(continueOnError, nameof(continueOnError));
 
             _name = name;
             _condition = condition;
@@ -339,8 +339,8 @@ namespace Microsoft.Build.Execution
         /// <param name="condition">The condition.</param>
         internal void AddOutputItem(string taskOutputParameterName, string itemName, string condition)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(taskOutputParameterName, nameof(taskOutputParameterName));
-            ErrorUtilities.VerifyThrowArgumentLength(itemName, nameof(itemName));
+            VerifyThrowArgumentLength(taskOutputParameterName, nameof(taskOutputParameterName));
+            VerifyThrowArgumentLength(itemName, nameof(itemName));
             _outputs.Add(new ProjectTaskOutputItemInstance(itemName, taskOutputParameterName, condition ?? String.Empty, ElementLocation.EmptyLocation, ElementLocation.EmptyLocation, ElementLocation.EmptyLocation, condition == null ? null : ElementLocation.EmptyLocation));
         }
 
@@ -352,8 +352,8 @@ namespace Microsoft.Build.Execution
         /// <param name="condition">The condition.</param>
         internal void AddOutputProperty(string taskOutputParameterName, string propertyName, string condition)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(taskOutputParameterName, nameof(taskOutputParameterName));
-            ErrorUtilities.VerifyThrowArgumentLength(propertyName, nameof(propertyName));
+            VerifyThrowArgumentLength(taskOutputParameterName, nameof(taskOutputParameterName));
+            VerifyThrowArgumentLength(propertyName, nameof(propertyName));
             _outputs.Add(new ProjectTaskOutputPropertyInstance(propertyName, taskOutputParameterName, condition ?? String.Empty, ElementLocation.EmptyLocation, ElementLocation.EmptyLocation, ElementLocation.EmptyLocation, condition == null ? null : ElementLocation.EmptyLocation));
         }
 

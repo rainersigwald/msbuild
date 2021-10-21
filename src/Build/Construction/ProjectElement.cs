@@ -13,7 +13,7 @@ using ProjectXmlUtilities = Microsoft.Build.Internal.ProjectXmlUtilities;
 namespace Microsoft.Build.Construction
 {
     /// <summary>
-    /// Abstract base class for MSBuild construction object model elements. 
+    /// Abstract base class for MSBuild construction object model elements.
     /// </summary>
     public abstract class ProjectElement : IProjectElement, ILinkableObject
     {
@@ -47,7 +47,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal ProjectElement(ProjectElementLink link)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(link, nameof(link));
+            VerifyThrowArgumentNull(link, nameof(link));
 
             _xmlSource = link;
         }
@@ -58,8 +58,8 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal ProjectElement(XmlElement xmlElement, ProjectElementContainer parent, ProjectRootElement containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(xmlElement, nameof(xmlElement));
-            ErrorUtilities.VerifyThrowArgumentNull(containingProject, nameof(containingProject));
+            VerifyThrowArgumentNull(xmlElement, nameof(xmlElement));
+            VerifyThrowArgumentNull(containingProject, nameof(containingProject));
 
             _xmlSource = (XmlElementWithLocation)xmlElement;
             _parent = parent;
@@ -71,7 +71,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         /// <remarks>
         /// If this is true, then the <see cref="XmlElement"/> will still be used to hold the data for this (pseudo) ProjectElement, but
-        /// it will not be added to the Xml tree.  
+        /// it will not be added to the Xml tree.
         /// </remarks>
         internal virtual bool ExpressedAsAttribute
         {
@@ -88,13 +88,13 @@ namespace Microsoft.Build.Construction
                     _expressedAsAttribute = value;
                     Parent?.AddToXml(this);
                     MarkDirty("Set express as attribute: {0}", value.ToString());
-                }                
+                }
             }
         }
 
         /// <summary>
-        /// Gets or sets the Condition value. 
-        /// It will return empty string IFF a condition attribute is legal but it’s not present or has no value. 
+        /// Gets or sets the Condition value.
+        /// It will return empty string IFF a condition attribute is legal but it’s not present or has no value.
         /// It will return null IFF a Condition attribute is illegal on that element.
         /// Removes the attribute if the value to set is empty.
         /// It is possible for derived classes to throw an <see cref="InvalidOperationException"/> if setting the condition is
@@ -118,7 +118,7 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Gets or sets the Label value. 
+        /// Gets or sets the Label value.
         /// Returns empty string if it is not present.
         /// Removes the attribute if the value to set is empty.
         /// </summary>
@@ -162,7 +162,7 @@ namespace Microsoft.Build.Construction
 
             internal set
             {
-                ErrorUtilities.VerifyThrow(Link == null, "External project");
+                VerifyThrow(Link == null, "External project");
                 if (value == null)
                 {
                     // We're about to lose the parent. Hijack the field to store the owning PRE.
@@ -259,8 +259,8 @@ namespace Microsoft.Build.Construction
             // ContainingProject is set ONLY when an element is first constructed.
             internal set
             {
-                ErrorUtilities.VerifyThrow(Link == null, "External project");
-                ErrorUtilities.VerifyThrowArgumentNull(value, "ContainingProject");
+                VerifyThrow(Link == null, "External project");
+                VerifyThrowArgumentNull(value, "ContainingProject");
 
                 if (_parent == null)
                 {
@@ -284,7 +284,7 @@ namespace Microsoft.Build.Construction
 
         /// <summary>
         /// Location of the corresponding Xml element.
-        /// May not be correct if file is not saved, or 
+        /// May not be correct if file is not saved, or
         /// file has been edited since it was last saved.
         /// In the case of an unsaved edit, the location only
         /// contains the path to the file that the element originates from.
@@ -348,8 +348,8 @@ namespace Microsoft.Build.Construction
         /// <param name="element">The element to act as a template to copy from.</param>
         public virtual void CopyFrom(ProjectElement element)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(element, nameof(element));
-            ErrorUtilities.VerifyThrowArgument(GetType().IsEquivalentTo(element.GetType()), nameof(element));
+            VerifyThrowArgumentNull(element, nameof(element));
+            VerifyThrowArgument(GetType().IsEquivalentTo(element.GetType()), nameof(element));
 
             if (this == element)
             {
@@ -504,7 +504,7 @@ namespace Microsoft.Build.Construction
             var clone = CreateNewInstance(factory);
             if (!clone.GetType().IsEquivalentTo(GetType()))
             {
-                ErrorUtilities.ThrowInternalError("{0}.Clone() returned an instance of type {1}.", GetType().Name, clone.GetType().Name);
+                ThrowInternalError("{0}.Clone() returned an instance of type {1}.", GetType().Name, clone.GetType().Name);
             }
 
             clone.CopyFrom(this);
@@ -611,7 +611,7 @@ namespace Microsoft.Build.Construction
             /// </summary>
             internal WrapperForProjectRootElement(ProjectRootElement containingProject)
             {
-                ErrorUtilities.VerifyThrowInternalNull(containingProject, nameof(containingProject));
+                VerifyThrowInternalNull(containingProject, nameof(containingProject));
                 ContainingProject = containingProject;
             }
 
@@ -625,7 +625,7 @@ namespace Microsoft.Build.Construction
             /// </summary>
             internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
             {
-                ErrorUtilities.ThrowInternalErrorUnreachable();
+                ThrowInternalErrorUnreachable();
             }
 
             /// <inheritdoc />

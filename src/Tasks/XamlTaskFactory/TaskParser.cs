@@ -87,8 +87,8 @@ namespace Microsoft.Build.Tasks.Xaml
         /// </summary>
         public bool Parse(string contentOrFile, string desiredRule)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(contentOrFile, nameof(contentOrFile));
-            ErrorUtilities.VerifyThrowArgumentLength(desiredRule, nameof(desiredRule));
+            VerifyThrowArgumentLength(contentOrFile, nameof(contentOrFile));
+            VerifyThrowArgumentLength(desiredRule, nameof(desiredRule));
 
             bool parseSuccessful = ParseAsContentOrFile(contentOrFile, desiredRule);
             if (!parseSuccessful)
@@ -173,8 +173,8 @@ namespace Microsoft.Build.Tasks.Xaml
         /// </summary>
         internal bool ParseXamlDocument(TextReader reader, string desiredRule)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(reader, nameof(reader));
-            ErrorUtilities.VerifyThrowArgumentLength(desiredRule, nameof(desiredRule));
+            VerifyThrowArgumentNull(reader, nameof(reader));
+            VerifyThrowArgumentLength(desiredRule, nameof(desiredRule));
 
             object rootObject = XamlServices.Load(reader);
             if (rootObject != null)
@@ -392,14 +392,14 @@ namespace Microsoft.Build.Tasks.Xaml
                 argumentDependencyLookup.Add(propertyToAdd.Name, propertyToAdd);
             }
 
-            // We've read any enumerated values and any dependencies, so we just 
+            // We've read any enumerated values and any dependencies, so we just
             // have to add the property
             propertyList.AddLast(propertyToAdd);
             return true;
         }
 
         /// <summary>
-        /// Gets all the attributes assigned in the xml file for this parameter or all of the nested switches for 
+        /// Gets all the attributes assigned in the xml file for this parameter or all of the nested switches for
         /// this parameter group
         /// </summary>
         private static Property ObtainAttributes(XamlTypes.BaseProperty baseProperty, Property parameterGroup)

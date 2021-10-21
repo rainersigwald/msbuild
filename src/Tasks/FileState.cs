@@ -10,7 +10,7 @@ namespace Microsoft.Build.Tasks
 {
     /// <summary>
     /// CopyFile delegate
-    /// 
+    ///
     /// returns  Success = true, Failure = false; Retry = null
     /// </summary>
     /// <param name="source">Source file</param>
@@ -24,7 +24,7 @@ namespace Microsoft.Build.Tasks
     /// </summary>
     /// <remarks>
     /// Uses PInvoke rather than FileInfo because the latter does all kinds of expensive checks.
-    /// 
+    ///
     /// Deficiency: some of the properties eat some or all exceptions. If they are called first, they will
     /// trigger the population and eat. Subsequent calls will then not throw, but instead eg return zero.
     /// This could be fixed by storing the exception from the population, and throwing no matter who does
@@ -90,7 +90,7 @@ namespace Microsoft.Build.Tasks
                     // THIS COPIED FROM THE BCL:
                     //
                     // For floppy drives, normally the OS will pop up a dialog saying
-                    // there is no disk in drive A:, please insert one.  We don't want that. 
+                    // there is no disk in drive A:, please insert one.  We don't want that.
                     // SetErrorMode will let us disable this, but we should set the error
                     // mode back, since this may have wide-ranging effects.
                     NativeMethodsShared.SetThreadErrorMode(1 /* ErrorModes.SEM_FAILCRITICALERRORS */, out oldMode);
@@ -125,7 +125,7 @@ namespace Microsoft.Build.Tasks
 
                             // Otherwise this will give at least something
                             NativeMethodsShared.ThrowExceptionForErrorCode(error);
-                            ErrorUtilities.ThrowInternalErrorUnreachable();
+                            ThrowInternalErrorUnreachable();
                         }
 
                         Exists = true;
@@ -240,7 +240,7 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         internal FileState(string filename)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(filename, nameof(filename));
+            VerifyThrowArgumentLength(filename, nameof(filename));
             _filename = filename;
             _data = new Lazy<FileDirInfo>(() => new FileDirInfo(_filename));
         }

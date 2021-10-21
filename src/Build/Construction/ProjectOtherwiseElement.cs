@@ -30,7 +30,7 @@ namespace Microsoft.Build.Construction
         internal ProjectOtherwiseElement(XmlElementWithLocation xmlElement, ProjectElementContainer parent, ProjectRootElement project)
             : base(xmlElement, parent, project)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -42,13 +42,13 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Condition should never be set, but the getter returns null instead of throwing 
+        /// Condition should never be set, but the getter returns null instead of throwing
         /// because a nonexistent condition is implicitly true
         /// </summary>
         public override string Condition
         {
             get => null;
-            set => ErrorUtilities.ThrowInvalidOperation("OM_CannotGetSetCondition");
+            set => ThrowInvalidOperation("OM_CannotGetSetCondition");
         }
 
         #region ChildEnumerators
@@ -76,7 +76,7 @@ namespace Microsoft.Build.Construction
         {
             get
             {
-                ErrorUtilities.ThrowInternalError("Should not evaluate this");
+                ThrowInternalError("Should not evaluate this");
                 return null;
             }
         }
@@ -98,8 +98,8 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectChooseElement, "OM_CannotAcceptParent");
-            ErrorUtilities.VerifyThrowInvalidOperation(!(nextSibling is ProjectWhenElement) && !(previousSibling is ProjectOtherwiseElement) && !(nextSibling is ProjectOtherwiseElement), "OM_NoOtherwiseBeforeWhenOrOtherwise");
+            VerifyThrowInvalidOperation(parent is ProjectChooseElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(!(nextSibling is ProjectWhenElement) && !(previousSibling is ProjectOtherwiseElement) && !(nextSibling is ProjectOtherwiseElement), "OM_NoOtherwiseBeforeWhenOrOtherwise");
         }
 
         /// <inheritdoc />

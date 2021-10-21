@@ -23,7 +23,7 @@ namespace Microsoft.Build.Shared.LanguageParser
         private StreamReader _reader;
 
         /// <summary>
-        /// When false, try to guess the encoding of binaryStream. When true, force the 
+        /// When false, try to guess the encoding of binaryStream. When true, force the
         /// encoding to ANSI.
         /// </summary>
         private bool _forceANSI;
@@ -109,7 +109,7 @@ namespace Microsoft.Build.Shared.LanguageParser
                     (
                     _binaryStream,
 #if FEATURE_ENCODING_DEFAULT
-                    Encoding.Default,    // Default means ANSI. 
+                    Encoding.Default,    // Default means ANSI.
 #else
                     Encoding.ASCII,
 #endif
@@ -194,7 +194,7 @@ namespace Microsoft.Build.Shared.LanguageParser
                     break;
                 }
 
-                ErrorUtilities.VerifyThrow(originalPageNumber != _currentPageNumber, "Expected a new page.");
+                VerifyThrow(originalPageNumber != _currentPageNumber, "Expected a new page.");
             }
 
             // Is it the current page?
@@ -289,7 +289,7 @@ namespace Microsoft.Build.Shared.LanguageParser
         /// <param name="c"></param>
         private void AppendCharacterToStream(char c)
         {
-            ErrorUtilities.VerifyThrow(_charactersRead != _pageSize, "Attempt to append to non-last page.");
+            VerifyThrow(_charactersRead != _pageSize, "Attempt to append to non-last page.");
 
             _currentPage[_charactersRead] = c;
             ++_charactersRead;
@@ -304,7 +304,7 @@ namespace Microsoft.Build.Shared.LanguageParser
             char c;
             if (_charactersRead == 0)
             {
-                ErrorUtilities.VerifyThrow(_priorPage != null, "There is no last character in the stream.");
+                VerifyThrow(_priorPage != null, "There is no last character in the stream.");
                 c = _priorPage[_pageSize - 1];
             }
             else
@@ -388,7 +388,7 @@ namespace Microsoft.Build.Shared.LanguageParser
                 int charactersOnPage = GetCharactersOnPage(startPosition + i);
 
                 charactersExtracted = Math.Min(length - i, charactersOnPage - relativeStartPosition);
-                ErrorUtilities.VerifyThrow(charactersExtracted > 0, "Expected non-zero extraction count.");
+                VerifyThrow(charactersExtracted > 0, "Expected non-zero extraction count.");
 
                 result.Append(page, relativeStartPosition, charactersExtracted);
             }
@@ -403,7 +403,7 @@ namespace Microsoft.Build.Shared.LanguageParser
         private int GetCharactersOnPage(int offset)
         {
             int page = PageFromAbsoluteOffset(offset);
-            ErrorUtilities.VerifyThrow(page >= _currentPageNumber - 1 && page <= _currentPageNumber, "Could not get character count for this page.");
+            VerifyThrow(page >= _currentPageNumber - 1 && page <= _currentPageNumber, "Could not get character count for this page.");
 
             if (page == _currentPageNumber)
             {

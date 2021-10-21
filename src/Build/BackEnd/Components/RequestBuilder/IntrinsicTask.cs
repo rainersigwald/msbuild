@@ -75,13 +75,13 @@ namespace Microsoft.Build.BackEnd
             }
             else
             {
-                ErrorUtilities.ThrowInternalError("Unhandled intrinsic task type {0}", taskInstance.GetType().GetTypeInfo().BaseType);
+                ThrowInternalError("Unhandled intrinsic task type {0}", taskInstance.GetType().GetTypeInfo().BaseType);
                 return null;
             }
         }
 
         /// <summary>
-        /// Called to execute a task within a target. This method instantiates the task, sets its parameters, and executes it. 
+        /// Called to execute a task within a target. This method instantiates the task, sets its parameters, and executes it.
         /// </summary>
         /// <param name="lookup">The lookup used for expansion and to receive created items and properties.</param>
         internal abstract void ExecuteTask(Lookup lookup);

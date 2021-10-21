@@ -11,7 +11,7 @@ using RegistryException = Microsoft.Build.Exceptions.RegistryException;
 namespace Microsoft.Build.Internal
 {
     /// <summary>
-    /// Thin wrapper around Microsoft.Win32.RegistryKey that can be 
+    /// Thin wrapper around Microsoft.Win32.RegistryKey that can be
     /// subclassed for testing purposes
     /// </summary>
     internal class RegistryKeyWrapper : IDisposable
@@ -63,8 +63,8 @@ namespace Microsoft.Build.Internal
         /// </summary>
         internal RegistryKeyWrapper(string registryKeyPath, RegistryKey registryHive)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(registryKeyPath, nameof(registryKeyPath));
-            ErrorUtilities.VerifyThrowArgumentNull(registryHive, nameof(registryHive));
+            VerifyThrowArgumentNull(registryKeyPath, nameof(registryKeyPath));
+            VerifyThrowArgumentNull(registryHive, nameof(registryHive));
 
             _registryKeyPath = registryKeyPath;
             _registryHive = registryHive;
@@ -92,7 +92,7 @@ namespace Microsoft.Build.Internal
         }
 
         /// <summary>
-        /// Convenient static helper method on RegistryKeyWrapper, for when someone is only intersted in knowing 
+        /// Convenient static helper method on RegistryKeyWrapper, for when someone is only intersted in knowing
         /// whether a particular registry key exists or not.
         /// </summary>
         public static bool KeyExists(string registryKeyPath, RegistryHive registryHive, RegistryView registryView)
@@ -169,7 +169,7 @@ namespace Microsoft.Build.Internal
         /// <returns></returns>
         public virtual RegistryKeyWrapper OpenSubKey(string name)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentLength(name, nameof(name));
 
             RegistryKeyWrapper wrapper = this;
             string[] keyNames = name.Split(MSBuildConstants.BackslashChar, StringSplitOptions.RemoveEmptyEntries);

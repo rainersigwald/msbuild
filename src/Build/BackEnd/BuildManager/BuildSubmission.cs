@@ -56,8 +56,8 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal BuildSubmission(BuildManager buildManager, int submissionId, BuildRequestData requestData, bool legacyThreadingSemantics)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(buildManager, nameof(buildManager));
-            ErrorUtilities.VerifyThrowArgumentNull(requestData, nameof(requestData));
+            VerifyThrowArgumentNull(buildManager, nameof(buildManager));
+            VerifyThrowArgumentNull(requestData, nameof(requestData));
 
             BuildManager = buildManager;
             SubmissionId = submissionId;
@@ -146,13 +146,13 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal void CompleteResults(BuildResult result)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(result, nameof(result));
+            VerifyThrowArgumentNull(result, nameof(result));
 
             // We verify that we got results from the same configuration, but not necessarily the same request, because we are
             // rather flexible in how users are allowed to submit multiple requests for the same configuration.  In this case, the
             // request id of the result will match the first request, even though it will contain results for all requests (including
             // this one.)
-            ErrorUtilities.VerifyThrow(result.ConfigurationId == BuildRequest.ConfigurationId, "BuildResult doesn't match BuildRequest configuration");
+            VerifyThrow(result.ConfigurationId == BuildRequest.ConfigurationId, "BuildResult doesn't match BuildRequest configuration");
 
             if (BuildResult == null)
             {
@@ -177,7 +177,7 @@ namespace Microsoft.Build.Execution
         /// <exception cref="System.InvalidOperationException">The request has already been started or is already complete.</exception>
         private void ExecuteAsync(BuildSubmissionCompleteCallback callback, object context, bool allowMainThreadBuild)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(!IsCompleted, "SubmissionAlreadyComplete");
+            VerifyThrowInvalidOperation(!IsCompleted, "SubmissionAlreadyComplete");
             _completionCallback = callback;
             AsyncContext = context;
             BuildManager.ExecuteSubmission(this, allowMainThreadBuild);

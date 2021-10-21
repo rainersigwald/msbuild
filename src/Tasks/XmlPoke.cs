@@ -43,7 +43,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_xmlInputPath, nameof(XmlInputPath));
+                VerifyThrowArgumentNull(_xmlInputPath, nameof(XmlInputPath));
                 return _xmlInputPath;
             }
 
@@ -57,7 +57,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_query, nameof(Query));
+                VerifyThrowArgumentNull(_query, nameof(Query));
                 return _query;
             }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_value, nameof(Value));
+                VerifyThrowArgumentNull(_value, nameof(Value));
                 return _value;
             }
 
@@ -92,9 +92,9 @@ namespace Microsoft.Build.Tasks
         /// <returns>true if transformation succeeds.</returns>
         public override bool Execute()
         {
-            ErrorUtilities.VerifyThrowArgumentNull(_query, "Query");
-            ErrorUtilities.VerifyThrowArgumentNull(_value, "Value");
-            ErrorUtilities.VerifyThrowArgumentNull(_xmlInputPath, "XmlInputPath");
+            VerifyThrowArgumentNull(_query, "Query");
+            VerifyThrowArgumentNull(_value, "Value");
+            VerifyThrowArgumentNull(_xmlInputPath, "XmlInputPath");
 
             // Load the XPath Document
             XmlDocument xmlDoc = new XmlDocument();

@@ -40,8 +40,8 @@ namespace Microsoft.Build.Utilities
         /// </summary>
         public TargetPlatformSDK(string targetPlatformIdentifier, Version targetPlatformVersion, string path)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(targetPlatformIdentifier, nameof(targetPlatformIdentifier));
-            ErrorUtilities.VerifyThrowArgumentNull(targetPlatformVersion, nameof(targetPlatformVersion));
+            VerifyThrowArgumentNull(targetPlatformIdentifier, nameof(targetPlatformIdentifier));
+            VerifyThrowArgumentNull(targetPlatformVersion, nameof(targetPlatformVersion));
             TargetPlatformIdentifier = targetPlatformIdentifier;
             TargetPlatformVersion = targetPlatformVersion;
             Path = path;
@@ -107,23 +107,23 @@ namespace Microsoft.Build.Utilities
         }
 
         /// <summary>
-        /// The SDK's display name, or null if one is not defined. 
+        /// The SDK's display name, or null if one is not defined.
         /// </summary>
         public string DisplayName => Manifest?.DisplayName;
 
         /// <summary>
-        /// Extension sdks within this platform, 
+        /// Extension sdks within this platform,
         /// </summary>
         internal Dictionary<string, string> ExtensionSDKs { get; }
 
         /// <summary>
-        /// Set of platforms supported by this SDK. 
+        /// Set of platforms supported by this SDK.
         /// </summary>
         internal Dictionary<string, string> Platforms { get; }
 
         /// <summary>
         /// Reference to manifest object
-        /// Makes it is instantiated only once 
+        /// Makes it is instantiated only once
         /// </summary>
         private SDKManifest Manifest
         {
@@ -176,7 +176,7 @@ namespace Microsoft.Build.Utilities
         }
 
         /// <summary>
-        /// Returns true if this SDK supports the given platform, or false otherwise. 
+        /// Returns true if this SDK supports the given platform, or false otherwise.
         /// </summary>
         public bool ContainsPlatform(string targetPlatformIdentifier, string targetPlatformVersion)
         {
@@ -185,7 +185,7 @@ namespace Microsoft.Build.Utilities
         }
 
         /// <summary>
-        /// Given an identifier and version, construct a string to use as a key for that combination. 
+        /// Given an identifier and version, construct a string to use as a key for that combination.
         /// </summary>
         internal static string GetSdkKey(string sdkIdentifier, string sdkVersion) => string.Format(CultureInfo.InvariantCulture, "{0}, Version={1}", sdkIdentifier, sdkVersion);
     }

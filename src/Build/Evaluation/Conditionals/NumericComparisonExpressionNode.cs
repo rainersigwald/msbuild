@@ -76,7 +76,7 @@ namespace Microsoft.Build.Evaluation
             }
 
             // Throw error here as this code should be unreachable
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
             return false;
         }
     }

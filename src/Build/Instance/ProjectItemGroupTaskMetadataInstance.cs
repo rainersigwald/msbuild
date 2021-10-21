@@ -46,10 +46,10 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal ProjectItemGroupTaskMetadataInstance(string name, string value, string condition, ElementLocation location, ElementLocation conditionLocation)
         {
-            ErrorUtilities.VerifyThrowInternalNull(name, nameof(name));
-            ErrorUtilities.VerifyThrowInternalNull(value, nameof(value));
-            ErrorUtilities.VerifyThrowInternalNull(condition, nameof(condition));
-            ErrorUtilities.VerifyThrowInternalNull(location, nameof(location));
+            VerifyThrowInternalNull(name, nameof(name));
+            VerifyThrowInternalNull(value, nameof(value));
+            VerifyThrowInternalNull(condition, nameof(condition));
+            VerifyThrowInternalNull(location, nameof(location));
 
             _name = name;
             _value = value;

@@ -88,9 +88,9 @@ namespace Microsoft.Build.Tasks
         /// <exception cref="InvalidOperationException">Thrown when the <c>TaskResources</c> property of the owner task is not set.</exception>
         override public string FormatResourceString(string resourceName, params object[] args)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(resourceName, nameof(resourceName));
-            ErrorUtilities.VerifyThrowInvalidOperation(TaskResources != null, "Shared.TaskResourcesNotRegistered", TaskName);
-            ErrorUtilities.VerifyThrowInvalidOperation(TaskSharedResources != null, "Shared.TaskResourcesNotRegistered", TaskName);
+            VerifyThrowArgumentNull(resourceName, nameof(resourceName));
+            VerifyThrowInvalidOperation(TaskResources != null, "Shared.TaskResourcesNotRegistered", TaskName);
+            VerifyThrowInvalidOperation(TaskSharedResources != null, "Shared.TaskResourcesNotRegistered", TaskName);
 
             // NOTE: the ResourceManager.GetString() method is thread-safe
             string resourceString = TaskResources.GetString(resourceName, CultureInfo.CurrentUICulture);
@@ -100,7 +100,7 @@ namespace Microsoft.Build.Tasks
                 resourceString = TaskSharedResources.GetString(resourceName, CultureInfo.CurrentUICulture);
             }
 
-            ErrorUtilities.VerifyThrowArgument(resourceString != null, "Shared.TaskResourceNotFound", resourceName, TaskName);
+            VerifyThrowArgument(resourceString != null, "Shared.TaskResourceNotFound", resourceName, TaskName);
 
             return FormatString(resourceString, args);
         }

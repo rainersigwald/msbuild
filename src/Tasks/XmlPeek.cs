@@ -46,7 +46,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_query, "Query");
+                VerifyThrowArgumentNull(_query, "Query");
                 return _query;
             }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Build.Tasks
         public override bool Execute()
         {
             XmlInput xmlinput;
-            ErrorUtilities.VerifyThrowArgumentNull(_query, nameof(Query));
+            VerifyThrowArgumentNull(_query, nameof(Query));
 
             try
             {

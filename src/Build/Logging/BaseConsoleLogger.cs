@@ -352,7 +352,7 @@ namespace Microsoft.Build.BackEnd.Logging
                     return LoggerVerbosity.Detailed;
 
                 default:
-                    ErrorUtilities.VerifyThrow(false, "Impossible");
+                    VerifyThrow(false, "Impossible");
                     lightenText = false;
                     return LoggerVerbosity.Detailed;
             }
@@ -1017,7 +1017,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// </summary>
         internal virtual bool ApplyParameter(string parameterName, string parameterValue)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parameterName, nameof(parameterName));
+            VerifyThrowArgumentNull(parameterName, nameof(parameterName));
 
             switch (parameterName.ToUpperInvariant())
             {

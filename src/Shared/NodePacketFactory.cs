@@ -50,7 +50,7 @@ namespace Microsoft.Build.BackEnd
             // PERF: Not using VerifyThrow to avoid boxing of packetType in the non-error case
             if (!_packetFactories.TryGetValue(packetType, out PacketFactoryRecord record))
             {
-                ErrorUtilities.ThrowInternalError("No packet handler for type {0}", packetType);
+                ThrowInternalError("No packet handler for type {0}", packetType);
             }
 
             record.DeserializeAndRoutePacket(nodeId, translator);

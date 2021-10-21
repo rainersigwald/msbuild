@@ -61,7 +61,7 @@ namespace Microsoft.Build.CommandLine
             base(info, context)
 
         {
-            ErrorUtilities.VerifyThrowArgumentNull(info, nameof(info));
+            VerifyThrowArgumentNull(info, nameof(info));
 
             invalidSwitch = info.GetString("invalidSwitch");
         }
@@ -141,7 +141,7 @@ namespace Microsoft.Build.CommandLine
         {
             string errorMessage = AssemblyResources.GetString(messageResourceName);
 
-            ErrorUtilities.VerifyThrow(errorMessage != null, "The resource string must exist.");
+            VerifyThrow(errorMessage != null, "The resource string must exist.");
 
             if (showStackTrace && e != null)
             {
@@ -165,7 +165,7 @@ namespace Microsoft.Build.CommandLine
             {
                 string errorMessage = AssemblyResources.GetString(messageResourceName);
 
-                ErrorUtilities.VerifyThrow(errorMessage != null, "The resource string must exist.");
+                VerifyThrow(errorMessage != null, "The resource string must exist.");
 
                 errorMessage = ResourceUtilities.FormatString(errorMessage, args);
 
@@ -182,7 +182,7 @@ namespace Microsoft.Build.CommandLine
         /// <param name="showStackTrace"></param>
         internal static void Throw(string message, string invalidSwitch)
         {
-            ErrorUtilities.VerifyThrow(message != null, "The string must exist.");
+            VerifyThrow(message != null, "The string must exist.");
             throw new InitializationException(message, invalidSwitch);
         }
     }

@@ -11,11 +11,11 @@ namespace Microsoft.Build.Collections
 {
     /// <summary>
     /// A dictionary of unordered property or metadata name/value pairs, with copy-on-write semantics.
-    /// 
+    ///
     /// The copy-on-write semantics are only possible if the contained type is immutable, which currently
     /// means it can only be used for ProjectMetadataInstance's.
     /// USE THIS DICTIONARY ONLY FOR IMMUTABLE TYPES. OTHERWISE USE PROPERTYDICTIONARY.
-    /// 
+    ///
     /// </summary>
     /// <remarks>
     /// The value that this adds over IDictionary&lt;string, T&gt; is:
@@ -23,20 +23,20 @@ namespace Microsoft.Build.Collections
     ///     - default enumerator is over values
     ///     - (marginal) enforces the correct key comparer
     ///     - potentially makes copy on write possible
-    /// 
+    ///
     /// Really a Dictionary&lt;string, T&gt; where the key (the name) is obtained from IKeyed.Key.
-    /// Is not observable, so if clients wish to observe modifications they must mediate them themselves and 
+    /// Is not observable, so if clients wish to observe modifications they must mediate them themselves and
     /// either not expose this collection or expose it through a readonly wrapper.
     ///
     /// At various places in this class locks are taken on the backing collection.  The reason for this is to allow
-    /// this class to be asynchronously enumerated.  This is accomplished by the CopyOnReadEnumerable which will 
+    /// this class to be asynchronously enumerated.  This is accomplished by the CopyOnReadEnumerable which will
     /// lock the backing collection when it does its deep cloning.  This prevents asynchronous access from corrupting
     /// the state of the enumeration until the collection has been fully copied.
     ///
     /// The use of a CopyOnWriteDictionary does not reduce the concurrency of this collection, because CopyOnWriteDictionary
     /// offers the same concurrency guarantees (concurrent readers OR single writer) for EACH user of the dictionary.
-    /// 
-    /// Since we use the mutable ignore case comparer we need to make sure that we lock our self before we call the comparer since the comparer can call back 
+    ///
+    /// Since we use the mutable ignore case comparer we need to make sure that we lock our self before we call the comparer since the comparer can call back
     /// into this dictionary which could cause a deadlock if another thread is also accessing another method in the dictionary.
     /// </remarks>
     /// <typeparam name="T">Property or Metadata class type to store</typeparam>
@@ -183,14 +183,14 @@ namespace Microsoft.Build.Collections
 
             set
             {
-                ErrorUtilities.VerifyThrowInternalNull(value, "Properties can't have null value");
-                ErrorUtilities.VerifyThrow(String.Equals(name, value.Key, StringComparison.OrdinalIgnoreCase), "Key must match value's key");
+                VerifyThrowInternalNull(value, "Properties can't have null value");
+                VerifyThrow(String.Equals(name, value.Key, StringComparison.OrdinalIgnoreCase), "Key must match value's key");
                 Set(value);
             }
         }
 
         /// <summary>
-        /// Returns an enumerable which clones the properties 
+        /// Returns an enumerable which clones the properties
         /// </summary>
         /// <returns>Returns a cloning enumerable.</returns>
         public IEnumerable<T> GetCopyOnReadEnumerable()
@@ -290,7 +290,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         void IDictionary<string, T>.Add(string key, T value)
         {
-            ErrorUtilities.VerifyThrow(key == value.Key, "Key must match value's key");
+            VerifyThrow(key == value.Key, "Key must match value's key");
             Set(value);
         }
 
@@ -362,7 +362,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         void ICollection<KeyValuePair<string, T>>.CopyTo(KeyValuePair<string, T>[] array, int arrayIndex)
         {
-            ErrorUtilities.ThrowInternalError("CopyTo is not supported on PropertyDictionary.");
+            ThrowInternalError("CopyTo is not supported on PropertyDictionary.");
         }
 
         /// <summary>
@@ -370,7 +370,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         bool ICollection<KeyValuePair<string, T>>.Remove(KeyValuePair<string, T> item)
         {
-            ErrorUtilities.VerifyThrow(item.Key == item.Value.Key, "Key must match value's key");
+            VerifyThrow(item.Key == item.Value.Key, "Key must match value's key");
             return ((IDictionary<string, T>)this).Remove(item.Key);
         }
 
@@ -406,7 +406,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         internal bool Remove(string name, bool clearIfEmpty)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentLength(name, nameof(name));
 
             lock (_properties)
             {
@@ -426,7 +426,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         internal void Set(T projectProperty)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectProperty, nameof(projectProperty));
+            VerifyThrowArgumentNull(projectProperty, nameof(projectProperty));
 
             lock (_properties)
             {
@@ -480,7 +480,7 @@ namespace Microsoft.Build.Collections
         }
 
         /// <summary>
-        /// Clone. As we're copy on write, this 
+        /// Clone. As we're copy on write, this
         /// should be cheap.
         /// </summary>
         internal CopyOnWritePropertyDictionary<T> DeepClone()

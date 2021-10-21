@@ -950,8 +950,8 @@ namespace Microsoft.Build.Utilities
         }
 
         /// <summary>
-        /// Remove the entry in the input dependency graph corresponding to the rooting marker 
-        /// passed in. 
+        /// Remove the entry in the input dependency graph corresponding to the rooting marker
+        /// passed in.
         /// </summary>
         /// <param name="rootingMarker">The root to remove</param>
         public void RemoveEntryForSourceRoot(string rootingMarker) => DependencyTable.Remove(rootingMarker);
@@ -1027,7 +1027,7 @@ namespace Microsoft.Build.Utilities
 
             if (correspondingOutputs != null)
             {
-                ErrorUtilities.VerifyThrowArgument(source.Length == correspondingOutputs.Length, "Tracking_SourcesAndCorrespondingOutputMismatch");
+                VerifyThrowArgument(source.Length == correspondingOutputs.Length, "Tracking_SourcesAndCorrespondingOutputMismatch");
             }
 
             // construct a combined root marker for the sources and outputs to remove from the graph

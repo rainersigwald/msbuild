@@ -116,7 +116,7 @@ namespace Microsoft.Build.Tasks.AssemblyFoldersFromConfig
 
                     bool useCache = Environment.GetEnvironmentVariable("MSBUILDDISABLEASSEMBLYFOLDERSEXCACHE") == null;
                     string key = "6f7de854-47fe-4ae2-9cfe-9b33682abd91" + searchPathElement;
-                    
+
                     if (useCache && _buildEngine != null)
                     {
                         _assemblyFoldersCache = _buildEngine.GetRegisteredTaskObject(key, RegisteredTaskObjectLifetime.Build) as AssemblyFoldersFromConfigCache;
@@ -126,7 +126,7 @@ namespace Microsoft.Build.Tasks.AssemblyFoldersFromConfig
                     {
                         // This should never happen. Microsoft.Common.CurrentVersion.targets will not specify a AssemblyFoldersFromConfig search path
                         // if the specified (or default) file is not found.
-                        ErrorUtilities.VerifyThrow(FileSystems.Default.FileExists(_assemblyFolderConfigFile),
+                        VerifyThrow(FileSystems.Default.FileExists(_assemblyFolderConfigFile),
                             $"The AssemblyFolders config file specified does not exist: {_assemblyFolderConfigFile}");
 
                         try
@@ -196,7 +196,7 @@ namespace Microsoft.Build.Tasks.AssemblyFoldersFromConfig
                         {
                             string candidatePath = ResolveFromDirectory(assemblyName, isPrimaryProjectReference, wantSpecificVersion, executableExtensions, assemblyFolder.DirectoryPath, assembliesConsideredAndRejected);
 
-                            // We have a full path returned 
+                            // We have a full path returned
                             if (candidatePath != null)
                             {
                                 if (resolvedPath == null)
@@ -210,7 +210,7 @@ namespace Microsoft.Build.Tasks.AssemblyFoldersFromConfig
                                     foundPath = candidatePath;
                                     return true;
                                 }
-                                
+
                                 // Lets see if the processor architecture matches, note this this method will cache the result when it was first called.
                                 AssemblyNameExtension foundAssembly = getAssemblyName(candidatePath);
 

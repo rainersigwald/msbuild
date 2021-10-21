@@ -14,7 +14,7 @@ using Microsoft.Build.Shared;
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>
-    /// Type of parameter, used to figure out how to serialize it. 
+    /// Type of parameter, used to figure out how to serialize it.
     /// </summary>
     internal enum TaskParameterType
     {
@@ -39,12 +39,12 @@ namespace Microsoft.Build.BackEnd
         ValueType,
 
         /// <summary>
-        /// Parameter is an array of value types.  Note:  Must be serializable. 
+        /// Parameter is an array of value types.  Note:  Must be serializable.
         /// </summary>
         ValueTypeArray,
 
         /// <summary>
-        /// Parameter is an ITaskItem 
+        /// Parameter is an ITaskItem
         /// </summary>
         ITaskItem,
 
@@ -54,15 +54,15 @@ namespace Microsoft.Build.BackEnd
         ITaskItemArray,
 
         /// <summary>
-        /// An invalid parameter -- the value of this parameter contains the exception 
-        /// that is thrown when trying to access it. 
+        /// An invalid parameter -- the value of this parameter contains the exception
+        /// that is thrown when trying to access it.
         /// </summary>
         Invalid
     }
 
     /// <summary>
-    /// Wrapper for task parameters, to allow proper serialization even 
-    /// in cases where the parameter is not .NET serializable. 
+    /// Wrapper for task parameters, to allow proper serialization even
+    /// in cases where the parameter is not .NET serializable.
     /// </summary>
     internal class TaskParameter :
 #if FEATURE_APPDOMAIN
@@ -101,8 +101,8 @@ namespace Microsoft.Build.BackEnd
                 return;
             }
 
-            // It's not null or invalid, so it should be a valid parameter type. 
-            ErrorUtilities.VerifyThrow
+            // It's not null or invalid, so it should be a valid parameter type.
+            VerifyThrow
                 (
                     TaskParameterTypeVerifier.IsValidInputParameter(wrappedParameterType) || TaskParameterTypeVerifier.IsValidOutputParameter(wrappedParameterType),
                     "How did we manage to get a task parameter that isn't a valid parameter type?"
@@ -138,7 +138,7 @@ namespace Microsoft.Build.BackEnd
                 }
                 else
                 {
-                    ErrorUtilities.ThrowInternalErrorUnreachable();
+                    ThrowInternalErrorUnreachable();
                 }
             }
             else
@@ -161,7 +161,7 @@ namespace Microsoft.Build.BackEnd
                 }
                 else
                 {
-                    ErrorUtilities.ThrowInternalErrorUnreachable();
+                    ThrowInternalErrorUnreachable();
                 }
             }
         }
@@ -194,7 +194,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// TaskParameter's ToString should just pass through to whatever it's wrapping. 
+        /// TaskParameter's ToString should just pass through to whatever it's wrapping.
         /// </summary>
         public override string ToString()
         {
@@ -202,7 +202,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// Serialize / deserialize this item. 
+        /// Serialize / deserialize this item.
         /// </summary>
         public void Translate(ITranslator translator)
         {
@@ -239,7 +239,7 @@ namespace Microsoft.Build.BackEnd
                     _wrappedParameter = exceptionParam;
                     break;
                 default:
-                    ErrorUtilities.ThrowInternalErrorUnreachable();
+                    ThrowInternalErrorUnreachable();
                     break;
             }
         }
@@ -268,7 +268,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// Creates a new ITaskItem with the contents of the old one. 
+        /// Creates a new ITaskItem with the contents of the old one.
         /// </summary>
         private ITaskItem CreateNewTaskItemFrom(ITaskItem copyFrom)
         {
@@ -297,10 +297,10 @@ namespace Microsoft.Build.BackEnd
             }
             else
             {
-                // If we don't have ITaskItem2 to fall back on, we have to make do with the fact that 
-                // CloneCustomMetadata, GetMetadata, & ItemSpec returns unescaped values, and 
-                // TaskParameterTaskItem's constructor expects escaped values, so escaping them all 
-                // is the closest approximation to correct we can get.  
+                // If we don't have ITaskItem2 to fall back on, we have to make do with the fact that
+                // CloneCustomMetadata, GetMetadata, & ItemSpec returns unescaped values, and
+                // TaskParameterTaskItem's constructor expects escaped values, so escaping them all
+                // is the closest approximation to correct we can get.
                 escapedItemSpec = EscapingUtilities.Escape(copyFrom.ItemSpec);
 
                 escapedDefiningProject = EscapingUtilities.EscapeWithCaching(copyFrom.GetMetadata(FileUtilities.ItemSpecModifiers.DefiningProjectFullPath));
@@ -322,7 +322,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// Serialize / deserialize this item. 
+        /// Serialize / deserialize this item.
         /// </summary>
         private void TranslateITaskItemArray(ITranslator translator)
         {
@@ -359,7 +359,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// Serialize / deserialize this item. 
+        /// Serialize / deserialize this item.
         /// </summary>
         private void TranslateITaskItem(ITranslator translator)
         {
@@ -380,7 +380,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void WriteITaskItem(ITranslator translator, ITaskItem wrappedItem)
         {
-            ErrorUtilities.VerifyThrow(translator.Mode == TranslationDirection.WriteToStream, "Cannot call this method when reading!");
+            VerifyThrow(translator.Mode == TranslationDirection.WriteToStream, "Cannot call this method when reading!");
 
             if (!TranslateNullable(translator, wrappedItem))
             {
@@ -403,8 +403,8 @@ namespace Microsoft.Build.BackEnd
             }
             else
             {
-                // We know that the ITaskItem constructor expects an escaped string, and that ITaskItem.ItemSpec 
-                // is expected to be unescaped, so make sure we give the constructor what it wants. 
+                // We know that the ITaskItem constructor expects an escaped string, and that ITaskItem.ItemSpec
+                // is expected to be unescaped, so make sure we give the constructor what it wants.
                 escapedItemSpec = EscapingUtilities.Escape(wrappedItem.ItemSpec);
                 escapedDefiningProject = EscapingUtilities.EscapeWithCaching(wrappedItem.GetMetadata(FileUtilities.ItemSpecModifiers.DefiningProjectFullPath));
                 wrappedMetadata = wrappedItem.CloneCustomMetadata();
@@ -447,7 +447,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void ReadITaskItem(ITranslator translator, ref ITaskItem wrappedItem)
         {
-            ErrorUtilities.VerifyThrow(translator.Mode == TranslationDirection.ReadFromStream, "Cannot call this method when writing!");
+            VerifyThrow(translator.Mode == TranslationDirection.ReadFromStream, "Cannot call this method when writing!");
 
             if (!TranslateNullable(translator, wrappedItem))
             {
@@ -487,7 +487,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// Super simple ITaskItem derivative that we can use as a container for read items.  
+        /// Super simple ITaskItem derivative that we can use as a container for read items.
         /// </summary>
         private class TaskParameterTaskItem :
 #if FEATURE_APPDOMAIN
@@ -500,7 +500,7 @@ namespace Microsoft.Build.BackEnd
 #endif
         {
             /// <summary>
-            /// The item spec 
+            /// The item spec
             /// </summary>
             private string _escapedItemSpec = null;
 
@@ -524,7 +524,7 @@ namespace Microsoft.Build.BackEnd
             /// </summary>
             public TaskParameterTaskItem(string escapedItemSpec, string escapedDefiningProject, Dictionary<string, string> escapedMetadata)
             {
-                ErrorUtilities.VerifyThrowInternalNull(escapedItemSpec, nameof(escapedItemSpec));
+                VerifyThrowInternalNull(escapedItemSpec, nameof(escapedItemSpec));
 
                 _escapedItemSpec = escapedItemSpec;
                 _escapedDefiningProject = escapedDefiningProject;
@@ -615,11 +615,11 @@ namespace Microsoft.Build.BackEnd
             /// <param name="metadataValue">The metadata value.</param>
             public void SetMetadata(string metadataName, string metadataValue)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(metadataName, nameof(metadataName));
+                VerifyThrowArgumentLength(metadataName, nameof(metadataName));
 
                 // Non-derivable metadata can only be set at construction time.
                 // That's why this is IsItemSpecModifier and not IsDerivableItemSpecModifier.
-                ErrorUtilities.VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsDerivableItemSpecModifier(metadataName), "Shared.CannotChangeItemSpecModifiers", metadataName);
+                VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsDerivableItemSpecModifier(metadataName), "Shared.CannotChangeItemSpecModifiers", metadataName);
 
                 _customEscapedMetadata ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -632,8 +632,8 @@ namespace Microsoft.Build.BackEnd
             /// <param name="metadataName">The name of the metadata to remove.</param>
             public void RemoveMetadata(string metadataName)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(metadataName, nameof(metadataName));
-                ErrorUtilities.VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsItemSpecModifier(metadataName), "Shared.CannotChangeItemSpecModifiers", metadataName);
+                VerifyThrowArgumentNull(metadataName, nameof(metadataName));
+                VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsItemSpecModifier(metadataName), "Shared.CannotChangeItemSpecModifiers", metadataName);
 
                 if (_customEscapedMetadata == null)
                 {
@@ -655,7 +655,7 @@ namespace Microsoft.Build.BackEnd
             /// <param name="destinationItem">The item to copy metadata to.</param>
             public void CopyMetadataTo(ITaskItem destinationItem)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(destinationItem, nameof(destinationItem));
+                VerifyThrowArgumentNull(destinationItem, nameof(destinationItem));
 
                 // also copy the original item-spec under a "magic" metadata -- this is useful for tasks that forward metadata
                 // between items, and need to know the source item where the metadata came from
@@ -722,7 +722,7 @@ namespace Microsoft.Build.BackEnd
             /// </summary>
             string ITaskItem2.GetMetadataValueEscaped(string metadataName)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(metadataName, nameof(metadataName));
+                VerifyThrowArgumentNull(metadataName, nameof(metadataName));
 
                 string metadataValue = null;
 
@@ -741,7 +741,7 @@ namespace Microsoft.Build.BackEnd
             }
 
             /// <summary>
-            /// Sets the exact metadata value given to the metadata name requested. 
+            /// Sets the exact metadata value given to the metadata name requested.
             /// </summary>
             void ITaskItem2.SetMetadataValueLiteral(string metadataName, string metadataValue)
             {
@@ -749,7 +749,7 @@ namespace Microsoft.Build.BackEnd
             }
 
             /// <summary>
-            /// Returns a dictionary containing all metadata and their escaped forms.  
+            /// Returns a dictionary containing all metadata and their escaped forms.
             /// </summary>
             IDictionary ITaskItem2.CloneCustomMetadataEscaped()
             {

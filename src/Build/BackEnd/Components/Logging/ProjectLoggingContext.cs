@@ -162,7 +162,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <param name="success">Did the build succeede or not</param>
         internal void LogProjectFinished(bool success)
         {
-            ErrorUtilities.VerifyThrow(this.IsValid, "invalid");
+            VerifyThrow(this.IsValid, "invalid");
             LoggingService.LogProjectFinished(BuildEventContext, _projectFullPath, success);
             this.IsValid = false;
         }
@@ -172,7 +172,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// </summary>
         internal TargetLoggingContext LogTargetBatchStarted(string projectFullPath, ProjectTargetInstance target, string parentTargetName, TargetBuiltReason buildReason)
         {
-            ErrorUtilities.VerifyThrow(this.IsValid, "invalid");
+            VerifyThrow(this.IsValid, "invalid");
             return new TargetLoggingContext(this, projectFullPath, target, parentTargetName, buildReason);
         }
 

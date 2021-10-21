@@ -312,13 +312,13 @@ namespace Microsoft.Build.BackEnd
                 if (blocker.YieldAction != YieldAction.None)
                 {
                     TraceScheduler("Request {0} on node {1} is performing yield action {2}.", blocker.BlockedRequestId, nodeId, blocker.YieldAction);
-                    ErrorUtilities.VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
+                    VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
                     HandleYieldAction(parentRequest, blocker);
                 }
                 else if ((blocker.BlockingRequestId == blocker.BlockedRequestId) && blocker.BlockingRequestId != BuildRequest.InvalidGlobalRequestId)
                 {
-                    ErrorUtilities.VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
-                    // We are blocked waiting for a transfer of results.                    
+                    VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
+                    // We are blocked waiting for a transfer of results.
                     HandleRequestBlockedOnResultsTransfer(parentRequest, responses);
                 }
                 else if (blocker.BlockingRequestId != BuildRequest.InvalidGlobalRequestId)
@@ -326,7 +326,7 @@ namespace Microsoft.Build.BackEnd
                     // We are blocked by a request executing a target for which we need results.
                     try
                     {
-                        ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should exist");
+                        VerifyThrow(!string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should exist");
 
                         HandleRequestBlockedOnInProgressTarget(parentRequest, blocker);
                     }
@@ -338,7 +338,7 @@ namespace Microsoft.Build.BackEnd
                 }
                 else
                 {
-                    ErrorUtilities.VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
+                    VerifyThrow(string.IsNullOrEmpty(blocker.BlockingTarget), "Blocking target should be null because this is not a request blocking on a target");
                     // We are blocked by new requests, either top-level or MSBuild task.
                     HandleRequestBlockedByNewRequests(parentRequest, blocker, responses);
                 }
@@ -349,7 +349,7 @@ namespace Microsoft.Build.BackEnd
                 responses.Add(ScheduleResponse.CreateCircularDependencyResponse(nodeId, parentRequest.BuildRequest, ex.Request));
             }
 
-            // Now see if we can schedule requests somewhere since we 
+            // Now see if we can schedule requests somewhere since we
             // a) have a new request; and
             // b) have a node which is now waiting and not doing anything.
             ScheduleUnassignedRequests(responses);
@@ -370,7 +370,7 @@ namespace Microsoft.Build.BackEnd
 
             if (result.NodeRequestId == BuildRequest.ResultsTransferNodeRequestId)
             {
-                // We are transferring results.  The node to which they should be sent has already been recorded by the 
+                // We are transferring results.  The node to which they should be sent has already been recorded by the
                 // HandleRequestBlockedOnResultsTransfer method in the configuration.
                 BuildRequestConfiguration config = _configCache[result.ConfigurationId];
                 ScheduleResponse response = ScheduleResponse.CreateReportResultResponse(config.ResultsNodeId, result);
@@ -382,18 +382,18 @@ namespace Microsoft.Build.BackEnd
                 SchedulableRequest request = _schedulingData.GetExecutingRequest(result.GlobalRequestId);
                 request.Complete(result);
 
-                // Report results to our parent, or report submission complete as necessary.            
+                // Report results to our parent, or report submission complete as necessary.
                 if (request.Parent != null)
                 {
                     // responses.Add(new ScheduleResponse(request.Parent.AssignedNode, new BuildRequestUnblocker(request.Parent.BuildRequest.GlobalRequestId, result)));
-                    ErrorUtilities.VerifyThrow(result.ParentGlobalRequestId == request.Parent.BuildRequest.GlobalRequestId, "Result's parent doesn't match request's parent.");
+                    VerifyThrow(result.ParentGlobalRequestId == request.Parent.BuildRequest.GlobalRequestId, "Result's parent doesn't match request's parent.");
 
                     // When adding the result to the cache we merge the result with what ever is already in the cache this may cause
                     // the result to have more target outputs in it than was was requested.  To fix this we can ask the cache itself for the result we just added.
-                    // When results are returned from the cache we filter them based on the targets we requested. This causes our result to only 
+                    // When results are returned from the cache we filter them based on the targets we requested. This causes our result to only
                     // include the targets we requested rather than the merged result.
 
-                    // Note: In this case we do not need to log that we got the results from the cache because we are only using the cache 
+                    // Note: In this case we do not need to log that we got the results from the cache because we are only using the cache
                     // for filtering the targets for the result instead rather than using the cache as the location where this result came from.
                     ScheduleResponse response = TrySatisfyRequestFromCache(request.Parent.AssignedNode, request.BuildRequest, skippedResultsDoNotCauseCacheMiss: _componentHost.BuildParameters.SkippedResultsDoNotCauseCacheMiss());
 
@@ -431,13 +431,13 @@ namespace Microsoft.Build.BackEnd
                         int parentNode = (unscheduledRequest.Parent == null) ? InvalidNodeId : unscheduledRequest.Parent.AssignedNode;
 
                         // There are other requests which we can satisfy based on this result, lets pull the result out of the cache
-                        // and satisfy those requests.  Normally a skipped result would lead to the cache refusing to satisfy the 
-                        // request, because the correct response in that case would be to attempt to rebuild the target in case there 
+                        // and satisfy those requests.  Normally a skipped result would lead to the cache refusing to satisfy the
+                        // request, because the correct response in that case would be to attempt to rebuild the target in case there
                         // are state changes that would cause it to now excute.  At this point, however, we already know that the parent
-                        // request has completed, and we already know that this request has the same global request ID, which means that 
-                        // its configuration and set of targets are identical -- from MSBuild's perspective, it's the same.  So since 
-                        // we're not going to attempt to re-execute it, if there are skipped targets in the result, that's fine. We just 
-                        // need to know what the target results are so that we can log them. 
+                        // request has completed, and we already know that this request has the same global request ID, which means that
+                        // its configuration and set of targets are identical -- from MSBuild's perspective, it's the same.  So since
+                        // we're not going to attempt to re-execute it, if there are skipped targets in the result, that's fine. We just
+                        // need to know what the target results are so that we can log them.
                         ScheduleResponse response = TrySatisfyRequestFromCache(parentNode, unscheduledRequest.BuildRequest, skippedResultsDoNotCauseCacheMiss: true);
 
                         // If we have a response we need to tell the loggers that we satisified that request from the cache.
@@ -447,8 +447,8 @@ namespace Microsoft.Build.BackEnd
                         }
                         else
                         {
-                            // Response may be null if the result was never added to the cache. This can happen if the result has 
-                            // an exception in it. If that is the case, we should report the result directly so that the 
+                            // Response may be null if the result was never added to the cache. This can happen if the result has
+                            // an exception in it. If that is the case, we should report the result directly so that the
                             // build manager knows that it needs to shut down logging manually.
                             response = GetResponseForResult(parentNode, unscheduledRequest.BuildRequest, newResult.Clone());
                         }
@@ -491,7 +491,7 @@ namespace Microsoft.Build.BackEnd
                     case NodeProviderType.Remote:
                     default:
                         // this should never happen in the current MSBuild.
-                        ErrorUtilities.ThrowInternalErrorUnreachable();
+                        ThrowInternalErrorUnreachable();
                         break;
                 }
             }
@@ -509,7 +509,7 @@ namespace Microsoft.Build.BackEnd
         {
             _schedulingData.EventTime = DateTime.UtcNow;
 
-            // Get the list of build requests currently assigned to the node and report aborted results for them.            
+            // Get the list of build requests currently assigned to the node and report aborted results for them.
             TraceScheduler("Build aborted by node {0}", nodeId);
 
             foreach (SchedulableRequest request in _schedulingData.GetScheduledRequestsByNode(nodeId))
@@ -640,7 +640,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         static internal IBuildComponent CreateComponent(BuildComponentType componentType)
         {
-            ErrorUtilities.VerifyThrow(componentType == BuildComponentType.Scheduler, "Cannot create components of type {0}", componentType);
+            VerifyThrow(componentType == BuildComponentType.Scheduler, "Cannot create components of type {0}", componentType);
             return new Scheduler();
         }
 
@@ -734,44 +734,44 @@ namespace Microsoft.Build.BackEnd
                 }
                 else if (_schedulingData.BlockedRequestsCount != 0)
                 {
-                    // It is legitimate to have blocked requests with none executing if none of the requests can 
-                    // be serviced by any currently existing node, or if they are blocked by requests, none of 
-                    // which can be serviced by any currently existing node.  However, in that case, we had better 
-                    // be requesting the creation of a node that can service them.  
+                    // It is legitimate to have blocked requests with none executing if none of the requests can
+                    // be serviced by any currently existing node, or if they are blocked by requests, none of
+                    // which can be serviced by any currently existing node.  However, in that case, we had better
+                    // be requesting the creation of a node that can service them.
                     //
-                    // Note: This is O(# nodes * closure of requests blocking current set of blocked requests), 
-                    // but all three numbers should usually be fairly small and, more importantly, this situation 
-                    // should occur at most once per build, since it requires a situation where all blocked requests 
-                    // are blocked on the creation of a node that can service them. 
+                    // Note: This is O(# nodes * closure of requests blocking current set of blocked requests),
+                    // but all three numbers should usually be fairly small and, more importantly, this situation
+                    // should occur at most once per build, since it requires a situation where all blocked requests
+                    // are blocked on the creation of a node that can service them.
                     foreach (SchedulableRequest request in _schedulingData.BlockedRequests)
                     {
                         if (RequestOrAnyItIsBlockedByCanBeServiced(request))
                         {
                             DumpSchedulerState();
-                            ErrorUtilities.ThrowInternalError("Somehow no requests are currently executing, and at least one of the {0} requests blocked by in-progress requests is servicable by a currently existing node, but no circular dependency was detected ...", _schedulingData.BlockedRequestsCount);
+                            ThrowInternalError("Somehow no requests are currently executing, and at least one of the {0} requests blocked by in-progress requests is servicable by a currently existing node, but no circular dependency was detected ...", _schedulingData.BlockedRequestsCount);
                         }
                     }
 
                     if (!createNodePending)
                     {
                         DumpSchedulerState();
-                        ErrorUtilities.ThrowInternalError("None of the {0} blocked requests can be serviced by currently existing nodes, but we aren't requesting a new one.", _schedulingData.BlockedRequestsCount);
+                        ThrowInternalError("None of the {0} blocked requests can be serviced by currently existing nodes, but we aren't requesting a new one.", _schedulingData.BlockedRequestsCount);
                     }
                 }
                 else if (_schedulingData.ReadyRequestsCount != 0)
                 {
                     DumpSchedulerState();
-                    ErrorUtilities.ThrowInternalError("Somehow we have {0} requests which are ready to go but we didn't tell the nodes to continue.", _schedulingData.ReadyRequestsCount);
+                    ThrowInternalError("Somehow we have {0} requests which are ready to go but we didn't tell the nodes to continue.", _schedulingData.ReadyRequestsCount);
                 }
                 else if (_schedulingData.UnscheduledRequestsCount != 0 && !createNodePending)
                 {
                     DumpSchedulerState();
-                    ErrorUtilities.ThrowInternalError("Somehow we have {0} unassigned build requests but {1} of our nodes are free and we aren't requesting a new one...", _schedulingData.UnscheduledRequestsCount, idleNodes.Count);
+                    ThrowInternalError("Somehow we have {0} unassigned build requests but {1} of our nodes are free and we aren't requesting a new one...", _schedulingData.UnscheduledRequestsCount, idleNodes.Count);
                 }
             }
             else
             {
-                ErrorUtilities.VerifyThrow(responses.Count > 0, "We failed to request a node to be created.");
+                VerifyThrow(responses.Count > 0, "We failed to request a node to be created.");
             }
 
             TraceScheduler("Requests scheduled: {0} Unassigned Requests: {1} Blocked Requests: {2} Unblockable Requests: {3} Free Nodes: {4}/{5} Responses: {6}", nodesFreeToDoWorkPriorToScheduling - idleNodes.Count, _schedulingData.UnscheduledRequestsCount, _schedulingData.BlockedRequestsCount, _schedulingData.ReadyRequestsCount, idleNodes.Count, _availableNodes.Count, responses.Count);
@@ -850,7 +850,7 @@ namespace Microsoft.Build.BackEnd
 
                 if (!String.IsNullOrEmpty(customScheduler))
                 {
-                    // Assign to the delegate 
+                    // Assign to the delegate
                     if (customScheduler.Equals("WithPlanByMostImmediateReferences", StringComparison.OrdinalIgnoreCase) && _schedulingPlan.IsPlanValid)
                     {
                         _customRequestSchedulingAlgorithm = AssignUnscheduledRequestsWithPlanByMostImmediateReferences;
@@ -930,7 +930,7 @@ namespace Microsoft.Build.BackEnd
                 {
                     int configToSchedule = _schedulingPlan.GetConfigWithGreatestNumberOfReferences(configsWhichCanBeScheduledToThisNode.Keys);
 
-                    ErrorUtilities.VerifyThrow(configToSchedule != BuildRequestConfiguration.InvalidConfigurationId, "No configuration returned even though there are some available.");
+                    VerifyThrow(configToSchedule != BuildRequestConfiguration.InvalidConfigurationId, "No configuration returned even though there are some available.");
                     AssignUnscheduledRequestToNode(configsWhichCanBeScheduledToThisNode[configToSchedule], idleNodeId, responses);
                 }
             }
@@ -958,7 +958,7 @@ namespace Microsoft.Build.BackEnd
                 {
                     int configToSchedule = _schedulingPlan.GetConfigWithGreatestPlanTime(configsWhichCanBeScheduledToThisNode.Keys);
 
-                    ErrorUtilities.VerifyThrow(configToSchedule != BuildRequestConfiguration.InvalidConfigurationId, "No configuration returned even though there are some available.");
+                    VerifyThrow(configToSchedule != BuildRequestConfiguration.InvalidConfigurationId, "No configuration returned even though there are some available.");
                     AssignUnscheduledRequestToNode(configsWhichCanBeScheduledToThisNode[configToSchedule], idleNodeId, responses);
                 }
             }
@@ -1160,7 +1160,7 @@ namespace Microsoft.Build.BackEnd
                     BuildRequest currentRequest = currentSchedulableRequest.BuildRequest;
                     int requiredNodeId = _schedulingData.GetAssignedNodeForRequestConfiguration(currentRequest.ConfigurationId);
 
-                    // This performs the depth-first traversal, assuming that the unassigned build requests has been populated such that the 
+                    // This performs the depth-first traversal, assuming that the unassigned build requests has been populated such that the
                     // top-most requests are the ones most recently issued.  We schedule the first request which can be scheduled to this node.
                     if (requiredNodeId == InvalidNodeId || requiredNodeId == nodeId)
                     {
@@ -1294,7 +1294,7 @@ namespace Microsoft.Build.BackEnd
 
             Dictionary<int, int> configurationCountsByNode = new Dictionary<int, int>(_availableNodes.Count);
 
-            // The configuration count limit will be the average configuration count * X (to allow for some wiggle room) where 
+            // The configuration count limit will be the average configuration count * X (to allow for some wiggle room) where
             // the default value of X is 1.1 (+ 10%)
             int configurationCountLimit = 0;
 
@@ -1333,8 +1333,8 @@ namespace Microsoft.Build.BackEnd
                     {
                         int requiredNodeId = _schedulingData.GetAssignedNodeForRequestConfiguration(request.BuildRequest.ConfigurationId);
 
-                        // Only schedule an entirely new configuration (one not already tied to this node) to this node if we're 
-                        // not already over the limit needed to keep a reasonable balance. 
+                        // Only schedule an entirely new configuration (one not already tied to this node) to this node if we're
+                        // not already over the limit needed to keep a reasonable balance.
                         if (request.AssignedNode == nodeId || requiredNodeId == nodeId || configurationCountsByNode[nodeId] <= configurationCountLimit)
                         {
                             AssignUnscheduledRequestToNode(request, nodeId, responses);
@@ -1349,8 +1349,8 @@ namespace Microsoft.Build.BackEnd
                 }
             }
 
-            // at this point, we may still have work left unassigned, but that's OK -- we're deliberately choosing to delay assigning all available 
-            // requests in order to avoid overloading certain nodes with excess numbers of requests.  
+            // at this point, we may still have work left unassigned, but that's OK -- we're deliberately choosing to delay assigning all available
+            // requests in order to avoid overloading certain nodes with excess numbers of requests.
         }
 
         /// <summary>
@@ -1358,9 +1358,9 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void AssignUnscheduledRequestToNode(SchedulableRequest request, int nodeId, List<ScheduleResponse> responses)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(request, nameof(request));
-            ErrorUtilities.VerifyThrowArgumentNull(responses, nameof(responses));
-            ErrorUtilities.VerifyThrow(nodeId != InvalidNodeId, "Invalid node id specified.");
+            VerifyThrowArgumentNull(request, nameof(request));
+            VerifyThrowArgumentNull(responses, nameof(responses));
+            VerifyThrow(nodeId != InvalidNodeId, "Invalid node id specified.");
 
             request.VerifyState(SchedulableRequestState.Unscheduled);
 
@@ -1375,7 +1375,7 @@ namespace Microsoft.Build.BackEnd
                 config.ResultsNodeId = nodeId;
             }
 
-            ErrorUtilities.VerifyThrow(config.ResultsNodeId != InvalidNodeId, "Configuration's results node is not set.");
+            VerifyThrow(config.ResultsNodeId != InvalidNodeId, "Configuration's results node is not set.");
 
             responses.Add(ScheduleResponse.CreateScheduleResponse(nodeId, request.BuildRequest, mustSendConfigurationToNode));
             TraceScheduler("Executing request {0} on node {1} with parent {2}", request.BuildRequest.GlobalRequestId, nodeId, (request.Parent == null) ? -1 : request.Parent.BuildRequest.GlobalRequestId);
@@ -1388,7 +1388,7 @@ namespace Microsoft.Build.BackEnd
             {
                 if (request.IsProxyBuildRequest() && nodeId != InProcNodeId && _schedulingData.CanScheduleRequestToNode(request, InProcNodeId))
                 {
-                    ErrorUtilities.VerifyThrow(
+                    VerifyThrow(
                         _componentHost.BuildParameters.DisableInProcNode || ForceAffinityOutOfProc,
                         "Proxy requests should only get scheduled to out of proc nodes when the inproc node is disabled");
 
@@ -1427,7 +1427,7 @@ namespace Microsoft.Build.BackEnd
                 return false;
             }
 
-            // We're at our limit of schedulable requests if: 
+            // We're at our limit of schedulable requests if:
             // (1) MaxNodeCount requests are currently executing
             if (_schedulingData.ExecutingRequestsCount >= _componentHost.BuildParameters.MaxNodeCount)
             {
@@ -1489,9 +1489,9 @@ namespace Microsoft.Build.BackEnd
             {
                 int assignedNodeForConfiguration = _schedulingData.GetAssignedNodeForRequestConfiguration(request.BuildRequest.ConfigurationId);
 
-                // Although this request has not been scheduled, this configuration may previously have been 
-                // scheduled to an existing node.  If so, we shouldn't count it in our checks for new node 
-                // creation, because it'll only eventually get assigned to its existing node anyway.  
+                // Although this request has not been scheduled, this configuration may previously have been
+                // scheduled to an existing node.  If so, we shouldn't count it in our checks for new node
+                // creation, because it'll only eventually get assigned to its existing node anyway.
                 if (assignedNodeForConfiguration != Scheduler.InvalidNodeId)
                 {
                     continue;
@@ -1504,9 +1504,9 @@ namespace Microsoft.Build.BackEnd
                     case NodeAffinity.InProc:
                         inProcNodesToCreate++;
 
-                        // If we've previously seen "Any"-affinitized requests, now that there are some 
-                        // genuine inproc requests, they get to play with the inproc node first, so 
-                        // push the "Any" requests to the out-of-proc nodes.  
+                        // If we've previously seen "Any"-affinitized requests, now that there are some
+                        // genuine inproc requests, they get to play with the inproc node first, so
+                        // push the "Any" requests to the out-of-proc nodes.
                         if (requestsWithAnyAffinityOnInProcNodes > 0)
                         {
                             requestsWithAnyAffinityOnInProcNodes--;
@@ -1539,11 +1539,11 @@ namespace Microsoft.Build.BackEnd
 
                         break;
                     default:
-                        ErrorUtilities.ThrowInternalErrorUnreachable();
+                        ThrowInternalErrorUnreachable();
                         break;
                 }
 
-                // We've already hit the limit of the number of nodes we'll be allowed to create, so just quit counting now. 
+                // We've already hit the limit of the number of nodes we'll be allowed to create, so just quit counting now.
                 if (inProcNodesToCreate >= availableNodesWithInProcAffinity && outOfProcNodesToCreate >= availableNodesWithOutOfProcAffinity)
                 {
                     break;
@@ -1553,18 +1553,18 @@ namespace Microsoft.Build.BackEnd
             // If we think we want to create inproc nodes
             if (inProcNodesToCreate > 0)
             {
-                // In-proc node determination is simple: we want as many as are available.  
+                // In-proc node determination is simple: we want as many as are available.
                 inProcNodesToCreate = Math.Min(availableNodesWithInProcAffinity, inProcNodesToCreate);
 
                 // If we still want to create one, go ahead
                 if (inProcNodesToCreate > 0)
                 {
-                    ErrorUtilities.VerifyThrow(inProcNodesToCreate == 1, "We should never be trying to create more than one inproc node");
+                    VerifyThrow(inProcNodesToCreate == 1, "We should never be trying to create more than one inproc node");
                     TraceScheduler("Requesting creation of new node satisfying affinity {0}", NodeAffinity.InProc);
                     responses.Add(ScheduleResponse.CreateNewNodeResponse(NodeAffinity.InProc, 1));
 
-                    // We only want to submit one node creation request at a time -- as part of node creation we recursively re-request the scheduler 
-                    // to do more scheduling, so the other request will be dealt with soon enough.  
+                    // We only want to submit one node creation request at a time -- as part of node creation we recursively re-request the scheduler
+                    // to do more scheduling, so the other request will be dealt with soon enough.
                     return true;
                 }
             }
@@ -1572,17 +1572,17 @@ namespace Microsoft.Build.BackEnd
             // If we think we want to create out-of-proc nodes
             if (outOfProcNodesToCreate > 0)
             {
-                // Out-of-proc node determination is a bit more complicated.  If we have N out-of-proc requests, we want to 
-                // fill up to N out-of-proc nodes.  However, if we have N "any" requests, we must assume that at least some of them 
-                // will be fulfilled by the inproc node, in which case we only want to launch up to N-1 out-of-proc nodes, for a 
-                // total of N nodes overall -- the scheduler will only schedule to N nodes at a time, so launching any more than that 
-                // is ultimately pointless. 
+                // Out-of-proc node determination is a bit more complicated.  If we have N out-of-proc requests, we want to
+                // fill up to N out-of-proc nodes.  However, if we have N "any" requests, we must assume that at least some of them
+                // will be fulfilled by the inproc node, in which case we only want to launch up to N-1 out-of-proc nodes, for a
+                // total of N nodes overall -- the scheduler will only schedule to N nodes at a time, so launching any more than that
+                // is ultimately pointless.
                 int maxCreatableOutOfProcNodes = availableNodesWithOutOfProcAffinity;
 
                 if (requestsWithOutOfProcAffinity < availableNodesWithOutOfProcAffinity)
                 {
-                    // We don't have enough explicitly out-of-proc requests to justify creating every technically allowed 
-                    // out-of-proc node, so our max is actually one less than the absolute max for the reasons explained above. 
+                    // We don't have enough explicitly out-of-proc requests to justify creating every technically allowed
+                    // out-of-proc node, so our max is actually one less than the absolute max for the reasons explained above.
                     maxCreatableOutOfProcNodes--;
                 }
 
@@ -1595,12 +1595,12 @@ namespace Microsoft.Build.BackEnd
                     responses.Add(ScheduleResponse.CreateNewNodeResponse(NodeAffinity.OutOfProc, outOfProcNodesToCreate));
                 }
 
-                // We only want to submit one node creation request at a time -- as part of node creation we recursively re-request the scheduler 
-                // to do more scheduling, so the other request will be dealt with soon enough.  
+                // We only want to submit one node creation request at a time -- as part of node creation we recursively re-request the scheduler
+                // to do more scheduling, so the other request will be dealt with soon enough.
                 return true;
             }
 
-            // If we haven't returned before now, we haven't asked that any new nodes be created.  
+            // If we haven't returned before now, we haven't asked that any new nodes be created.
             return false;
         }
 
@@ -1623,8 +1623,8 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void HandleRequestBlockedOnInProgressTarget(SchedulableRequest blockedRequest, BuildRequestBlocker blocker)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(blockedRequest, nameof(blockedRequest));
-            ErrorUtilities.VerifyThrowArgumentNull(blocker, nameof(blocker));
+            VerifyThrowArgumentNull(blockedRequest, nameof(blockedRequest));
+            VerifyThrowArgumentNull(blocker, nameof(blocker));
 
             // We are blocked on an in-progress request building a target whose results we need.
             SchedulableRequest blockingRequest = _schedulingData.GetScheduledRequest(blocker.BlockingRequestId);
@@ -1665,14 +1665,14 @@ namespace Microsoft.Build.BackEnd
             // we will update the storage location in the configuration.  This is doing a bit of a run around the scheduler - we don't
             // create a new formal request, so we treat the blocked request as if it is still executing - this prevents any other requests
             // from getting onto that node and also means we don't have to do additional work to get the scheduler to understand the bizarre
-            // case of sending a request for results from a project's own configuration (which it believes reside on the very node which 
+            // case of sending a request for results from a project's own configuration (which it believes reside on the very node which
             // is actually requesting the results in the first place.)
             BuildRequestConfiguration configuration = _configCache[parentRequest.BuildRequest.ConfigurationId];
             responses.Add(ScheduleResponse.CreateScheduleResponse(configuration.ResultsNodeId, newRequest, false));
 
             TraceScheduler("Created request {0} (node request {1}) for transfer of configuration {2}'s results from node {3} to node {4}", newRequest.GlobalRequestId, newRequest.NodeRequestId, configuration.ConfigurationId, configuration.ResultsNodeId, parentRequest.AssignedNode);
 
-            // The configuration's results will now be homed at the new location (once they have come back from the 
+            // The configuration's results will now be homed at the new location (once they have come back from the
             // original node.)
             configuration.ResultsNodeId = parentRequest.AssignedNode;
         }
@@ -1682,8 +1682,8 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void HandleRequestBlockedByNewRequests(SchedulableRequest parentRequest, BuildRequestBlocker blocker, List<ScheduleResponse> responses)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(blocker, nameof(blocker));
-            ErrorUtilities.VerifyThrowArgumentNull(responses, nameof(responses));
+            VerifyThrowArgumentNull(blocker, nameof(blocker));
+            VerifyThrowArgumentNull(responses, nameof(responses));
 
             // The request is waiting on new requests.
             bool abortRequestBatch = false;
@@ -1764,7 +1764,7 @@ namespace Microsoft.Build.BackEnd
 
                         if (affinityMismatch)
                         {
-                            ErrorUtilities.VerifyThrowInternalError(
+                            VerifyThrowInternalError(
                                 _configCache.HasConfiguration(request.ConfigurationId),
                                 "A request should have a configuration if it makes it this far in the build process.");
 
@@ -1854,7 +1854,7 @@ namespace Microsoft.Build.BackEnd
             {
                 if (response.Action == ScheduleActionType.SubmissionComplete)
                 {
-                    ErrorUtilities.VerifyThrow(request.Parent == null, "Unexpectedly generated a SubmissionComplete response for a request which is not top-level.");
+                    VerifyThrow(request.Parent == null, "Unexpectedly generated a SubmissionComplete response for a request which is not top-level.");
                     LogRequestHandledFromCache(request.BuildRequest, response.BuildResult);
 
                     // This was root request, we can report submission complete.
@@ -1875,7 +1875,7 @@ namespace Microsoft.Build.BackEnd
                         responses.Add(response);
                     }
 
-                    // Is the node we are reporting to idle? If so, does reporting this result allow it to proceed with work? 
+                    // Is the node we are reporting to idle? If so, does reporting this result allow it to proceed with work?
                     if (!_schedulingData.IsNodeWorking(response.NodeId))
                     {
                         ResumeReadyRequestIfAny(response.NodeId, responses);
@@ -2036,8 +2036,8 @@ namespace Microsoft.Build.BackEnd
                 var parentRequest = _schedulingData.BlockedRequests.FirstOrDefault(r => r.BuildRequest.GlobalRequestId == request.ParentGlobalRequestId)
                                     ?? _schedulingData.ExecutingRequests.FirstOrDefault(r => r.BuildRequest.GlobalRequestId == request.ParentGlobalRequestId);
 
-                ErrorUtilities.VerifyThrowInternalNull(parentRequest, nameof(parentRequest));
-                ErrorUtilities.VerifyThrow(
+                VerifyThrowInternalNull(parentRequest, nameof(parentRequest));
+                VerifyThrow(
                     configCache.HasConfiguration(parentRequest.BuildRequest.ConfigurationId),
                     "All non root requests should have a parent with a loaded configuration");
 
@@ -2056,7 +2056,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private ScheduleResponse GetResponseForResult(int parentRequestNode, BuildRequest requestWhichGeneratedResult, BuildResult result)
         {
-            // We have results, return them to the originating node, or if it is a root request, mark the submission complete.      
+            // We have results, return them to the originating node, or if it is a root request, mark the submission complete.
             if (requestWhichGeneratedResult.IsRootRequest)
             {
                 // return new ScheduleResponse(result);
@@ -2064,10 +2064,10 @@ namespace Microsoft.Build.BackEnd
             }
             else
             {
-                ErrorUtilities.VerifyThrow(parentRequestNode != InvalidNodeId, "Invalid parent node provided.");
+                VerifyThrow(parentRequestNode != InvalidNodeId, "Invalid parent node provided.");
 
                 // return new ScheduleResponse(parentRequestNode, new BuildRequestUnblocker(requestWhichGeneratedResult.ParentGlobalRequestId, result));
-                ErrorUtilities.VerifyThrow(result.ParentGlobalRequestId == requestWhichGeneratedResult.ParentGlobalRequestId, "Result's parent doesn't match request's parent.");
+                VerifyThrow(result.ParentGlobalRequestId == requestWhichGeneratedResult.ParentGlobalRequestId, "Result's parent doesn't match request's parent.");
                 return ScheduleResponse.CreateReportResultResponse(parentRequestNode, result);
             }
         }
@@ -2126,7 +2126,7 @@ namespace Microsoft.Build.BackEnd
                 return NodeAffinity.InProc;
             }
 
-            ErrorUtilities.VerifyThrow(request.ConfigurationId != BuildRequestConfiguration.InvalidConfigurationId, "Requests should have a valid configuration id at this point");
+            VerifyThrow(request.ConfigurationId != BuildRequestConfiguration.InvalidConfigurationId, "Requests should have a valid configuration id at this point");
             // If this configuration has been previously built on an out of proc node, scheduling it on the inproc node can cause either an affinity mismatch error when
             // there are other pending requests for the same configuration or "unscheduled requests remain in the presence of free out of proc nodes" errors if there's no pending requests.
             // So only assign proxy builds to the inproc node if their config hasn't been previously assigned to an out of proc node.
@@ -2175,9 +2175,9 @@ namespace Microsoft.Build.BackEnd
                     }
                 }
 
-                // if none of the requests we are blocked by can be serviced, it doesn't matter 
-                // whether we can be serviced or not -- the reason we're blocked is because none 
-                // of the requests we are blocked by can be serviced. 
+                // if none of the requests we are blocked by can be serviced, it doesn't matter
+                // whether we can be serviced or not -- the reason we're blocked is because none
+                // of the requests we are blocked by can be serviced.
                 return false;
             }
             else

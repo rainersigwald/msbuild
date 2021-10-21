@@ -153,7 +153,7 @@ namespace Microsoft.Build.Shared
         {
             if (_borrowedBuilder == null)
             {
-                ErrorUtilities.VerifyThrow(_capacity != -1, "Reusing after dispose");
+                VerifyThrow(_capacity != -1, "Reusing after dispose");
 
                 _borrowedBuilder = ReuseableStringBuilderFactory.Get(_capacity);
             }
@@ -218,7 +218,7 @@ namespace Microsoft.Build.Shared
 #endif
             /// <summary>
             /// Obtains a string builder which may or may not already
-            /// have been used. 
+            /// have been used.
             /// Never returns null.
             /// </summary>
             internal static StringBuilder Get(int capacity)
@@ -273,11 +273,11 @@ namespace Microsoft.Build.Shared
                 //
                 // If some code has a bug and forgets to return their builder
                 // (or we refuse it here because it's too big) the next user will
-                // get given a new one, and then return it soon after. 
+                // get given a new one, and then return it soon after.
                 // So the shared builder will be "replaced".
                 if (returningBuilder.Capacity < MaxBuilderSize)
                 {
-                    // ErrorUtilities.VerifyThrow(handouts.TryRemove(returningBuilder, out dummy), "returned but not loaned");
+                    // VerifyThrow(handouts.TryRemove(returningBuilder, out dummy), "returned but not loaned");
                     returningBuilder.Clear(); // Clear before pooling
 
                     Interlocked.Exchange(ref s_sharedBuilder, returningBuilder);

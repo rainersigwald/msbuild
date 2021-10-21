@@ -27,7 +27,7 @@ namespace Microsoft.Build.Evaluation
         internal override bool BoolEvaluate(ConditionEvaluator.IConditionEvaluationState state)
         {
             // Should be unreachable: all calls check CanBoolEvaluate() first
-            ErrorUtilities.VerifyThrow(false, "Can't evaluate a numeric expression as boolean.");
+            VerifyThrow(false, "Can't evaluate a numeric expression as boolean.");
             return false;
         }
 
@@ -94,7 +94,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// If any expression nodes cache any state for the duration of evaluation, 
+        /// If any expression nodes cache any state for the duration of evaluation,
         /// now's the time to clean it up
         /// </summary>
         internal override void ResetState()

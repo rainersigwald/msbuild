@@ -204,10 +204,10 @@ namespace Microsoft.Build.Evaluation
             ILoggingService loggingService,
             BuildEventContext buildEventContext)
         {
-            ErrorUtilities.VerifyThrowInternalNull(data, nameof(data));
-            ErrorUtilities.VerifyThrowInternalNull(projectRootElementCache, nameof(projectRootElementCache));
-            ErrorUtilities.VerifyThrowInternalNull(loggingService, nameof(loggingService));
-            ErrorUtilities.VerifyThrowInternalNull(buildEventContext, nameof(buildEventContext));
+            VerifyThrowInternalNull(data, nameof(data));
+            VerifyThrowInternalNull(projectRootElementCache, nameof(projectRootElementCache));
+            VerifyThrowInternalNull(loggingService, nameof(loggingService));
+            VerifyThrowInternalNull(buildEventContext, nameof(buildEventContext));
 
             _evaluationLoggingContext = new EvaluationLoggingContext(
                 loggingService,
@@ -327,7 +327,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         internal static List<I> CreateItemsFromInclude(string rootDirectory, ProjectItemElement itemElement, IItemFactory<I, I> itemFactory, string unevaluatedIncludeEscaped, Expander<P, I> expander)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(unevaluatedIncludeEscaped, nameof(unevaluatedIncludeEscaped));
+            VerifyThrowArgumentLength(unevaluatedIncludeEscaped, nameof(unevaluatedIncludeEscaped));
 
             List<I> items = new List<I>();
             itemFactory.ItemElement = itemElement;
@@ -532,7 +532,7 @@ namespace Microsoft.Build.Evaluation
                             targetOnErrorChildren.Add(ReadOnErrorElement(onError));
                             break;
                         default:
-                            ErrorUtilities.ThrowInternalError("Unexpected child");
+                            ThrowInternalError("Unexpected child");
                             break;
                     }
                 }
@@ -582,7 +582,7 @@ namespace Microsoft.Build.Evaluation
             string projectFile = String.IsNullOrEmpty(_projectRootElement.ProjectFileLocation.File) ? "(null)" : _projectRootElement.ProjectFileLocation.File;
             using (_evaluationProfiler.TrackPass(EvaluationPass.TotalEvaluation))
             {
-                ErrorUtilities.VerifyThrow(_data.EvaluationId == BuildEventContext.InvalidEvaluationId, "There is no prior evaluation ID. The evaluator data needs to be reset at this point");
+                VerifyThrow(_data.EvaluationId == BuildEventContext.InvalidEvaluationId, "There is no prior evaluation ID. The evaluator data needs to be reset at this point");
                 _data.EvaluationId = _evaluationLoggingContext.BuildEventContext.EvaluationId;
 
                 _logProjectImportedEvents = Traits.Instance.EscapeHatches.LogProjectImports;
@@ -607,7 +607,7 @@ namespace Microsoft.Build.Evaluation
 
                 _evaluationLoggingContext.LogProjectEvaluationStarted();
 
-                ErrorUtilities.VerifyThrow(_data.EvaluationId != BuildEventContext.InvalidEvaluationId, "Evaluation should produce an evaluation ID");
+                VerifyThrow(_data.EvaluationId != BuildEventContext.InvalidEvaluationId, "Evaluation should produce an evaluation ID");
 
                 MSBuildEventSource.Log.EvaluatePass0Stop(projectFile);
 
@@ -777,7 +777,7 @@ namespace Microsoft.Build.Evaluation
                 }
             }
 
-            ErrorUtilities.VerifyThrow(_evaluationProfiler.IsEmpty(), "Evaluation profiler stack is not empty.");
+            VerifyThrow(_evaluationProfiler.IsEmpty(), "Evaluation profiler stack is not empty.");
 
             IEnumerable globalProperties = null;
             IEnumerable properties = null;
@@ -879,7 +879,7 @@ namespace Microsoft.Build.Evaluation
                         case ProjectSdkElement sdk: // This case is handled by implicit imports.
                             break;
                         default:
-                            ErrorUtilities.ThrowInternalError("Unexpected child type");
+                            ThrowInternalError("Unexpected child type");
                             break;
                     }
                 }
@@ -1497,7 +1497,7 @@ namespace Microsoft.Build.Evaluation
                             EvaluateChooseElement(choose);
                             break;
                         default:
-                            ErrorUtilities.ThrowInternalError("Unexpected child type");
+                            ThrowInternalError("Unexpected child type");
                             break;
                     }
                 }
@@ -1769,7 +1769,7 @@ namespace Microsoft.Build.Evaluation
                                 case SdkReferencePropertyExpansionMode.NoExpansion:
                                 case SdkReferencePropertyExpansionMode.DefaultExpand:
                                 default:
-                                    ErrorUtilities.ThrowArgumentOutOfRange(nameof(mode));
+                                    ThrowArgumentOutOfRange(nameof(mode));
                                     return value;
                             }
                         }

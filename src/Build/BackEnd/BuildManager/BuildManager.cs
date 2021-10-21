@@ -271,7 +271,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         public BuildManager(string hostName)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(hostName, nameof(hostName));
+            VerifyThrowArgumentNull(hostName, nameof(hostName));
             _hostName = hostName;
             _buildManagerState = BuildManagerState.Idle;
             _buildSubmissions = new Dictionary<int, BuildSubmission>();
@@ -615,7 +615,7 @@ namespace Microsoft.Build.Execution
 
             if (_projectCacheService != null)
             {
-                ErrorUtilities.ThrowInternalError("Only one project cache plugin may be set on the BuildManager during a begin / end build session");
+                ThrowInternalError("Only one project cache plugin may be set on the BuildManager during a begin / end build session");
             }
 
             LogMessage(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("LoadingProjectCachePlugin", pluginDescriptor.GetDetailedDescription()));
@@ -725,7 +725,7 @@ namespace Microsoft.Build.Execution
                     new ConfigurationMetadata(project),
                     (config, loadProject) => CreateConfiguration(project, config),
                     loadProject: true);
-                ErrorUtilities.VerifyThrow(configuration.Project != null, "Configuration should have been loaded.");
+                VerifyThrow(configuration.Project != null, "Configuration should have been loaded.");
                 return configuration.Project;
             }
         }
@@ -739,7 +739,7 @@ namespace Microsoft.Build.Execution
         {
             lock (_syncLock)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(requestData, nameof(requestData));
+                VerifyThrowArgumentNull(requestData, nameof(requestData));
                 ErrorIfState(BuildManagerState.WaitingForBuildToComplete, "WaitingForEndOfBuild");
                 ErrorIfState(BuildManagerState.Idle, "NoBuildInProgress");
                 VerifyStateInternal(BuildManagerState.Building);
@@ -760,7 +760,7 @@ namespace Microsoft.Build.Execution
         {
             lock (_syncLock)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(requestData, nameof(requestData));
+                VerifyThrowArgumentNull(requestData, nameof(requestData));
                 ErrorIfState(BuildManagerState.WaitingForBuildToComplete, "WaitingForEndOfBuild");
                 ErrorIfState(BuildManagerState.Idle, "NoBuildInProgress");
                 VerifyStateInternal(BuildManagerState.Building);
@@ -847,8 +847,8 @@ namespace Microsoft.Build.Execution
 
                 var projectCacheShutdown = _projectCacheService?.Result.ShutDown();
 
-                ErrorUtilities.VerifyThrow(_buildSubmissions.Count == 0 && _graphBuildSubmissions.Count == 0, "All submissions not yet complete.");
-                ErrorUtilities.VerifyThrow(_activeNodes.Count == 0, "All nodes not yet shut down.");
+                VerifyThrow(_buildSubmissions.Count == 0 && _graphBuildSubmissions.Count == 0, "All submissions not yet complete.");
+                VerifyThrow(_activeNodes.Count == 0, "All nodes not yet shut down.");
 
                 if (_buildParameters.UsesOutputCache())
                 {
@@ -1071,8 +1071,8 @@ namespace Microsoft.Build.Execution
         [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "Complex class might need refactoring to separate scheduling elements from submission elements.")]
         internal void ExecuteSubmission(BuildSubmission submission, bool allowMainThreadBuild)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(submission, nameof(submission));
-            ErrorUtilities.VerifyThrow(!submission.IsCompleted, "Submission already complete.");
+            VerifyThrowArgumentNull(submission, nameof(submission));
+            VerifyThrow(!submission.IsCompleted, "Submission already complete.");
 
             BuildRequestConfiguration resolvedConfiguration = null;
             bool shuttingDown = false;
@@ -1086,7 +1086,7 @@ namespace Microsoft.Build.Execution
                     {
                         if (_acquiredProjectRootElementCacheFromProjectInstance)
                         {
-                            ErrorUtilities.VerifyThrowArgument(
+                            VerifyThrowArgument(
                                 _buildParameters.ProjectRootElementCache == projectInstance.ProjectRootElementCache,
                                 "OM_BuildSubmissionsMultipleProjectCollections");
                         }
@@ -1109,7 +1109,7 @@ namespace Microsoft.Build.Execution
                     // If we have an unnamed project, assign it a temporary name.
                     if (string.IsNullOrEmpty(submission.BuildRequestData.ProjectFullPath))
                     {
-                        ErrorUtilities.VerifyThrow(
+                        VerifyThrow(
                             submission.BuildRequestData.ProjectInstance != null,
                             "Unexpected null path for a submission with no ProjectInstance.");
 
@@ -1154,7 +1154,7 @@ namespace Microsoft.Build.Execution
             }
             catch (ProjectCacheException ex)
             {
-                ErrorUtilities.VerifyThrow(resolvedConfiguration is not null, "Cannot call project cache without having BuildRequestConfiguration");
+                VerifyThrow(resolvedConfiguration is not null, "Cannot call project cache without having BuildRequestConfiguration");
                 CompleteSubmissionWithException(submission, resolvedConfiguration, ex);
             }
             catch (Exception ex) when (!ExceptionHandling.IsCriticalException(ex))
@@ -1174,7 +1174,7 @@ namespace Microsoft.Build.Execution
             Debug.Assert(!Monitor.IsEntered(_syncLock));
             if (shuttingDown)
             {
-                ErrorUtilities.VerifyThrow(resolvedConfiguration is not null, "Cannot call project cache without having BuildRequestConfiguration");
+                VerifyThrow(resolvedConfiguration is not null, "Cannot call project cache without having BuildRequestConfiguration");
                 // We were already canceled!
                 CompleteSubmissionWithException(submission, resolvedConfiguration, new BuildAbortedException());
             }
@@ -1215,11 +1215,11 @@ namespace Microsoft.Build.Execution
                 {
                     var projectCacheService = GetProjectCacheService();
 
-                    ErrorUtilities.VerifyThrow(
+                    VerifyThrow(
                         projectCacheService != null,
                         "This method should not get called if there's no project cache.");
 
-                    ErrorUtilities.VerifyThrow(
+                    VerifyThrow(
                         !projectCacheService.DesignTimeBuildsDetected,
                         "This method should not get called if design time builds are detected.");
 
@@ -1366,7 +1366,7 @@ namespace Microsoft.Build.Execution
                 return;
             }
 
-            ErrorUtilities.VerifyThrow(FileUtilities.IsSolutionFilename(config.ProjectFullPath), "{0} is not a solution", config.ProjectFullPath);
+            VerifyThrow(FileUtilities.IsSolutionFilename(config.ProjectFullPath), "{0} is not a solution", config.ProjectFullPath);
             var instances = ProjectInstance.LoadSolutionForBuild(
                 config.ProjectFullPath,
                 config.GlobalProperties,
@@ -1520,7 +1520,7 @@ namespace Microsoft.Build.Execution
                         break;
 
                     default:
-                        ErrorUtilities.ThrowInternalError("Unexpected packet received by BuildManager: {0}", packet.Type);
+                        ThrowInternalError("Unexpected packet received by BuildManager: {0}", packet.Type);
                         break;
                 }
             }
@@ -1836,7 +1836,7 @@ namespace Microsoft.Build.Execution
                     DumpGraph(projectGraph);
                 }
 
-                ErrorUtilities.VerifyThrow(
+                VerifyThrow(
                     submission.BuildResult?.Exception == null,
                     "Exceptions only get set when the graph submission gets completed with an exception in OnThreadException. That should not happen during graph builds.");
 
@@ -2131,7 +2131,7 @@ namespace Microsoft.Build.Execution
         {
             if (_buildManagerState == disallowedState)
             {
-                ErrorUtilities.ThrowInvalidOperation(exceptionResouorce);
+                ThrowInvalidOperation(exceptionResouorce);
             }
         }
 
@@ -2140,7 +2140,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         private void RequireState(BuildManagerState requiredState, string exceptionResouorce)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(_buildManagerState == requiredState, exceptionResouorce);
+            VerifyThrowInvalidOperation(_buildManagerState == requiredState, exceptionResouorce);
         }
 
         /// <summary>
@@ -2150,7 +2150,7 @@ namespace Microsoft.Build.Execution
         {
             if (_buildManagerState != requiredState)
             {
-                ErrorUtilities.ThrowInternalError("Expected state {0}, actual state {1}", requiredState, _buildManagerState);
+                ThrowInternalError("Expected state {0}, actual state {1}", requiredState, _buildManagerState);
             }
         }
 
@@ -2463,7 +2463,7 @@ namespace Microsoft.Build.Execution
             Debug.Assert(Monitor.IsEntered(_syncLock));
 
             _shuttingDown = true;
-            ErrorUtilities.VerifyThrow(_activeNodes.Contains(node), "Unexpected shutdown from node {0} which shouldn't exist.", node);
+            VerifyThrow(_activeNodes.Contains(node), "Unexpected shutdown from node {0} which shouldn't exist.", node);
             _activeNodes.Remove(node);
 
             if (shutdownPacket.Reason != NodeShutdownReason.Requested)
@@ -2612,7 +2612,7 @@ namespace Microsoft.Build.Execution
                                 _noNodesActiveEvent.Reset();
                                 _activeNodes.Add(createdNode.NodeId);
                                 newNodes.Add(createdNode);
-                                ErrorUtilities.VerifyThrow(_activeNodes.Count != 0, "Still 0 nodes after asking for a new node.  Build cannot proceed.");
+                                VerifyThrow(_activeNodes.Count != 0, "Still 0 nodes after asking for a new node.  Build cannot proceed.");
                             }
                             else
                             {
@@ -2648,7 +2648,7 @@ namespace Microsoft.Build.Execution
                         break;
 
                     default:
-                        ErrorUtilities.ThrowInternalError("Scheduling action {0} not handled.", response.Action);
+                        ThrowInternalError("Scheduling action {0} not handled.", response.Action);
                         break;
                 }
             }
@@ -3027,7 +3027,7 @@ namespace Microsoft.Build.Execution
             // PERF: Not using VerifyThrow here to avoid boxing of expectedType.
             if (castPacket == null)
             {
-                ErrorUtilities.ThrowInternalError("Incorrect packet type: {0} should have been {1}", packet.Type, expectedType);
+                ThrowInternalError("Incorrect packet type: {0} should have been {1}", packet.Type, expectedType);
             }
 
             return castPacket;
@@ -3111,9 +3111,9 @@ namespace Microsoft.Build.Execution
         {
             Debug.Assert(Monitor.IsEntered(_syncLock));
 
-            ErrorUtilities.VerifyThrowInternalNull(inputCacheFiles, nameof(inputCacheFiles));
-            ErrorUtilities.VerifyThrow(_configCache == null, "caches must not be set at this point");
-            ErrorUtilities.VerifyThrow(_resultsCache == null, "caches must not be set at this point");
+            VerifyThrowInternalNull(inputCacheFiles, nameof(inputCacheFiles));
+            VerifyThrow(_configCache == null, "caches must not be set at this point");
+            VerifyThrow(_resultsCache == null, "caches must not be set at this point");
 
             try
             {

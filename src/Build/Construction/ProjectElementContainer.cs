@@ -39,7 +39,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         /// <comment>
         /// Should ideally be protected+internal.
-        /// </comment> 
+        /// </comment>
         internal ProjectElementContainer()
         {
         }
@@ -123,7 +123,7 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         public void InsertAfterChild(ProjectElement child, ProjectElement reference)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(child, nameof(child));
+            VerifyThrowArgumentNull(child, nameof(child));
             if (Link != null)
             {
                 ContainerLink.InsertAfterChild(child, reference);
@@ -154,7 +154,7 @@ namespace Microsoft.Build.Construction
 
             if (child.NextSibling != null)
             {
-                ErrorUtilities.VerifyThrow(child.NextSibling.PreviousSibling == reference, "Invalid structure");
+                VerifyThrow(child.NextSibling.PreviousSibling == reference, "Invalid structure");
                 child.NextSibling.PreviousSibling = child;
             }
 
@@ -178,7 +178,7 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         public void InsertBeforeChild(ProjectElement child, ProjectElement reference)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(child, nameof(child));
+            VerifyThrowArgumentNull(child, nameof(child));
 
             if (Link != null)
             {
@@ -210,7 +210,7 @@ namespace Microsoft.Build.Construction
 
             if (child.PreviousSibling != null)
             {
-                ErrorUtilities.VerifyThrow(child.PreviousSibling.NextSibling == reference, "Invalid structure");
+                VerifyThrow(child.PreviousSibling.NextSibling == reference, "Invalid structure");
                 child.PreviousSibling.NextSibling = child;
             }
 
@@ -234,7 +234,7 @@ namespace Microsoft.Build.Construction
             }
             else
             {
-                ErrorUtilities.VerifyThrow(FirstChild != null, "Invalid structure");
+                VerifyThrow(FirstChild != null, "Invalid structure");
                 InsertAfterChild(child, LastChild);
             }
         }
@@ -253,7 +253,7 @@ namespace Microsoft.Build.Construction
             }
             else
             {
-                ErrorUtilities.VerifyThrow(LastChild != null, "Invalid structure");
+                VerifyThrow(LastChild != null, "Invalid structure");
                 InsertBeforeChild(child, FirstChild);
             }
         }
@@ -273,9 +273,9 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         public void RemoveChild(ProjectElement child)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(child, nameof(child));
+            VerifyThrowArgumentNull(child, nameof(child));
 
-            ErrorUtilities.VerifyThrowArgument(child.Parent == this, "OM_NodeNotAlreadyParentedByThis");
+            VerifyThrowArgument(child.Parent == this, "OM_NodeNotAlreadyParentedByThis");
 
             if (Link != null)
             {
@@ -332,8 +332,8 @@ namespace Microsoft.Build.Construction
         /// <param name="element">The element to act as a template to copy from.</param>
         public virtual void DeepCopyFrom(ProjectElementContainer element)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(element, nameof(element));
-            ErrorUtilities.VerifyThrowArgument(GetType().IsEquivalentTo(element.GetType()), nameof(element));
+            VerifyThrowArgumentNull(element, nameof(element));
+            VerifyThrowArgument(GetType().IsEquivalentTo(element.GetType()), nameof(element));
 
             if (this == element)
             {
@@ -360,16 +360,16 @@ namespace Microsoft.Build.Construction
         /// Appends the provided child.
         /// Does not dirty the project, does not add an element, does not set the child's parent,
         /// and does not check the parent's future siblings and parent are acceptable.
-        /// Called during project load, when the child can be expected to 
+        /// Called during project load, when the child can be expected to
         /// already have a parent and its element is already connected to the
         /// parent's element.
         /// All that remains is to set FirstChild/LastChild and fix up the linked list.
         /// </summary>
         internal void AppendParentedChildNoChecks(ProjectElement child)
         {
-            ErrorUtilities.VerifyThrow(child.Parent == this, "Expected parent already set");
-            ErrorUtilities.VerifyThrow(child.PreviousSibling == null && child.NextSibling == null, "Invalid structure");
-            ErrorUtilities.VerifyThrow(Link == null, "External project");
+            VerifyThrow(child.Parent == this, "Expected parent already set");
+            VerifyThrow(child.PreviousSibling == null && child.NextSibling == null, "Invalid structure");
+            VerifyThrow(Link == null, "External project");
 
             if (LastChild == null)
             {
@@ -419,7 +419,7 @@ namespace Microsoft.Build.Construction
 
         private void SetElementAsAttributeValue(ProjectElement child)
         {
-            ErrorUtilities.VerifyThrow(Link == null, "External project");
+            VerifyThrow(Link == null, "External project");
 
             //  Assumes that child.ExpressedAsAttribute is true
             Debug.Assert(child.ExpressedAsAttribute, nameof(SetElementAsAttributeValue) + " method requires that " +
@@ -435,7 +435,7 @@ namespace Microsoft.Build.Construction
         /// <param name="child">A child element which might be represented as an attribute</param>
         internal void UpdateElementValue(ProjectElement child)
         {
-            ErrorUtilities.VerifyThrow(Link == null, "External project");
+            VerifyThrow(Link == null, "External project");
 
             if (child.ExpressedAsAttribute)
             {
@@ -455,7 +455,7 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         internal void AddToXml(ProjectElement child)
         {
-            ErrorUtilities.VerifyThrow(Link == null, "External project");
+            VerifyThrow(Link == null, "External project");
 
             if (child.ExpressedAsAttribute)
             {
@@ -561,7 +561,7 @@ namespace Microsoft.Build.Construction
 
         internal void RemoveFromXml(ProjectElement child)
         {
-            ErrorUtilities.VerifyThrow(Link == null, "External project");
+            VerifyThrow(Link == null, "External project");
 
             if (child.ExpressedAsAttribute)
             {
@@ -603,7 +603,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal void AddInitialChild(ProjectElement child)
         {
-            ErrorUtilities.VerifyThrow(FirstChild == null && LastChild == null, "Expecting no children");
+            VerifyThrow(FirstChild == null && LastChild == null, "Expecting no children");
 
             if (Link != null)
             {
@@ -636,16 +636,16 @@ namespace Microsoft.Build.Construction
         /// </summary>
         private void VerifyForInsertBeforeAfterFirst(ProjectElement child, ProjectElement reference)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(Parent != null || ContainingProject == this, "OM_ParentNotParented");
-            ErrorUtilities.VerifyThrowInvalidOperation(reference == null || reference.Parent == this, "OM_ReferenceDoesNotHaveThisParent");
-            ErrorUtilities.VerifyThrowInvalidOperation(child.Parent == null, "OM_NodeAlreadyParented");
-            ErrorUtilities.VerifyThrowInvalidOperation(child.ContainingProject == ContainingProject, "OM_MustBeSameProject");
+            VerifyThrowInvalidOperation(Parent != null || ContainingProject == this, "OM_ParentNotParented");
+            VerifyThrowInvalidOperation(reference == null || reference.Parent == this, "OM_ReferenceDoesNotHaveThisParent");
+            VerifyThrowInvalidOperation(child.Parent == null, "OM_NodeAlreadyParented");
+            VerifyThrowInvalidOperation(child.ContainingProject == ContainingProject, "OM_MustBeSameProject");
 
             // In RemoveChild() we do not update the victim's NextSibling (or PreviousSibling) to null, to allow RemoveChild to be
             // called within an enumeration. So we can't expect these to be null if the child was previously removed. However, we
             // can expect that what they point to no longer point back to it. They've been reconnected.
-            ErrorUtilities.VerifyThrow(child.NextSibling == null || child.NextSibling.PreviousSibling != this, "Invalid structure");
-            ErrorUtilities.VerifyThrow(child.PreviousSibling == null || child.PreviousSibling.NextSibling != this, "Invalid structure");
+            VerifyThrow(child.NextSibling == null || child.NextSibling.PreviousSibling != this, "Invalid structure");
+            VerifyThrow(child.PreviousSibling == null || child.PreviousSibling.NextSibling != this, "Invalid structure");
             VerifyThrowInvalidOperationNotSelfAncestor(child);
         }
 
@@ -659,7 +659,7 @@ namespace Microsoft.Build.Construction
 
             while (ancestor != null)
             {
-                ErrorUtilities.VerifyThrowInvalidOperation(ancestor != element, "OM_SelfAncestor");
+                VerifyThrowInvalidOperation(ancestor != element, "OM_SelfAncestor");
                 ancestor = ancestor.Parent;
             }
         }

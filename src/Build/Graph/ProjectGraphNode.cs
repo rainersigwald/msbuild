@@ -22,7 +22,7 @@ namespace Microsoft.Build.Graph
         // No public creation.
         internal ProjectGraphNode(ProjectInstance projectInstance)
         {
-            ErrorUtilities.VerifyThrowInternalNull(projectInstance, nameof(projectInstance));
+            VerifyThrowInternalNull(projectInstance, nameof(projectInstance));
             ProjectInstance = projectInstance;
         }
 
@@ -70,7 +70,7 @@ namespace Microsoft.Build.Graph
         {
             foreach (var reference in _projectReferences)
             {
-                ErrorUtilities.VerifyThrow(reference._referencingProjects.Contains(this), "references should point to the nodes referencing them");
+                VerifyThrow(reference._referencingProjects.Contains(this), "references should point to the nodes referencing them");
                 reference._referencingProjects.Remove(this);
 
                 edges.RemoveEdge((this, reference));

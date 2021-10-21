@@ -22,7 +22,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         public ConfigurationMetadata(BuildRequestConfiguration configuration)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(configuration, nameof(configuration));
+            VerifyThrowArgumentNull(configuration, nameof(configuration));
             _globalProperties = new PropertyDictionary<ProjectPropertyInstance>(configuration.GlobalProperties);
             _projectFullPath = FileUtilities.NormalizePath(configuration.ProjectFullPath);
             _toolsVersion = configuration.ToolsVersion;
@@ -33,7 +33,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         public ConfigurationMetadata(Project project)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(project, nameof(project));
+            VerifyThrowArgumentNull(project, nameof(project));
             _globalProperties = new PropertyDictionary<ProjectPropertyInstance>(project.GlobalProperties.Count);
             foreach (KeyValuePair<string, string> entry in project.GlobalProperties)
             {
@@ -49,8 +49,8 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         public ConfigurationMetadata(string projectFullPath, PropertyDictionary<ProjectPropertyInstance> globalProperties)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(projectFullPath, nameof(projectFullPath));
-            ErrorUtilities.VerifyThrowArgumentNull(globalProperties, nameof(globalProperties));
+            VerifyThrowArgumentLength(projectFullPath, nameof(projectFullPath));
+            VerifyThrowArgumentNull(globalProperties, nameof(globalProperties));
 
             _projectFullPath = projectFullPath;
             _toolsVersion = MSBuildConstants.CurrentToolsVersion;

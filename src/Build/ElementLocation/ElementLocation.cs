@@ -138,7 +138,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         void ITranslatable.Translate(ITranslator translator)
         {
-            ErrorUtilities.VerifyThrow(translator.Mode == TranslationDirection.WriteToStream, "write only");
+            VerifyThrow(translator.Mode == TranslationDirection.WriteToStream, "write only");
 
             string file = File;
             int line = Line;
@@ -252,8 +252,8 @@ namespace Microsoft.Build.Construction
             /// </summary>
             internal RegularElementLocation(string file, int line, int column)
             {
-                ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(file, nameof(file));
-                ErrorUtilities.VerifyThrow(line > -1 && column > -1, "Use zero for unknown");
+                VerifyThrowArgumentLengthIfNotNull(file, nameof(file));
+                VerifyThrow(line > -1 && column > -1, "Use zero for unknown");
 
                 this.file = file ?? String.Empty;
                 this.line = line;
@@ -299,8 +299,8 @@ namespace Microsoft.Build.Construction
         /// For when the line and column each fit in a short - under 65536
         /// (almost always will: microsoft.common.targets is less than 5000 lines long)
         /// When loading Australian Government, for example, there are over 31,000 ElementLocation
-        /// objects so this saves 4 bytes each = 123KB 
-        /// 
+        /// objects so this saves 4 bytes each = 123KB
+        ///
         /// A "very small" variation that used two bytes (or halves of a short) would fit about half of them
         /// and save 4 more bytes each, but the CLR packs each field to 4 bytes, so it isn't actually any smaller.
         /// </summary>
@@ -328,8 +328,8 @@ namespace Microsoft.Build.Construction
             /// </summary>
             internal SmallElementLocation(string file, int line, int column)
             {
-                ErrorUtilities.VerifyThrow(line > -1 && column > -1, "Use zero for unknown");
-                ErrorUtilities.VerifyThrow(line <= 65535 && column <= 65535, "Use ElementLocation instead");
+                VerifyThrow(line > -1 && column > -1, "Use zero for unknown");
+                VerifyThrow(line <= 65535 && column <= 65535, "Use ElementLocation instead");
 
                 this.file = file ?? String.Empty;
                 this.line = Convert.ToUInt16(line);

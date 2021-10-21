@@ -19,7 +19,7 @@ namespace Microsoft.Build.Logging
         public ForwardingLoggerRecord(ILogger centralLogger, LoggerDescription forwardingLoggerDescription)
         {
             // The logging service allows a null central logger, so we don't check for it here.
-            ErrorUtilities.VerifyThrowArgumentNull(forwardingLoggerDescription, nameof(forwardingLoggerDescription));
+            VerifyThrowArgumentNull(forwardingLoggerDescription, nameof(forwardingLoggerDescription));
 
             this.CentralLogger = centralLogger;
             this.ForwardingLoggerDescription = forwardingLoggerDescription;

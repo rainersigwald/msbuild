@@ -27,7 +27,7 @@ namespace Microsoft.Build.Construction
             ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.Build.Construction
             get => GetAttributeValue(XMakeAttributes.sdkName);
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, XMakeAttributes.sdkName);
+                VerifyThrowArgumentLength(value, XMakeAttributes.sdkName);
                 SetOrRemoveAttribute(XMakeAttributes.sdkName, value, $"Set SDK Name to {value}", XMakeAttributes.sdkName);
             }
         }
@@ -78,7 +78,7 @@ namespace Microsoft.Build.Construction
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent,
             ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectRootElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectRootElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

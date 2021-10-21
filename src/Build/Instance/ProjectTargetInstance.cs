@@ -162,17 +162,17 @@ namespace Microsoft.Build.Execution
             bool parentProjectSupportsReturnsAttribute
             )
         {
-            ErrorUtilities.VerifyThrowInternalLength(name, nameof(name));
-            ErrorUtilities.VerifyThrowInternalNull(condition, nameof(condition));
-            ErrorUtilities.VerifyThrowInternalNull(inputs, nameof(inputs));
-            ErrorUtilities.VerifyThrowInternalNull(outputs, nameof(outputs));
-            ErrorUtilities.VerifyThrowInternalNull(keepDuplicateOutputs, nameof(keepDuplicateOutputs));
-            ErrorUtilities.VerifyThrowInternalNull(dependsOnTargets, nameof(dependsOnTargets));
-            ErrorUtilities.VerifyThrowInternalNull(beforeTargets, nameof(beforeTargets));
-            ErrorUtilities.VerifyThrowInternalNull(afterTargets, nameof(afterTargets));
-            ErrorUtilities.VerifyThrowInternalNull(location, nameof(location));
-            ErrorUtilities.VerifyThrowInternalNull(children, nameof(children));
-            ErrorUtilities.VerifyThrowInternalNull(onErrorChildren, nameof(onErrorChildren));
+            VerifyThrowInternalLength(name, nameof(name));
+            VerifyThrowInternalNull(condition, nameof(condition));
+            VerifyThrowInternalNull(inputs, nameof(inputs));
+            VerifyThrowInternalNull(outputs, nameof(outputs));
+            VerifyThrowInternalNull(keepDuplicateOutputs, nameof(keepDuplicateOutputs));
+            VerifyThrowInternalNull(dependsOnTargets, nameof(dependsOnTargets));
+            VerifyThrowInternalNull(beforeTargets, nameof(beforeTargets));
+            VerifyThrowInternalNull(afterTargets, nameof(afterTargets));
+            VerifyThrowInternalNull(location, nameof(location));
+            VerifyThrowInternalNull(children, nameof(children));
+            VerifyThrowInternalNull(onErrorChildren, nameof(onErrorChildren));
 
             _name = name;
             _condition = condition;
@@ -543,7 +543,7 @@ namespace Microsoft.Build.Execution
         /// <returns>The new task instance.</returns>
         internal ProjectTaskInstance AddTask(string taskName, string condition, string continueOnError, string msbuildRuntime, string msbuildArchitecture)
         {
-            ErrorUtilities.VerifyThrowInternalLength(taskName, nameof(taskName));
+            VerifyThrowInternalLength(taskName, nameof(taskName));
             ProjectTaskInstance task = new ProjectTaskInstance(taskName, _location, condition ?? String.Empty, continueOnError ?? String.Empty, msbuildRuntime ?? String.Empty, msbuildArchitecture ?? String.Empty);
             this.AddProjectTargetInstanceChild(task);
             return task;

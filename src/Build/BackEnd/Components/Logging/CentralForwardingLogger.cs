@@ -14,7 +14,7 @@ namespace Microsoft.Build.BackEnd.Logging
         #region Properties
 
         /// <summary>
-        /// An IEventRedirector which will redirect any events forwarded from the logger. The eventRedirector determines where the events will 
+        /// An IEventRedirector which will redirect any events forwarded from the logger. The eventRedirector determines where the events will
         /// be redirected.
         /// </summary>
         public IEventRedirector BuildEventRedirector
@@ -57,7 +57,7 @@ namespace Microsoft.Build.BackEnd.Logging
         #region Public
 
         /// <summary>
-        /// Initialize the logger with an eventSource and a node count. 
+        /// Initialize the logger with an eventSource and a node count.
         /// The logger will register and listen to anyEvents on the eventSource.
         /// The node count is for informational purposes. The logger may want to take different
         /// actions depending on how many nodes there are in the system.
@@ -76,7 +76,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <exception cref="InternalErrorException">EventSource is null</exception>
         public void Initialize(IEventSource eventSource)
         {
-            ErrorUtilities.VerifyThrow(eventSource != null, "eventSource is null");
+            VerifyThrow(eventSource != null, "eventSource is null");
             eventSource.AnyEventRaised += EventSource_AnyEventRaised;
 
             IEventSource2 eventSource2 = eventSource as IEventSource2;
@@ -100,7 +100,7 @@ namespace Microsoft.Build.BackEnd.Logging
         #region Private
 
         /// <summary>
-        /// Forwards any event raised to the BuildEventRedirector, this redirector will send the event on a path which will 
+        /// Forwards any event raised to the BuildEventRedirector, this redirector will send the event on a path which will
         /// take it to a logger.
         /// </summary>
         /// <param name="sender">Who sent the message, this is not used</param>
@@ -108,7 +108,7 @@ namespace Microsoft.Build.BackEnd.Logging
         private void EventSource_AnyEventRaised(object sender, BuildEventArgs buildEvent)
         {
             // If no central logger was registered with the system
-            // there will not be a build event redirector as there is 
+            // there will not be a build event redirector as there is
             // nowhere to forward the events to.
             BuildEventRedirector?.ForwardEvent(buildEvent);
         }

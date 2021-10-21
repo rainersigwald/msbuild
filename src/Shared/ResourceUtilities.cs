@@ -39,7 +39,7 @@ namespace Microsoft.Build.Shared
         internal static string ExtractMessageCode(bool msbuildCodeOnly, string message, out string code)
         {
 #if !BUILDINGAPPXTASKS
-            ErrorUtilities.VerifyThrowInternalNull(message, nameof(message));
+            VerifyThrowInternalNull(message, nameof(message));
 #endif
 
             code = null;
@@ -241,7 +241,7 @@ namespace Microsoft.Build.Shared
                         if (string.Equals(param.GetType().ToString(), param.ToString(), StringComparison.Ordinal) &&
                             param.GetType() != typeof(string))
                         {
-                            ErrorUtilities.ThrowInternalError("Invalid resource parameter type, was {0}",
+                            ThrowInternalError("Invalid resource parameter type, was {0}",
                                 param.GetType().FullName);
                         }
                     }
@@ -273,7 +273,7 @@ namespace Microsoft.Build.Shared
 
                 if (unformattedMessage == null)
                 {
-                    ErrorUtilities.ThrowInternalError("The resource string \"" + resourceName + "\" was not found.");
+                    ThrowInternalError("The resource string \"" + resourceName + "\" was not found.");
                 }
             }
             catch (ArgumentException e)
@@ -281,21 +281,21 @@ namespace Microsoft.Build.Shared
 #if FEATURE_DEBUG_LAUNCH
                 Debug.Fail("The resource string \"" + resourceName + "\" was not found.");
 #endif
-                ErrorUtilities.ThrowInternalError(e.Message);
+                ThrowInternalError(e.Message);
             }
             catch (InvalidOperationException e)
             {
 #if FEATURE_DEBUG_LAUNCH
                 Debug.Fail("The resource string \"" + resourceName + "\" was not found.");
 #endif
-                ErrorUtilities.ThrowInternalError(e.Message);
+                ThrowInternalError(e.Message);
             }
             catch (MissingManifestResourceException e)
             {
 #if FEATURE_DEBUG_LAUNCH
                 Debug.Fail("The resource string \"" + resourceName + "\" was not found.");
 #endif
-                ErrorUtilities.ThrowInternalError(e.Message);
+                ThrowInternalError(e.Message);
             }
 #endif
         }

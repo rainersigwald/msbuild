@@ -22,9 +22,9 @@ namespace Microsoft.Build.Shared
         /// <returns> Returns "(containingObject's type name)containingObjectName.PropertyName". </returns>
         internal static string GetPropertyId(string propertyName, string containingObjectName, object containingObject)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(propertyName, "propertyName");
-            ErrorUtilities.VerifyThrowArgumentLength(containingObjectName, "containingObjectName");
-            ErrorUtilities.VerifyThrowArgumentNull(containingObject, "containingObject");
+            VerifyThrowArgumentLength(propertyName, "propertyName");
+            VerifyThrowArgumentLength(containingObjectName, "containingObjectName");
+            VerifyThrowArgumentNull(containingObject, "containingObject");
 
             StringBuilder propertyId = new StringBuilder();
 
@@ -65,11 +65,11 @@ namespace Microsoft.Build.Shared
         /// <param name="propertyId">An identifier of the property to check.</param>
         internal static void VerifyThrowPropertyNotSet(object property, string propertyId)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(propertyId, "propertyId");
+            VerifyThrowArgumentLength(propertyId, "propertyId");
 
             if (property == null)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(null, propertyId, Strings.PropertyValueMustBeSet);
+                VerifyThrowArgumentNull(null, propertyId, Strings.PropertyValueMustBeSet);
             }
         }
 
@@ -81,11 +81,11 @@ namespace Microsoft.Build.Shared
         /// <param name="unformattedMessage"> The text message to display. </param>
         internal static void VerifyThrowPropertyNotSet(object property, string propertyId, string unformattedMessage)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(propertyId, "propertyId");
+            VerifyThrowArgumentLength(propertyId, "propertyId");
 
             if (property == null)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(null, propertyId, unformattedMessage);
+                VerifyThrowArgumentNull(null, propertyId, unformattedMessage);
             }
         }
 
@@ -96,12 +96,12 @@ namespace Microsoft.Build.Shared
         /// <param name="propertyId">An identifier of the property to check.</param>
         internal static void VerifyThrowPropertyEmptyString(string property, string propertyId)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(property, "property");
-            ErrorUtilities.VerifyThrowArgumentLength(propertyId, "propertyId");
+            VerifyThrowArgumentNull(property, "property");
+            VerifyThrowArgumentLength(propertyId, "propertyId");
 
             if (property.Length == 0)
             {
-                ErrorUtilities.ThrowArgument(Strings.PropertyCannotBeSetToTheEmptyString, propertyId);
+                ThrowArgument(Strings.PropertyCannotBeSetToTheEmptyString, propertyId);
             }
         }
 
@@ -124,12 +124,12 @@ namespace Microsoft.Build.Shared
         /// <param name="propertyId"> An identifier of the property to check. </param>
         internal static void VerifyThrowListPropertyEmpty(IList listProperty, string propertyId)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(listProperty, "listProperty");
-            ErrorUtilities.VerifyThrowArgumentLength(propertyId, "propertyId");
+            VerifyThrowArgumentNull(listProperty, "listProperty");
+            VerifyThrowArgumentLength(propertyId, "propertyId");
 
             if (listProperty.Count == 0)
             {
-                ErrorUtilities.ThrowArgument(Strings.ListPropertyShouldHaveAtLeastOneElement, propertyId);
+                ThrowArgument(Strings.ListPropertyShouldHaveAtLeastOneElement, propertyId);
             }
         }
 
@@ -258,7 +258,7 @@ namespace Microsoft.Build.Shared
         internal void Validate(this DynamicEnumProperty type)
         {
             (type as BaseProperty).Validate();
-            ErrorUtilities.VerifyThrowArgumentLength(type.EnumProvider, "EnumProvider");
+            VerifyThrowArgumentLength(type.EnumProvider, "EnumProvider");
         }
 
 
@@ -274,7 +274,7 @@ namespace Microsoft.Build.Shared
             string defaultPropertyId = GetPropertyId("Default", type.Name, type);
             if (null != Default)
             {
-                ErrorUtilities.ThrowArgument(Strings.CannotSetDefaultPropertyOnEnumProperty, typeof(EnumProperty).Name, typeof(EnumValue).Name);
+                ThrowArgument(Strings.CannotSetDefaultPropertyOnEnumProperty, typeof(EnumProperty).Name, typeof(EnumValue).Name);
             }
 
             // Make sure that at least one value was defined in AdmissibleValues.
@@ -295,7 +295,7 @@ namespace Microsoft.Build.Shared
                     }
                     else
                     {
-                        ErrorUtilities.ThrowArgument(Strings.OnlyOneEnumValueCanBeSetAsDefault, typeof(EnumValue).Name, admissibleValuesPropertyId);
+                        ThrowArgument(Strings.OnlyOneEnumValueCanBeSetAsDefault, typeof(EnumValue).Name, admissibleValuesPropertyId);
                     }
                 }
             }
@@ -315,7 +315,7 @@ namespace Microsoft.Build.Shared
                 if (type.MinValue > type.MaxValue)
                 {
                     string minValuePropertyId = GetPropertyId("MinValue", type.Name, type);
-                    ErrorUtilities.ThrowArgument(Strings.MinValueShouldNotBeGreaterThanMaxValue, minValuePropertyId);
+                    ThrowArgument(Strings.MinValueShouldNotBeGreaterThanMaxValue, minValuePropertyId);
                 }
             }
         }
@@ -360,7 +360,7 @@ namespace Microsoft.Build.Shared
                 category.Validate();
             }
 
-            // If the DataSource property is not defined on this Rule, check that a DataSource is 
+            // If the DataSource property is not defined on this Rule, check that a DataSource is
             // specified locally on every property.
             if (null == type.DataSource)
             {
@@ -397,7 +397,7 @@ namespace Microsoft.Build.Shared
                 {
                     if (!propertyNames.Contains(argument.Property))
                     {
-                        ErrorUtilities.ThrowArgument(Strings.PropertyReferredToByArgumentDoesNotExist, argument.Property);
+                        ThrowArgument(Strings.PropertyReferredToByArgumentDoesNotExist, argument.Property);
                     }
                 }
             }

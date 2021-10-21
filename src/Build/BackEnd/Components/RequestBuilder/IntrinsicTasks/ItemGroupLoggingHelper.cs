@@ -78,7 +78,7 @@ namespace Microsoft.Build.BackEnd
                 // If the parameterName is not specified, no need to have an extra indent.
                 // Without parameterName:
                 //
-                // Input files: 
+                // Input files:
                 //     a.txt
                 //     b.txt
                 //
@@ -243,7 +243,7 @@ namespace Microsoft.Build.BackEnd
             }
             else
             {
-                ErrorUtilities.ThrowInternalErrorUnreachable();
+                ThrowInternalErrorUnreachable();
             }
         }
 

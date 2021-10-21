@@ -34,8 +34,8 @@ namespace Microsoft.Build.BackEnd
             BuildRequestDataFlags flags = BuildRequestDataFlags.None
             )
         {
-            ErrorUtilities.VerifyThrowArgumentNull(config, nameof(config));
-            ErrorUtilities.VerifyThrowArgumentNull(targets, nameof(targets));
+            VerifyThrowArgumentNull(config, nameof(config));
+            VerifyThrowArgumentNull(targets, nameof(targets));
 
             Config = config;
             Targets = targets;

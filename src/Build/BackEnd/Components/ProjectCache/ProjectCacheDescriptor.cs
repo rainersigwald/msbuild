@@ -37,7 +37,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
             ProjectGraph? projectGraph,
             IReadOnlyDictionary<string, string>? pluginSettings)
         {
-            ErrorUtilities.VerifyThrowArgument(
+            VerifyThrowArgument(
                 (entryPoints == null) ^ (projectGraph == null),
                 "EitherEntryPointsOrTheProjectGraphIsSet");
 

@@ -20,12 +20,12 @@ namespace Microsoft.Build.BackEnd
     using ILoggingService = Microsoft.Build.BackEnd.Logging.ILoggingService;
 
     // ItemVectorPartitionCollection is designed to contains a set of project items which have possibly undergone transforms.
-    // The outer dictionary it usually keyed by item type, so if items originally came from 
+    // The outer dictionary it usually keyed by item type, so if items originally came from
     // an expression like @(Foo), the outer dictionary would have a key of "Foo" in it.
     // Under that is a dictionary of expressions to items resulting from the expression.
     // For instance, if items were generated from an expression @(Foo->'%(Filename).obj'), then
-    // the inner dictionary would have a key of "@(Foo->'%(Filename).obj')", in which would be 
-    // contained a list of the items which were created/transformed using that pattern.    
+    // the inner dictionary would have a key of "@(Foo->'%(Filename).obj')", in which would be
+    // contained a list of the items which were created/transformed using that pattern.
     using ItemVectorPartitionCollection = Dictionary<string, Dictionary<string, IList<ProjectItemInstance>>>;
     using ItemVectorPartition = Dictionary<string, IList<ProjectItemInstance>>;
 
@@ -53,8 +53,8 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         internal TargetUpToDateChecker(ProjectInstance project, ProjectTargetInstance targetToAnalyze, ILoggingService loggingServices, BuildEventContext buildEventContext)
         {
-            ErrorUtilities.VerifyThrow(project != null, "Need a project.");
-            ErrorUtilities.VerifyThrow(targetToAnalyze != null, "Need a target to analyze.");
+            VerifyThrow(project != null, "Need a project.");
+            VerifyThrow(targetToAnalyze != null, "Need a target to analyze.");
 
             _project = project;
             _targetToAnalyze = targetToAnalyze;
@@ -88,7 +88,7 @@ namespace Microsoft.Build.BackEnd
         {
             get
             {
-                ErrorUtilities.VerifyThrow(_targetInputSpecification != null, "targetInputSpecification is null");
+                VerifyThrow(_targetInputSpecification != null, "targetInputSpecification is null");
                 return _targetInputSpecification;
             }
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Build.BackEnd
         {
             get
             {
-                ErrorUtilities.VerifyThrow(_targetOutputSpecification != null, "targetOutputSpecification is null");
+                VerifyThrow(_targetOutputSpecification != null, "targetOutputSpecification is null");
                 return _targetOutputSpecification;
             }
         }
@@ -191,17 +191,17 @@ namespace Microsoft.Build.BackEnd
                          * At this point, we know the following:
                          * 1) the target has outputs
                          * 2) the target has NO discrete outputs
-                         * 
+                         *
                          * This implies:
                          * 1) the target only references vectors (incl. transforms) in its outputs
                          * 2) all vectors referenced in the outputs are also referenced in the inputs
                          * 3) the referenced vectors are not empty
-                         * 
+                         *
                          * We can thus conclude: the target MUST have (non-discrete) inputs
-                         * 
+                         *
                          */
-                        ErrorUtilities.VerifyThrow(itemVectorsReferencedInBothTargetInputsAndOutputs.Count > 0, "The target must have inputs.");
-                        ErrorUtilities.VerifyThrow(GetItemSpecsFromItemVectors(itemVectorsInTargetInputs).Count > 0, "The target must have inputs.");
+                        VerifyThrow(itemVectorsReferencedInBothTargetInputsAndOutputs.Count > 0, "The target must have inputs.");
+                        VerifyThrow(GetItemSpecsFromItemVectors(itemVectorsInTargetInputs).Count > 0, "The target must have inputs.");
 
                         result = PerformDependencyAnalysisIfDiscreteInputs(itemVectorsInTargetInputs,
                                     itemVectorTransformsInTargetInputs, discreteItemsInTargetInputs, itemVectorsReferencedOnlyInTargetInputs,
@@ -592,7 +592,7 @@ namespace Microsoft.Build.BackEnd
                 ItemVectorPartition outputItemVectors = itemVectorsInTargetOutputs[itemVectorType];
 
                 // NOTE: recall that transforms have been separated out already
-                ErrorUtilities.VerifyThrow(inputItemVectors.Count == 1,
+                VerifyThrow(inputItemVectors.Count == 1,
                     "There should only be one item vector of a particular type in the target inputs that can be filtered.");
 
                 // NOTE: Because the input items which were transformed have already been pulled out, this loop
@@ -696,13 +696,13 @@ namespace Microsoft.Build.BackEnd
                 }
             }
 
-            ErrorUtilities.VerifyThrow(numberOfInputItemVectorsWithAllChangedItems <= itemVectorsReferencedInBothTargetInputsAndOutputs.Count,
+            VerifyThrow(numberOfInputItemVectorsWithAllChangedItems <= itemVectorsReferencedInBothTargetInputsAndOutputs.Count,
                 "The number of vectors containing all changed items cannot exceed the number of correlated vectors.");
 
             // if all correlated input items have changed
             if (numberOfInputItemVectorsWithAllChangedItems == itemVectorsReferencedInBothTargetInputsAndOutputs.Count)
             {
-                ErrorUtilities.VerifyThrow(result == DependencyAnalysisResult.IncrementalBuild,
+                VerifyThrow(result == DependencyAnalysisResult.IncrementalBuild,
                     "If inputs have changed, this must be an incremental build.");
 
                 // then the incremental build is really a full build
@@ -836,10 +836,10 @@ namespace Microsoft.Build.BackEnd
 
                         ItemVectorPartition itemVectorPartition = itemVectorCollection[itemVectorType];
 
-                        ErrorUtilities.VerifyThrow(!itemVectorCollection[itemVectorType].ContainsKey(item), "ItemVectorPartition already contains a vector for items with the expression '{0}'", item);
+                        VerifyThrow(!itemVectorCollection[itemVectorType].ContainsKey(item), "ItemVectorPartition already contains a vector for items with the expression '{0}'", item);
                         itemVectorPartition[item] = itemVectorContents;
 
-                        ErrorUtilities.VerifyThrow((itemVectorTransforms == null) || (itemVectorCollection.Equals(itemVectorTransforms)) || (itemVectorPartition.Count == 1),
+                        VerifyThrow((itemVectorTransforms == null) || (itemVectorCollection.Equals(itemVectorTransforms)) || (itemVectorPartition.Count == 1),
                             "If transforms have been separated out, there should only be one item vector per partition.");
                     }
                 }
@@ -942,26 +942,26 @@ namespace Microsoft.Build.BackEnd
         /// <returns>true, if any "input" is newer than any "output", or if any input or output does not exist.</returns>
         internal static bool IsAnyOutOfDate<T>(out DependencyAnalysisLogDetail dependencyAnalysisDetailEntry, string projectDirectory, IList<T> inputs, IList<T> outputs)
         {
-            ErrorUtilities.VerifyThrow((inputs.Count > 0) && (outputs.Count > 0), "Need to specify inputs and outputs.");
+            VerifyThrow((inputs.Count > 0) && (outputs.Count > 0), "Need to specify inputs and outputs.");
             if (inputs.Count > 0)
             {
-                ErrorUtilities.VerifyThrow(inputs[0] is string || inputs[0] is ProjectItemInstance, "Must be either string or ProjectItemInstance");
+                VerifyThrow(inputs[0] is string || inputs[0] is ProjectItemInstance, "Must be either string or ProjectItemInstance");
             }
 
             if (outputs.Count > 0)
             {
-                ErrorUtilities.VerifyThrow(outputs[0] is string || outputs[0] is ProjectItemInstance, "Must be either string or ProjectItemInstance");
+                VerifyThrow(outputs[0] is string || outputs[0] is ProjectItemInstance, "Must be either string or ProjectItemInstance");
             }
 
             // Algorithm: walk through all the outputs to find the oldest output
             //            walk through the inputs as far as we need to until we find one that's newer (if any)
 
-            // PERF -- we could change this to ensure that we walk the shortest list first (because we walk that one entirely): 
+            // PERF -- we could change this to ensure that we walk the shortest list first (because we walk that one entirely):
             //         possibly the outputs list isn't actually the shortest list. However it always is the shortest
             //         in the cases I've seen, and adding this optimization would make the code hard to read.
 
             string oldestOutput = EscapingUtilities.UnescapeAll(FileUtilities.FixFilePath(outputs[0].ToString()));
-            ErrorUtilities.ThrowIfTypeDoesNotImplementToString(outputs[0]);
+            ThrowIfTypeDoesNotImplementToString(outputs[0]);
 
             DateTime oldestOutputFileTime = DateTime.MinValue;
             try
@@ -979,7 +979,7 @@ namespace Microsoft.Build.BackEnd
             {
                 // First output is missing: we must build the target
                 string arbitraryInput = EscapingUtilities.UnescapeAll(FileUtilities.FixFilePath(inputs[0].ToString()));
-                ErrorUtilities.ThrowIfTypeDoesNotImplementToString(inputs[0]);
+                ThrowIfTypeDoesNotImplementToString(inputs[0]);
                 dependencyAnalysisDetailEntry = new DependencyAnalysisLogDetail(arbitraryInput, oldestOutput, null, null, OutofdateReason.MissingOutput);
                 return true;
             }
@@ -987,7 +987,7 @@ namespace Microsoft.Build.BackEnd
             for (int i = 1; i < outputs.Count; i++)
             {
                 string candidateOutput = EscapingUtilities.UnescapeAll(FileUtilities.FixFilePath(outputs[i].ToString()));
-                ErrorUtilities.ThrowIfTypeDoesNotImplementToString(outputs[i]);
+                ThrowIfTypeDoesNotImplementToString(outputs[i]);
                 DateTime candidateOutputFileTime = DateTime.MinValue;
                 try
                 {
@@ -1005,7 +1005,7 @@ namespace Microsoft.Build.BackEnd
                     // An output is missing: we must build the target
                     string arbitraryInput =
                         EscapingUtilities.UnescapeAll(FileUtilities.FixFilePath(inputs[0].ToString()));
-                    ErrorUtilities.ThrowIfTypeDoesNotImplementToString(inputs[0]);
+                    ThrowIfTypeDoesNotImplementToString(inputs[0]);
                     dependencyAnalysisDetailEntry = new DependencyAnalysisLogDetail(arbitraryInput, candidateOutput, null, null, OutofdateReason.MissingOutput);
                     return true;
                 }
@@ -1022,7 +1022,7 @@ namespace Microsoft.Build.BackEnd
             foreach (T input in inputs)
             {
                 string unescapedInput = EscapingUtilities.UnescapeAll(FileUtilities.FixFilePath(input.ToString()));
-                ErrorUtilities.ThrowIfTypeDoesNotImplementToString(input);
+                ThrowIfTypeDoesNotImplementToString(input);
                 DateTime inputFileTime = DateTime.MaxValue;
                 try
                 {
@@ -1065,12 +1065,12 @@ namespace Microsoft.Build.BackEnd
         {
             if (inputs.Count > 0)
             {
-                ErrorUtilities.VerifyThrow(inputs[0] is string || inputs[0] is ProjectItemInstance, "Must be either string or ProjectItemInstance");
+                VerifyThrow(inputs[0] is string || inputs[0] is ProjectItemInstance, "Must be either string or ProjectItemInstance");
             }
 
             if (outputs.Count > 0)
             {
-                ErrorUtilities.VerifyThrow(outputs[0] is string || outputs[0] is ProjectItemInstance, "Must be either string or ProjectItemInstance");
+                VerifyThrow(outputs[0] is string || outputs[0] is ProjectItemInstance, "Must be either string or ProjectItemInstance");
             }
 
             // Only if we are not logging just critical events should we be gathering full details
@@ -1078,7 +1078,7 @@ namespace Microsoft.Build.BackEnd
             {
                 foreach (T input in inputs)
                 {
-                    ErrorUtilities.ThrowIfTypeDoesNotImplementToString(input);
+                    ThrowIfTypeDoesNotImplementToString(input);
                     if (!_uniqueTargetInputs.ContainsKey(input.ToString()))
                     {
                         _uniqueTargetInputs.Add(input.ToString(), null);
@@ -1086,7 +1086,7 @@ namespace Microsoft.Build.BackEnd
                 }
                 foreach (T output in outputs)
                 {
-                    ErrorUtilities.ThrowIfTypeDoesNotImplementToString(output);
+                    ThrowIfTypeDoesNotImplementToString(output);
                     if (!_uniqueTargetOutputs.ContainsKey(output.ToString()))
                     {
                         _uniqueTargetOutputs.Add(output.ToString(), null);
@@ -1176,7 +1176,7 @@ namespace Microsoft.Build.BackEnd
         /// </returns>
         private int CompareLastWriteTimes(string path1, string path2, out bool path1DoesNotExist, out bool path2DoesNotExist)
         {
-            ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(path1) && !string.IsNullOrEmpty(path2),
+            VerifyThrow(!string.IsNullOrEmpty(path1) && !string.IsNullOrEmpty(path2),
                 "Need to specify paths to compare.");
 
             path1 = Path.Combine(_project.Directory, path1);

@@ -92,7 +92,7 @@ namespace Microsoft.Build.Logging
         /// </summary>
         public void Initialize(IEventSource eventSource)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(eventSource, nameof(eventSource));
+            VerifyThrowArgumentNull(eventSource, nameof(eventSource));
             ParseFileLoggerParameters();
             string fileName = _logFile;
             try
@@ -183,7 +183,7 @@ namespace Microsoft.Build.Logging
         {
             get
             {
-                ErrorUtilities.VerifyThrow(false, "Should not be getting verbosity from distributed file logger");
+                VerifyThrow(false, "Should not be getting verbosity from distributed file logger");
                 return LoggerVerbosity.Detailed;
             }
             set
@@ -212,7 +212,7 @@ namespace Microsoft.Build.Logging
         #region Data
         // The file logger which will do the actual logging of the node's build output
         private FileLogger _nodeFileLogger;
-        // Reference for the central logger 
+        // Reference for the central logger
         private IEventRedirector _buildEventRedirector;
         // The Id of the node the forwardingLogger is attached to
         private int _nodeId;

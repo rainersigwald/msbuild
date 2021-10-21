@@ -51,7 +51,7 @@ namespace Microsoft.Build.Graph
         public GraphBuildRequestData(ProjectGraph projectGraph, ICollection<string> targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags)
             : this(targetsToBuild, hostServices, flags)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectGraph, nameof(projectGraph));
+            VerifyThrowArgumentNull(projectGraph, nameof(projectGraph));
 
             ProjectGraph = projectGraph;
         }
@@ -145,7 +145,7 @@ namespace Microsoft.Build.Graph
         public GraphBuildRequestData(IEnumerable<ProjectGraphEntryPoint> projectGraphEntryPoints, ICollection<string> targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags)
             : this(targetsToBuild, hostServices, flags)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectGraphEntryPoints, nameof(projectGraphEntryPoints));
+            VerifyThrowArgumentNull(projectGraphEntryPoints, nameof(projectGraphEntryPoints));
 
             ProjectGraphEntryPoints = projectGraphEntryPoints;
         }
@@ -153,7 +153,7 @@ namespace Microsoft.Build.Graph
         public GraphBuildRequestData(IEnumerable<ProjectGraphEntryPoint> projectGraphEntryPoints, ICollection<string> targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags, GraphBuildOptions graphBuildOptions)
             : this(targetsToBuild, hostServices, flags, graphBuildOptions)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectGraphEntryPoints, nameof(projectGraphEntryPoints));
+            VerifyThrowArgumentNull(projectGraphEntryPoints, nameof(projectGraphEntryPoints));
 
             ProjectGraphEntryPoints = projectGraphEntryPoints;
         }
@@ -163,10 +163,10 @@ namespace Microsoft.Build.Graph
         /// </summary>
         private GraphBuildRequestData(ICollection<string> targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags, GraphBuildOptions graphBuildOptions = null)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(targetsToBuild, nameof(targetsToBuild));
+            VerifyThrowArgumentNull(targetsToBuild, nameof(targetsToBuild));
             foreach (string targetName in targetsToBuild)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(targetName, "target");
+                VerifyThrowArgumentNull(targetName, "target");
             }
 
             HostServices = hostServices;

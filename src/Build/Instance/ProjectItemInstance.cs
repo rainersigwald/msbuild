@@ -190,7 +190,7 @@ namespace Microsoft.Build.Execution
             [DebuggerStepThrough]
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, "EvaluatedInclude");
+                VerifyThrowArgumentLength(value, "EvaluatedInclude");
                 _project.VerifyThrowNotImmutable();
 
                 _taskItem.ItemSpec = value;
@@ -695,10 +695,10 @@ namespace Microsoft.Build.Execution
         /// </summary>
         private void CommonConstructor(ProjectInstance projectToUse, string itemTypeToUse, string includeEscaped, string includeBeforeWildcardExpansionEscaped, CopyOnWritePropertyDictionary<ProjectMetadataInstance> directMetadata, List<ProjectItemDefinitionInstance> itemDefinitions, string definingFileEscaped)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectToUse, "project");
-            ErrorUtilities.VerifyThrowArgumentLength(itemTypeToUse, "itemType");
+            VerifyThrowArgumentNull(projectToUse, "project");
+            VerifyThrowArgumentLength(itemTypeToUse, "itemType");
             XmlUtilities.VerifyThrowArgumentValidElementName(itemTypeToUse);
-            ErrorUtilities.VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(itemTypeToUse), "OM_ReservedName", itemTypeToUse);
+            VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(itemTypeToUse), "OM_ReservedName", itemTypeToUse);
 
             // TaskItems don't have an item type. So for their benefit, we have to lookup and add the regular item definition.
             List<ProjectItemDefinitionInstance> inheritedItemDefinitions = (itemDefinitions == null) ? null : new List<ProjectItemDefinitionInstance>(itemDefinitions);
@@ -813,8 +813,8 @@ namespace Microsoft.Build.Execution
                               string definingFileEscaped // the actual project file (or import) that defines this item.
                               )
             {
-                ErrorUtilities.VerifyThrowArgumentLength(includeEscaped, nameof(includeEscaped));
-                ErrorUtilities.VerifyThrowArgumentLength(includeBeforeWildcardExpansionEscaped, nameof(includeBeforeWildcardExpansionEscaped));
+                VerifyThrowArgumentLength(includeEscaped, nameof(includeEscaped));
+                VerifyThrowArgumentLength(includeBeforeWildcardExpansionEscaped, nameof(includeBeforeWildcardExpansionEscaped));
 
                 _includeEscaped = FileUtilities.FixFilePath(includeEscaped);
                 _includeBeforeWildcardExpansionEscaped = FileUtilities.FixFilePath(includeBeforeWildcardExpansionEscaped);
@@ -890,7 +890,7 @@ namespace Microsoft.Build.Execution
                     ProjectInstance.VerifyThrowNotImmutable(_isImmutable);
 
                     // Historically empty string was allowed
-                    ErrorUtilities.VerifyThrowArgumentNull(value, "ItemSpec");
+                    VerifyThrowArgumentNull(value, "ItemSpec");
 
                     _includeEscaped = value;
                     _fullPath = null; // Clear cached value
@@ -1034,7 +1034,7 @@ namespace Microsoft.Build.Execution
                 {
                     ProjectInstance.VerifyThrowNotImmutable(_isImmutable);
 
-                    ErrorUtilities.VerifyThrowArgumentLength(value, "IncludeEscaped");
+                    VerifyThrowArgumentLength(value, "IncludeEscaped");
                     _includeEscaped = value;
                     _fullPath = null; // Clear cached value
                 }
@@ -1283,7 +1283,7 @@ namespace Microsoft.Build.Execution
             /// </remarks>
             ProjectMetadataInstance IItem<ProjectMetadataInstance>.GetMetadata(string name)
             {
-                ErrorUtilities.ThrowInternalErrorUnreachable();
+                ThrowInternalErrorUnreachable();
                 return null;
             }
 
@@ -1292,7 +1292,7 @@ namespace Microsoft.Build.Execution
             /// </summary>
             ProjectMetadataInstance IItem<ProjectMetadataInstance>.SetMetadata(ProjectMetadataElement metadataElement, string evaluatedInclude)
             {
-                ErrorUtilities.ThrowInternalErrorUnreachable();
+                ThrowInternalErrorUnreachable();
                 return null;
             }
 
@@ -1313,7 +1313,7 @@ namespace Microsoft.Build.Execution
             {
                 if (string.IsNullOrEmpty(metadataName))
                 {
-                    ErrorUtilities.VerifyThrowArgumentLength(metadataName, nameof(metadataName));
+                    VerifyThrowArgumentLength(metadataName, nameof(metadataName));
                 }
 
                 ProjectMetadataInstance metadatum;
@@ -1408,7 +1408,7 @@ namespace Microsoft.Build.Execution
             /// </param>
             public void CopyMetadataTo(ITaskItem destinationItem, bool addOriginalItemSpec)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(destinationItem, nameof(destinationItem));
+                VerifyThrowArgumentNull(destinationItem, nameof(destinationItem));
 
                 string originalItemSpec = null;
                 if (addOriginalItemSpec)
@@ -1540,8 +1540,8 @@ namespace Microsoft.Build.Execution
             /// </summary>
             public override int GetHashCode()
             {
-                // This is ignore case to ensure that task items whose item specs differ only by 
-                // casing still have the same hash code, since this is used to determine if we have duplicates when 
+                // This is ignore case to ensure that task items whose item specs differ only by
+                // casing still have the same hash code, since this is used to determine if we have duplicates when
                 // we do duplicate removal.
                 return StringComparer.OrdinalIgnoreCase.GetHashCode(ItemSpec);
             }
@@ -1672,7 +1672,7 @@ namespace Microsoft.Build.Execution
                 var key = interner.Intern(str);
                 translator.Writer.Write(key);
             }
-            
+
             private void ReadInternString(ITranslator translator, LookasideStringInterner interner, ref string str)
             {
                 var val = translator.Reader.ReadInt32();
@@ -1897,7 +1897,7 @@ namespace Microsoft.Build.Execution
                 internal ProjectItemInstanceFactory(ProjectInstance project, string itemType)
                     : this(project)
                 {
-                    ErrorUtilities.VerifyThrowInternalLength(itemType, nameof(itemType));
+                    VerifyThrowInternalLength(itemType, nameof(itemType));
                     this.ItemType = itemType;
                 }
 
@@ -1927,7 +1927,7 @@ namespace Microsoft.Build.Execution
                 /// <returns>A new instance item.</returns>
                 public ProjectItemInstance CreateItem(string include, string definingProject)
                 {
-                    ErrorUtilities.VerifyThrowInternalLength(ItemType, "ItemType");
+                    VerifyThrowInternalLength(ItemType, "ItemType");
 
                     ProjectItemInstance item = new ProjectItemInstance(_project, ItemType, include, definingProject);
 
@@ -1960,7 +1960,7 @@ namespace Microsoft.Build.Execution
                 /// </summary>
                 public ProjectItemInstance CreateItem(string evaluatedInclude, string evaluatedIncludeBeforeWildcardExpansion, string definingProject)
                 {
-                    ErrorUtilities.VerifyThrowInternalLength(ItemType, "ItemType");
+                    VerifyThrowInternalLength(ItemType, "ItemType");
 
                     return new ProjectItemInstance(_project, ItemType, evaluatedInclude, evaluatedIncludeBeforeWildcardExpansion, definingProject);
                 }
@@ -1988,8 +1988,8 @@ namespace Microsoft.Build.Execution
                 /// </summary>
                 private ProjectItemInstance CreateItem(string includeEscaped, string includeBeforeWildcardExpansionEscaped, ProjectItemInstance source, string definingProject)
                 {
-                    ErrorUtilities.VerifyThrowInternalLength(ItemType, "ItemType");
-                    ErrorUtilities.VerifyThrowInternalNull(source, nameof(source));
+                    VerifyThrowInternalLength(ItemType, "ItemType");
+                    VerifyThrowInternalNull(source, nameof(source));
 
                     // The new item inherits any metadata originating in item definitions, which
                     // takes precedence over its own item definition metadata.
@@ -2138,7 +2138,7 @@ namespace Microsoft.Build.Execution
                 public void SetMetadata(IEnumerable<Pair<ProjectMetadataElement, string>> metadata, IEnumerable<TaskItem> destinationItems)
                 {
                     // Not difficult to implement, but we do not expect to go here.
-                    ErrorUtilities.ThrowInternalErrorUnreachable();
+                    ThrowInternalErrorUnreachable();
                 }
             }
 

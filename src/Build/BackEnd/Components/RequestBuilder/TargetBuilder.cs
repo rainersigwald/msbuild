@@ -99,13 +99,13 @@ namespace Microsoft.Build.BackEnd
         /// <returns>The target's outputs and result codes</returns>
         public async Task<BuildResult> BuildTargets(ProjectLoggingContext loggingContext, BuildRequestEntry entry, IRequestBuilderCallback callback, string[] targetNames, Lookup baseLookup, CancellationToken cancellationToken)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(loggingContext, "projectLoggingContext");
-            ErrorUtilities.VerifyThrowArgumentNull(entry, nameof(entry));
-            ErrorUtilities.VerifyThrowArgumentNull(callback, "requestBuilderCallback");
-            ErrorUtilities.VerifyThrowArgumentNull(targetNames, nameof(targetNames));
-            ErrorUtilities.VerifyThrowArgumentNull(baseLookup, nameof(baseLookup));
-            ErrorUtilities.VerifyThrow(targetNames.Length > 0, "List of targets must be non-empty");
-            ErrorUtilities.VerifyThrow(_componentHost != null, "InitializeComponent must be called before building targets.");
+            VerifyThrowArgumentNull(loggingContext, "projectLoggingContext");
+            VerifyThrowArgumentNull(entry, nameof(entry));
+            VerifyThrowArgumentNull(callback, "requestBuilderCallback");
+            VerifyThrowArgumentNull(targetNames, nameof(targetNames));
+            VerifyThrowArgumentNull(baseLookup, nameof(baseLookup));
+            VerifyThrow(targetNames.Length > 0, "List of targets must be non-empty");
+            VerifyThrow(_componentHost != null, "InitializeComponent must be called before building targets.");
 
             _requestEntry = entry;
             _requestBuilderCallback = callback;
@@ -209,7 +209,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="host">The component host.</param>
         public void InitializeComponent(IBuildComponentHost host)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(host, nameof(host));
+            VerifyThrowArgumentNull(host, nameof(host));
             _componentHost = host;
         }
 
@@ -274,7 +274,7 @@ namespace Microsoft.Build.BackEnd
 
                         // We push the targets one at a time to emulate the original CallTarget behavior.
                         bool pushed = await PushTargets(targetToPush, currentTargetEntry, callTargetLookup, false, true, TargetBuiltReason.None);
-                        ErrorUtilities.VerifyThrow(pushed, "Failed to push any targets onto the stack.  Target: {0} Current Target: {1}", targets[i], currentTargetEntry.Target.Name);
+                        VerifyThrow(pushed, "Failed to push any targets onto the stack.  Target: {0} Current Target: {1}", targets[i], currentTargetEntry.Target.Name);
                         await ProcessTargetStack(taskBuilder);
 
                         if (!_cancellationToken.IsCancellationRequested)
@@ -327,7 +327,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         Task IRequestBuilderCallback.BlockOnTargetInProgress(int blockingGlobalBuildRequestId, string blockingTarget, BuildResult partialBuildResult)
         {
-            ErrorUtilities.ThrowInternalError("This method should never be called by anyone except the TargetBuilder.");
+            ThrowInternalError("This method should never be called by anyone except the TargetBuilder.");
             return Task.FromResult(false);
         }
 
@@ -388,7 +388,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         internal static IBuildComponent CreateComponent(BuildComponentType type)
         {
-            ErrorUtilities.VerifyThrow(type == BuildComponentType.TargetBuilder, "Cannot create components of type {0}", type);
+            VerifyThrow(type == BuildComponentType.TargetBuilder, "Cannot create components of type {0}", type);
             return new TargetBuilder();
         }
 
@@ -419,8 +419,8 @@ namespace Microsoft.Build.BackEnd
                         currentTargetEntry.Name
                         );
 
-                        // If we already have results for this target which were not skipped, we can ignore it.  In 
-                        // addition, we can also ignore its before and after targets -- if this target has already run, 
+                        // If we already have results for this target which were not skipped, we can ignore it.  In
+                        // addition, we can also ignore its before and after targets -- if this target has already run,
                         // then so have they.
                         if (!CheckSkipTarget(ref stopProcessingStack, currentTargetEntry))
                         {
@@ -446,7 +446,7 @@ namespace Microsoft.Build.BackEnd
                             IList<TargetSpecification> dependencies = currentTargetEntry.GetDependencies(_projectLoggingContext);
 
                             // Push our before targets now, unconditionally.  If we have marked that we should stop processing the stack here, which can only
-                            // happen if our current target was supposed to stop processing AND we had no after targets, then our last before target should 
+                            // happen if our current target was supposed to stop processing AND we had no after targets, then our last before target should
                             // inherit the stop processing flag and we will reset it.
                             // Our parent is the target before which we run, just like a depends-on target.
                             IList<TargetSpecification> beforeTargets = _requestEntry.RequestConfiguration.Project.GetTargetsWhichRunBefore(currentTargetEntry.Name);
@@ -476,7 +476,7 @@ namespace Microsoft.Build.BackEnd
                         // actually built this target while we were waiting, so that by the time we get here, it's already been finished.  In this case, just blow it away.
                         if (!CheckSkipTarget(ref stopProcessingStack, currentTargetEntry))
                         {
-                            ErrorUtilities.VerifyThrow(!wasActivelyBuilding, "Target {0} was actively building and waited on but we are attempting to build it again.", currentTargetEntry.Name);
+                            VerifyThrow(!wasActivelyBuilding, "Target {0} was actively building and waited on but we are attempting to build it again.", currentTargetEntry.Name);
 
                             // This target is now actively building.
                             _requestEntry.RequestConfiguration.ActivelyBuildingTargets[currentTargetEntry.Name] = _requestEntry.Request.GlobalRequestId;
@@ -534,7 +534,7 @@ namespace Microsoft.Build.BackEnd
                         break;
 
                     default:
-                        ErrorUtilities.ThrowInternalError("Unexpected target state {0}", currentTargetEntry.State);
+                        ThrowInternalError("Unexpected target state {0}", currentTargetEntry.State);
                         break;
                 }
             }
@@ -549,7 +549,7 @@ namespace Microsoft.Build.BackEnd
             if (_buildResult.HasResultsForTarget(currentTargetEntry.Name))
             {
                 TargetResult targetResult = _buildResult[currentTargetEntry.Name] as TargetResult;
-                ErrorUtilities.VerifyThrowInternalNull(targetResult, "targetResult");
+                VerifyThrowInternalNull(targetResult, "targetResult");
 
                 if (targetResult.ResultCode != TargetResultCode.Skipped)
                 {
@@ -584,11 +584,11 @@ namespace Microsoft.Build.BackEnd
                     {
                         TargetEntry topEntry = _targetsToBuild.Pop();
 
-                        // If this is a skip because of target failure, we should behave in the same way as we 
-                        // would if this target actually failed -- remove all its dependencies from the stack as 
-                        // well.  Otherwise, we could encounter a situation where a failure target happens in the 
+                        // If this is a skip because of target failure, we should behave in the same way as we
+                        // would if this target actually failed -- remove all its dependencies from the stack as
+                        // well.  Otherwise, we could encounter a situation where a failure target happens in the
                         // middle of execution once, then exits, then a request comes through to build the same
-                        // targets, reaches that target, skips-already-failed, and then continues building. 
+                        // targets, reaches that target, skips-already-failed, and then continues building.
                         PopDependencyTargetsOnTargetFailure(topEntry, targetResult, ref stopProcessingStack);
                     }
 
@@ -663,7 +663,7 @@ namespace Microsoft.Build.BackEnd
 
                 if (buildReason == TargetBuiltReason.BeforeTargets || buildReason == TargetBuiltReason.AfterTargets)
                 {
-                    // Don't build any Before or After targets for which we already have results.  Unlike other targets, 
+                    // Don't build any Before or After targets for which we already have results.  Unlike other targets,
                     // we don't explicitly log a skipped-with-results message because it is not interesting.
                     if (_buildResult.HasResultsForTarget(targetSpecification.TargetName))
                     {

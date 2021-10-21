@@ -87,7 +87,7 @@ namespace Microsoft.Build.BackEnd
             {
                 get
                 {
-                    ErrorUtilities.ThrowInternalError("Cannot get writer from reader.");
+                    ThrowInternalError("Cannot get writer from reader.");
                     return null;
                 }
             }
@@ -206,7 +206,7 @@ namespace Microsoft.Build.BackEnd
             /// </summary>
             /// <param name="byteArray">The array to be translated.</param>
             /// <param name="length">The length of array which will be used in translation. This parameter is not used when reading</param>
-            public void Translate(ref byte[] byteArray, ref int length) 
+            public void Translate(ref byte[] byteArray, ref int length)
             {
                 Translate(ref byteArray);
                 length = byteArray.Length;
@@ -349,9 +349,9 @@ namespace Microsoft.Build.BackEnd
                 value = new System.TimeSpan(ticks);
             }
 
-            // MSBuildTaskHost is based on CLR 3.5, which does not have the 6-parameter constructor for BuildEventContext.  
-            // However, it also does not ever need to translate BuildEventContexts, so it should be perfectly safe to 
-            // compile this method out of that assembly. 
+            // MSBuildTaskHost is based on CLR 3.5, which does not have the 6-parameter constructor for BuildEventContext.
+            // However, it also does not ever need to translate BuildEventContexts, so it should be perfectly safe to
+            // compile this method out of that assembly.
 #if !CLR2COMPATIBILITY
 
             /// <summary>
@@ -582,7 +582,7 @@ namespace Microsoft.Build.BackEnd
             }
 
             /// <summary>
-            /// Translates a dictionary of { string, T }.  
+            /// Translates a dictionary of { string, T }.
             /// </summary>
             /// <typeparam name="T">The reference type for the values</typeparam>
             /// <param name="dictionary">The dictionary to be translated.</param>
@@ -739,7 +739,7 @@ namespace Microsoft.Build.BackEnd
             {
                 get
                 {
-                    ErrorUtilities.ThrowInternalError("Cannot get reader from writer.");
+                    ThrowInternalError("Cannot get reader from writer.");
                     return null;
                 }
             }
@@ -988,9 +988,9 @@ namespace Microsoft.Build.BackEnd
                 _writer.Write(value.Ticks);
             }
 
-            // MSBuildTaskHost is based on CLR 3.5, which does not have the 6-parameter constructor for BuildEventContext.  
-            // However, it also does not ever need to translate BuildEventContexts, so it should be perfectly safe to 
-            // compile this method out of that assembly. 
+            // MSBuildTaskHost is based on CLR 3.5, which does not have the 6-parameter constructor for BuildEventContext.
+            // However, it also does not ever need to translate BuildEventContexts, so it should be perfectly safe to
+            // compile this method out of that assembly.
 #if !CLR2COMPATIBILITY
 
             /// <summary>
@@ -1012,7 +1012,7 @@ namespace Microsoft.Build.BackEnd
                 _writer.Write(value.TaskId);
             }
 
-#endif 
+#endif
 
             /// <summary>
             /// Translates a CultureInfo
@@ -1037,7 +1037,7 @@ namespace Microsoft.Build.BackEnd
             public void TranslateEnum<T>(ref T value, int numericValue)
             {
                 Type enumType = value.GetType();
-                ErrorUtilities.VerifyThrow(enumType.GetTypeInfo().IsEnum, "Must pass an enum type.");
+                VerifyThrow(enumType.GetTypeInfo().IsEnum, "Must pass an enum type.");
 
                 _writer.Write(numericValue);
             }
@@ -1094,7 +1094,7 @@ namespace Microsoft.Build.BackEnd
             /// </summary>
             /// <param name="byteArray">The array to be translated.</param>
             /// <param name="length">The length of array which will be used in translation</param>
-            public void Translate(ref byte[] byteArray, ref int length) 
+            public void Translate(ref byte[] byteArray, ref int length)
             {
                 if (!TranslateNullable(byteArray))
                 {
@@ -1206,7 +1206,7 @@ namespace Microsoft.Build.BackEnd
             }
 
             /// <summary>
-            /// Translates a dictionary of { string, T }.  
+            /// Translates a dictionary of { string, T }.
             /// </summary>
             /// <typeparam name="T">The reference type for the values, which implements INodePacketTranslatable.</typeparam>
             /// <param name="dictionary">The dictionary to be translated.</param>

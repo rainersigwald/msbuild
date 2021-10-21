@@ -63,8 +63,8 @@ namespace Microsoft.Build.Execution
         /// </param>
         internal TargetResult(TaskItem[] items, WorkUnitResult result, BuildEventContext originalBuildEventContext = null)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(items, nameof(items));
-            ErrorUtilities.VerifyThrowArgumentNull(result, nameof(result));
+            VerifyThrowArgumentNull(items, nameof(items));
+            VerifyThrowArgumentNull(result, nameof(result));
             _items = items;
             _result = result;
             _originalBuildEventContext = originalBuildEventContext;
@@ -183,7 +183,7 @@ namespace Microsoft.Build.Execution
             {
                 lock (_result)
                 {
-                    // Should we have cached these items but now want to send them to another node, we need to 
+                    // Should we have cached these items but now want to send them to another node, we need to
                     // ensure they are loaded before doing so.
                     RetrieveItemsFromCache();
                     InternalTranslate(translator);
@@ -296,14 +296,14 @@ namespace Microsoft.Build.Execution
                 // rough guess for an average number of bytes needed to store them.  This doesn't have to be accurate, just
                 // big enough to avoid unnecessary buffer reallocations in most cases.
                 var defaultBufferCapacity = _items.Length * 128;
-                
+
                 using var itemsStream = new MemoryStream(defaultBufferCapacity);
                 var itemTranslator = BinaryTranslator.GetWriteTranslator(itemsStream);
 
                 // When creating the interner, we use the number of items as the initial size of the collections since the
                 // number of strings will be of the order of the number of items in the collection.  This assumes basically
                 // one unique string per item (frequently a path related to the item) with most of the rest of the metadata
-                // being the same (and thus interning.)  This is a hueristic meant to get us in the ballpark to avoid 
+                // being the same (and thus interning.)  This is a hueristic meant to get us in the ballpark to avoid
                 // too many reallocations when growing the collections.
                 var interner = new LookasideStringInterner(StringComparer.Ordinal, _items.Length);
                 foreach (TaskItem t in _items)
@@ -322,7 +322,7 @@ namespace Microsoft.Build.Execution
 
                 byte[] buffer = null;
                 translator.Translate(ref buffer);
-                ErrorUtilities.VerifyThrow(buffer != null, "Unexpected null items buffer during translation.");
+                VerifyThrow(buffer != null, "Unexpected null items buffer during translation.");
 
                 using MemoryStream itemsStream = new MemoryStream(buffer, 0, buffer.Length, writable: false, publiclyVisible: true);
                 using var itemTranslator = BinaryTranslator.GetReadTranslator(itemsStream, null);

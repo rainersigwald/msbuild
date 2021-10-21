@@ -184,14 +184,14 @@ namespace Microsoft.Build.Shared
         private static object s_lockObject = new Object();
 
         /// <summary>
-        /// Delegate for translating targetfinished events. 
+        /// Delegate for translating targetfinished events.
         /// </summary>
         private TargetFinishedTranslator _targetFinishedTranslator = null;
 
         #region Data
 
         /// <summary>
-        /// The event type of the buildEventArg based on the 
+        /// The event type of the buildEventArg based on the
         /// LoggingEventType enumeration
         /// </summary>
         private LoggingEventType _eventType = LoggingEventType.Invalid;
@@ -215,7 +215,7 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal LogMessagePacketBase(KeyValuePair<int, BuildEventArgs>? nodeBuildEvent, TargetFinishedTranslator targetFinishedTranslator)
         {
-            ErrorUtilities.VerifyThrow(nodeBuildEvent != null, "nodeBuildEvent was null");
+            VerifyThrow(nodeBuildEvent != null, "nodeBuildEvent was null");
             _buildEvent = nodeBuildEvent.Value.Value;
             _sinkId = nodeBuildEvent.Value.Key;
             _eventType = GetLoggingEventId(_buildEvent);
@@ -273,8 +273,8 @@ namespace Microsoft.Build.Shared
         }
 
         /// <summary>
-        /// The event type of the wrapped buildEventArg 
-        /// based on the LoggingEventType enumeration 
+        /// The event type of the wrapped buildEventArg
+        /// based on the LoggingEventType enumeration
         /// </summary>
         internal LoggingEventType EventType
         {
@@ -345,7 +345,7 @@ namespace Microsoft.Build.Shared
 
                 if (eventCanSerializeItself)
                 {
-                    // 3.5 or later -- we have custom serialization methods, so let's use them.  
+                    // 3.5 or later -- we have custom serialization methods, so let's use them.
                     ArgsWriterDelegate writerMethod = (ArgsWriterDelegate)CreateDelegateRobust(typeof(ArgsWriterDelegate), _buildEvent, methodInfo);
                     writerMethod(translator.Writer);
 
@@ -381,8 +381,8 @@ namespace Microsoft.Build.Shared
             {
                 _buildEvent = GetBuildEventArgFromId();
 
-                // The other side is telling us whether the event knows how to log itself, or whether we're going to have 
-                // to do it manually 
+                // The other side is telling us whether the event knows how to log itself, or whether we're going to have
+                // to do it manually
                 int packetVersion = s_defaultPacketVersion;
                 translator.Translate(ref packetVersion);
 
@@ -469,9 +469,9 @@ namespace Microsoft.Build.Shared
         /// Wrapper for Delegate.CreateDelegate with retries.
         /// </summary>
         /// <comment>
-        /// TODO:  Investigate if it would be possible to use one of the overrides of CreateDelegate 
-        /// that doesn't force the delegate to be closed over its first argument, so that we can 
-        /// only create the delegate once per event type and cache it.  
+        /// TODO:  Investigate if it would be possible to use one of the overrides of CreateDelegate
+        /// that doesn't force the delegate to be closed over its first argument, so that we can
+        /// only create the delegate once per event type and cache it.
         /// </comment>
         private static Delegate CreateDelegateRobust(Type type, Object firstArgument, MethodInfo methodInfo)
         {
@@ -490,10 +490,10 @@ namespace Microsoft.Build.Shared
                 catch (FileLoadException)
                 {
                     // Sometimes, in 64-bit processes, the fusion load of Microsoft.Build.Framework.dll
-                    // spontaneously fails when trying to bind to the delegate.  However, it seems to 
-                    // not repeat on additional tries -- so we'll try again a few times.  However, if 
-                    // it keeps happening, it's probably a real problem, so we want to go ahead and 
-                    // throw to let the user know what's up.  
+                    // spontaneously fails when trying to bind to the delegate.  However, it seems to
+                    // not repeat on additional tries -- so we'll try again a few times.  However, if
+                    // it keeps happening, it's probably a real problem, so we want to go ahead and
+                    // throw to let the user know what's up.
                     if (i == 5)
                     {
                         throw;
@@ -628,8 +628,8 @@ namespace Microsoft.Build.Shared
         }
 
         /// <summary>
-        /// Given a build event that is presumed to be 2.0 (due to its lack of a "WriteToStream" method) and its 
-        /// LoggingEventType, serialize that event to the stream. 
+        /// Given a build event that is presumed to be 2.0 (due to its lack of a "WriteToStream" method) and its
+        /// LoggingEventType, serialize that event to the stream.
         /// </summary>
         private void WriteEventToStream(BuildEventArgs buildEvent, LoggingEventType eventType, ITranslator translator)
         {
@@ -676,7 +676,7 @@ namespace Microsoft.Build.Shared
                     WriteExternalProjectFinishedEventToStream((ExternalProjectFinishedEventArgs)buildEvent, translator);
                     break;
                 default:
-                    ErrorUtilities.ThrowInternalError("Not Supported LoggingEventType {0}", eventType.ToString());
+                    ThrowInternalError("Not Supported LoggingEventType {0}", eventType.ToString());
                     break;
             }
         }
@@ -777,7 +777,7 @@ namespace Microsoft.Build.Shared
         }
 
         /// <summary>
-        /// Write a "standard" Message Log the translator 
+        /// Write a "standard" Message Log the translator
         /// </summary>
         private void WriteBuildMessageEventToStream(BuildMessageEventArgs buildMessageEventArgs, ITranslator translator)
         {
@@ -991,8 +991,8 @@ namespace Microsoft.Build.Shared
         #region Reads from Stream
 
         /// <summary>
-        /// Given a build event that is presumed to be 2.0 (due to its lack of a "ReadFromStream" method) and its 
-        /// LoggingEventType, read that event from the stream. 
+        /// Given a build event that is presumed to be 2.0 (due to its lack of a "ReadFromStream" method) and its
+        /// LoggingEventType, read that event from the stream.
         /// </summary>
         private BuildEventArgs ReadEventFromStream(LoggingEventType eventType, ITranslator translator)
         {
@@ -1037,7 +1037,7 @@ namespace Microsoft.Build.Shared
                     buildEvent = ReadBuildWarningEventFromStream(translator, message, helpKeyword, senderName);
                     break;
                 default:
-                    ErrorUtilities.ThrowInternalError("Not Supported LoggingEventType {0}", eventType.ToString());
+                    ThrowInternalError("Not Supported LoggingEventType {0}", eventType.ToString());
                     break;
             }
 
@@ -1191,7 +1191,7 @@ namespace Microsoft.Build.Shared
         }
 
         /// <summary>
-        /// Read and reconstruct a BuildMessageEventArgs from the stream 
+        /// Read and reconstruct a BuildMessageEventArgs from the stream
         /// </summary>
         private BuildMessageEventArgs ReadBuildMessageEventFromStream(ITranslator translator, string message, string helpKeyword, string senderName)
         {

@@ -26,7 +26,7 @@ namespace Microsoft.Build.BackEnd.Logging
         #region Constructors
         /// <summary>
         /// Initalize this class with a central logger id identifying the central logger to which
-        /// these events should consumed by. The redirector will send the messages to the registered sink to 
+        /// these events should consumed by. The redirector will send the messages to the registered sink to
         /// be consumed
         /// </summary>
         /// <param name="loggerId">Id which will be attached to the build event arguments to indicate which logger the events came from</param>
@@ -35,8 +35,8 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <exception cref="InternalErrorException">LoggerId is less than 0</exception>
         internal EventRedirectorToSink(int loggerId, IBuildEventSink eventSink)
         {
-            ErrorUtilities.VerifyThrow(eventSink != null, "eventSink is null");
-            ErrorUtilities.VerifyThrow(loggerId >= 0, "loggerId should be greater or equal to 0");
+            VerifyThrow(eventSink != null, "eventSink is null");
+            VerifyThrow(loggerId >= 0, "loggerId should be greater or equal to 0");
             _centralLoggerId = loggerId;
             _sink = eventSink;
         }
@@ -51,7 +51,7 @@ namespace Microsoft.Build.BackEnd.Logging
         /// <exception cref="InternalErrorException">BuildEvent is null</exception>
         void IEventRedirector.ForwardEvent(BuildEventArgs buildEvent)
         {
-            ErrorUtilities.VerifyThrow(buildEvent != null, "buildEvent is null");
+            VerifyThrow(buildEvent != null, "buildEvent is null");
             _sink.Consume(buildEvent, _centralLoggerId);
         }
         #endregion

@@ -122,7 +122,7 @@ namespace Microsoft.Build.CommandLine
             while (restart);
 
             // Should not happen
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
             return ExitType.Unexpected;
         }
     }

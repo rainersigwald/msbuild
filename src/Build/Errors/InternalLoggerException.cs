@@ -33,7 +33,7 @@ namespace Microsoft.Build.Exceptions
         /// <exception cref="InvalidOperationException"></exception>
         public InternalLoggerException()
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(false, "InternalLoggerExceptionOnlyThrownByEngine");
+            VerifyThrowInvalidOperation(false, "InternalLoggerExceptionOnlyThrownByEngine");
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Microsoft.Build.Exceptions
         public InternalLoggerException(string message)
             : base(message)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(false, "InternalLoggerExceptionOnlyThrownByEngine");
+            VerifyThrowInvalidOperation(false, "InternalLoggerExceptionOnlyThrownByEngine");
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Microsoft.Build.Exceptions
         public InternalLoggerException(string message, Exception innerException)
             : base(message, innerException)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(false, "InternalLoggerExceptionOnlyThrownByEngine");
+            VerifyThrowInvalidOperation(false, "InternalLoggerExceptionOnlyThrownByEngine");
         }
 
         #endregion
@@ -89,11 +89,11 @@ namespace Microsoft.Build.Exceptions
          )
             : base(message, innerException)
         {
-            ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(message), "Need error message.");
-            ErrorUtilities.VerifyThrow(innerException != null || initializationException, "Need the logger exception.");
-            ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(errorCode), "Must specify the error message code.");
-            ErrorUtilities.VerifyThrow(!string.IsNullOrEmpty(helpKeyword), "Must specify the help keyword for the IDE.");
-            
+            VerifyThrow(!string.IsNullOrEmpty(message), "Need error message.");
+            VerifyThrow(innerException != null || initializationException, "Need the logger exception.");
+            VerifyThrow(!string.IsNullOrEmpty(errorCode), "Must specify the error message code.");
+            VerifyThrow(!string.IsNullOrEmpty(helpKeyword), "Must specify the help keyword for the IDE.");
+
             this.e = e;
             this.errorCode = errorCode;
             this.helpKeyword = helpKeyword;
@@ -223,7 +223,7 @@ namespace Microsoft.Build.Exceptions
             params string[] messageArgs
         )
         {
-            ErrorUtilities.VerifyThrow(messageResourceName != null, "Need error message.");
+            VerifyThrow(messageResourceName != null, "Need error message.");
 
             string errorCode;
             string helpKeyword;

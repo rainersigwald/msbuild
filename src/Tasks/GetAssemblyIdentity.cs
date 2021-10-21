@@ -28,7 +28,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_assemblyFiles, nameof(AssemblyFiles));
+                VerifyThrowArgumentNull(_assemblyFiles, nameof(AssemblyFiles));
                 return _assemblyFiles;
             }
             set => _assemblyFiles = value;

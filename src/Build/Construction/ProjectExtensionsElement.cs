@@ -33,7 +33,7 @@ namespace Microsoft.Build.Construction
         internal ProjectExtensionsElement(XmlElement xmlElement, ProjectRootElement parent, ProjectRootElement project)
             : base(xmlElement, parent, project)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -45,13 +45,13 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Condition should never be set, but the getter returns null instead of throwing 
+        /// Condition should never be set, but the getter returns null instead of throwing
         /// because a nonexistent condition is implicitly true
         /// </summary>
         public override string Condition
         {
             get => null;
-            set => ErrorUtilities.ThrowInvalidOperation("OM_CannotGetSetCondition");
+            set => ThrowInvalidOperation("OM_CannotGetSetCondition");
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(Content));
+                VerifyThrowArgumentNull(value, nameof(Content));
                 if (Link != null)
                 {
                     ExtensionLink.Content = value;
@@ -86,20 +86,20 @@ namespace Microsoft.Build.Construction
         {
             get
             {
-                ErrorUtilities.ThrowInternalError("Should not evaluate this");
+                ThrowInternalError("Should not evaluate this");
                 return null;
             }
         }
 
         /// <summary>
-        /// Get or set the content of the first sub-element 
+        /// Get or set the content of the first sub-element
         /// with the provided name.
         /// </summary>
         public string this[string name]
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+                VerifyThrowArgumentLength(name, nameof(name));
 
                 if (Link != null)
                 {
@@ -114,8 +114,8 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
-                ErrorUtilities.VerifyThrowArgumentNull(value, "value");
+                VerifyThrowArgumentLength(name, nameof(name));
+                VerifyThrowArgumentNull(value, "value");
 
                 if (Link != null)
                 {
@@ -159,8 +159,8 @@ namespace Microsoft.Build.Construction
         /// <inheritdoc/>
         public override void CopyFrom(ProjectElement element)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(element, nameof(element));
-            ErrorUtilities.VerifyThrowArgument(GetType().IsEquivalentTo(element.GetType()), nameof(element));
+            VerifyThrowArgumentNull(element, nameof(element));
+            VerifyThrowArgument(GetType().IsEquivalentTo(element.GetType()), nameof(element));
 
             if (this == element)
             {
@@ -200,7 +200,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectRootElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectRootElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

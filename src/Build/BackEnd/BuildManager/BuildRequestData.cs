@@ -133,11 +133,11 @@ namespace Microsoft.Build.Execution
         public BuildRequestData(ProjectInstance projectInstance, string[] targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags, IEnumerable<string> propertiesToTransfer)
             : this(targetsToBuild, hostServices, flags)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectInstance, nameof(projectInstance));
+            VerifyThrowArgumentNull(projectInstance, nameof(projectInstance));
 
             foreach (string targetName in targetsToBuild)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(targetName, "target");
+                VerifyThrowArgumentNull(targetName, "target");
             }
 
             ProjectInstance = projectInstance;
@@ -163,7 +163,7 @@ namespace Microsoft.Build.Execution
         public BuildRequestData(ProjectInstance projectInstance, string[] targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags, IEnumerable<string> propertiesToTransfer, RequestedProjectState requestedProjectState)
             : this(projectInstance, targetsToBuild, hostServices, flags, propertiesToTransfer)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(requestedProjectState, nameof(requestedProjectState));
+            VerifyThrowArgumentNull(requestedProjectState, nameof(requestedProjectState));
 
             RequestedProjectState = requestedProjectState;
         }
@@ -197,7 +197,7 @@ namespace Microsoft.Build.Execution
             RequestedProjectState requestedProjectState)
             : this(projectFullPath, globalProperties, toolsVersion, targetsToBuild, hostServices, flags)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(requestedProjectState, nameof(requestedProjectState));
+            VerifyThrowArgumentNull(requestedProjectState, nameof(requestedProjectState));
 
             RequestedProjectState = requestedProjectState;
         }
@@ -214,8 +214,8 @@ namespace Microsoft.Build.Execution
         public BuildRequestData(string projectFullPath, IDictionary<string, string> globalProperties, string toolsVersion, string[] targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags)
             : this(targetsToBuild, hostServices, flags)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(projectFullPath, nameof(projectFullPath));
-            ErrorUtilities.VerifyThrowArgumentNull(globalProperties, nameof(globalProperties));
+            VerifyThrowArgumentLength(projectFullPath, nameof(projectFullPath));
+            VerifyThrowArgumentNull(globalProperties, nameof(globalProperties));
 
             ProjectFullPath = FileUtilities.NormalizePath(projectFullPath);
             TargetNames = (ICollection<string>)targetsToBuild.Clone();
@@ -233,7 +233,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         private BuildRequestData(string[] targetsToBuild, HostServices hostServices, BuildRequestDataFlags flags)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(targetsToBuild, nameof(targetsToBuild));
+            VerifyThrowArgumentNull(targetsToBuild, nameof(targetsToBuild));
 
             HostServices = hostServices;
             TargetNames = new List<string>(targetsToBuild);

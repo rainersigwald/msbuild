@@ -51,7 +51,7 @@ namespace Microsoft.Build.Shared
         /// </summary>
         internal TypeLoader(Func<Type, object, bool> isDesiredType)
         {
-            ErrorUtilities.VerifyThrow(isDesiredType != null, "need a type filter");
+            VerifyThrow(isDesiredType != null, "need a type filter");
 
             _isDesiredType = isDesiredType;
         }
@@ -171,7 +171,7 @@ namespace Microsoft.Build.Shared
             {
                 // Assembly.Load() and Assembly.LoadFrom() will throw an ArgumentException if the assembly name is invalid
                 // convert to a FileNotFoundException because it's more meaningful
-                // NOTE: don't use ErrorUtilities.VerifyThrowFileExists() here because that will hit the disk again
+                // NOTE: don't use VerifyThrowFileExists() here because that will hit the disk again
                 throw new FileNotFoundException(null, assemblyLoadInfo.AssemblyLocation, e);
             }
 
@@ -214,7 +214,7 @@ namespace Microsoft.Build.Shared
         /// </summary>
         private LoadedType GetLoadedType(ConcurrentDictionary<Func<Type, object, bool>, ConcurrentDictionary<AssemblyLoadInfo, AssemblyInfoToLoadedTypes>> cache, string typeName, AssemblyLoadInfo assembly)
         {
-            // A given type filter have been used on a number of assemblies, Based on the type filter we will get another dictionary which 
+            // A given type filter have been used on a number of assemblies, Based on the type filter we will get another dictionary which
             // will map a specific AssemblyLoadInfo to a AssemblyInfoToLoadedTypes class which knows how to find a typeName in a given assembly.
             ConcurrentDictionary<AssemblyLoadInfo, AssemblyInfoToLoadedTypes> loadInfoToType =
                 cache.GetOrAdd(_isDesiredType, (_) => new ConcurrentDictionary<AssemblyLoadInfo, AssemblyInfoToLoadedTypes>());
@@ -229,7 +229,7 @@ namespace Microsoft.Build.Shared
         /// <summary>
         /// Given a type filter and an asssemblyInfo object keep track of what types in a given assembly which match the type filter.
         /// Also, use this information to determine if a given TypeName is in the assembly which is pointed to by the AssemblyLoadInfo object.
-        /// 
+        ///
         /// This type represents a combination of a type filter and an assemblyInfo object.
         /// </summary>
         [DebuggerDisplay("Types in {_assemblyLoadInfo} matching {_isDesiredType}")]
@@ -237,7 +237,7 @@ namespace Microsoft.Build.Shared
         {
             /// <summary>
             /// Lock to prevent two threads from using this object at the same time.
-            /// Since we fill up internal structures with what is in the assembly 
+            /// Since we fill up internal structures with what is in the assembly
             /// </summary>
             private readonly Object _lockObject = new Object();
 
@@ -278,8 +278,8 @@ namespace Microsoft.Build.Shared
             /// </summary>
             internal AssemblyInfoToLoadedTypes(Func<Type, object, bool> typeFilter, AssemblyLoadInfo loadInfo)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(typeFilter, "typefilter");
-                ErrorUtilities.VerifyThrowArgumentNull(loadInfo, nameof(loadInfo));
+                VerifyThrowArgumentNull(typeFilter, "typefilter");
+                VerifyThrowArgumentNull(loadInfo, nameof(loadInfo));
 
                 _isDesiredType = typeFilter;
                 _assemblyLoadInfo = loadInfo;
@@ -292,7 +292,7 @@ namespace Microsoft.Build.Shared
             /// </summary>
             internal LoadedType GetLoadedTypeByTypeName(string typeName)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(typeName, nameof(typeName));
+                VerifyThrowArgumentNull(typeName, nameof(typeName));
 
                 // Only one thread should be doing operations on this instance of the object at a time.
 
@@ -345,7 +345,7 @@ namespace Microsoft.Build.Shared
             }
 
             /// <summary>
-            /// Scan the assembly pointed to by the assemblyLoadInfo for public types. We will use these public types to do partial name matching on 
+            /// Scan the assembly pointed to by the assemblyLoadInfo for public types. We will use these public types to do partial name matching on
             /// to find tasks, loggers, and task factories.
             /// </summary>
             [SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFrom", Justification = "Necessary in this case.")]

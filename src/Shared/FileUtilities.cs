@@ -297,8 +297,8 @@ namespace Microsoft.Build.Shared
         internal static string TruncatePathToTrailingSegments(string path, int trailingSegmentsToKeep)
         {
 #if !CLR2COMPATIBILITY
-            ErrorUtilities.VerifyThrowInternalLength(path, nameof(path));
-            ErrorUtilities.VerifyThrow(trailingSegmentsToKeep >= 0, "trailing segments must be positive");
+            VerifyThrowInternalLength(path, nameof(path));
+            VerifyThrow(trailingSegmentsToKeep >= 0, "trailing segments must be positive");
 
             var segments = path.Split(Slashes, StringSplitOptions.RemoveEmptyEntries);
 
@@ -364,12 +364,12 @@ namespace Microsoft.Build.Shared
         /// Gets the canonicalized full path of the provided path.
         /// Guidance for use: call this on all paths accepted through public entry
         /// points that need normalization. After that point, only verify the path
-        /// is rooted, using ErrorUtilities.VerifyThrowPathRooted.
+        /// is rooted, using VerifyThrowPathRooted.
         /// ASSUMES INPUT IS ALREADY UNESCAPED.
         /// </summary>
         internal static string NormalizePath(string path)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(path, nameof(path));
+            VerifyThrowArgumentLength(path, nameof(path));
             string fullPath = GetFullPath(path);
             return FixFilePath(fullPath);
         }
@@ -1031,8 +1031,8 @@ namespace Microsoft.Build.Shared
         /// <returns>relative path (can be the full path)</returns>
         internal static string MakeRelative(string basePath, string path)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(basePath, nameof(basePath));
-            ErrorUtilities.VerifyThrowArgumentLength(path, nameof(path));
+            VerifyThrowArgumentNull(basePath, nameof(basePath));
+            VerifyThrowArgumentLength(path, nameof(path));
 
             string fullBase = Path.GetFullPath(basePath);
             string fullPath = Path.GetFullPath(path);
@@ -1040,7 +1040,7 @@ namespace Microsoft.Build.Shared
             string[] splitBase = fullBase.Split(MSBuildConstants.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
             string[] splitPath = fullPath.Split(MSBuildConstants.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
 
-            ErrorUtilities.VerifyThrow(splitPath.Length > 0, "Cannot call MakeRelative on a path of only slashes.");
+            VerifyThrow(splitPath.Length > 0, "Cannot call MakeRelative on a path of only slashes.");
 
             // On a mac, the path could start with any number of slashes and still be valid. We have to check them all.
             int indexOfFirstNonSlashChar = 0;
@@ -1097,7 +1097,7 @@ namespace Microsoft.Build.Shared
         /// <returns>uri object</returns>
         private static Uri CreateUriFromPath(string path)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(path, nameof(path));
+            VerifyThrowArgumentLength(path, nameof(path));
 
             Uri pathUri;
 
@@ -1188,8 +1188,8 @@ namespace Microsoft.Build.Shared
         /// <returns>Combined path.</returns>
         internal static string CombinePaths(string root, params string[] paths)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(root, nameof(root));
-            ErrorUtilities.VerifyThrowArgumentNull(paths, nameof(paths));
+            VerifyThrowArgumentNull(root, nameof(root));
+            VerifyThrowArgumentNull(paths, nameof(paths));
 
             return paths.Aggregate(root, Path.Combine);
         }
@@ -1392,7 +1392,7 @@ namespace Microsoft.Build.Shared
             // This method does not accept a path, only a file name
             if (file.Any(i => i.Equals(Path.DirectorySeparatorChar) || i.Equals(Path.AltDirectorySeparatorChar)))
             {
-                ErrorUtilities.ThrowArgument("InvalidGetPathOfFileAboveParameter", file);
+                ThrowArgument("InvalidGetPathOfFileAboveParameter", file);
             }
 
             // Search for a directory that contains that file

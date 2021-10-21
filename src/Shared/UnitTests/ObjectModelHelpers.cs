@@ -1134,7 +1134,7 @@ namespace Microsoft.Build.UnitTests
     {
         internal static string Format(this string s, params object[] formatItems)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(s, nameof(s));
+            VerifyThrowArgumentNull(s, nameof(s));
 
             return string.Format(s, formatItems);
         }
@@ -1601,7 +1601,7 @@ namespace Microsoft.Build.UnitTests
 
             sb.Append("</ItemGroup>");
 
-            
+
             foreach (var defaultTarget in (defaultTargets ?? string.Empty).Split(MSBuildConstants.SemicolonChar, StringSplitOptions.RemoveEmptyEntries))
             {
                 sb.Append("<Target Name='").Append(defaultTarget).Append("'/>");

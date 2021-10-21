@@ -205,7 +205,7 @@ namespace Microsoft.Build.Tasks
         }
 
         /// <summary>
-        /// Returns true if the parameter is empty in spirits, 
+        /// Returns true if the parameter is empty in spirits,
         /// even if it contains the separators and white space only
         /// Split on the characters provided.
         /// </summary>
@@ -245,7 +245,7 @@ namespace Microsoft.Build.Tasks
             bool[] treatAsFlags       // May be null. In this case no metadata are treated as flags.
             )
         {
-            ErrorUtilities.VerifyThrow
+            VerifyThrow
             (
                 treatAsFlags == null ||
                 (metadataNames != null && metadataNames.Length == treatAsFlags.Length),

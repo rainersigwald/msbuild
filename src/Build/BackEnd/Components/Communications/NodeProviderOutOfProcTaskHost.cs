@@ -171,7 +171,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="packet">The packet to send.</param>
         public void SendData(HandshakeOptions hostContext, INodePacket packet)
         {
-            ErrorUtilities.VerifyThrow(_nodeContexts.ContainsKey(hostContext), "Invalid host context specified: {0}.", hostContext.ToString());
+            VerifyThrow(_nodeContexts.ContainsKey(hostContext), "Invalid host context specified: {0}.", hostContext.ToString());
 
             SendData(_nodeContexts[hostContext], packet);
         }
@@ -310,7 +310,7 @@ namespace Microsoft.Build.BackEnd
             }
             else
             {
-                ErrorUtilities.VerifyThrow(packet.Type == NodePacketType.NodeShutdown, "We should only ever handle packets of type NodeShutdown -- everything else should only come in when there's an active task");
+                VerifyThrow(packet.Type == NodePacketType.NodeShutdown, "We should only ever handle packets of type NodeShutdown -- everything else should only come in when there's an active task");
 
                 // May also be removed by unnatural termination, so don't assume it's there
                 lock (_activeNodes)
@@ -335,7 +335,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         static internal IBuildComponent CreateComponent(BuildComponentType componentType)
         {
-            ErrorUtilities.VerifyThrow(componentType == BuildComponentType.OutOfProcTaskHostNodeProvider, "Factory cannot create components of type {0}", componentType);
+            VerifyThrow(componentType == BuildComponentType.OutOfProcTaskHostNodeProvider, "Factory cannot create components of type {0}", componentType);
             return new NodeProviderOutOfProcTaskHost();
         }
 
@@ -360,7 +360,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         internal static string GetTaskHostNameFromHostContext(HandshakeOptions hostContext)
         {
-            ErrorUtilities.VerifyThrowInternalErrorUnreachable((hostContext & HandshakeOptions.TaskHost) == HandshakeOptions.TaskHost);
+            VerifyThrowInternalErrorUnreachable((hostContext & HandshakeOptions.TaskHost) == HandshakeOptions.TaskHost);
             if ((hostContext & HandshakeOptions.CLR2) == HandshakeOptions.CLR2) {
                 return TaskHostNameForClr2TaskHost;
             }
@@ -392,7 +392,7 @@ namespace Microsoft.Build.BackEnd
 
             s_baseTaskHostPath = BuildEnvironmentHelper.Instance.MSBuildToolsDirectory32;
             s_baseTaskHostPath64 = BuildEnvironmentHelper.Instance.MSBuildToolsDirectory64;
-            ErrorUtilities.VerifyThrowInternalErrorUnreachable((hostContext & HandshakeOptions.TaskHost) == HandshakeOptions.TaskHost);
+            VerifyThrowInternalErrorUnreachable((hostContext & HandshakeOptions.TaskHost) == HandshakeOptions.TaskHost);
 
             if ((hostContext & HandshakeOptions.X64) == HandshakeOptions.X64 && (hostContext & HandshakeOptions.CLR2) == HandshakeOptions.CLR2)
             {
@@ -484,7 +484,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         internal void DisconnectFromHost(HandshakeOptions hostContext)
         {
-            ErrorUtilities.VerifyThrow(_nodeIdToPacketFactory.ContainsKey((int)hostContext) && _nodeIdToPacketHandler.ContainsKey((int)hostContext), "Why are we trying to disconnect from a context that we already disconnected from?  Did we call DisconnectFromHost twice?");
+            VerifyThrow(_nodeIdToPacketFactory.ContainsKey((int)hostContext) && _nodeIdToPacketHandler.ContainsKey((int)hostContext), "Why are we trying to disconnect from a context that we already disconnected from?  Did we call DisconnectFromHost twice?");
 
             _nodeIdToPacketFactory.Remove((int)hostContext);
             _nodeIdToPacketHandler.Remove((int)hostContext);
@@ -495,12 +495,12 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         internal bool CreateNode(HandshakeOptions hostContext, INodePacketFactory factory, INodePacketHandler handler, TaskHostConfiguration configuration)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(factory, nameof(factory));
-            ErrorUtilities.VerifyThrow(!_nodeIdToPacketFactory.ContainsKey((int)hostContext), "We should not already have a factory for this context!  Did we forget to call DisconnectFromHost somewhere?");
+            VerifyThrowArgumentNull(factory, nameof(factory));
+            VerifyThrow(!_nodeIdToPacketFactory.ContainsKey((int)hostContext), "We should not already have a factory for this context!  Did we forget to call DisconnectFromHost somewhere?");
 
             if (AvailableNodes == 0)
             {
-                ErrorUtilities.ThrowInternalError("All allowable nodes already created ({0}).", _nodeContexts.Count);
+                ThrowInternalError("All allowable nodes already created ({0}).", _nodeContexts.Count);
                 return false;
             }
 

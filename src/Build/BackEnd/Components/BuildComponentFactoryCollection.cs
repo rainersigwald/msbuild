@@ -81,7 +81,7 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// Shuts down all factories registered to this component factory collection. 
+        /// Shuts down all factories registered to this component factory collection.
         /// </summary>
         public void ShutdownComponents()
         {
@@ -121,7 +121,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="instance">The instance to be registered.</param>
         public void ReplaceFactory(BuildComponentType componentType, IBuildComponent instance)
         {
-            ErrorUtilities.VerifyThrow(_componentEntriesByType[componentType].Pattern == CreationPattern.Singleton, "Previously existing factory for type {0} was not a singleton factory.", componentType);
+            VerifyThrow(_componentEntriesByType[componentType].Pattern == CreationPattern.Singleton, "Previously existing factory for type {0} was not a singleton factory.", componentType);
             _componentEntriesByType[componentType] = new BuildComponentEntry(componentType, instance);
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.Build.BackEnd
         {
             if (!_componentEntriesByType.TryGetValue(type, out BuildComponentEntry componentEntry))
             {
-                ErrorUtilities.ThrowInternalError("No factory registered for component type {0}", type);
+                ThrowInternalError("No factory registered for component type {0}", type);
             }
 
             return componentEntry.GetInstance(_host);
@@ -222,7 +222,7 @@ namespace Microsoft.Build.BackEnd
             /// </summary>
             public void ShutdownSingletonInstance()
             {
-                ErrorUtilities.VerifyThrow(Pattern == CreationPattern.Singleton, "Cannot shutdown non-singleton.");
+                VerifyThrow(Pattern == CreationPattern.Singleton, "Cannot shutdown non-singleton.");
                 if (_singleton != null)
                 {
                     _singleton.ShutdownComponent();

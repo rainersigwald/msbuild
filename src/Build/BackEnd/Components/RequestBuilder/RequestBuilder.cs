@@ -191,13 +191,13 @@ namespace Microsoft.Build.BackEnd
         /// <param name="entry">The entry to build.</param>
         public void BuildRequest(NodeLoggingContext loggingContext, BuildRequestEntry entry)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(loggingContext, nameof(loggingContext));
-            ErrorUtilities.VerifyThrowArgumentNull(entry, nameof(entry));
-            ErrorUtilities.VerifyThrow(_componentHost != null, "Host not set.");
-            ErrorUtilities.VerifyThrow(_targetBuilder == null, "targetBuilder not null");
-            ErrorUtilities.VerifyThrow(_nodeLoggingContext == null, "nodeLoggingContext not null");
-            ErrorUtilities.VerifyThrow(_requestEntry == null, "requestEntry not null");
-            ErrorUtilities.VerifyThrow(!_terminateEvent.WaitOne(0), "Cancel already called");
+            VerifyThrowArgumentNull(loggingContext, nameof(loggingContext));
+            VerifyThrowArgumentNull(entry, nameof(entry));
+            VerifyThrow(_componentHost != null, "Host not set.");
+            VerifyThrow(_targetBuilder == null, "targetBuilder not null");
+            VerifyThrow(_nodeLoggingContext == null, "nodeLoggingContext not null");
+            VerifyThrow(_requestEntry == null, "requestEntry not null");
+            VerifyThrow(!_terminateEvent.WaitOne(0), "Cancel already called");
 
             _nodeLoggingContext = loggingContext;
             _blockType = BlockType.Unblocked;
@@ -217,13 +217,13 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         public void ContinueRequest()
         {
-            ErrorUtilities.VerifyThrow(HasActiveBuildRequest, "Request not building");
-            ErrorUtilities.VerifyThrow(!_terminateEvent.WaitOne(0), "Request already terminated");
-            ErrorUtilities.VerifyThrow(!_continueEvent.WaitOne(0), "Request already continued");
+            VerifyThrow(HasActiveBuildRequest, "Request not building");
+            VerifyThrow(!_terminateEvent.WaitOne(0), "Request already terminated");
+            VerifyThrow(!_continueEvent.WaitOne(0), "Request already continued");
             VerifyEntryInReadyState();
 
             _continueResults = _requestEntry.Continue();
-            ErrorUtilities.VerifyThrow(_blockType == BlockType.BlockedOnTargetInProgress || _blockType == BlockType.Yielded || (_continueResults != null), "Unexpected null results for request {0} (nr {1})", _requestEntry.Request.GlobalRequestId, _requestEntry.Request.NodeRequestId);
+            VerifyThrow(_blockType == BlockType.BlockedOnTargetInProgress || _blockType == BlockType.Yielded || (_continueResults != null), "Unexpected null results for request {0} (nr {1})", _requestEntry.Request.GlobalRequestId, _requestEntry.Request.NodeRequestId);
 
             // Setting the continue event will wake up the build thread, which is suspended in StartNewBuildRequests.
             _continueEvent.Set();
@@ -234,9 +234,9 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         public void ContinueRequestWithResources(ResourceResponse response)
         {
-            ErrorUtilities.VerifyThrow(HasActiveBuildRequest, "Request not building");
-            ErrorUtilities.VerifyThrow(!_terminateEvent.WaitOne(0), "Request already terminated");
-            ErrorUtilities.VerifyThrow(!_pendingResourceRequests.IsEmpty, "No pending resource requests");
+            VerifyThrow(HasActiveBuildRequest, "Request not building");
+            VerifyThrow(!_terminateEvent.WaitOne(0), "Request already terminated");
+            VerifyThrow(!_pendingResourceRequests.IsEmpty, "No pending resource requests");
             VerifyEntryInActiveOrWaitingState();
 
             _pendingResourceRequests.Dequeue()(response);
@@ -294,7 +294,7 @@ namespace Microsoft.Build.BackEnd
 
                     if (flattenedException.InnerExceptions.All(ex => (ex is TaskCanceledException || ex is OperationCanceledException)))
                     {
-                        // ignore -- just indicates that the task finished cancelling before we got a chance to wait on it.  
+                        // ignore -- just indicates that the task finished cancelling before we got a chance to wait on it.
                         taskCleanedUp = true;
                     }
                     else
@@ -307,7 +307,7 @@ namespace Microsoft.Build.BackEnd
                 {
                     // This can happen when a task has locked us up.
                     _projectLoggingContext.LogError(new BuildEventFileInfo(String.Empty), "FailedToReceiveTaskThreadStatus", BuildParameters.RequestBuilderShutdownTimeout);
-                    ErrorUtilities.ThrowInvalidOperation("UnableToCancel");
+                    ThrowInvalidOperation("UnableToCancel");
                 }
             }
 
@@ -331,13 +331,13 @@ namespace Microsoft.Build.BackEnd
         public async Task<BuildResult[]> BuildProjects(string[] projectFiles, PropertyDictionary<ProjectPropertyInstance>[] properties, string[] toolsVersions, string[] targets, bool waitForResults, bool skipNonexistentTargets = false)
         {
             VerifyIsNotZombie();
-            ErrorUtilities.VerifyThrowArgumentNull(projectFiles, nameof(projectFiles));
-            ErrorUtilities.VerifyThrowArgumentNull(properties, nameof(properties));
-            ErrorUtilities.VerifyThrowArgumentNull(targets, nameof(targets));
-            ErrorUtilities.VerifyThrowArgumentNull(toolsVersions, nameof(toolsVersions));
-            ErrorUtilities.VerifyThrow(_componentHost != null, "No host object set");
-            ErrorUtilities.VerifyThrow(projectFiles.Length == properties.Length, "Properties and project counts not the same");
-            ErrorUtilities.VerifyThrow(projectFiles.Length == toolsVersions.Length, "Tools versions and project counts not the same");
+            VerifyThrowArgumentNull(projectFiles, nameof(projectFiles));
+            VerifyThrowArgumentNull(properties, nameof(properties));
+            VerifyThrowArgumentNull(targets, nameof(targets));
+            VerifyThrowArgumentNull(toolsVersions, nameof(toolsVersions));
+            VerifyThrow(_componentHost != null, "No host object set");
+            VerifyThrow(projectFiles.Length == properties.Length, "Properties and project counts not the same");
+            VerifyThrow(projectFiles.Length == toolsVersions.Length, "Tools versions and project counts not the same");
 
             FullyQualifiedBuildRequest[] requests = new FullyQualifiedBuildRequest[projectFiles.Length];
 
@@ -378,7 +378,7 @@ namespace Microsoft.Build.BackEnd
             // Send the requests off
             BuildResult[] results = await StartNewBuildRequests(requests);
 
-            ErrorUtilities.VerifyThrow(requests.Length == results.Length, "# results != # requests");
+            VerifyThrow(requests.Length == results.Length, "# results != # requests");
 
             return results;
         }
@@ -468,7 +468,7 @@ namespace Microsoft.Build.BackEnd
         public void EnterMSBuildCallbackState()
         {
             VerifyIsNotZombie();
-            ErrorUtilities.VerifyThrow(!_inMSBuildCallback, "Already in an MSBuild callback!");
+            VerifyThrow(!_inMSBuildCallback, "Already in an MSBuild callback!");
             _inMSBuildCallback = true;
         }
 
@@ -478,7 +478,7 @@ namespace Microsoft.Build.BackEnd
         public void ExitMSBuildCallbackState()
         {
             VerifyIsNotZombie();
-            ErrorUtilities.VerifyThrow(_inMSBuildCallback, "Not in an MSBuild callback!");
+            VerifyThrow(_inMSBuildCallback, "Not in an MSBuild callback!");
             _inMSBuildCallback = false;
         }
 
@@ -487,7 +487,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         public int RequestCores(object monitorLockObject, int requestedCores, bool waitForCores)
         {
-            ErrorUtilities.VerifyThrow(Monitor.IsEntered(monitorLockObject), "Not running under the given lock");
+            VerifyThrow(Monitor.IsEntered(monitorLockObject), "Not running under the given lock");
             VerifyIsNotZombie();
 
             // The task may be calling RequestCores from multiple threads and the call may be blocking, so in general, we have to maintain
@@ -547,8 +547,8 @@ namespace Microsoft.Build.BackEnd
         /// <param name="host">The component host.</param>
         public void InitializeComponent(IBuildComponentHost host)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(host, nameof(host));
-            ErrorUtilities.VerifyThrow(_componentHost == null, "RequestBuilder already initialized.");
+            VerifyThrowArgumentNull(host, nameof(host));
+            VerifyThrow(_componentHost == null, "RequestBuilder already initialized.");
             _componentHost = host;
         }
 
@@ -608,7 +608,7 @@ namespace Microsoft.Build.BackEnd
                 }
                 finally
                 {
-                    // If this was the top level submission doing the waiting, we are done with this submission and it's 
+                    // If this was the top level submission doing the waiting, we are done with this submission and it's
                     // main thread building context
                     if (!recursive)
                     {
@@ -624,7 +624,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         internal static IBuildComponent CreateComponent(BuildComponentType type)
         {
-            ErrorUtilities.VerifyThrow(type == BuildComponentType.RequestBuilder, "Cannot create components of type {0}", type);
+            VerifyThrow(type == BuildComponentType.RequestBuilder, "Cannot create components of type {0}", type);
             return new RequestBuilder();
         }
 
@@ -633,15 +633,15 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void StartBuilderThread()
         {
-            ErrorUtilities.VerifyThrow(_requestTask == null, "Already have a task.");
+            VerifyThrow(_requestTask == null, "Already have a task.");
 
             _cancellationTokenSource = new CancellationTokenSource();
 
             // IMPLEMENTATION NOTE: It may look strange that we are creating new tasks here which immediately turn around and create
-            // more tasks that look async.  The reason for this is that while these methods are technically async, they really only 
+            // more tasks that look async.  The reason for this is that while these methods are technically async, they really only
             // unwind at very specific times according to the needs of MSBuild, in particular when we are waiting for results from
             // another project or when we are Yielding the Build Engine while running certain tasks.  Essentially, the Request Builder
-            // and related components form a giant state machine and the tasks are used to implement one very deep co-routine.  
+            // and related components form a giant state machine and the tasks are used to implement one very deep co-routine.
             if (IsBuilderUsingLegacyThreadingSemantics(_componentHost, _requestEntry))
             {
                 // Create a task which completes when the legacy threading task thread is finished.
@@ -650,13 +650,13 @@ namespace Microsoft.Build.BackEnd
                 _requestTask = Task.Factory.StartNew(
                     () =>
                     {
-                        // If this is a very quick-running request, it is possible that the request will have built and completed in 
+                        // If this is a very quick-running request, it is possible that the request will have built and completed in
                         // the time between when StartBuilderThread is called, and when the threadpool gets around to actually servicing
-                        // this request.  If that's the case, it's also possible that ShutdownComponent() could have already been called, 
-                        // in which case the componentHost will be null.  
+                        // this request.  If that's the case, it's also possible that ShutdownComponent() could have already been called,
+                        // in which case the componentHost will be null.
 
-                        // In that circumstance, by definition we don't have anyone who will want to wait on the LegacyThreadInactiveEvent 
-                        // task, so we can safely just return. Take a snapshot so that we don't fall victim to componentHost being set 
+                        // In that circumstance, by definition we don't have anyone who will want to wait on the LegacyThreadInactiveEvent
+                        // task, so we can safely just return. Take a snapshot so that we don't fall victim to componentHost being set
                         // to null between the null check and asking the LegacyThreadingData for the Task.
                         IBuildComponentHost componentHostSnapshot = _componentHost;
 
@@ -675,12 +675,12 @@ namespace Microsoft.Build.BackEnd
             }
             else
             {
-                ErrorUtilities.VerifyThrow(_componentHost.LegacyThreadingData.MainThreadSubmissionId != _requestEntry.Request.SubmissionId, "Can't start builder thread when we are using legacy threading semantics for this request.");
+                VerifyThrow(_componentHost.LegacyThreadingData.MainThreadSubmissionId != _requestEntry.Request.SubmissionId, "Can't start builder thread when we are using legacy threading semantics for this request.");
 
                 // We do not run in STA by default.  Most code does not
-                // require the STA apartment and the .Net default is to 
+                // require the STA apartment and the .Net default is to
                 // create threads with MTA semantics.  We provide this
-                // switch so that those few tasks which may require it 
+                // switch so that those few tasks which may require it
                 // can be made to work.
                 if (Environment.GetEnvironmentVariable("MSBUILDFORCESTA") == "1")
                 {
@@ -742,7 +742,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void VerifyEntryInReadyState()
         {
-            ErrorUtilities.VerifyThrow(_requestEntry.State == BuildRequestEntryState.Ready, "Entry is not in the Ready state, it is in the {0} state.", _requestEntry.State);
+            VerifyThrow(_requestEntry.State == BuildRequestEntryState.Ready, "Entry is not in the Ready state, it is in the {0} state.", _requestEntry.State);
         }
 
         /// <summary>
@@ -750,7 +750,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void VerifyEntryInActiveState()
         {
-            ErrorUtilities.VerifyThrow(_requestEntry.State == BuildRequestEntryState.Active, "Entry is not in the Active state, it is in the {0} state.", _requestEntry.State);
+            VerifyThrow(_requestEntry.State == BuildRequestEntryState.Active, "Entry is not in the Active state, it is in the {0} state.", _requestEntry.State);
         }
 
         /// <summary>
@@ -758,7 +758,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void VerifyEntryInActiveOrWaitingState()
         {
-            ErrorUtilities.VerifyThrow(_requestEntry.State == BuildRequestEntryState.Active || _requestEntry.State == BuildRequestEntryState.Waiting,
+            VerifyThrow(_requestEntry.State == BuildRequestEntryState.Active || _requestEntry.State == BuildRequestEntryState.Waiting,
                 "Entry is not in the Active or Waiting state, it is in the {0} state.", _requestEntry.State);
         }
 
@@ -792,7 +792,7 @@ namespace Microsoft.Build.BackEnd
 
                 // This is fatal: process will terminate: make sure the
                 // debugger launches
-                ErrorUtilities.ThrowInternalError(e.Message, e);
+                ThrowInternalError(e.Message, e);
                 throw;
             }
         }
@@ -806,7 +806,7 @@ namespace Microsoft.Build.BackEnd
             BuildResult result = null;
             VerifyEntryInActiveState();
 
-            // Start the build request            
+            // Start the build request
             try
             {
                 result = await BuildProject();
@@ -853,7 +853,7 @@ namespace Microsoft.Build.BackEnd
 
                 if (thrownException != null)
                 {
-                    ErrorUtilities.VerifyThrow(result == null, "Result already set when exception was thrown.");
+                    VerifyThrow(result == null, "Result already set when exception was thrown.");
                     result = new BuildResult(_requestEntry.Request, thrownException);
                 }
 
@@ -888,7 +888,7 @@ namespace Microsoft.Build.BackEnd
                 }
             }
 
-            // Clear out our state now in case any of these callbacks cause the engine to try and immediately 
+            // Clear out our state now in case any of these callbacks cause the engine to try and immediately
             // reuse this builder.
             BuildRequestEntry entryToComplete = _requestEntry;
             _nodeLoggingContext = null;
@@ -938,13 +938,13 @@ namespace Microsoft.Build.BackEnd
                 SaveOperatingEnvironment();
             }
 
-            // Issue the requests to the engine            
+            // Issue the requests to the engine
             RaiseOnNewBuildRequests(requests);
 
             // TODO: OPTIMIZATION: By returning null here, we commit to having to unwind the stack all the
             // way back to RequestThreadProc and then shutting down the thread before we can receive the
             // results and continue with them.  It is not always the case that this will be desirable, however,
-            // particularly if the results we need are immediately available.  In those cases, it would be 
+            // particularly if the results we need are immediately available.  In those cases, it would be
             // useful to wait here for a short period in case those results become available - one second
             // might be enough.  This means we may occasionally get more than one builder thread lying around
             // waiting for something to happen, but that would be short lived.  At the same time it would
@@ -992,7 +992,7 @@ namespace Microsoft.Build.BackEnd
                 results = Array.Empty<BuildResult>();
             }
 
-            ErrorUtilities.VerifyThrow(requests.Length == results.Length, "# results != # requests");
+            VerifyThrow(requests.Length == results.Length, "# results != # requests");
 
             _blockType = BlockType.Unblocked;
             return results;
@@ -1010,7 +1010,7 @@ namespace Microsoft.Build.BackEnd
                 // This catches the case where an MSBuild call is making a series of non-parallel build requests after Cancel has been
                 // invoked.  In this case, the wait above will immediately fall through and there will be no results.  We just need to be
                 // sure that we return a complete set of results which indicate we are aborting.
-                ErrorUtilities.VerifyThrow(!isContinue, "Unexpected null results during continue");
+                VerifyThrow(!isContinue, "Unexpected null results during continue");
                 results = new Dictionary<int, BuildResult>();
                 for (int i = 0; i < requests.Length; i++)
                 {
@@ -1101,10 +1101,10 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private async Task<BuildResult> BuildProject()
         {
-            ErrorUtilities.VerifyThrow(_targetBuilder != null, "Target builder is null");
+            VerifyThrow(_targetBuilder != null, "Target builder is null");
 
-            // Make sure it is null before loading the configuration into the request, because if there is a problem 
-            // we do not wand to have an invalid projectLoggingContext floating around. Also if this is null the error will be 
+            // Make sure it is null before loading the configuration into the request, because if there is a problem
+            // we do not wand to have an invalid projectLoggingContext floating around. Also if this is null the error will be
             // logged with the node logging context
             _projectLoggingContext = null;
 
@@ -1173,7 +1173,7 @@ namespace Microsoft.Build.BackEnd
                 await BlockOnTargetInProgress(Microsoft.Build.BackEnd.BuildRequest.InvalidGlobalRequestId, null);
 
                 // All of the results should now be on this node.
-                ErrorUtilities.VerifyThrow(_requestEntry.RequestConfiguration.ResultsNodeId == _componentHost.BuildParameters.NodeId, "Results for configuration {0} were not retrieved from node {1}", _requestEntry.RequestConfiguration.ConfigurationId, _requestEntry.RequestConfiguration.ResultsNodeId);
+                VerifyThrow(_requestEntry.RequestConfiguration.ResultsNodeId == _componentHost.BuildParameters.NodeId, "Results for configuration {0} were not retrieved from node {1}", _requestEntry.RequestConfiguration.ConfigurationId, _requestEntry.RequestConfiguration.ResultsNodeId);
             }
 
             // Build the targets
@@ -1256,8 +1256,8 @@ namespace Microsoft.Build.BackEnd
         {
             if (_componentHost.BuildParameters.SaveOperatingEnvironment)
             {
-                ErrorUtilities.VerifyThrow(_requestEntry.RequestConfiguration.SavedCurrentDirectory != null, "Current directory not previously saved.");
-                ErrorUtilities.VerifyThrow(_requestEntry.RequestConfiguration.SavedEnvironmentVariables != null, "Current environment not previously saved.");
+                VerifyThrow(_requestEntry.RequestConfiguration.SavedCurrentDirectory != null, "Current directory not previously saved.");
+                VerifyThrow(_requestEntry.RequestConfiguration.SavedEnvironmentVariables != null, "Current environment not previously saved.");
 
                 // Restore the saved environment variables.
                 SetEnvironmentVariableBlock(_requestEntry.RequestConfiguration.SavedEnvironmentVariables);
@@ -1312,7 +1312,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void VerifyIsNotZombie()
         {
-            ErrorUtilities.VerifyThrow(!_isZombie, "RequestBuilder has been zombied.");
+            VerifyThrow(!_isZombie, "RequestBuilder has been zombied.");
         }
 
         /// <summary>

@@ -16,7 +16,7 @@ namespace Microsoft.Build.Construction
     /// <remarks>
     /// XmlDocument has many members, and this can't substitute for all of them. Location finding probably won't work if
     /// certain XmlDocument members are used. So for extra robustness, this could wrap an XmlDocument instead,
-    /// and expose the small number of members that the MSBuild code actually uses. 
+    /// and expose the small number of members that the MSBuild code actually uses.
     /// </remarks>
     internal class XmlDocumentWithLocation : XmlDocument
     {
@@ -359,7 +359,7 @@ namespace Microsoft.Build.Construction
                         }
                         else // Else, only load if they're in program files or windows directories
                         {
-                            ErrorUtilities.VerifyThrow(Path.IsPathRooted(fullPath), "should be full path");
+                            VerifyThrow(Path.IsPathRooted(fullPath), "should be full path");
                             string directory = Path.GetDirectoryName(fullPath);
 
                             string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
@@ -408,7 +408,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         private void VerifyThrowNotReadOnly()
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(!_loadAsReadOnly.HasValue || !_loadAsReadOnly.Value, "OM_CannotSaveFileLoadedAsReadOnly", _fullPath);
+            VerifyThrowInvalidOperation(!_loadAsReadOnly.HasValue || !_loadAsReadOnly.Value, "OM_CannotSaveFileLoadedAsReadOnly", _fullPath);
         }
     }
 }

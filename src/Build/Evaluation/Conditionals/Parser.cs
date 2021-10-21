@@ -51,7 +51,7 @@ namespace Microsoft.Build.Evaluation
 
         private BuildEventContext _logBuildEventContext;
         /// <summary>
-        ///  Location contextual information which are attached to logging events to 
+        ///  Location contextual information which are attached to logging events to
         ///  say where they are in relation to the process, engine, project, target,task which is executing
         /// </summary>
         internal BuildEventContext LogBuildEventContext
@@ -97,7 +97,7 @@ namespace Microsoft.Build.Evaluation
         {
             // We currently have no support (and no scenarios) for disallowing property references
             // in Conditions.
-            ErrorUtilities.VerifyThrow(0 != (optionSettings & ParserOptions.AllowProperties),
+            VerifyThrow(0 != (optionSettings & ParserOptions.AllowProperties),
                 "Properties should always be allowed.");
 
             _options = optionSettings;

@@ -31,7 +31,7 @@ namespace Microsoft.Build.Utilities
         UseHostObjectToExecute,
 
         /// <summary>
-        /// This means that either there is no host object available, or that the host object is 
+        /// This means that either there is no host object available, or that the host object is
         /// not capable of supporting all of the features required for this build.  Therefore,
         /// ToolTask should fallback to an alternate means of doing the build, such as invoking
         /// the command-line tool.
@@ -54,7 +54,7 @@ namespace Microsoft.Build.Utilities
     /// Base class used for tasks that spawn an executable. This class implements the ToolPath property which can be used to
     /// override the default path.
     /// </summary>
-    // INTERNAL WARNING: DO NOT USE the Log property in this class! Log points to resources in the task assembly itself, and 
+    // INTERNAL WARNING: DO NOT USE the Log property in this class! Log points to resources in the task assembly itself, and
     // we want to use resources from Utilities. Use LogPrivate (for private Utilities resources) and LogShared (for shared MSBuild resources)
     public abstract class ToolTask : Task, ICancelableTask
     {
@@ -63,7 +63,7 @@ namespace Microsoft.Build.Utilities
         #region Constructors
 
         /// <summary>
-        /// Protected constructor 
+        /// Protected constructor
         /// </summary>
         protected ToolTask()
         {
@@ -85,7 +85,7 @@ namespace Microsoft.Build.Utilities
         }
 
         /// <summary>
-        /// Protected constructor 
+        /// Protected constructor
         /// </summary>
         /// <param name="taskResources">The resource manager for task resources</param>
         protected ToolTask(ResourceManager taskResources)
@@ -95,7 +95,7 @@ namespace Microsoft.Build.Utilities
         }
 
         /// <summary>
-        /// Protected constructor 
+        /// Protected constructor
         /// </summary>
         /// <param name="taskResources">The resource manager for task resources</param>
         /// <param name="helpKeywordPrefix">The help keyword prefix for task's messages</param>
@@ -110,7 +110,7 @@ namespace Microsoft.Build.Utilities
         #region Properties
 
         /// <summary>
-        /// The return code of the spawned process. If the task logged any errors, but the process 
+        /// The return code of the spawned process. If the task logged any errors, but the process
         /// had an exit code of 0 (success), this will be set to -1.
         /// </summary>
         [Output]
@@ -185,7 +185,7 @@ namespace Microsoft.Build.Utilities
         /// <summary>
         /// Whether or not to use UTF8 encoding for the cmd file and console window.
         /// Values: Always, Never, Detect
-        /// If set to Detect, the current code page will be used unless it cannot represent 
+        /// If set to Detect, the current code page will be used unless it cannot represent
         /// the Command string. In that case, UTF-8 is used.
         /// </summary>
         public string UseUtf8Encoding { get; set; } = EncodingUtilities.UseUtf8Detect;
@@ -203,7 +203,7 @@ namespace Microsoft.Build.Utilities
 
         /// <summary>
         /// Project visible property that allows the user to specify an amount of time after which the task executable
-        /// is terminated. 
+        /// is terminated.
         /// </summary>
         /// <value>Time-out in milliseconds. Default is <see cref="System.Threading.Timeout.Infinite"/> (no time-out).</value>
         public virtual int Timeout { set; get; } = System.Threading.Timeout.Infinite;
@@ -324,7 +324,7 @@ namespace Microsoft.Build.Utilities
         protected virtual void ProcessStarted() { }
 
         /// <summary>
-        /// Gets the fully qualified tool name. Should return ToolExe if ToolTask should search for the tool 
+        /// Gets the fully qualified tool name. Should return ToolExe if ToolTask should search for the tool
         /// in the system path. If ToolPath is set, this is ignored.
         /// </summary>
         /// <returns>Path string.</returns>
@@ -332,7 +332,7 @@ namespace Microsoft.Build.Utilities
 
         /// <summary>
         /// Gets the working directory to use for the process. Should return null if ToolTask should use the
-        /// current directory. 
+        /// current directory.
         /// </summary>
         /// <remarks>This is a method rather than a property so that derived classes (like Exec) can choose to
         /// expose a public WorkingDirectory property, and it would be confusing to have two properties.</remarks>
@@ -411,7 +411,7 @@ namespace Microsoft.Build.Utilities
 
         /// <summary>
         /// We expect tasks to override this method if they support host objects.  The implementation should
-        /// make sure that the host object is ready to perform the real work of the task.  
+        /// make sure that the host object is ready to perform the real work of the task.
         /// </summary>
         /// <returns>The return value indicates what steps to take next.  The default is to assume that there
         /// is no host object provided, and therefore we should fallback to calling the command-line tool.</returns>
@@ -478,7 +478,7 @@ namespace Microsoft.Build.Utilities
                 }
             }
 
-            // only look for the file if we have a path to it. If we have just the file name, we'll 
+            // only look for the file if we have a path to it. If we have just the file name, we'll
             // look for it in the path
             if (pathToTool != null)
             {
@@ -805,7 +805,7 @@ namespace Microsoft.Build.Utilities
             }
             catch (Exception e) when (ExceptionHandling.IsIoRelatedException(e))
             {
-                // Warn only -- occasionally temp files fail to delete because of virus checkers; we 
+                // Warn only -- occasionally temp files fail to delete because of virus checkers; we
                 // don't want the build to fail in such cases
                 LogShared.LogWarningWithCodeFromResources("Shared.FailedDeletingTempFile", fileName, e.Message);
             }
@@ -902,7 +902,7 @@ namespace Microsoft.Build.Utilities
                             break;
 
                         default:
-                            ErrorUtilities.VerifyThrow(false, "Unknown tool notification.");
+                            VerifyThrow(false, "Unknown tool notification.");
                             break;
                     }
                 }
@@ -938,7 +938,7 @@ namespace Microsoft.Build.Utilities
 
                 if (!isBeingCancelled)
                 {
-                    ErrorUtilities.VerifyThrow(Timeout != System.Threading.Timeout.Infinite,
+                    VerifyThrow(Timeout != System.Threading.Timeout.Infinite,
                         "A time-out value must have been specified or the task must be cancelled.");
 
                     LogShared.LogWarningWithCodeFromResources("Shared.KillingProcess", processName, Timeout);
@@ -1042,7 +1042,7 @@ namespace Microsoft.Build.Utilities
             StandardOutputOrErrorQueueType queueType
         )
         {
-            ErrorUtilities.VerifyThrow(dataQueue != null,
+            VerifyThrow(dataQueue != null,
                 "The data queue must be available.");
 
             // synchronize access to the queue -- this is a producer-consumer problem
@@ -1075,7 +1075,7 @@ namespace Microsoft.Build.Utilities
                     }
                 }
 
-                ErrorUtilities.VerifyThrow(dataAvailableSignal != null,
+                VerifyThrow(dataAvailableSignal != null,
                     "The signalling event must be available.");
 
                 // the queue is empty, so reset the notification
@@ -1104,7 +1104,7 @@ namespace Microsoft.Build.Utilities
         /// <param name="unused"></param>
         private void ReceiveTimeoutNotification(object unused)
         {
-            ErrorUtilities.VerifyThrow(_toolTimeoutExpired != null,
+            VerifyThrow(_toolTimeoutExpired != null,
                 "The signalling event for tool time-out must be available.");
             lock (_eventCloseLock)
             {
@@ -1124,7 +1124,7 @@ namespace Microsoft.Build.Utilities
         /// <param name="e"></param>
         private void ReceiveExitNotification(object sender, EventArgs e)
         {
-            ErrorUtilities.VerifyThrow(_toolExited != null,
+            VerifyThrow(_toolExited != null,
                 "The signalling event for tool exit must be available.");
 
             lock (_eventCloseLock)
@@ -1172,7 +1172,7 @@ namespace Microsoft.Build.Utilities
             // NOTE: don't ignore empty string, because we need to log that
             if (e.Data != null)
             {
-                ErrorUtilities.VerifyThrow(dataQueue != null,
+                VerifyThrow(dataQueue != null,
                     "The data queue must be available.");
 
                 // synchronize access to the queue -- this is a producer-consumer problem
@@ -1186,7 +1186,7 @@ namespace Microsoft.Build.Utilities
                 {
                     dataQueue.Enqueue(e.Data);
 
-                    ErrorUtilities.VerifyThrow(dataAvailableSignal != null,
+                    VerifyThrow(dataAvailableSignal != null,
                         "The signalling event must be available.");
 
                     // signal the availability of data
@@ -1223,7 +1223,7 @@ namespace Microsoft.Build.Utilities
             {
                 try
                 {
-                    // Parse the raw importance string into a strongly typed enumeration.  
+                    // Parse the raw importance string into a strongly typed enumeration.
                     _standardErrorImportanceToUse = (MessageImportance)Enum.Parse(typeof(MessageImportance), StandardErrorImportance, true /* case-insensitive */);
                 }
                 catch (ArgumentException)
@@ -1243,7 +1243,7 @@ namespace Microsoft.Build.Utilities
             {
                 try
                 {
-                    // Parse the raw importance string into a strongly typed enumeration.  
+                    // Parse the raw importance string into a strongly typed enumeration.
                     _standardOutputImportanceToUse = (MessageImportance)Enum.Parse(typeof(MessageImportance), StandardOutputImportance, true /* case-insensitive */);
                 }
                 catch (ArgumentException)
@@ -1384,7 +1384,7 @@ namespace Microsoft.Build.Utilities
 
                             if (encoding.CodePage != EncodingUtilities.CurrentSystemOemEncoding.CodePage)
                             {
-                                // cmd.exe reads the first line in the console CP, 
+                                // cmd.exe reads the first line in the console CP,
                                 // which for a new console (as here) is OEMCP
                                 // this string should ideally always be ASCII
                                 // and the same in any OEMCP.
@@ -1431,7 +1431,7 @@ namespace Microsoft.Build.Utilities
 
                 // Initialize the host object.  At this point, the task may elect
                 // to not proceed.  Compiler tasks do this for purposes of up-to-date
-                // checking in the IDE.  
+                // checking in the IDE.
                 HostObjectInitializationStatus nextAction = InitializeHostObject();
                 if (nextAction == HostObjectInitializationStatus.NoActionReturnSuccess)
                 {
@@ -1481,13 +1481,13 @@ namespace Microsoft.Build.Utilities
 
                 if (UseCommandProcessor)
                 {
-                    // Log that we are about to invoke the specified command.  
+                    // Log that we are about to invoke the specified command.
                     LogToolCommand(pathToTool + commandLineCommands);
                     LogToolCommand(batchFileContents);
                 }
                 else
                 {
-                    // Log that we are about to invoke the specified command.  
+                    // Log that we are about to invoke the specified command.
                     LogToolCommand(pathToTool + commandLineCommands + " " + responseFileCommands);
                 }
                 ExitCode = 0;
@@ -1495,7 +1495,7 @@ namespace Microsoft.Build.Utilities
                 if (nextAction == HostObjectInitializationStatus.UseHostObjectToExecute)
                 {
                     // The hosting IDE passed in a host object to this task.  Give the task
-                    // a chance to call this host object to do the actual work.  
+                    // a chance to call this host object to do the actual work.
                     try
                     {
                         if (!CallHostObjectToExecute())
@@ -1511,7 +1511,7 @@ namespace Microsoft.Build.Utilities
                 }
                 else
                 {
-                    ErrorUtilities.VerifyThrow(nextAction == HostObjectInitializationStatus.UseAlternateToolToExecute,
+                    VerifyThrow(nextAction == HostObjectInitializationStatus.UseAlternateToolToExecute,
                         "Invalid return status");
 
                     // No host object was provided, or at least not one that supports all of the
@@ -1630,12 +1630,12 @@ namespace Microsoft.Build.Utilities
         private static readonly char[] s_equalsSplitter = MSBuildConstants.EqualsChar;
 
         /// <summary>
-        /// The actual importance at which standard out messages will be logged 
+        /// The actual importance at which standard out messages will be logged
         /// </summary>
         private MessageImportance _standardOutputImportanceToUse = MessageImportance.Low;
 
         /// <summary>
-        /// The actual importance at which standard error messages will be logged 
+        /// The actual importance at which standard error messages will be logged
         /// </summary>
         private MessageImportance _standardErrorImportanceToUse = MessageImportance.Normal;
 
@@ -1667,7 +1667,7 @@ namespace Microsoft.Build.Utilities
         private ManualResetEvent _toolExited;
 
         /// <summary>
-        /// Set to true if the tool process was terminated, 
+        /// Set to true if the tool process was terminated,
         /// either because the timeout was reached or it was canceled.
         /// </summary>
         private bool _terminatedTool;

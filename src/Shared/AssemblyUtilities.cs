@@ -153,7 +153,7 @@ namespace Microsoft.Build.Shared
 #else
             var getEntryAssembly = typeof(Assembly).GetMethod("GetEntryAssembly");
 
-            ErrorUtilities.VerifyThrowInternalNull(getEntryAssembly, "Assembly does not have the method GetEntryAssembly");
+            VerifyThrowInternalNull(getEntryAssembly, "Assembly does not have the method GetEntryAssembly");
 
             return (Assembly) getEntryAssembly.Invoke(null, Array.Empty<object>());
 #endif
@@ -164,7 +164,7 @@ namespace Microsoft.Build.Shared
         {
             var cultureTypesType = s_cultureInfoGetCultureMethod?.GetParameters().FirstOrDefault()?.ParameterType;
 
-            ErrorUtilities.VerifyThrow(cultureTypesType?.Name == "CultureTypes" &&
+            VerifyThrow(cultureTypesType?.Name == "CultureTypes" &&
                                        Enum.IsDefined(cultureTypesType, "AllCultures"),
                                        "GetCulture is expected to accept CultureTypes.AllCultures");
 
@@ -172,7 +172,7 @@ namespace Microsoft.Build.Shared
 
             var cultures = s_cultureInfoGetCultureMethod.Invoke(null, new[] {allCulturesEnumValue}) as CultureInfo[];
 
-            ErrorUtilities.VerifyThrowInternalNull(cultures, "CultureInfo.GetCultures should work if all reflection checks pass");
+            VerifyThrowInternalNull(cultures, "CultureInfo.GetCultures should work if all reflection checks pass");
 
             return cultures;
         }

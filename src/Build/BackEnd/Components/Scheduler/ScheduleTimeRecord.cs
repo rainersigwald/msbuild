@@ -37,7 +37,7 @@ namespace Microsoft.Build.BackEnd
         {
             get
             {
-                ErrorUtilities.VerifyThrow(_startTimeForCurrentState == DateTime.MinValue, "Can't get the accumulated time while the timer is still running.");
+                VerifyThrow(_startTimeForCurrentState == DateTime.MinValue, "Can't get the accumulated time while the timer is still running.");
                 return _accumulatedTime;
             }
         }
@@ -47,7 +47,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         public void StartState(DateTime currentTime)
         {
-            ErrorUtilities.VerifyThrow(_startTimeForCurrentState == DateTime.MinValue, "Cannot start the counter when it is already running.");
+            VerifyThrow(_startTimeForCurrentState == DateTime.MinValue, "Cannot start the counter when it is already running.");
             _startTimeForCurrentState = currentTime;
         }
 

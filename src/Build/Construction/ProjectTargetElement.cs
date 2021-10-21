@@ -41,7 +41,7 @@ namespace Microsoft.Build.Construction
         internal ProjectTargetElement(XmlElementWithLocation xmlElement, ProjectRootElement parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, nameof(value));
+                VerifyThrowArgumentLength(value, nameof(value));
                 if (Link != null)
                 {
                     TargetLink.Name = value;
@@ -105,7 +105,7 @@ namespace Microsoft.Build.Construction
                 int indexOfSpecialCharacter = unescapedValue.IndexOfAny(XMakeElements.InvalidTargetNameCharacters);
                 if (indexOfSpecialCharacter >= 0)
                 {
-                    ErrorUtilities.ThrowArgument("OM_NameInvalid", unescapedValue, unescapedValue[indexOfSpecialCharacter]);
+                    ThrowArgument("OM_NameInvalid", unescapedValue, unescapedValue[indexOfSpecialCharacter]);
                 }
 
                 SetOrRemoveAttribute(XMakeAttributes.name, unescapedValue, "Set target Name {0}", value);
@@ -128,7 +128,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, XMakeAttributes.inputs);
+                VerifyThrowArgumentNull(value, XMakeAttributes.inputs);
                 SetOrRemoveAttribute(XMakeAttributes.inputs, value, "Set target Inputs {0}", value);
             }
         }
@@ -148,7 +148,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, XMakeAttributes.outputs);
+                VerifyThrowArgumentNull(value, XMakeAttributes.outputs);
                 SetOrRemoveAttribute(XMakeAttributes.outputs, value, "Set target Outputs {0}", value);
             }
         }
@@ -167,7 +167,7 @@ namespace Microsoft.Build.Construction
                 if (String.IsNullOrEmpty(value) && !BuildParameters.KeepDuplicateOutputs)
                 {
                     // In 4.0, by default we do NOT keep duplicate outputs unless they user has either set the attribute
-                    // explicitly or overridden it globally with MSBUILDKEEPDUPLICATEOUTPUTS set to a non-empty value.                    
+                    // explicitly or overridden it globally with MSBUILDKEEPDUPLICATEOUTPUTS set to a non-empty value.
                     value = "False";
                 }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, XMakeAttributes.keepDuplicateOutputs);
+                VerifyThrowArgumentNull(value, XMakeAttributes.keepDuplicateOutputs);
                 SetOrRemoveAttribute(XMakeAttributes.keepDuplicateOutputs, value, "Set target KeepDuplicateOutputs {0}", value);
             }
         }
@@ -196,7 +196,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, XMakeAttributes.dependsOnTargets);
+                VerifyThrowArgumentNull(value, XMakeAttributes.dependsOnTargets);
                 SetOrRemoveAttribute(XMakeAttributes.dependsOnTargets, value, "Set target DependsOnTargets {0}", value);
             }
         }
@@ -216,7 +216,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, XMakeAttributes.beforeTargets);
+                VerifyThrowArgumentNull(value, XMakeAttributes.beforeTargets);
                 SetOrRemoveAttribute(XMakeAttributes.beforeTargets, value, "Set target BeforeTargets {0}", value);
             }
         }
@@ -236,7 +236,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, XMakeAttributes.afterTargets);
+                VerifyThrowArgumentNull(value, XMakeAttributes.afterTargets);
                 SetOrRemoveAttribute(XMakeAttributes.afterTargets, value, "Set target AfterTargets {0}", value);
             }
         }
@@ -271,11 +271,11 @@ namespace Microsoft.Build.Construction
                         true /* only remove the element if the value is null -- setting to empty string is OK */
                     );
 
-                // if this target's Returns attribute is non-null, then there is at least one target in the 
-                // parent project that has the returns attribute.  
-                // NOTE: As things are currently, if a project is created that has targets with Returns, but then 
-                // all of those targets are set to not have Returns anymore, the PRE will still claim that it 
-                // contains targets with the Returns attribute.  Do we care? 
+                // if this target's Returns attribute is non-null, then there is at least one target in the
+                // parent project that has the returns attribute.
+                // NOTE: As things are currently, if a project is created that has targets with Returns, but then
+                // all of those targets are set to not have Returns anymore, the PRE will still claim that it
+                // contains targets with the Returns attribute.  Do we care?
                 if (returnsAttribute != null)
                 {
                     ((ProjectRootElement)Parent).ContainsTargetsWithReturnsAttribute = true;
@@ -311,7 +311,7 @@ namespace Microsoft.Build.Construction
                 if ((location == null) && !BuildParameters.KeepDuplicateOutputs)
                 {
                     // In 4.0, by default we do NOT keep duplicate outputs unless they user has either set the attribute
-                    // explicitly or overridden it globally with MSBUILDKEEPDUPLICATEOUTPUTS set to a non-empty value.                    
+                    // explicitly or overridden it globally with MSBUILDKEEPDUPLICATEOUTPUTS set to a non-empty value.
                     location = NameLocation;
                 }
 
@@ -376,7 +376,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectTaskElement AddTask(string taskName)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(taskName, nameof(taskName));
+            VerifyThrowArgumentLength(taskName, nameof(taskName));
 
             ProjectTaskElement task = ContainingProject.CreateTaskElement(taskName);
 
@@ -412,7 +412,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectRootElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectRootElement, "OM_CannotAcceptParent");
         }
 
         /// <summary>

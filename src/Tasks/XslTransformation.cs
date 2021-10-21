@@ -63,7 +63,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_outputPaths, "OutputPath");
+                VerifyThrowArgumentNull(_outputPaths, "OutputPath");
                 return _outputPaths;
             }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Build.Tasks
         {
             XmlInput xmlinput;
             XsltInput xsltinput;
-            ErrorUtilities.VerifyThrowArgumentNull(_outputPaths, "OutputPath");
+            VerifyThrowArgumentNull(_outputPaths, "OutputPath");
 
             // Load XmlInput, XsltInput parameters
             try
@@ -336,7 +336,7 @@ namespace Microsoft.Build.Tasks
                 {
                     return XmlReader.Create(new StreamReader(_data[itemPos]), null, _data[itemPos]);
                 }
-                else // xmlModes.Xml 
+                else // xmlModes.Xml
                 {
                     return XmlReader.Create(new StringReader(_data[itemPos]));
                 }
@@ -354,7 +354,7 @@ namespace Microsoft.Build.Tasks
             private readonly XslModes _xslMode;
 
             /// <summary>
-            /// Contains the raw XSLT 
+            /// Contains the raw XSLT
             /// or the path to XSLT file
             /// or the path to compiled XSLT dll.
             /// </summary>
@@ -476,7 +476,7 @@ namespace Microsoft.Build.Tasks
                         throw new PlatformNotSupportedException("Precompiled XSLTs are not supported in .NET Core");
 #endif
                     default:
-                        ErrorUtilities.ThrowInternalErrorUnreachable();
+                        ThrowInternalErrorUnreachable();
                         break;
                 }
 

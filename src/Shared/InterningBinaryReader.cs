@@ -115,13 +115,13 @@ namespace Microsoft.Build
                         int length = (int)memoryStream.Length;
                         n = (rawPosition + readLength) < length ? readLength : length - rawPosition;
 
-                        // Attempt to track down an intermittent failure -- n should not ever be negative, but 
-                        // we're occasionally seeing it when we do the decoder.GetChars below -- by providing 
+                        // Attempt to track down an intermittent failure -- n should not ever be negative, but
+                        // we're occasionally seeing it when we do the decoder.GetChars below -- by providing
                         // a bit more information when we do hit the error, in the place where (by code inspection)
-                        // the actual error seems most likely to be occurring. 
+                        // the actual error seems most likely to be occurring.
                         if (n < 0)
                         {
-                            ErrorUtilities.ThrowInternalError("From calculating based on the memorystream, about to read n = {0}. length = {1}, rawPosition = {2}, readLength = {3}, stringLength = {4}, currPos = {5}.", n, length, rawPosition, readLength, stringLength, currPos);
+                            ThrowInternalError("From calculating based on the memorystream, about to read n = {0}. length = {1}, rawPosition = {2}, readLength = {3}, stringLength = {4}, currPos = {5}.", n, length, rawPosition, readLength, stringLength, currPos);
                         }
 
                         memoryStream.Seek(n, SeekOrigin.Current);
@@ -136,7 +136,7 @@ namespace Microsoft.Build
                         // See above explanation -- the OutOfRange exception may also be coming from our setting of n here ...
                         if (n < 0)
                         {
-                            ErrorUtilities.ThrowInternalError("From getting the length out of BaseStream.Read directly, about to read n = {0}. readLength = {1}, stringLength = {2}, currPos = {3}", n, readLength, stringLength, currPos);
+                            ThrowInternalError("From getting the length out of BaseStream.Read directly, about to read n = {0}. readLength = {1}, stringLength = {2}, currPos = {3}", n, readLength, stringLength, currPos);
                         }
                     }
 
@@ -241,7 +241,7 @@ namespace Microsoft.Build
         }
 
         /// <summary>
-        /// Holds thepreallocated buffer. 
+        /// Holds thepreallocated buffer.
         /// </summary>
         private class Buffer : SharedReadBuffer
         {

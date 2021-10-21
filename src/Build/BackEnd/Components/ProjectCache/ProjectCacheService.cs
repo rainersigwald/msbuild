@@ -158,7 +158,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
                 return GetPluginInstanceFromType(GetTypeFromAssemblyPath(pluginDescriptor.PluginAssemblyPath));
             }
 
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
 
             return null!;
         }
@@ -252,7 +252,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
                         new NullableBool(isDesignTimeBuild),
                         null);
 
-                    ErrorUtilities.VerifyThrowInternalError(
+                    VerifyThrowInternalError(
                         previousValue is null || previousValue == false || isDesignTimeBuild,
                         "Either all builds in a build session or design time builds, or none");
 
@@ -284,7 +284,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
                     }
                 }
 
-                ErrorUtilities.VerifyThrowInternalError(
+                VerifyThrowInternalError(
                     LateInitializationForVSWorkaroundCompleted is null ||
                     _projectCacheDescriptor.VsWorkaround && LateInitializationForVSWorkaroundCompleted.Task.IsCompleted,
                     "Completion source should be null when this is not the VS workaround");
@@ -333,15 +333,15 @@ namespace Microsoft.Build.Experimental.ProjectCache
                 var solutionPath = configuration.Project.GetPropertyValue(SolutionProjectGenerator.SolutionPathPropertyName);
                 var solutionConfigurationXml = configuration.Project.GetPropertyValue(SolutionProjectGenerator.CurrentSolutionConfigurationContents);
 
-                ErrorUtilities.VerifyThrow(
+                VerifyThrow(
                     solutionPath != null && !string.IsNullOrWhiteSpace(solutionPath) && solutionPath != "*Undefined*",
                     $"Expected VS to set a valid SolutionPath property but got: {solutionPath}");
 
-                ErrorUtilities.VerifyThrow(
+                VerifyThrow(
                     FileSystems.Default.FileExists(solutionPath),
                     $"Solution file does not exist: {solutionPath}");
 
-                ErrorUtilities.VerifyThrow(
+                VerifyThrow(
                     string.IsNullOrWhiteSpace(solutionConfigurationXml) is false,
                     "Expected VS to set a xml with all the solution projects' configurations for the currently building solution configuration.");
 
@@ -383,7 +383,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
                 var root = doc.DocumentElement!;
                 var projectConfigurationNodes = root.GetElementsByTagName("ProjectConfiguration");
 
-                ErrorUtilities.VerifyThrow(projectConfigurationNodes.Count > 0, "Expected at least one project in solution");
+                VerifyThrow(projectConfigurationNodes.Count > 0, "Expected at least one project in solution");
 
                 var definingProjectPath = project.FullPath;
                 var graphEntryPoints = new List<ProjectGraphEntryPoint>(projectConfigurationNodes.Count);
@@ -393,7 +393,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
 
                 foreach (XmlNode node in projectConfigurationNodes)
                 {
-                    ErrorUtilities.VerifyThrowInternalNull(node.Attributes, nameof(node.Attributes));
+                    VerifyThrowInternalNull(node.Attributes, nameof(node.Attributes));
 
                     var buildProjectInSolution = node.Attributes!["BuildProjectInSolution"];
                     if (buildProjectInSolution is not null &&
@@ -404,12 +404,12 @@ namespace Microsoft.Build.Experimental.ProjectCache
                         continue;
                     }
 
-                    ErrorUtilities.VerifyThrow(
+                    VerifyThrow(
                         node.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => e.Name == "ProjectDependency") is null,
                         "Project cache service does not support solution only dependencies when running under Visual Studio.");
 
                     var projectPathAttribute = node.Attributes!["AbsolutePath"];
-                    ErrorUtilities.VerifyThrow(projectPathAttribute is not null, "Expected VS to set the project path on each ProjectConfiguration element.");
+                    VerifyThrow(projectPathAttribute is not null, "Expected VS to set the project path on each ProjectConfiguration element.");
 
                     var projectPath = projectPathAttribute!.Value;
 
@@ -464,7 +464,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
                 }
             }
 
-            ErrorUtilities.VerifyThrowInternalNull(buildRequest.ProjectInstance, nameof(buildRequest.ProjectInstance));
+            VerifyThrowInternalNull(buildRequest.ProjectInstance, nameof(buildRequest.ProjectInstance));
 
             var queryDescription = $"{buildRequest.ProjectFullPath}" +
                                    $"\n\tTargets:[{string.Join(", ", buildRequest.TargetNames)}]" +
@@ -566,7 +566,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
                 switch (newState)
                 {
                     case ProjectCacheServiceState.NotInitialized:
-                        ErrorUtilities.ThrowInternalError($"Cannot transition to {ProjectCacheServiceState.NotInitialized}");
+                        ThrowInternalError($"Cannot transition to {ProjectCacheServiceState.NotInitialized}");
                         break;
                     case ProjectCacheServiceState.BeginBuildStarted:
                         CheckInState(ProjectCacheServiceState.NotInitialized);
@@ -593,7 +593,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
         {
             lock (this)
             {
-                ErrorUtilities.VerifyThrowInternalError(_serviceState == expectedState, $"Expected state {expectedState}, actual state {_serviceState}");
+                VerifyThrowInternalError(_serviceState == expectedState, $"Expected state {expectedState}, actual state {_serviceState}");
             }
         }
 
@@ -601,7 +601,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
         {
             lock (this)
             {
-                ErrorUtilities.VerifyThrowInternalError(_serviceState != unexpectedState, $"Unexpected state {_serviceState}");
+                VerifyThrowInternalError(_serviceState != unexpectedState, $"Unexpected state {_serviceState}");
             }
         }
 

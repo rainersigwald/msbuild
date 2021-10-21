@@ -9,7 +9,7 @@ using Microsoft.Build.Execution;
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>
-    /// The NodeManager class is responsible for marshalling data to/from the NodeProviders and organizing the 
+    /// The NodeManager class is responsible for marshalling data to/from the NodeProviders and organizing the
     /// creation of new nodes on request.
     /// </summary>
     internal class NodeManager : INodeManager
@@ -26,7 +26,7 @@ namespace Microsoft.Build.BackEnd
 
         /// <summary>
         /// The node provider for out-of-proc nodes.
-        /// </summary> 
+        /// </summary>
         private INodeProvider _outOfProcNodeProvider;
 
         /// <summary>
@@ -59,9 +59,9 @@ namespace Microsoft.Build.BackEnd
         /// BUGBUG: This is a fix which corrects an RI blocking BVT failure.  The real fix must be determined before RTM.
         /// This must be investigated and resolved before RTM.  The apparent issue is that a design-time build has already called EndBuild
         /// through the BuildManagerAccessor, and the nodes are shut down.  Shortly thereafter, the solution build manager comes through and calls EndBuild, which throws
-        /// another Shutdown packet in the queue, and causes the following build to stop prematurely.  This is all timing related - not every sequence of builds seems to 
+        /// another Shutdown packet in the queue, and causes the following build to stop prematurely.  This is all timing related - not every sequence of builds seems to
         /// cause the problem, probably due to the order in which the packet queue gets serviced relative to other threads.
-        /// 
+        ///
         /// It appears that the problem is that the BuildRequestEngine is being invoked in a way that causes a shutdown packet to appear to overlap with a build request packet.
         /// Interactions between the in-proc node communication thread and the shutdown mechanism must be investigated to determine how BuildManager.EndBuild is allowing itself
         /// to return before the node has indicated it is actually finished.
@@ -69,7 +69,7 @@ namespace Microsoft.Build.BackEnd
         private bool _nodesShutdown = true;
 
         /// <summary>
-        /// Tracks whether ShutdownComponent has been called.  
+        /// Tracks whether ShutdownComponent has been called.
         /// </summary>
         private bool _componentShutdown;
 
@@ -129,7 +129,7 @@ namespace Microsoft.Build.BackEnd
             INodeProvider provider;
             if (!_nodeIdToProvider.TryGetValue(node, out provider))
             {
-                ErrorUtilities.ThrowInternalError("Node {0} does not have a provider.", node);
+                ThrowInternalError("Node {0} does not have a provider.", node);
             }
 
             // Send the data.
@@ -142,7 +142,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="enableReuse">Flag indicating if nodes should prepare for reuse.</param>
         public void ShutdownConnectedNodes(bool enableReuse)
         {
-            ErrorUtilities.VerifyThrow(!_componentShutdown, "We should never be calling ShutdownNodes after ShutdownComponent has been called");
+            VerifyThrow(!_componentShutdown, "We should never be calling ShutdownNodes after ShutdownComponent has been called");
 
             if (_nodesShutdown)
             {
@@ -173,8 +173,8 @@ namespace Microsoft.Build.BackEnd
         /// <param name="host">The component host</param>
         public void InitializeComponent(IBuildComponentHost host)
         {
-            ErrorUtilities.VerifyThrow(_componentHost == null, "NodeManager already initialized.");
-            ErrorUtilities.VerifyThrow(host != null, "We can't create a NodeManager with a null componentHost");
+            VerifyThrow(_componentHost == null, "NodeManager already initialized.");
+            VerifyThrow(host != null, "We can't create a NodeManager with a null componentHost");
             _componentHost = host;
 
             _inProcNodeProvider = _componentHost.GetComponent(BuildComponentType.InProcNodeProvider) as INodeProvider;
@@ -282,7 +282,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         static internal IBuildComponent CreateComponent(BuildComponentType type)
         {
-            ErrorUtilities.VerifyThrow(type == BuildComponentType.NodeManager, "Cannot create component of type {0}", type);
+            VerifyThrow(type == BuildComponentType.NodeManager, "Cannot create component of type {0}", type);
             return new NodeManager();
         }
 
@@ -310,7 +310,7 @@ namespace Microsoft.Build.BackEnd
             // If no provider was passed in, we obviously can't create a node.
             if (nodeProvider == null)
             {
-                ErrorUtilities.ThrowInternalError("No node provider provided.");
+                ThrowInternalError("No node provider provided.");
                 return InvalidNodeId;
             }
 

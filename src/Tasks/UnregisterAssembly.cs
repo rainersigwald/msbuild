@@ -114,7 +114,7 @@ namespace Microsoft.Build.Tasks
 #if DEBUG
                     catch (Exception e)
                     {
-                        Debug.Assert(false, "Unexpected exception in AssemblyRegistration.Execute. " + 
+                        Debug.Assert(false, "Unexpected exception in AssemblyRegistration.Execute. " +
                             "Please log a MSBuild bug specifying the steps to reproduce the problem. " +
                             e.Message);
                         throw;
@@ -142,7 +142,7 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         private bool Unregister(string assemblyPath, string typeLibPath)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(typeLibPath, nameof(typeLibPath));
+            VerifyThrowArgumentNull(typeLibPath, nameof(typeLibPath));
 
             Log.LogMessageFromResources(MessageImportance.Low, "UnregisterAssembly.UnregisteringAssembly", assemblyPath);
 
@@ -150,7 +150,7 @@ namespace Microsoft.Build.Tasks
             {
                 try
                 {
-                    // Load the specified assembly. 
+                    // Load the specified assembly.
                     Assembly asm = Assembly.UnsafeLoadFrom(assemblyPath);
 
                     var comRegistrar = new RegistrationServices();
@@ -162,7 +162,7 @@ namespace Microsoft.Build.Tasks
                         // Unregister the assembly
                         if (!comRegistrar.UnregisterAssembly(asm))
                         {
-                            // If the assembly doesn't contain any types that could be registered for COM interop, 
+                            // If the assembly doesn't contain any types that could be registered for COM interop,
                             // warn the user about it
                             Log.LogWarningWithCodeFromResources("UnregisterAssembly.NoValidTypes", assemblyPath);
                         }
@@ -263,7 +263,7 @@ namespace Microsoft.Build.Tasks
                     else
                     {
 #if DEBUG
-                        Debug.Assert(false, "Unexpected exception in UnregisterAssembly.DoExecute. " + 
+                        Debug.Assert(false, "Unexpected exception in UnregisterAssembly.DoExecute. " +
                             "Please log a MSBuild bug specifying the steps to reproduce the problem.");
 #endif
                         throw;

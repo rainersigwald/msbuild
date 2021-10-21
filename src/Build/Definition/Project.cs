@@ -101,8 +101,8 @@ namespace Microsoft.Build.Evaluation
 
         internal Project(ProjectCollection projectCollection, ProjectLink link)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
-            ErrorUtilities.VerifyThrowArgumentNull(link, nameof(link));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentNull(link, nameof(link));
             ProjectCollection = projectCollection;
             implementationInternal = new ProjectLinkInternalNotImplemented();
             implementation = link;
@@ -256,9 +256,9 @@ namespace Microsoft.Build.Evaluation
 
         private Project(ProjectRootElement xml, IDictionary<string, string> globalProperties, string toolsVersion, string subToolsetVersion, ProjectCollection projectCollection, ProjectLoadSettings loadSettings, EvaluationContext evaluationContext)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(xml, nameof(xml));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentNull(xml, nameof(xml));
+            VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
             ProjectCollection = projectCollection;
             var defaultImplementation = new ProjectImpl(this, xml, globalProperties, toolsVersion, subToolsetVersion, loadSettings, evaluationContext);
             implementationInternal = (IProjectLinkInternal)defaultImplementation;
@@ -348,9 +348,9 @@ namespace Microsoft.Build.Evaluation
 
         private Project(XmlReader xmlReader, IDictionary<string, string> globalProperties, string toolsVersion, string subToolsetVersion, ProjectCollection projectCollection, ProjectLoadSettings loadSettings, EvaluationContext evaluationContext)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(xmlReader, nameof(xmlReader));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentNull(xmlReader, nameof(xmlReader));
+            VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
             ProjectCollection = projectCollection;
             var defailtImplementation = new ProjectImpl(this, xmlReader, globalProperties, toolsVersion, subToolsetVersion, loadSettings, evaluationContext);
             implementationInternal = (IProjectLinkInternal)defailtImplementation;
@@ -442,9 +442,9 @@ namespace Microsoft.Build.Evaluation
 
         private Project(string projectFile, IDictionary<string, string> globalProperties, string toolsVersion, string subToolsetVersion, ProjectCollection projectCollection, ProjectLoadSettings loadSettings, EvaluationContext evaluationContext)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectFile, nameof(projectFile));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentNull(projectFile, nameof(projectFile));
+            VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
 
             ProjectCollection = projectCollection;
             var defailtImplementation = new ProjectImpl(this, projectFile, globalProperties, toolsVersion, subToolsetVersion, loadSettings, evaluationContext);
@@ -818,7 +818,7 @@ namespace Microsoft.Build.Evaluation
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "IItem is an internal interface; this is less confusing to outside customers. ")]
         public static string GetEvaluatedItemIncludeEscaped(ProjectItem item)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+            VerifyThrowArgumentNull(item, nameof(item));
 
             return ((IItem)item).EvaluatedIncludeEscaped;
         }
@@ -828,7 +828,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         public static string GetEvaluatedItemIncludeEscaped(ProjectItemDefinition item)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+            VerifyThrowArgumentNull(item, nameof(item));
 
             return ((IItem)item).EvaluatedIncludeEscaped;
         }
@@ -1035,7 +1035,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         public static string GetMetadataValueEscaped(ProjectMetadata metadatum)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(metadatum, nameof(metadatum));
+            VerifyThrowArgumentNull(metadatum, nameof(metadatum));
 
             return metadatum.EvaluatedValueEscaped;
         }
@@ -1046,7 +1046,7 @@ namespace Microsoft.Build.Evaluation
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "IItem is an internal interface; this is less confusing to outside customers. ")]
         public static string GetMetadataValueEscaped(ProjectItem item, string name)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+            VerifyThrowArgumentNull(item, nameof(item));
 
             return ((IItem)item).GetMetadataValueEscaped(name);
         }
@@ -1056,7 +1056,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         public static string GetMetadataValueEscaped(ProjectItemDefinition item, string name)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+            VerifyThrowArgumentNull(item, nameof(item));
 
             return ((IItem)item).GetMetadataValueEscaped(name);
         }
@@ -1067,7 +1067,7 @@ namespace Microsoft.Build.Evaluation
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "IProperty is an internal interface; this is less confusing to outside customers. ")]
         public static string GetPropertyValueEscaped(ProjectProperty property)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(property, nameof(property));
+            VerifyThrowArgumentNull(property, nameof(property));
 
             return ((IProperty)property).EvaluatedValueEscaped;
         }
@@ -1632,7 +1632,7 @@ namespace Microsoft.Build.Evaluation
                 return false;
             }
 
-            ErrorUtilities.VerifyThrowInvalidOperation(!ThrowInsteadOfSplittingItemElement, "OM_CannotSplitItemElementWhenSplittingIsDisabled", itemElement.Location, $"{nameof(Project)}.{nameof(ThrowInsteadOfSplittingItemElement)}");
+            VerifyThrowInvalidOperation(!ThrowInsteadOfSplittingItemElement, "OM_CannotSplitItemElementWhenSplittingIsDisabled", itemElement.Location, $"{nameof(Project)}.{nameof(ThrowInsteadOfSplittingItemElement)}");
 
             var relevantItems = new List<ProjectItem>();
 
@@ -1752,7 +1752,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         internal void VerifyThrowInvalidOperationNotZombie()
         {
-            ErrorUtilities.VerifyThrow(!implementationInternal.IsZombified, "OM_ProjectIsNoLongerActive");
+            VerifyThrow(!implementationInternal.IsZombified, "OM_ProjectIsNoLongerActive");
         }
 
         /// <summary>
@@ -1763,8 +1763,8 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         internal void VerifyThrowInvalidOperationNotImported(ProjectRootElement otherXml)
         {
-            ErrorUtilities.VerifyThrowInternalNull(otherXml, nameof(otherXml));
-            ErrorUtilities.VerifyThrowInvalidOperation(ReferenceEquals(Xml, otherXml), "OM_CannotModifyEvaluatedObjectInImportedFile", otherXml.Location.File);
+            VerifyThrowInternalNull(otherXml, nameof(otherXml));
+            VerifyThrowInvalidOperation(ReferenceEquals(Xml, otherXml), "OM_CannotModifyEvaluatedObjectInImportedFile", otherXml.Location.File);
         }
 
         /// <summary>
@@ -1832,9 +1832,9 @@ namespace Microsoft.Build.Evaluation
             /// <param name="evaluationContext">The evaluation context to use in case reevaluation is required.</param>
             public ProjectImpl(Project owner, ProjectRootElement xml, IDictionary<string, string> globalProperties, string toolsVersion, string subToolsetVersion, ProjectLoadSettings loadSettings, EvaluationContext evaluationContext)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(xml, nameof(xml));
-                ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-                ErrorUtilities.VerifyThrowArgumentNull(owner, nameof(owner));
+                VerifyThrowArgumentNull(xml, nameof(xml));
+                VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+                VerifyThrowArgumentNull(owner, nameof(owner));
 
                 Xml = xml;
                 Owner = owner;
@@ -1856,9 +1856,9 @@ namespace Microsoft.Build.Evaluation
             /// <param name="evaluationContext">The evaluation context to use in case reevaluation is required.</param>
             public ProjectImpl(Project owner, XmlReader xmlReader, IDictionary<string, string> globalProperties, string toolsVersion, string subToolsetVersion, ProjectLoadSettings loadSettings, EvaluationContext evaluationContext)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(xmlReader, nameof(xmlReader));
-                ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-                ErrorUtilities.VerifyThrowArgumentNull(owner, nameof(owner));
+                VerifyThrowArgumentNull(xmlReader, nameof(xmlReader));
+                VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+                VerifyThrowArgumentNull(owner, nameof(owner));
 
                 Owner = owner;
 
@@ -1891,9 +1891,9 @@ namespace Microsoft.Build.Evaluation
             /// <param name="evaluationContext">The evaluation context to use in case reevaluation is required.</param>
             public ProjectImpl(Project owner, string projectFile, IDictionary<string, string> globalProperties, string toolsVersion, string subToolsetVersion, ProjectLoadSettings loadSettings, EvaluationContext evaluationContext)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(projectFile, nameof(projectFile));
-                ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-                ErrorUtilities.VerifyThrowArgumentNull(owner, nameof(owner));
+                VerifyThrowArgumentNull(projectFile, nameof(projectFile));
+                VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+                VerifyThrowArgumentNull(owner, nameof(owner));
 
                 Owner = owner;
 
@@ -2155,7 +2155,7 @@ namespace Microsoft.Build.Evaluation
                 {
                     if (!(_data.ShouldEvaluateForDesignTime && _data.CanEvaluateElementsWithFalseConditions))
                     {
-                        ErrorUtilities.ThrowInvalidOperation("OM_NotEvaluatedBecauseShouldEvaluateForDesignTimeIsFalse", nameof(ItemsIgnoringCondition));
+                        ThrowInvalidOperation("OM_NotEvaluatedBecauseShouldEvaluateForDesignTimeIsFalse", nameof(ItemsIgnoringCondition));
                     }
 
                     return new ReadOnlyCollection<ProjectItem>(_data.ItemsIgnoringCondition);
@@ -2197,7 +2197,7 @@ namespace Microsoft.Build.Evaluation
             {
                 get
                 {
-                    ErrorUtilities.VerifyThrowInvalidOperation((_loadSettings & ProjectLoadSettings.RecordDuplicateButNotCircularImports) != 0, "OM_MustSetRecordDuplicateInputs");
+                    VerifyThrowInvalidOperation((_loadSettings & ProjectLoadSettings.RecordDuplicateButNotCircularImports) != 0, "OM_MustSetRecordDuplicateInputs");
 
                     var imports = new List<ResolvedImport>(_data.ImportClosureWithDuplicates.Count - 1 /* outer project */);
 
@@ -2376,7 +2376,7 @@ namespace Microsoft.Build.Evaluation
                             return ProjectCollection.IsBuildEnabled;
 
                         default:
-                            ErrorUtilities.ThrowInternalErrorUnreachable();
+                            ThrowInternalErrorUnreachable();
                             return false;
                     }
                 }
@@ -2763,7 +2763,7 @@ namespace Microsoft.Build.Evaluation
                     }
                     else
                     {
-                        ErrorUtilities.ThrowInternalErrorUnreachable();
+                        ThrowInternalErrorUnreachable();
                     }
 
                     // Result is inconclusive if properties are present
@@ -2850,13 +2850,13 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public override ProjectProperty SetProperty(string name, string unevaluatedValue)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
-                ErrorUtilities.VerifyThrowArgumentNull(unevaluatedValue, nameof(unevaluatedValue));
+                VerifyThrowArgumentLength(name, nameof(name));
+                VerifyThrowArgumentNull(unevaluatedValue, nameof(unevaluatedValue));
 
                 ProjectProperty property = _data.Properties[name];
 
-                ErrorUtilities.VerifyThrowInvalidOperation(property?.IsReservedProperty != true, "OM_ReservedName", name);
-                ErrorUtilities.VerifyThrowInvalidOperation(property?.IsGlobalProperty != true, "OM_GlobalProperty", name);
+                VerifyThrowInvalidOperation(property?.IsReservedProperty != true, "OM_ReservedName", name);
+                VerifyThrowInvalidOperation(property?.IsGlobalProperty != true, "OM_GlobalProperty", name);
 
                 // If there's an existing regular property, we can reuse it, unless it's not attached to its XML any more
                 if (property?.IsEnvironmentProperty == false &&
@@ -2978,8 +2978,8 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public override IList<ProjectItem> AddItemFast(string itemType, string unevaluatedInclude, IEnumerable<KeyValuePair<string, string>> metadata)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(itemType, nameof(itemType));
-                ErrorUtilities.VerifyThrowArgumentLength(unevaluatedInclude, nameof(unevaluatedInclude));
+                VerifyThrowArgumentLength(itemType, nameof(itemType));
+                VerifyThrowArgumentLength(unevaluatedInclude, nameof(unevaluatedInclude));
 
                 ProjectItemGroupElement groupToAppendTo = null;
 
@@ -3078,10 +3078,10 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public override bool RemoveProperty(ProjectProperty property)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(property, nameof(property));
-                ErrorUtilities.VerifyThrowInvalidOperation(!property.IsReservedProperty, "OM_ReservedName", property.Name);
-                ErrorUtilities.VerifyThrowInvalidOperation(!property.IsGlobalProperty, "OM_GlobalProperty", property.Name);
-                ErrorUtilities.VerifyThrowArgument(property.Xml.Parent != null, "OM_IncorrectObjectAssociation", "ProjectProperty", "Project");
+                VerifyThrowArgumentNull(property, nameof(property));
+                VerifyThrowInvalidOperation(!property.IsReservedProperty, "OM_ReservedName", property.Name);
+                VerifyThrowInvalidOperation(!property.IsGlobalProperty, "OM_GlobalProperty", property.Name);
+                VerifyThrowArgument(property.Xml.Parent != null, "OM_IncorrectObjectAssociation", "ProjectProperty", "Project");
                 VerifyThrowInvalidOperationNotImported(property.Xml.ContainingProject);
 
                 ProjectElementContainer parent = property.Xml.Parent;
@@ -3105,7 +3105,7 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public override bool RemoveGlobalProperty(string name)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+                VerifyThrowArgumentLength(name, nameof(name));
 
                 bool result = _data.GlobalPropertiesDictionary.Remove(name);
 
@@ -3140,8 +3140,8 @@ namespace Microsoft.Build.Evaluation
             /// </remarks>
             public override bool RemoveItem(ProjectItem item)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
-                ErrorUtilities.VerifyThrowArgument(item.Project == Owner, "OM_IncorrectObjectAssociation", "ProjectItem", "Project");
+                VerifyThrowArgumentNull(item, nameof(item));
+                VerifyThrowArgument(item.Project == Owner, "OM_IncorrectObjectAssociation", "ProjectItem", "Project");
 
                 bool result = RemoveItemHelper(item);
 
@@ -3160,7 +3160,7 @@ namespace Microsoft.Build.Evaluation
             /// </remarks>
             public override void RemoveItems(IEnumerable<ProjectItem> items)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(items, nameof(items));
+                VerifyThrowArgumentNull(items, nameof(items));
 
                 // Copying to a list makes it possible to remove
                 // all items of a particular type with
@@ -3183,7 +3183,7 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public override string ExpandString(string unexpandedValue)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(unexpandedValue, nameof(unexpandedValue));
+                VerifyThrowArgumentNull(unexpandedValue, nameof(unexpandedValue));
 
                 string result = _data.Expander.ExpandIntoStringAndUnescape(unexpandedValue, ExpanderOptions.ExpandPropertiesAndItems, ProjectFileLocation);
 
@@ -3317,7 +3317,7 @@ namespace Microsoft.Build.Evaluation
                     return false;
                 }
 
-                ErrorUtilities.VerifyThrowInvalidOperation(!ThrowInsteadOfSplittingItemElement, "OM_CannotSplitItemElementWhenSplittingIsDisabled", itemElement.Location, $"{nameof(Project)}.{nameof(ThrowInsteadOfSplittingItemElement)}");
+                VerifyThrowInvalidOperation(!ThrowInsteadOfSplittingItemElement, "OM_CannotSplitItemElementWhenSplittingIsDisabled", itemElement.Location, $"{nameof(Project)}.{nameof(ThrowInsteadOfSplittingItemElement)}");
 
                 var relevantItems = new List<ProjectItem>();
 
@@ -3468,7 +3468,7 @@ namespace Microsoft.Build.Evaluation
             /// </remarks>
             public string ExpandMetadataValueBestEffortLeaveEscaped(IMetadataTable metadataTable, string unevaluatedValue, ElementLocation metadataLocation)
             {
-                ErrorUtilities.VerifyThrow(_data.Expander.Metadata == null, "Should be null");
+                VerifyThrow(_data.Expander.Metadata == null, "Should be null");
 
                 _data.Expander.Metadata = metadataTable;
                 string evaluatedValueEscaped = _data.Expander.ExpandIntoStringLeaveEscaped(unevaluatedValue, ExpanderOptions.ExpandAll, metadataLocation);
@@ -3496,8 +3496,8 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             internal void VerifyThrowInvalidOperationNotImported(ProjectRootElement otherXml)
             {
-                ErrorUtilities.VerifyThrowInternalNull(otherXml, nameof(otherXml));
-                ErrorUtilities.VerifyThrowInvalidOperation(ReferenceEquals(Xml, otherXml), "OM_CannotModifyEvaluatedObjectInImportedFile", otherXml.Location.File);
+                VerifyThrowInternalNull(otherXml, nameof(otherXml));
+                VerifyThrowInvalidOperation(ReferenceEquals(Xml, otherXml), "OM_CannotModifyEvaluatedObjectInImportedFile", otherXml.Location.File);
             }
 
             /// <summary>
@@ -3540,7 +3540,7 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             private bool RemoveItemHelper(ProjectItem item)
             {
-                ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+                VerifyThrowArgumentNull(item, nameof(item));
 
                 if (item.Project == null || item.Xml.Parent == null)
                 {
@@ -3549,7 +3549,7 @@ namespace Microsoft.Build.Evaluation
                     return false;
                 }
 
-                ErrorUtilities.VerifyThrowArgument(item.Project == Owner, "OM_IncorrectObjectAssociation", "ProjectItem", "Project");
+                VerifyThrowArgument(item.Project == Owner, "OM_IncorrectObjectAssociation", "ProjectItem", "Project");
 
                 VerifyThrowInvalidOperationNotImported(item.Xml.ContainingProject);
 
@@ -3636,7 +3636,7 @@ namespace Microsoft.Build.Evaluation
                     BuildEventContext.InvalidSubmissionId,
                     evaluationContext);
 
-                ErrorUtilities.VerifyThrow(LastEvaluationId != BuildEventContext.InvalidEvaluationId, "Evaluation should produce an evaluation ID");
+                VerifyThrow(LastEvaluationId != BuildEventContext.InvalidEvaluationId, "Evaluation should produce an evaluation ID");
 
                 // We have to do this after evaluation, because evaluation might have changed
                 // the imports being pulled in.
@@ -3657,7 +3657,7 @@ namespace Microsoft.Build.Evaluation
                 _evaluatedToolsetCollectionVersion = ProjectCollection.ToolsetsVersion;
                 _data.HasUnsavedChanges = false;
 
-                ErrorUtilities.VerifyThrow(!IsDirty, "Should not be dirty now");
+                VerifyThrow(!IsDirty, "Should not be dirty now");
             }
 
             /// <summary>
@@ -3703,11 +3703,11 @@ namespace Microsoft.Build.Evaluation
 
                 _loadSettings = loadSettings;
 
-                ErrorUtilities.VerifyThrow(LastEvaluationId == BuildEventContext.InvalidEvaluationId, "This is the first evaluation therefore the last evaluation id is invalid");
+                VerifyThrow(LastEvaluationId == BuildEventContext.InvalidEvaluationId, "This is the first evaluation therefore the last evaluation id is invalid");
 
                 ReevaluateIfNecessary(evaluationContext);
 
-                ErrorUtilities.VerifyThrow(LastEvaluationId != BuildEventContext.InvalidEvaluationId, "Last evaluation ID must be valid after the first evaluation");
+                VerifyThrow(LastEvaluationId != BuildEventContext.InvalidEvaluationId, "Last evaluation ID must be valid after the first evaluation");
 
                 // Cause the project to be actually loaded into the collection, and register for
                 // rename notifications so we can subsequently update the collection.
@@ -4290,7 +4290,7 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public void AddToAllEvaluatedPropertiesList(ProjectProperty property)
             {
-                ErrorUtilities.VerifyThrowInternalNull(property, nameof(property));
+                VerifyThrowInternalNull(property, nameof(property));
                 AllEvaluatedProperties.Add(property);
             }
 
@@ -4302,7 +4302,7 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public void AddToAllEvaluatedItemDefinitionMetadataList(ProjectMetadata itemDefinitionMetadatum)
             {
-                ErrorUtilities.VerifyThrowInternalNull(itemDefinitionMetadatum, nameof(itemDefinitionMetadatum));
+                VerifyThrowInternalNull(itemDefinitionMetadatum, nameof(itemDefinitionMetadatum));
                 AllEvaluatedItemDefinitionMetadata.Add(itemDefinitionMetadatum);
             }
 
@@ -4314,7 +4314,7 @@ namespace Microsoft.Build.Evaluation
             /// </summary>
             public void AddToAllEvaluatedItemsList(ProjectItem item)
             {
-                ErrorUtilities.VerifyThrowInternalNull(item, nameof(item));
+                VerifyThrowInternalNull(item, nameof(item));
                 AllEvaluatedItems.Add(item);
             }
 
@@ -4434,7 +4434,7 @@ namespace Microsoft.Build.Evaluation
             {
                 // This is for the debugger, which should not get a live Project object,
                 // so this is not implemented.
-                ErrorUtilities.ThrowInternalErrorUnreachable();
+                ThrowInternalErrorUnreachable();
                 return false;
             }
 
@@ -4528,7 +4528,7 @@ namespace Microsoft.Build.Evaluation
             /// </remarks>
             internal string GetPropertyValue(string name)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+                VerifyThrowArgumentLength(name, nameof(name));
 
                 ProjectProperty property = Properties[name];
                 string value = property?.EvaluatedValue ?? String.Empty;

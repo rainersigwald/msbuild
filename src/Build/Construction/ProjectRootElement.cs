@@ -36,7 +36,7 @@ namespace Microsoft.Build.Construction
     /// project file schema.
     /// This class and its related classes allow a complete MSBuild project or targets file to be read and written.
     /// Comments and whitespace cannot be edited through this model at present.
-    /// 
+    ///
     /// Each project root element is associated with exactly one ProjectCollection. This allows the owner of that project collection
     /// to control its lifetime and not be surprised by edits via another project collection.
     /// </summary>
@@ -111,9 +111,9 @@ namespace Microsoft.Build.Construction
         private string _escapedFullPath;
 
         /// <summary>
-        /// The directory that the project is in. 
+        /// The directory that the project is in.
         /// Essential for evaluating relative paths.
-        /// If the project is not loaded from disk, returns the current-directory from 
+        /// If the project is not loaded from disk, returns the current-directory from
         /// the time the project was loaded - this is the same behavior as Whidbey/Orcas.
         /// </summary>
         private string _directory;
@@ -161,8 +161,8 @@ namespace Microsoft.Build.Construction
         internal ProjectRootElement(XmlReader xmlReader, ProjectRootElementCacheBase projectRootElementCache, bool isExplicitlyLoaded,
             bool preserveFormatting)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(xmlReader, nameof(xmlReader));
-            ErrorUtilities.VerifyThrowArgumentNull(projectRootElementCache, nameof(projectRootElementCache));
+            VerifyThrowArgumentNull(xmlReader, nameof(xmlReader));
+            VerifyThrowArgumentNull(projectRootElementCache, nameof(projectRootElementCache));
 
             IsExplicitlyLoaded = isExplicitlyLoaded;
             ProjectRootElementCache = projectRootElementCache;
@@ -180,7 +180,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         private ProjectRootElement(ProjectRootElementCacheBase projectRootElementCache, NewProjectFileOptions projectFileOptions)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectRootElementCache, nameof(projectRootElementCache));
+            VerifyThrowArgumentNull(projectRootElementCache, nameof(projectRootElementCache));
 
             ProjectRootElementCache = projectRootElementCache;
             _directory = NativeMethodsShared.GetCurrentDirectory();
@@ -214,9 +214,9 @@ namespace Microsoft.Build.Construction
                 bool preserveFormatting
             )
         {
-            ErrorUtilities.VerifyThrowArgumentLength(path, nameof(path));
-            ErrorUtilities.VerifyThrowInternalRooted(path);
-            ErrorUtilities.VerifyThrowArgumentNull(projectRootElementCache, nameof(projectRootElementCache));
+            VerifyThrowArgumentLength(path, nameof(path));
+            VerifyThrowInternalRooted(path);
+            VerifyThrowArgumentNull(projectRootElementCache, nameof(projectRootElementCache));
             ProjectRootElementCache = projectRootElementCache;
 
             IncrementVersion();
@@ -238,8 +238,8 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         private ProjectRootElement(XmlDocumentWithLocation document, ProjectRootElementCacheBase  projectRootElementCache)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(document, nameof(document));
-            ErrorUtilities.VerifyThrowArgumentNull(projectRootElementCache, nameof(projectRootElementCache));
+            VerifyThrowArgumentNull(document, nameof(document));
+            VerifyThrowArgumentNull(projectRootElementCache, nameof(projectRootElementCache));
 
             ProjectRootElementCache = projectRootElementCache;
             _directory = NativeMethodsShared.GetCurrentDirectory();
@@ -271,13 +271,13 @@ namespace Microsoft.Build.Construction
         internal event EventHandler<ProjectXmlChangedEventArgs> OnProjectXmlChanged;
 
         /// <summary>
-        /// Condition should never be set, but the getter returns null instead of throwing 
+        /// Condition should never be set, but the getter returns null instead of throwing
         /// because a nonexistent condition is implicitly true
         /// </summary>
         public override string Condition
         {
             get => null;
-            set => ErrorUtilities.ThrowInvalidOperation("OM_CannotGetSetCondition");
+            set => ThrowInvalidOperation("OM_CannotGetSetCondition");
         }
 
         #region ChildEnumerators
@@ -366,10 +366,10 @@ namespace Microsoft.Build.Construction
         #endregion
 
         /// <summary>
-        /// The directory that the project is in. 
+        /// The directory that the project is in.
         /// Essential for evaluating relative paths.
         /// Is never null, even if the FullPath does not contain directory information.
-        /// If the project has not been loaded from disk and has not been given a path, returns the current-directory from 
+        /// If the project has not been loaded from disk and has not been given a path, returns the current-directory from
         /// the time the project was loaded - this is the same behavior as Whidbey/Orcas.
         /// If the project has not been loaded from disk but has been given a path, this path may not exist.
         /// </summary>
@@ -397,7 +397,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, nameof(value));
+                VerifyThrowArgumentLength(value, nameof(value));
                 if (Link != null)
                 {
                     RootLink.FullPath = value;
@@ -582,20 +582,20 @@ namespace Microsoft.Build.Construction
         /// Version number of this object.
         /// A host can compare this to a stored version number to determine whether
         /// a project's XML has changed, even if it has also been saved since.
-        /// 
+        ///
         /// The actual value is meaningless: an edit may increment it more than once,
         /// so it should only be compared to a stored value.
         /// </summary>
         /// <remarks>
-        /// Used by the Project class to figure whether changes have occurred that 
+        /// Used by the Project class to figure whether changes have occurred that
         /// it might want to pick up by reevaluation.
-        /// 
+        ///
         /// Used by the ProjectRootElement class to determine whether it needs to save.
-        /// 
+        ///
         /// This number is unique to the appdomain. That means that it is possible
         /// to know when a ProjectRootElement has been unloaded (perhaps after modification) and
         /// reloaded -- the version won't reset to '0'.
-        /// 
+        ///
         /// We're assuming we don't have over 2 billion edits.
         /// </remarks>
         public int Version
@@ -629,7 +629,7 @@ namespace Microsoft.Build.Construction
         {
             get
             {
-                ErrorUtilities.ThrowInternalError("Should not evaluate this");
+                ThrowInternalError("Should not evaluate this");
                 return null;
             }
         }
@@ -687,11 +687,11 @@ namespace Microsoft.Build.Construction
         internal bool IsMemberOfProjectCollection => _projectFileLocation != null;
 
         /// <summary>
-        /// Indicates whether there are any targets in this project 
+        /// Indicates whether there are any targets in this project
         /// that use the "Returns" attribute.  If so, then this project file
         /// is automatically assumed to be "Returns-enabled", and the default behavior
-        /// for targets without Returns attributes changes from using the Outputs to 
-        /// returning nothing by default. 
+        /// for targets without Returns attributes changes from using the Outputs to
+        /// returning nothing by default.
         /// </summary>
         internal bool ContainsTargetsWithReturnsAttribute { get; set; }
 
@@ -744,7 +744,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public static ProjectRootElement Create(ProjectCollection projectCollection, NewProjectFileOptions projectFileOptions)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
 
             return Create(projectCollection.ProjectRootElementCache, projectFileOptions);
         }
@@ -782,8 +782,8 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public static ProjectRootElement Create(string path, ProjectCollection projectCollection, NewProjectFileOptions newProjectFileOptions)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(path, nameof(path));
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentLength(path, nameof(path));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
 
             var projectRootElement = new ProjectRootElement(
                 projectCollection.ProjectRootElementCache,
@@ -819,7 +819,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public static ProjectRootElement Create(XmlReader xmlReader, ProjectCollection projectCollection, bool preserveFormatting)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
 
             return new ProjectRootElement(xmlReader, projectCollection.ProjectRootElementCache, true /*Explicitly loaded*/,
                 preserveFormatting);
@@ -852,8 +852,8 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public static ProjectRootElement Open(string path, ProjectCollection projectCollection, bool? preserveFormatting)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(path, nameof(path));
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentLength(path, nameof(path));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
 
             path = FileUtilities.NormalizePath(path);
 
@@ -872,7 +872,7 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         public static ProjectRootElement TryOpen(string path)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(path, nameof(path));
+            VerifyThrowArgumentLength(path, nameof(path));
 
             return TryOpen(path, ProjectCollection.GlobalProjectCollection);
         }
@@ -909,8 +909,8 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         public static ProjectRootElement TryOpen(string path, ProjectCollection projectCollection, bool? preserveFormatting)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(path, nameof(path));
-            ErrorUtilities.VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
+            VerifyThrowArgumentLength(path, nameof(path));
+            VerifyThrowArgumentNull(projectCollection, nameof(projectCollection));
 
             path = FileUtilities.NormalizePath(path);
 
@@ -926,7 +926,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectImportElement AddImport(string project)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(project, nameof(project));
+            VerifyThrowArgumentLength(project, nameof(project));
 
             ProjectImportGroupElement importGroupToAddTo =
                 ImportGroupsReversed.FirstOrDefault(importGroup => importGroup.Condition.Length <= 0);
@@ -983,8 +983,8 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         public ProjectItemElement AddItem(string itemType, string include, IEnumerable<KeyValuePair<string, string>> metadata)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(itemType, nameof(itemType));
-            ErrorUtilities.VerifyThrowArgumentLength(include, nameof(include));
+            VerifyThrowArgumentLength(itemType, nameof(itemType));
+            VerifyThrowArgumentLength(include, nameof(include));
 
             ProjectItemGroupElement itemGroupToAddTo = null;
 
@@ -1060,7 +1060,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectItemDefinitionElement AddItemDefinition(string itemType)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(itemType, nameof(itemType));
+            VerifyThrowArgumentLength(itemType, nameof(itemType));
 
             ProjectItemDefinitionGroupElement itemDefinitionGroupToAddTo = null;
 
@@ -1304,7 +1304,7 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Creates an import group. 
+        /// Creates an import group.
         /// Caller must add it to the location of choice in the project.
         /// </summary>
         public ProjectImportGroupElement CreateImportGroupElement()
@@ -1426,7 +1426,7 @@ namespace Microsoft.Build.Construction
         /// Creates a using task.
         /// Caller must add it to the location of choice in the project.
         /// Exactly one of assembly file and assembly name must be provided.
-        /// Also allows providing optional runtime and architecture specifiers.  Null is OK. 
+        /// Also allows providing optional runtime and architecture specifiers.  Null is OK.
         /// </summary>
         public ProjectUsingTaskElement CreateUsingTaskElement(string taskName, string assemblyFile, string assemblyName, string runtime, string architecture)
         {
@@ -1503,7 +1503,7 @@ namespace Microsoft.Build.Construction
                 return;
             }
 
-            ErrorUtilities.VerifyThrowInvalidOperation(_projectFileLocation != null, "OM_MustSetFileNameBeforeSave");
+            VerifyThrowInvalidOperation(_projectFileLocation != null, "OM_MustSetFileNameBeforeSave");
 
             Directory.CreateDirectory(DirectoryPath);
 
@@ -1527,8 +1527,8 @@ namespace Microsoft.Build.Construction
                 FileInfo fileInfo = FileUtilities.GetFileInfoNoThrow(_projectFileLocation.File);
 
                 // If the file was deleted by a race with someone else immediately after it was written above
-                // then we obviously can't read the write time. In this obscure case, we'll retain the 
-                // older last write time, which at worst would cause the next load to unnecessarily 
+                // then we obviously can't read the write time. In this obscure case, we'll retain the
+                // older last write time, which at worst would cause the next load to unnecessarily
                 // come from disk.
                 if (fileInfo != null)
                 {
@@ -1606,12 +1606,12 @@ namespace Microsoft.Build.Construction
         /// <summary>
         /// Reload the existing project root element from its file.
         /// An <see cref="InvalidOperationException"/> is thrown if the project root element is not associated with any file on disk.
-        /// 
+        ///
         /// See <see cref="ProjectRootElement.ReloadFrom(XmlReader, bool, bool?)"/>
         /// </summary>
         public void Reload(bool throwIfUnsavedChanges = true, bool? preserveFormatting = null)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(!string.IsNullOrEmpty(FullPath), "ValueNotSet", $"{nameof(ProjectRootElement)}.{nameof(FullPath)}");
+            VerifyThrowInvalidOperation(!string.IsNullOrEmpty(FullPath), "ValueNotSet", $"{nameof(ProjectRootElement)}.{nameof(FullPath)}");
 
             ReloadFrom(FullPath, throwIfUnsavedChanges, preserveFormatting);
         }
@@ -1619,12 +1619,12 @@ namespace Microsoft.Build.Construction
         /// <summary>
         /// Reload the existing project root element from the given path
         /// An <see cref="InvalidOperationException"/> is thrown if the path does not exist.
-        /// 
+        ///
         /// See <see cref="ProjectRootElement.ReloadFrom(XmlReader, bool, bool?)"/>
         /// </summary>
         public void ReloadFrom(string path, bool throwIfUnsavedChanges = true, bool? preserveFormatting = null)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(FileSystems.Default.FileExists(path), "FileToReloadFromDoesNotExist", path);
+            VerifyThrowInvalidOperation(FileSystems.Default.FileExists(path), "FileToReloadFromDoesNotExist", path);
 
             if (Link != null)
             {
@@ -1638,14 +1638,14 @@ namespace Microsoft.Build.Construction
 
         /// <summary>
         /// Reload the existing project root element from the given <paramref name="reader"/>
-        /// A reload operation completely replaces the state of this <see cref="ProjectRootElement"/> object. This operation marks the 
-        /// object as dirty (see <see cref="ProjectRootElement.MarkDirty"/> for side effects). 
-        /// 
+        /// A reload operation completely replaces the state of this <see cref="ProjectRootElement"/> object. This operation marks the
+        /// object as dirty (see <see cref="ProjectRootElement.MarkDirty"/> for side effects).
+        ///
         /// If the new state has invalid XML or MSBuild syntax, then this method throws an <see cref="InvalidProjectFileException"/>.
         /// When this happens, the state of this object does not change.
-        /// 
+        ///
         /// Reloading from an XMLReader will retain the previous root element location (<see cref="FullPath"/>, <see cref="DirectoryPath"/>, <see cref="ProjectFileLocation"/>).
-        /// 
+        ///
         /// </summary>
         /// <param name="reader">Reader to read from</param>
         /// <param name="throwIfUnsavedChanges">
@@ -1740,7 +1740,7 @@ namespace Microsoft.Build.Construction
         internal static ProjectRootElement Open(string path, ProjectRootElementCacheBase projectRootElementCache, bool isExplicitlyLoaded,
             bool? preserveFormatting)
         {
-            ErrorUtilities.VerifyThrowInternalRooted(path);
+            VerifyThrowInternalRooted(path);
 
             ProjectRootElement projectRootElement = projectRootElementCache.Get(path,
                 preserveFormatting ?? false ? s_openLoaderPreserveFormattingDelegate : s_openLoaderDelegate,
@@ -1760,7 +1760,7 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         internal static ProjectRootElement Open(XmlDocumentWithLocation document)
         {
-            ErrorUtilities.VerifyThrow(document.FullPath == null, "Only virtual documents supported");
+            VerifyThrow(document.FullPath == null, "Only virtual documents supported");
 
             return new ProjectRootElement(document, ProjectCollection.GlobalProjectCollection.ProjectRootElementCache);
         }
@@ -1772,7 +1772,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal static ProjectRootElement OpenProjectOrSolution(string fullPath, IDictionary<string, string> globalProperties, string toolsVersion, ProjectRootElementCacheBase projectRootElementCache, bool isExplicitlyLoaded)
         {
-            ErrorUtilities.VerifyThrowInternalRooted(fullPath);
+            VerifyThrowInternalRooted(fullPath);
 
             ProjectRootElement projectRootElement = projectRootElementCache.Get(
                 fullPath,
@@ -1790,7 +1790,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal XmlElementWithLocation CreateElement(string name)
         {
-            ErrorUtilities.VerifyThrow(Link == null, "External project");
+            VerifyThrow(Link == null, "External project");
             return (XmlElementWithLocation)XmlDocument.CreateElement(name, XmlNamespace);
         }
 
@@ -1800,7 +1800,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_CannotAcceptParent");
+            ThrowInvalidOperation("OM_CannotAcceptParent");
         }
 
         /// <summary>
@@ -1846,8 +1846,8 @@ namespace Microsoft.Build.Construction
         /// <param name="project">The dirtied project.</param>
         internal void MarkProjectDirty(Project project)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(project, nameof(project));
-            ErrorUtilities.VerifyThrow(Link == null, "External project");
+            VerifyThrowArgumentNull(project, nameof(project));
+            VerifyThrow(Link == null, "External project");
 
             // Only bubble this event up if the cache knows about this PRE, which is equivalent to
             // whether this PRE has a path.
@@ -2015,7 +2015,7 @@ namespace Microsoft.Build.Construction
                 bool preserveFormatting
             )
         {
-            ErrorUtilities.VerifyThrowInternalRooted(projectFile);
+            VerifyThrowInternalRooted(projectFile);
 
             try
             {
@@ -2050,7 +2050,7 @@ namespace Microsoft.Build.Construction
         /// <param name="loadAsReadOnly">Whether to load the file in read-only mode.</param>
         private XmlDocumentWithLocation LoadDocument(string fullPath, bool preserveFormatting, bool loadAsReadOnly)
         {
-            ErrorUtilities.VerifyThrowInternalRooted(fullPath);
+            VerifyThrowInternalRooted(fullPath);
 
             var document = new XmlDocumentWithLocation(loadAsReadOnly ? true : (bool?) null)
             {
@@ -2136,7 +2136,7 @@ namespace Microsoft.Build.Construction
         {
             if (HasUnsavedChanges && throwIfUnsavedChanges)
             {
-                ErrorUtilities.ThrowInvalidOperation("NoReloadOnUnsavedChanges", null);
+                ThrowInvalidOperation("NoReloadOnUnsavedChanges", null);
             }
         }
     }

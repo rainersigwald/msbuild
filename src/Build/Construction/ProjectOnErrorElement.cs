@@ -27,7 +27,7 @@ namespace Microsoft.Build.Construction
         internal ProjectOnErrorElement(XmlElementWithLocation xmlElement, ProjectTargetElement parent, ProjectRootElement project)
             : base(xmlElement, parent, project)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.Build.Construction
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentLength(value, XMakeAttributes.executeTargets);
+                VerifyThrowArgumentLength(value, XMakeAttributes.executeTargets);
                 SetOrRemoveAttribute(XMakeAttributes.executeTargets, value, "Set OnError ExecuteTargets {0}", value);
             }
         }
@@ -74,7 +74,7 @@ namespace Microsoft.Build.Construction
             XmlElementWithLocation element = containingProject.CreateElement(XMakeElements.onError);
 
             var onError = new ProjectOnErrorElement(element, containingProject) { ExecuteTargetsAttribute = executeTargets };
-            
+
             return onError;
         }
 
@@ -84,7 +84,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectTargetElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectTargetElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

@@ -45,7 +45,7 @@ namespace Microsoft.Build.Construction
         internal ProjectTaskElement(XmlElementWithLocation xmlElement, ProjectTargetElement parent, ProjectRootElement containingProject)
             : base(xmlElement, parent, containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Microsoft.Build.Construction
         {
             get
             {
-                ErrorUtilities.VerifyThrow(Link == null, "External project");
+                VerifyThrow(Link == null, "External project");
 
                 lock (_locker)
                 {
@@ -228,8 +228,8 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectOutputElement AddOutputItem(string taskParameter, string itemType)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(taskParameter, nameof(taskParameter));
-            ErrorUtilities.VerifyThrowArgumentLength(itemType, nameof(itemType));
+            VerifyThrowArgumentLength(taskParameter, nameof(taskParameter));
+            VerifyThrowArgumentLength(itemType, nameof(itemType));
 
             return AddOutputItem(taskParameter, itemType, null);
         }
@@ -258,8 +258,8 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectOutputElement AddOutputProperty(string taskParameter, string propertyName)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(taskParameter, nameof(taskParameter));
-            ErrorUtilities.VerifyThrowArgumentLength(propertyName, nameof(propertyName));
+            VerifyThrowArgumentLength(taskParameter, nameof(taskParameter));
+            VerifyThrowArgumentLength(propertyName, nameof(propertyName));
 
             return AddOutputProperty(taskParameter, propertyName, null);
         }
@@ -295,7 +295,7 @@ namespace Microsoft.Build.Construction
 
             lock (_locker)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+                VerifyThrowArgumentLength(name, nameof(name));
 
                 EnsureParametersInitialized();
 
@@ -321,9 +321,9 @@ namespace Microsoft.Build.Construction
 
             lock (_locker)
             {
-                ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
-                ErrorUtilities.VerifyThrowArgumentNull(unevaluatedValue, nameof(unevaluatedValue));
-                ErrorUtilities.VerifyThrowArgument(!XMakeAttributes.IsSpecialTaskAttribute(name), "CannotAccessKnownAttributes", name);
+                VerifyThrowArgumentLength(name, nameof(name));
+                VerifyThrowArgumentNull(unevaluatedValue, nameof(unevaluatedValue));
+                VerifyThrowArgument(!XMakeAttributes.IsSpecialTaskAttribute(name), "CannotAccessKnownAttributes", name);
 
                 _parameters = null;
                 XmlElement.SetAttribute(name, unevaluatedValue);
@@ -410,7 +410,7 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         internal static ProjectTaskElement CreateDisconnected(string name, ProjectRootElement containingProject)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentLength(name, nameof(name));
 
             XmlElementWithLocation element = containingProject.CreateElement(name);
 
@@ -423,7 +423,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectTargetElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectTargetElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />
@@ -448,7 +448,7 @@ namespace Microsoft.Build.Construction
                     {
                         // By pulling off and caching the Location early here, it becomes frozen for the life of this object.
                         // That means that if the name of the file is changed after first load (possibly from null) it will
-                        // remain the old value here. Correctly, this should cache the attribute not the location. Fixing 
+                        // remain the old value here. Correctly, this should cache the attribute not the location. Fixing
                         // that will need profiling, though, as this cache was added for performance.
                         _parameters[attribute.Name] = (attribute.Value, attribute.Location);
                     }

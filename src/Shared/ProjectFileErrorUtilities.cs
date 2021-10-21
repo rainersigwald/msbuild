@@ -14,8 +14,8 @@ namespace Microsoft.Build.Shared
     {
         /// <summary>
         /// This method is used to flag errors in the project file being processed. Do NOT use this method in place of
-        /// ErrorUtilities.VerifyThrow(), because ErrorUtilities.VerifyThrow() is used to flag internal/programming errors.
-        /// 
+        /// VerifyThrow(), because VerifyThrow() is used to flag internal/programming errors.
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments is expensive, because memory is allocated for
         /// the array of arguments -- do not call this method repeatedly in performance-critical scenarios
         /// </summary>
@@ -34,8 +34,8 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// This method is used to flag errors in the project file being processed. Do NOT use this method in place of
-        /// ErrorUtilities.VerifyThrow(), because ErrorUtilities.VerifyThrow() is used to flag internal/programming errors.
-        /// 
+        /// VerifyThrow(), because VerifyThrow() is used to flag internal/programming errors.
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments is expensive, because memory is allocated for
         /// the array of arguments -- do not call this method repeatedly in performance-critical scenarios
         /// </summary>
@@ -56,8 +56,8 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// This method is used to flag errors in the project file being processed. Do NOT use this method in place of
-        /// ErrorUtilities.VerifyThrow(), because ErrorUtilities.VerifyThrow() is used to flag internal/programming errors.
-        /// 
+        /// VerifyThrow(), because VerifyThrow() is used to flag internal/programming errors.
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments is expensive, because memory is allocated for
         /// the array of arguments -- do not call this method repeatedly in performance-critical scenarios
         /// </summary>
@@ -78,8 +78,8 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// This method is used to flag errors in the project file being processed. Do NOT use this method in place of
-        /// ErrorUtilities.VerifyThrow(), because ErrorUtilities.VerifyThrow() is used to flag internal/programming errors.
-        /// 
+        /// VerifyThrow(), because VerifyThrow() is used to flag internal/programming errors.
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments is expensive, because memory is allocated for
         /// the array of arguments -- do not call this method repeatedly in performance-critical scenarios
         /// </summary>
@@ -100,8 +100,8 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// This method is used to flag errors in the project file being processed. Do NOT use this method in place of
-        /// ErrorUtilities.VerifyThrow(), because ErrorUtilities.VerifyThrow() is used to flag internal/programming errors.
-        /// 
+        /// VerifyThrow(), because VerifyThrow() is used to flag internal/programming errors.
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments is expensive, because memory is allocated for
         /// the array of arguments -- do not call this method repeatedly in performance-critical scenarios
         /// </summary>
@@ -124,8 +124,8 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// This method is used to flag errors in the project file being processed. Do NOT use this method in place of
-        /// ErrorUtilities.VerifyThrow(), because ErrorUtilities.VerifyThrow() is used to flag internal/programming errors.
-        /// 
+        /// VerifyThrow(), because VerifyThrow() is used to flag internal/programming errors.
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments is expensive, because memory is allocated for
         /// the array of arguments -- do not call this method repeatedly in performance-critical scenarios
         /// </summary>
@@ -145,7 +145,7 @@ namespace Microsoft.Build.Shared
             params object[] args
         )
         {
-            ErrorUtilities.VerifyThrow(projectFile != null, "Must specify the invalid project file. If project file is not available, use VerifyThrowInvalidProject() and pass in the XML node instead.");
+            VerifyThrow(projectFile != null, "Must specify the invalid project file. If project file is not available, use VerifyThrowInvalidProject() and pass in the XML node instead.");
 
 #if DEBUG
             if (errorSubCategoryResourceName != null)

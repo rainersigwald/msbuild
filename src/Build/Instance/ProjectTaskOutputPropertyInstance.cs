@@ -55,11 +55,11 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal ProjectTaskOutputPropertyInstance(string propertyName, string taskParameter, string condition, ElementLocation location, ElementLocation propertyNameLocation, ElementLocation taskParameterLocation, ElementLocation conditionLocation)
         {
-            ErrorUtilities.VerifyThrowInternalLength(propertyName, nameof(propertyName));
-            ErrorUtilities.VerifyThrowInternalLength(taskParameter, nameof(taskParameter));
-            ErrorUtilities.VerifyThrowInternalNull(location, nameof(location));
-            ErrorUtilities.VerifyThrowInternalNull(propertyNameLocation, nameof(propertyNameLocation));
-            ErrorUtilities.VerifyThrowInternalNull(taskParameterLocation, nameof(taskParameterLocation));
+            VerifyThrowInternalLength(propertyName, nameof(propertyName));
+            VerifyThrowInternalLength(taskParameter, nameof(taskParameter));
+            VerifyThrowInternalNull(location, nameof(location));
+            VerifyThrowInternalNull(propertyNameLocation, nameof(propertyNameLocation));
+            VerifyThrowInternalNull(taskParameterLocation, nameof(taskParameterLocation));
 
             _propertyName = propertyName;
             _taskParameter = taskParameter;

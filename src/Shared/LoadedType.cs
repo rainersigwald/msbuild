@@ -31,8 +31,8 @@ namespace Microsoft.Build.Shared
         /// <param name="loadedAssembly">The assembly which has been loaded, if any</param>
         internal LoadedType(Type type, AssemblyLoadInfo assemblyLoadInfo, Assembly loadedAssembly)
         {
-            ErrorUtilities.VerifyThrow(type != null, "We must have the type.");
-            ErrorUtilities.VerifyThrow(assemblyLoadInfo != null, "We must have the assembly the type was loaded from.");
+            VerifyThrow(type != null, "We must have the type.");
+            VerifyThrow(assemblyLoadInfo != null, "We must have the assembly the type was loaded from.");
 
             _type = type;
             _assembly = assemblyLoadInfo;

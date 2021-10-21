@@ -23,12 +23,12 @@ namespace Microsoft.Build.CommandLine
         #region Methods
 
         /// <summary>
-        /// Validates a project file against the given schema.  If no schema is given, validates 
+        /// Validates a project file against the given schema.  If no schema is given, validates
         /// against the default schema
         /// </summary>
         /// <param name="projectFile">Path of the file to validate.</param>
         /// <param name="schemaFile">Can be null.</param>
-        /// <param name="binPath">Path to the framework directory where the default schema for 
+        /// <param name="binPath">Path to the framework directory where the default schema for
         /// this ToolsVersion can be found.</param>
         /// <returns>True if the project was successfully validated against the given schema, false otherwise</returns>
         internal static void VerifyProjectSchema
@@ -38,8 +38,8 @@ namespace Microsoft.Build.CommandLine
             string binPath
         )
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectFile, nameof(projectFile));
-            ErrorUtilities.VerifyThrowArgumentNull(binPath, nameof(binPath));
+            VerifyThrowArgumentNull(projectFile, nameof(projectFile));
+            VerifyThrowArgumentNull(binPath, nameof(binPath));
 
             if (string.IsNullOrEmpty(schemaFile))
             {
@@ -48,13 +48,13 @@ namespace Microsoft.Build.CommandLine
 
             if (FileSystems.Default.FileExists(schemaFile))
             {
-                // Print the schema file we're using, particularly since it can vary 
+                // Print the schema file we're using, particularly since it can vary
                 // according to the toolset being used
                 Console.WriteLine(AssemblyResources.GetString("SchemaFileLocation"), schemaFile);
             }
             else
             {
-                // If we've gotten to this point, there is no schema to validate against -- just exit. 
+                // If we've gotten to this point, there is no schema to validate against -- just exit.
                 InitializationException.Throw
                     (
                     ResourceUtilities.FormatResourceStringStripCodeAndKeyword("SchemaNotFoundErrorWithFile", schemaFile),
@@ -76,8 +76,8 @@ namespace Microsoft.Build.CommandLine
             string schemaFile
         )
         {
-            ErrorUtilities.VerifyThrowArgumentNull(schemaFile, nameof(schemaFile));
-            ErrorUtilities.VerifyThrowArgumentNull(projectFile, nameof(projectFile));
+            VerifyThrowArgumentNull(schemaFile, nameof(schemaFile));
+            VerifyThrowArgumentNull(projectFile, nameof(projectFile));
 
             // Options for XmlReader object can be set only in constructor. After the object is created, they
             // become read-only. Because of that we need to create
@@ -169,8 +169,8 @@ namespace Microsoft.Build.CommandLine
         }
 
         /// <summary>
-        /// Given the parameters passed in, if the condition is false, builds an 
-        /// error message and throws an InitializationException with that message. 
+        /// Given the parameters passed in, if the condition is false, builds an
+        /// error message and throws an InitializationException with that message.
         /// </summary>
         private static void VerifyThrowInitializationExceptionWithResource
                 (
@@ -200,8 +200,8 @@ namespace Microsoft.Build.CommandLine
         }
 
         /// <summary>
-        /// Given the parameters passed in, builds an error message and throws an 
-        /// InitializationException with that message. 
+        /// Given the parameters passed in, builds an error message and throws an
+        /// InitializationException with that message.
         /// </summary>
         private static void ThrowInitializationExceptionWithResource
                 (

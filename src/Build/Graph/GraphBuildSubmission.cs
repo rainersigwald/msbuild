@@ -46,8 +46,8 @@ namespace Microsoft.Build.Graph
         /// </summary>
         internal GraphBuildSubmission(BuildManager buildManager, int submissionId, GraphBuildRequestData requestData)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(buildManager, nameof(buildManager));
-            ErrorUtilities.VerifyThrowArgumentNull(requestData, nameof(requestData));
+            VerifyThrowArgumentNull(buildManager, nameof(buildManager));
+            VerifyThrowArgumentNull(requestData, nameof(requestData));
 
             BuildManager = buildManager;
             SubmissionId = submissionId;
@@ -114,7 +114,7 @@ namespace Microsoft.Build.Graph
         /// <exception cref="System.InvalidOperationException">The request has already been started or is already complete.</exception>
         public void ExecuteAsync(GraphBuildSubmissionCompleteCallback callback, object context)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(!IsCompleted, "SubmissionAlreadyComplete");
+            VerifyThrowInvalidOperation(!IsCompleted, "SubmissionAlreadyComplete");
             _completionCallback = callback;
             AsyncContext = context;
             BuildManager.ExecuteSubmission(this);
@@ -125,8 +125,8 @@ namespace Microsoft.Build.Graph
         /// </summary>
         internal void CompleteResults(GraphBuildResult result)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(result, nameof(result));
-            ErrorUtilities.VerifyThrow(result.SubmissionId == SubmissionId, "GraphBuildResult's submission id doesn't match GraphBuildSubmission's");
+            VerifyThrowArgumentNull(result, nameof(result));
+            VerifyThrow(result.SubmissionId == SubmissionId, "GraphBuildResult's submission id doesn't match GraphBuildSubmission's");
 
             bool hasCompleted = (Interlocked.Exchange(ref _completionInvoked, 1) == 1);
             if (!hasCompleted)

@@ -25,7 +25,7 @@ namespace Microsoft.Build.Tasks
         {
             get
             {
-                ErrorUtilities.VerifyThrowArgumentNull(_list, nameof(List));
+                VerifyThrowArgumentNull(_list, nameof(List));
                 return _list;
             }
             set => _list = value;
@@ -55,7 +55,7 @@ namespace Microsoft.Build.Tasks
         public bool CaseSensitive { get; set; }
 
         /// <summary>
-        /// Whether or not to return the last match, instead of 
+        /// Whether or not to return the last match, instead of
         /// the first one
         /// </summary>
         public bool FindLastMatch { get; set; }

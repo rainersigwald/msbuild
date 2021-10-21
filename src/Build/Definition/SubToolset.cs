@@ -14,7 +14,7 @@ using ObjectModel = System.Collections.ObjectModel;
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>
-    /// Aggregation of a set of properties that correspond to a particular sub-toolset.  
+    /// Aggregation of a set of properties that correspond to a particular sub-toolset.
     /// </summary>
     [DebuggerDisplay("SubToolsetVersion={SubToolsetVersion} #Properties={_properties.Count}")]
     public class SubToolset : ITranslatable
@@ -26,15 +26,15 @@ namespace Microsoft.Build.Evaluation
 
         /// <summary>
         /// The properties defined by the subtoolset.
-        /// </summary> 
+        /// </summary>
         private PropertyDictionary<ProjectPropertyInstance> _properties;
 
         /// <summary>
-        /// Constructor that associates a set of properties with a sub-toolset version.  
+        /// Constructor that associates a set of properties with a sub-toolset version.
         /// </summary>
         internal SubToolset(string subToolsetVersion, PropertyDictionary<ProjectPropertyInstance> properties)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(subToolsetVersion, nameof(subToolsetVersion));
+            VerifyThrowArgumentLength(subToolsetVersion, nameof(subToolsetVersion));
 
             _subToolsetVersion = subToolsetVersion;
             _properties = properties;
@@ -60,7 +60,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// The properties that correspond to this particular sub-toolset. 
+        /// The properties that correspond to this particular sub-toolset.
         /// </summary>
         public IDictionary<string, ProjectPropertyInstance> Properties
         {

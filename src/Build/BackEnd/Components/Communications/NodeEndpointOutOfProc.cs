@@ -34,12 +34,12 @@ namespace Microsoft.Build.BackEnd
         /// <param name="enableReuse">Whether this node may be reused for a later build.</param>
         /// <param name="lowPriority">Whether this node is low priority.</param>
         internal NodeEndpointOutOfProc(
-            string pipeName, 
+            string pipeName,
             IBuildComponentHost host,
             bool enableReuse,
             bool lowPriority)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(host, nameof(host));
+            VerifyThrowArgumentNull(host, nameof(host));
             _componentHost = host;
             _enableReuse = enableReuse;
             _lowPriority = lowPriority;

@@ -87,10 +87,10 @@ namespace Microsoft.Build.BackEnd.SdkResolution
         /// <inheritdoc cref="ISdkResolverService.ResolveSdk"/>
         public override SdkResult ResolveSdk(int submissionId, SdkReference sdk, LoggingContext loggingContext, ElementLocation sdkReferenceLocation, string solutionPath, string projectPath, bool interactive, bool isRunningInVisualStudio)
         {
-            ErrorUtilities.VerifyThrowInternalNull(sdk, nameof(sdk));
-            ErrorUtilities.VerifyThrowInternalNull(loggingContext, nameof(loggingContext));
-            ErrorUtilities.VerifyThrowInternalNull(sdkReferenceLocation, nameof(sdkReferenceLocation));
-            ErrorUtilities.VerifyThrowInternalLength(projectPath, nameof(projectPath));
+            VerifyThrowInternalNull(sdk, nameof(sdk));
+            VerifyThrowInternalNull(loggingContext, nameof(loggingContext));
+            VerifyThrowInternalNull(sdkReferenceLocation, nameof(sdkReferenceLocation));
+            VerifyThrowInternalLength(projectPath, nameof(projectPath));
 
             return _cachedSdkResolver.ResolveSdk(submissionId, sdk, loggingContext, sdkReferenceLocation, solutionPath, projectPath, interactive, isRunningInVisualStudio);
         }
@@ -208,7 +208,7 @@ namespace Microsoft.Build.BackEnd.SdkResolution
                             break;
 
                         default:
-                            ErrorUtilities.ThrowInternalError("waitId {0} out of range.", waitId);
+                            ThrowInternalError("waitId {0} out of range.", waitId);
                             break;
                     }
                 }

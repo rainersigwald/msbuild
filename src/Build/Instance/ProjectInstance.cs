@@ -262,8 +262,8 @@ namespace Microsoft.Build.Execution
         /// <returns>A new project instance</returns>
         private ProjectInstance(string projectFile, IDictionary<string, string> globalProperties, string toolsVersion, string subToolsetVersion, ProjectCollection projectCollection, ProjectLoadSettings? projectLoadSettings, EvaluationContext evaluationContext)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(projectFile, nameof(projectFile));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentLength(projectFile, nameof(projectFile));
+            VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
 
             // We do not control the current directory at this point, but assume that if we were
             // passed a relative path, the caller assumes we will prepend the current directory.
@@ -332,7 +332,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         public ProjectInstance(Project project, ProjectInstanceSettings settings)
         {
-            ErrorUtilities.VerifyThrowInternalNull(project, nameof(project));
+            VerifyThrowInternalNull(project, nameof(project));
 
             var projectPath = project.FullPath;
             _directory = Path.GetDirectoryName(projectPath);
@@ -475,9 +475,9 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal ProjectInstance(string projectFile, IDictionary<string, string> globalProperties, string toolsVersion, BuildParameters buildParameters, ILoggingService loggingService, BuildEventContext buildEventContext, ISdkResolverService sdkResolverService, int submissionId, ProjectLoadSettings? projectLoadSettings)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(projectFile, nameof(projectFile));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-            ErrorUtilities.VerifyThrowArgumentNull(buildParameters, nameof(buildParameters));
+            VerifyThrowArgumentLength(projectFile, nameof(projectFile));
+            VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentNull(buildParameters, nameof(buildParameters));
 
             ProjectRootElement xml = ProjectRootElement.OpenProjectOrSolution(projectFile, globalProperties, toolsVersion, buildParameters.ProjectRootElementCache, false /*Not explicitly loaded*/);
 
@@ -491,9 +491,9 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal ProjectInstance(ProjectRootElement xml, IDictionary<string, string> globalProperties, string toolsVersion, BuildParameters buildParameters, ILoggingService loggingService, BuildEventContext buildEventContext, ISdkResolverService sdkResolverService, int submissionId)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(xml, nameof(xml));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-            ErrorUtilities.VerifyThrowArgumentNull(buildParameters, nameof(buildParameters));
+            VerifyThrowArgumentNull(xml, nameof(xml));
+            VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentNull(buildParameters, nameof(buildParameters));
             Initialize(xml, globalProperties, toolsVersion, null, 0 /* no solution version specified */, buildParameters, loggingService, buildEventContext, sdkResolverService, submissionId);
         }
 
@@ -503,9 +503,9 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal ProjectInstance(Evaluation.Project.Data data, string directory, string fullPath, HostServices hostServices, PropertyDictionary<ProjectPropertyInstance> environmentVariableProperties, ProjectInstanceSettings settings)
         {
-            ErrorUtilities.VerifyThrowInternalNull(data, nameof(data));
-            ErrorUtilities.VerifyThrowInternalLength(directory, nameof(directory));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(fullPath, nameof(fullPath));
+            VerifyThrowInternalNull(data, nameof(data));
+            VerifyThrowInternalLength(directory, nameof(directory));
+            VerifyThrowArgumentLengthIfNotNull(fullPath, nameof(fullPath));
 
             _directory = directory;
             _projectFileLocation = ElementLocation.Create(fullPath);
@@ -556,7 +556,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         private ProjectInstance(ProjectInstance that, bool isImmutable, RequestedProjectState filter = null)
         {
-            ErrorUtilities.VerifyThrow(filter == null || isImmutable,
+            VerifyThrow(filter == null || isImmutable,
                 "The result of a filtered ProjectInstance clone must be immutable.");
 
             _directory = that._directory;
@@ -1119,7 +1119,7 @@ namespace Microsoft.Build.Execution
         {
             get
             {
-                ErrorUtilities.ThrowInternalErrorUnreachable();
+                ThrowInternalErrorUnreachable();
                 return null;
             }
         }
@@ -1273,7 +1273,7 @@ namespace Microsoft.Build.Execution
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "IItem is an internal interface; this is less confusing to outside customers. ")]
         public static string GetEvaluatedItemIncludeEscaped(ProjectItemInstance item)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+            VerifyThrowArgumentNull(item, nameof(item));
 
             return ((IItem)item).EvaluatedIncludeEscaped;
         }
@@ -1283,7 +1283,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         public static string GetEvaluatedItemIncludeEscaped(ProjectItemDefinitionInstance item)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+            VerifyThrowArgumentNull(item, nameof(item));
 
             return ((IItem)item).EvaluatedIncludeEscaped;
         }
@@ -1293,7 +1293,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         public static string GetMetadataValueEscaped(ProjectMetadataInstance metadatum)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(metadatum, nameof(metadatum));
+            VerifyThrowArgumentNull(metadatum, nameof(metadatum));
 
             return metadatum.EvaluatedValueEscaped;
         }
@@ -1304,7 +1304,7 @@ namespace Microsoft.Build.Execution
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "IItem is an internal interface; this is less confusing to outside customers. ")]
         public static string GetMetadataValueEscaped(ProjectItemInstance item, string name)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+            VerifyThrowArgumentNull(item, nameof(item));
 
             return ((IItem)item).GetMetadataValueEscaped(name);
         }
@@ -1314,7 +1314,7 @@ namespace Microsoft.Build.Execution
         /// </summary>
         public static string GetMetadataValueEscaped(ProjectItemDefinitionInstance item, string name)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(item, nameof(item));
+            VerifyThrowArgumentNull(item, nameof(item));
 
             return ((IItem)item).GetMetadataValueEscaped(name);
         }
@@ -1325,7 +1325,7 @@ namespace Microsoft.Build.Execution
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "IProperty is an internal interface; this is less confusing to outside customers. ")]
         public static string GetPropertyValueEscaped(ProjectPropertyInstance property)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(property, nameof(property));
+            VerifyThrowArgumentNull(property, nameof(property));
 
             return ((IProperty)property).EvaluatedValueEscaped;
         }
@@ -1379,7 +1379,7 @@ namespace Microsoft.Build.Execution
         /// </remarks>
         void IEvaluatorData<ProjectPropertyInstance, ProjectItemInstance, ProjectMetadataInstance, ProjectItemDefinitionInstance>.AddItemIgnoringCondition(ProjectItemInstance item)
         {
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
         }
 
         /// <summary>
@@ -1406,7 +1406,7 @@ namespace Microsoft.Build.Execution
         /// </remarks>
         void IEvaluatorData<ProjectPropertyInstance, ProjectItemInstance, ProjectMetadataInstance, ProjectItemDefinitionInstance>.AddToAllEvaluatedPropertiesList(ProjectPropertyInstance property)
         {
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
         }
 
         /// <summary>
@@ -1420,7 +1420,7 @@ namespace Microsoft.Build.Execution
         /// </remarks>
         void IEvaluatorData<ProjectPropertyInstance, ProjectItemInstance, ProjectMetadataInstance, ProjectItemDefinitionInstance>.AddToAllEvaluatedItemDefinitionMetadataList(ProjectMetadataInstance itemDefinitionMetadatum)
         {
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
         }
 
         /// <summary>
@@ -1434,7 +1434,7 @@ namespace Microsoft.Build.Execution
         /// </remarks>
         void IEvaluatorData<ProjectPropertyInstance, ProjectItemInstance, ProjectMetadataInstance, ProjectItemDefinitionInstance>.AddToAllEvaluatedItemsList(ProjectItemInstance item)
         {
-            ErrorUtilities.ThrowInternalErrorUnreachable();
+            ThrowInternalErrorUnreachable();
         }
 
         /// <summary>
@@ -1922,7 +1922,7 @@ namespace Microsoft.Build.Execution
             rootElement.DefaultTargets = String.Join(";", DefaultTargets);
             rootElement.ToolsVersion = ToolsVersion;
 
-            // Add all of the item definitions.            
+            // Add all of the item definitions.
             ProjectItemDefinitionGroupElement itemDefinitionGroupElement = rootElement.AddItemDefinitionGroup();
             foreach (ProjectItemDefinitionInstance itemDefinitionInstance in _itemDefinitions.Values)
             {
@@ -1985,9 +1985,9 @@ namespace Microsoft.Build.Execution
         /// </summary>
         internal void LateInitialize(ProjectRootElementCacheBase projectRootElementCache, HostServices hostServices)
         {
-            ErrorUtilities.VerifyThrow(ProjectRootElementCache == null, $"{nameof(ProjectRootElementCache)} is already set. Cannot set again");
-            ErrorUtilities.VerifyThrow(_hostServices == null, $"{nameof(HostServices)} is already set. Cannot set again");
-            ErrorUtilities.VerifyThrow(TaskRegistry != null, $"{nameof(TaskRegistry)} Cannot be null after {nameof(ProjectInstance)} object creation.");
+            VerifyThrow(ProjectRootElementCache == null, $"{nameof(ProjectRootElementCache)} is already set. Cannot set again");
+            VerifyThrow(_hostServices == null, $"{nameof(HostServices)} is already set. Cannot set again");
+            VerifyThrow(TaskRegistry != null, $"{nameof(TaskRegistry)} Cannot be null after {nameof(ProjectInstance)} object creation.");
 
             ProjectRootElementCache = projectRootElementCache;
             _taskRegistry.RootElementCache = projectRootElementCache;
@@ -2178,11 +2178,11 @@ namespace Microsoft.Build.Execution
             ISdkResolverService sdkResolverService,
             int submissionId)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(projectFile, nameof(projectFile));
-            ErrorUtilities.VerifyThrowArgumentNull(globalPropertiesInstances, nameof(globalPropertiesInstances));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
-            ErrorUtilities.VerifyThrowArgumentNull(buildParameters, nameof(buildParameters));
-            ErrorUtilities.VerifyThrow(FileUtilities.IsSolutionFilename(projectFile), "Project file {0} is not a solution.", projectFile);
+            VerifyThrowArgumentLength(projectFile, nameof(projectFile));
+            VerifyThrowArgumentNull(globalPropertiesInstances, nameof(globalPropertiesInstances));
+            VerifyThrowArgumentLengthIfNotNull(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentNull(buildParameters, nameof(buildParameters));
+            VerifyThrow(FileUtilities.IsSolutionFilename(projectFile), "Project file {0} is not a solution.", projectFile);
 
             ProjectInstance[] projectInstances = null;
 
@@ -2193,7 +2193,7 @@ namespace Microsoft.Build.Execution
             }
 
             // If a ToolsVersion has been passed in using the /tv:xx switch, we want to generate an
-            // old-style solution wrapper project if it's < 4.0, to work around ordering issues.  
+            // old-style solution wrapper project if it's < 4.0, to work around ordering issues.
             if (toolsVersion != null)
             {
                 if (
@@ -2202,7 +2202,7 @@ namespace Microsoft.Build.Execution
                        String.Equals(toolsVersion, "3.5", StringComparison.OrdinalIgnoreCase)
                    )
                 {
-                    // Spawn the Orcas SolutionWrapperProject generator.  
+                    // Spawn the Orcas SolutionWrapperProject generator.
                     loggingService.LogComment(projectBuildEventContext, MessageImportance.Low, "OldWrapperGeneratedExplicitToolsVersion", toolsVersion);
                     projectInstances = GenerateSolutionWrapperUsingOldOM(projectFile, globalProperties, toolsVersion, buildParameters.ProjectRootElementCache, buildParameters, loggingService, projectBuildEventContext, isExplicitlyLoaded, sdkResolverService, submissionId);
                 }
@@ -2213,7 +2213,7 @@ namespace Microsoft.Build.Execution
             }
 
             // If the user didn't pass in a ToolsVersion, still try to make a best-effort guess as to whether
-            // we should be generating a 4.0+ or a 3.5-style wrapper project based on the version of the solution. 
+            // we should be generating a 4.0+ or a 3.5-style wrapper project based on the version of the solution.
             else
             {
                 string solutionFile = projectFile;
@@ -2223,9 +2223,9 @@ namespace Microsoft.Build.Execution
                 }
                 SolutionFile.GetSolutionFileAndVisualStudioMajorVersions(solutionFile, out int solutionVersion, out int visualStudioVersion);
 
-                // If we get to this point, it's because it's a valid version.  Map the solution version 
-                // to the equivalent MSBuild ToolsVersion, and unless it's Dev10 or newer, spawn the old 
-                // engine to generate the solution wrapper.  
+                // If we get to this point, it's because it's a valid version.  Map the solution version
+                // to the equivalent MSBuild ToolsVersion, and unless it's Dev10 or newer, spawn the old
+                // engine to generate the solution wrapper.
                 if (solutionVersion <= 9) /* Whidbey or before */
                 {
                     loggingService.LogComment(projectBuildEventContext, MessageImportance.Low, "OldWrapperGeneratedOldSolutionVersion", "2.0", solutionVersion);
@@ -2276,7 +2276,7 @@ namespace Microsoft.Build.Execution
         {
             if (isImmutable)
             {
-                ErrorUtilities.ThrowInvalidOperation("OM_ProjectInstanceImmutable");
+                ThrowInvalidOperation("OM_ProjectInstanceImmutable");
             }
         }
 
@@ -2413,8 +2413,8 @@ namespace Microsoft.Build.Execution
         {
             VerifyThrowNotImmutable();
 
-            ErrorUtilities.VerifyThrowInternalLength(targetName, nameof(targetName));
-            ErrorUtilities.VerifyThrow(!_actualTargets.ContainsKey(targetName), "Target {0} already exists.", targetName);
+            VerifyThrowInternalLength(targetName, nameof(targetName));
+            VerifyThrow(!_actualTargets.ContainsKey(targetName), "Target {0} already exists.", targetName);
 
             ProjectTargetInstance target = new ProjectTargetInstance
                 (
@@ -2545,7 +2545,7 @@ namespace Microsoft.Build.Execution
             int submissionId)
         {
             // Pass the toolsVersion of this project through, which will never be null -- either we passed the /tv:nn
-            // switch straight through, or we fabricated a ToolsVersion based on the solution version.  
+            // switch straight through, or we fabricated a ToolsVersion based on the solution version.
             // It's needed to determine which <UsingTask> tags to put in, whether to put a ToolsVersion parameter
             // on the <MSBuild> task tags, and what MSBuildToolsPath to use when scanning child projects
             // for dependency information.
@@ -2670,9 +2670,9 @@ namespace Microsoft.Build.Execution
             ProjectLoadSettings? projectLoadSettings = null,
             EvaluationContext evaluationContext = null)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(xml, nameof(xml));
-            ErrorUtilities.VerifyThrowArgumentLengthIfNotNull(explicitToolsVersion, "toolsVersion");
-            ErrorUtilities.VerifyThrowArgumentNull(buildParameters, nameof(buildParameters));
+            VerifyThrowArgumentNull(xml, nameof(xml));
+            VerifyThrowArgumentLengthIfNotNull(explicitToolsVersion, "toolsVersion");
+            VerifyThrowArgumentNull(buildParameters, nameof(buildParameters));
 
             _directory = xml.DirectoryPath;
             _projectFileLocation = xml.ProjectFileLocation ?? ElementLocation.EmptyLocation;
@@ -2729,7 +2729,7 @@ namespace Microsoft.Build.Execution
                 this.SubToolsetVersion = this.Toolset.GenerateSubToolsetVersionUsingVisualStudioVersion(globalProperties, visualStudioVersionFromSolution);
             }
 
-            // Create a task registry which will fall back on the toolset task registry if necessary.          
+            // Create a task registry which will fall back on the toolset task registry if necessary.
             this.TaskRegistry = new TaskRegistry(this.Toolset, ProjectRootElementCache);
 
             if (globalProperties != null)
@@ -2738,9 +2738,9 @@ namespace Microsoft.Build.Execution
                 {
                     if (String.Equals(globalProperty.Key, Constants.SubToolsetVersionPropertyName, StringComparison.OrdinalIgnoreCase) && explicitSubToolsetVersion != null)
                     {
-                        // if we have a sub-toolset version explicitly provided by the ProjectInstance constructor, AND a sub-toolset version provided as a global property, 
-                        // make sure that the one passed in with the constructor wins.  If there isn't a matching global property, the sub-toolset version will be set at 
-                        // a later point. 
+                        // if we have a sub-toolset version explicitly provided by the ProjectInstance constructor, AND a sub-toolset version provided as a global property,
+                        // make sure that the one passed in with the constructor wins.  If there isn't a matching global property, the sub-toolset version will be set at
+                        // a later point.
                         _globalProperties.Set(ProjectPropertyInstance.Create(globalProperty.Key, explicitSubToolsetVersion, false /* may not be reserved */, _isImmutable));
                     }
                     else
@@ -2755,7 +2755,7 @@ namespace Microsoft.Build.Execution
                 Trace.WriteLine(String.Format(CultureInfo.InvariantCulture, "MSBUILD: Creating a ProjectInstance from an unevaluated state [{0}]", FullPath));
             }
 
-            ErrorUtilities.VerifyThrow(EvaluationId == BuildEventContext.InvalidEvaluationId, "Evaluation ID is invalid prior to evaluation");
+            VerifyThrow(EvaluationId == BuildEventContext.InvalidEvaluationId, "Evaluation ID is invalid prior to evaluation");
 
             evaluationContext = evaluationContext?.ContextForNewProject() ?? EvaluationContext.Create(EvaluationContext.SharingPolicy.Isolated);
 
@@ -2775,7 +2775,7 @@ namespace Microsoft.Build.Execution
                 evaluationContext,
                 interactive: buildParameters.Interactive);
 
-            ErrorUtilities.VerifyThrow(EvaluationId != BuildEventContext.InvalidEvaluationId, "Evaluation should produce an evaluation ID");
+            VerifyThrow(EvaluationId != BuildEventContext.InvalidEvaluationId, "Evaluation should produce an evaluation ID");
         }
 
         /// <summary>
@@ -2954,7 +2954,7 @@ namespace Microsoft.Build.Execution
 
             foreach (ProjectProperty property in properties)
             {
-                // Allow reserved property names, since this is how they are added to the project instance. 
+                // Allow reserved property names, since this is how they are added to the project instance.
                 // The caller has prevented users setting them themselves.
                 ProjectPropertyInstance instance = ProjectPropertyInstance.Create(property.Name, ((IProperty)property).EvaluatedValueEscaped, true /* MAY be reserved name */, isImmutable);
                 _properties.Set(instance);

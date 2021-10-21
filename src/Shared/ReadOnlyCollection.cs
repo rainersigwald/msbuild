@@ -27,13 +27,13 @@ namespace Microsoft.Build.Collections
         private IEnumerable<T> _backing;
 
         /// <summary>
-        /// Construct a read only wrapper around the current contents 
-        /// of the IEnumerable, or around the backing collection if the 
-        /// IEnumerable is in fact a collection. 
+        /// Construct a read only wrapper around the current contents
+        /// of the IEnumerable, or around the backing collection if the
+        /// IEnumerable is in fact a collection.
         /// </summary>
         internal ReadOnlyCollection(IEnumerable<T> backing)
         {
-            ErrorUtilities.VerifyThrow(backing != null, "Need backing collection");
+            VerifyThrow(backing != null, "Need backing collection");
 
             _backing = backing;
         }
@@ -96,7 +96,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public void Add(T item)
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public void Clear()
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
         }
 
         /// <summary>
@@ -112,8 +112,8 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Contains(T item)
         {
-            // UNDONE: IEnumerable.Contains<T>() does the ICollection check, 
-            // so we could just use IEnumerable.Contains<T>() here.  
+            // UNDONE: IEnumerable.Contains<T>() does the ICollection check,
+            // so we could just use IEnumerable.Contains<T>() here.
             if (!(_backing is ICollection<T>))
             {
                 return _backing.Contains<T>(item);
@@ -127,7 +127,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(array, nameof(array));
+            VerifyThrowArgumentNull(array, nameof(array));
 
             ICollection<T> backingCollection = _backing as ICollection<T>;
             if (backingCollection != null)
@@ -150,7 +150,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         public bool Remove(T item)
         {
-            ErrorUtilities.ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
+            ThrowInvalidOperation("OM_NotSupportedReadOnlyCollection");
             return false;
         }
 
@@ -183,7 +183,7 @@ namespace Microsoft.Build.Collections
         /// </summary>
         void ICollection.CopyTo(Array array, int index)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(array, nameof(array));
+            VerifyThrowArgumentNull(array, nameof(array));
 
             int i = index;
             foreach (T entry in _backing)

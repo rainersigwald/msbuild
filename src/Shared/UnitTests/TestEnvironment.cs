@@ -307,7 +307,7 @@ namespace Microsoft.Build.UnitTests
         /// Will not work for out of proc nodes since the output writer does not reach into those
         public TransientPrintLineDebugger CreatePrintLineDebuggerWithTestOutputHelper()
         {
-            ErrorUtilities.VerifyThrowInternalNull(Output, nameof(Output));
+            VerifyThrowInternalNull(Output, nameof(Output));
             return WithTransientTestState(new TransientPrintLineDebugger(this, OutPutHelperWriter(Output)));
 
             CommonWriterType OutPutHelperWriter(ITestOutputHelper output)

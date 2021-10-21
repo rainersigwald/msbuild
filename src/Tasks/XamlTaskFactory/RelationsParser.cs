@@ -239,7 +239,7 @@ namespace Microsoft.Build.Tasks.Xaml
         /// </summary>
         internal bool ParseXmlDocument(XmlDocument xmlDocument)
         {
-            ErrorUtilities.VerifyThrow(xmlDocument != null, nameof(xmlDocument));
+            VerifyThrow(xmlDocument != null, nameof(xmlDocument));
 
             // find the root element
             XmlNode node = xmlDocument.FirstChild;
@@ -519,7 +519,7 @@ namespace Microsoft.Build.Tasks.Xaml
                 child = child.NextSibling;
             }
 
-            // We've read any enumerated values and any dependencies, so we just 
+            // We've read any enumerated values and any dependencies, so we just
             // have to add the switchRelations
             switchRelationsList.Add(switchRelationsToAdd.SwitchValue, switchRelationsToAdd);
             return true;

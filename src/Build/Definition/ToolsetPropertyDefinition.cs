@@ -37,11 +37,11 @@ namespace Microsoft.Build.Evaluation
         /// <param name="source">The property source</param>
         public ToolsetPropertyDefinition(string name, string value, IElementLocation source)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(name, nameof(name));
-            ErrorUtilities.VerifyThrowArgumentNull(source, nameof(source));
+            VerifyThrowArgumentLength(name, nameof(name));
+            VerifyThrowArgumentNull(source, nameof(source));
 
             // value can be the empty string but not null
-            ErrorUtilities.VerifyThrowArgumentNull(value, nameof(value));
+            VerifyThrowArgumentNull(value, nameof(value));
 
             _name = name;
             _value = value;
@@ -71,14 +71,14 @@ namespace Microsoft.Build.Evaluation
 
             set
             {
-                ErrorUtilities.VerifyThrowInternalNull(value, "Value");
+                VerifyThrowInternalNull(value, "Value");
                 _value = value;
             }
         }
 
         /// <summary>
         /// A description of the location where the property was defined,
-        /// such as a registry key path or a path to a config file and 
+        /// such as a registry key path or a path to a config file and
         /// line number.
         /// </summary>
         public IElementLocation Source

@@ -139,8 +139,8 @@ namespace Microsoft.Build.BackEnd
         /// <param name="factory">The factory used to create packets.</param>
         public void Listen(INodePacketFactory factory)
         {
-            ErrorUtilities.VerifyThrow(_status == LinkStatus.Inactive, "Link not inactive.  Status is {0}", _status);
-            ErrorUtilities.VerifyThrowArgumentNull(factory, nameof(factory));
+            VerifyThrow(_status == LinkStatus.Inactive, "Link not inactive.  Status is {0}", _status);
+            VerifyThrowArgumentNull(factory, nameof(factory));
             _packetFactory = factory;
 
             InitializeAsyncPacketThread();
@@ -152,7 +152,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="factory">The factory used to create packets.</param>
         public void Connect(INodePacketFactory factory)
         {
-            ErrorUtilities.ThrowInternalError("Connect() not valid on the out of proc endpoint.");
+            ThrowInternalError("Connect() not valid on the out of proc endpoint.");
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="pipeName">The name of the pipe to which we should connect.</param>
         internal void InternalConstruct(string pipeName)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(pipeName, nameof(pipeName));
+            VerifyThrowArgumentLength(pipeName, nameof(pipeName));
 
             _status = LinkStatus.Inactive;
             _asyncDataMonitor = new object();
@@ -204,7 +204,7 @@ namespace Microsoft.Build.BackEnd
                 // Restrict access to just this account.  We set the owner specifically here, and on the
                 // pipe client side they will check the owner against this one - they must have identical
                 // SIDs or the client will reject this server.  This is used to avoid attacks where a
-                // hacked server creates a less restricted pipe in an attempt to lure us into using it and 
+                // hacked server creates a less restricted pipe in an attempt to lure us into using it and
                 // then sending build requests to the real pipe client (which is the MSBuild Build Manager.)
                 PipeAccessRule rule = new PipeAccessRule(identifier, PipeAccessRights.ReadWrite, AccessControlType.Allow);
                 security.AddAccessRule(rule);
@@ -252,7 +252,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="newStatus">The status the node should now be in.</param>
         protected void ChangeLinkStatus(LinkStatus newStatus)
         {
-            ErrorUtilities.VerifyThrow(_status != newStatus, "Attempting to change status to existing status {0}.", _status);
+            VerifyThrow(_status != newStatus, "Attempting to change status to existing status {0}.", _status);
             CommunicationsUtilities.Trace("Changing link status from {0} to {1}", _status.ToString(), newStatus.ToString());
             _status = newStatus;
             RaiseLinkStatusChanged(_status);
@@ -275,7 +275,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         private void InternalDisconnect()
         {
-            ErrorUtilities.VerifyThrow(_packetPump.ManagedThreadId != Thread.CurrentThread.ManagedThreadId, "Can't join on the same thread.");
+            VerifyThrow(_packetPump.ManagedThreadId != Thread.CurrentThread.ManagedThreadId, "Can't join on the same thread.");
             _terminatePacketPump.Set();
             _packetPump.Join();
 #if CLR2COMPATIBILITY
@@ -296,9 +296,9 @@ namespace Microsoft.Build.BackEnd
         /// <param name="packet">The packet to be transmitted.</param>
         private void EnqueuePacket(INodePacket packet)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(packet, nameof(packet));
-            ErrorUtilities.VerifyThrow(_packetQueue != null, "packetQueue is null");
-            ErrorUtilities.VerifyThrow(_packetAvailable != null, "packetAvailable is null");
+            VerifyThrowArgumentNull(packet, nameof(packet));
+            VerifyThrow(_packetQueue != null, "packetQueue is null");
+            VerifyThrow(_packetAvailable != null, "packetAvailable is null");
             _packetQueue.Enqueue(packet);
             _packetAvailable.Set();
         }
@@ -429,7 +429,7 @@ namespace Microsoft.Build.BackEnd
                         // 2. The host is too old sending us bits we automatically reject in the handshake
                         // 3. We expected to read the EndOfHandshake signal, but we received something else
                         CommunicationsUtilities.Trace("Client connection failed but we will wait for another connection. Exception: {0}", e.Message);
-                        
+
                         gotValidConnection = false;
                     }
                     catch (InvalidOperationException)
@@ -497,7 +497,7 @@ namespace Microsoft.Build.BackEnd
         private void RunReadLoop(Stream localReadPipe, Stream localWritePipe,
             ConcurrentQueue<INodePacket> localPacketQueue, AutoResetEvent localPacketAvailable, AutoResetEvent localTerminatePacketPump)
         {
-            // Ordering of the wait handles is important.  The first signalled wait handle in the array 
+            // Ordering of the wait handles is important.  The first signalled wait handle in the array
             // will be returned by WaitAny if multiple wait handles are signalled.  We prefer to have the
             // terminate event triggered so that we cannot get into a situation where packets are being
             // spammed to the endpoint and it never gets an opportunity to shutdown.
@@ -638,7 +638,7 @@ namespace Microsoft.Build.BackEnd
                         break;
 
                     default:
-                        ErrorUtilities.ThrowInternalError("waitId {0} out of range.", waitId);
+                        ThrowInternalError("waitId {0} out of range.", waitId);
                         break;
                 }
             }

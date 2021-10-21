@@ -24,8 +24,8 @@ namespace Microsoft.Build.BackEnd
         Failure,
 
         /// <summary>
-        /// Task crashed during initialization steps -- loading the task, 
-        /// validating or setting the parameters, etc. 
+        /// Task crashed during initialization steps -- loading the task,
+        /// validating or setting the parameters, etc.
         /// </summary>
         CrashedDuringInitialization,
 
@@ -42,36 +42,36 @@ namespace Microsoft.Build.BackEnd
     }
 
     /// <summary>
-    /// TaskHostTaskComplete contains all the information the parent node 
+    /// TaskHostTaskComplete contains all the information the parent node
     /// needs from the task host on completion of task execution.
     /// </summary>
     internal class TaskHostTaskComplete : INodePacket
     {
         /// <summary>
-        /// Result of the task's execution. 
+        /// Result of the task's execution.
         /// </summary>
         private TaskCompleteType _taskResult;
 
         /// <summary>
-        /// If the task threw an exception during its initialization or execution, 
-        /// save it here. 
+        /// If the task threw an exception during its initialization or execution,
+        /// save it here.
         /// </summary>
         private Exception _taskException;
 
         /// <summary>
-        /// If there's an additional message that should be attached to the error 
-        /// logged beyond "task X failed unexpectedly", save it here.  May be null. 
+        /// If there's an additional message that should be attached to the error
+        /// logged beyond "task X failed unexpectedly", save it here.  May be null.
         /// </summary>
         private string _taskExceptionMessage;
 
         /// <summary>
-        /// If the message saved in taskExceptionMessage requires arguments, save 
-        /// them here. May be null. 
+        /// If the message saved in taskExceptionMessage requires arguments, save
+        /// them here. May be null.
         /// </summary>
         private string[] _taskExceptionMessageArgs;
 
         /// <summary>
-        /// The set of parameters / values from the task after it finishes execution. 
+        /// The set of parameters / values from the task after it finishes execution.
         /// </summary>
         private Dictionary<string, TaskParameter> _taskOutputParameters = null;
 
@@ -87,7 +87,7 @@ namespace Microsoft.Build.BackEnd
         /// <param name="buildProcessEnvironment">The build process environment as it was at the end of the task's execution.</param>
         public TaskHostTaskComplete(OutOfProcTaskHostTaskResult result, IDictionary<string, string> buildProcessEnvironment)
         {
-            ErrorUtilities.VerifyThrowInternalNull(result, nameof(result));
+            VerifyThrowInternalNull(result, nameof(result));
 
             _taskResult = result.Result;
             _taskException = result.TaskException;
@@ -132,8 +132,8 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// If the task threw an exception during its initialization or execution, 
-        /// save it here. 
+        /// If the task threw an exception during its initialization or execution,
+        /// save it here.
         /// </summary>
         public Exception TaskException
         {
@@ -143,8 +143,8 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// If there's an additional message that should be attached to the error 
-        /// logged beyond "task X failed unexpectedly", put it here.  May be null. 
+        /// If there's an additional message that should be attached to the error
+        /// logged beyond "task X failed unexpectedly", put it here.  May be null.
         /// </summary>
         public string TaskExceptionMessage
         {
@@ -154,8 +154,8 @@ namespace Microsoft.Build.BackEnd
         }
 
         /// <summary>
-        /// If there are arguments that need to be formatted into the message being 
-        /// sent, set them here.  May be null. 
+        /// If there are arguments that need to be formatted into the message being
+        /// sent, set them here.  May be null.
         /// </summary>
         public string[] TaskExceptionMessageArgs
         {

@@ -191,7 +191,7 @@ namespace Microsoft.Build.Execution
         /// <param name="exception">The exception, if any</param>
         internal BuildResult(BuildRequest request, BuildResult existingResults, string[] targetNames, Exception exception)
         {
-            ErrorUtilities.VerifyThrow(request != null, "Must specify a request.");
+            VerifyThrow(request != null, "Must specify a request.");
             _submissionId = request.SubmissionId;
             _configurationId = request.ConfigurationId;
             _globalRequestId = request.GlobalRequestId;
@@ -304,7 +304,7 @@ namespace Microsoft.Build.Execution
         }
 
         /// <summary>
-        /// Returns the exception generated while this result was run, if any. 
+        /// Returns the exception generated while this result was run, if any.
         /// </summary>
         public Exception Exception
         {
@@ -462,8 +462,8 @@ namespace Microsoft.Build.Execution
         /// <param name="result">The results for the target.</param>
         public void AddResultsForTarget(string target, TargetResult result)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(target, nameof(target));
-            ErrorUtilities.VerifyThrowArgumentNull(result, nameof(result));
+            VerifyThrowArgumentNull(target, nameof(target));
+            VerifyThrowArgumentNull(result, nameof(result));
 
             lock (this)
             {
@@ -472,7 +472,7 @@ namespace Microsoft.Build.Execution
 
             if (_resultsByTarget.TryGetValue(target, out TargetResult targetResult))
             {
-                ErrorUtilities.VerifyThrow(targetResult.ResultCode == TargetResultCode.Skipped, "Items already exist for target {0}.", target);
+                VerifyThrow(targetResult.ResultCode == TargetResultCode.Skipped, "Items already exist for target {0}.", target);
             }
 
             _resultsByTarget[target] = result;
@@ -484,8 +484,8 @@ namespace Microsoft.Build.Execution
         /// <param name="results">The results to merge in.</param>
         public void MergeResults(BuildResult results)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(results, nameof(results));
-            ErrorUtilities.VerifyThrow(results.ConfigurationId == ConfigurationId, "Result configurations don't match");
+            VerifyThrowArgumentNull(results, nameof(results));
+            VerifyThrow(results.ConfigurationId == ConfigurationId, "Result configurations don't match");
 
             // If we are merging with ourself or with a shallow clone, do nothing.
             if (ReferenceEquals(this, results) || ReferenceEquals(_resultsByTarget, results._resultsByTarget))
@@ -501,7 +501,7 @@ namespace Microsoft.Build.Execution
                 // cached results after the first time the target is built.  As such, we can allow "duplicates" to be merged in because there is
                 // no change.  If, however, this turns out not to be the case, we need to re-evaluate this merging and possibly re-enable the
                 // assertion below.
-                // ErrorUtilities.VerifyThrow(!HasResultsForTarget(targetResult.Key), "Results already exist");
+                // VerifyThrow(!HasResultsForTarget(targetResult.Key), "Results already exist");
 
                 // Copy the new results in.
                 _resultsByTarget[targetResult.Key] = targetResult.Value;
@@ -619,8 +619,8 @@ namespace Microsoft.Build.Execution
         }
 
         /// <summary>
-        /// Creates the target result dictionary and populates it with however many target results are 
-        /// available given the list of targets passed. 
+        /// Creates the target result dictionary and populates it with however many target results are
+        /// available given the list of targets passed.
         /// </summary>
         private static ConcurrentDictionary<string, TargetResult> CreateTargetResultDictionaryWithContents(BuildResult existingResults, string[] targetNames)
         {

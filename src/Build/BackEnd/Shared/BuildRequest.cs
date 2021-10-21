@@ -168,8 +168,8 @@ namespace Microsoft.Build.BackEnd
             bool skipStaticGraphIsolationConstraints = false)
         : this(submissionId, nodeRequestId, configurationId, hostServices, buildRequestDataFlags, requestedProjectState)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(escapedTargets, "targets");
-            ErrorUtilities.VerifyThrowArgumentNull(parentBuildEventContext, nameof(parentBuildEventContext));
+            VerifyThrowArgumentNull(escapedTargets, "targets");
+            VerifyThrowArgumentNull(parentBuildEventContext, nameof(parentBuildEventContext));
 
             // When targets come into a build request, we unescape them.
             _targets = new List<string>(escapedTargets.Count);
@@ -235,7 +235,7 @@ namespace Microsoft.Build.BackEnd
 
             set
             {
-                ErrorUtilities.VerifyThrow(_globalRequestId == InvalidGlobalRequestId, "Global Request ID cannot be set twice.");
+                VerifyThrow(_globalRequestId == InvalidGlobalRequestId, "Global Request ID cannot be set twice.");
                 _globalRequestId = value;
             }
         }
@@ -318,7 +318,7 @@ namespace Microsoft.Build.BackEnd
 
             set
             {
-                ErrorUtilities.VerifyThrow(_buildEventContext == BuildEventContext.Invalid, "The build event context is already set.");
+                VerifyThrow(_buildEventContext == BuildEventContext.Invalid, "The build event context is already set.");
                 _buildEventContext = value;
             }
         }
@@ -381,9 +381,9 @@ namespace Microsoft.Build.BackEnd
         /// <param name="newConfigId">The new configuration id for this request.</param>
         public void ResolveConfiguration(int newConfigId)
         {
-            ErrorUtilities.VerifyThrow(!IsConfigurationResolved, "Configuration already resolved");
+            VerifyThrow(!IsConfigurationResolved, "Configuration already resolved");
             _configurationId = newConfigId;
-            ErrorUtilities.VerifyThrow(IsConfigurationResolved, "Configuration not resolved");
+            VerifyThrow(IsConfigurationResolved, "Configuration not resolved");
         }
 
         #region INodePacket Members

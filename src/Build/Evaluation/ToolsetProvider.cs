@@ -55,7 +55,7 @@ namespace Microsoft.Build.Evaluation
         /// Retrieves the toolsets.
         /// </summary>
         /// <comments>
-        /// ValueCollection is already read-only. 
+        /// ValueCollection is already read-only.
         /// </comments>
         public ICollection<Toolset> Toolsets => _toolsets.Values;
 
@@ -64,7 +64,7 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         public Toolset GetToolset(string toolsVersion)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(toolsVersion, nameof(toolsVersion));
+            VerifyThrowArgumentLength(toolsVersion, nameof(toolsVersion));
             _toolsets.TryGetValue(toolsVersion, out var toolset);
 
             return toolset;
@@ -94,8 +94,8 @@ namespace Microsoft.Build.Evaluation
         #endregion
 
         /// <summary>
-        /// Populate Toolsets with a dictionary of (toolset version, Toolset) 
-        /// using information from the registry and config file, if any.  
+        /// Populate Toolsets with a dictionary of (toolset version, Toolset)
+        /// using information from the registry and config file, if any.
         /// </summary>
         private void InitializeToolsetCollection(PropertyDictionary<ProjectPropertyInstance> environmentProperties, PropertyDictionary<ProjectPropertyInstance> globalProperties, ToolsetDefinitionLocations toolsetDefinitionLocations)
         {

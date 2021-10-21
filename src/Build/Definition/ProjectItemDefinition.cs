@@ -53,8 +53,8 @@ namespace Microsoft.Build.Evaluation
         /// </remarks>
         internal ProjectItemDefinition(Project project, string itemType)
         {
-            ErrorUtilities.VerifyThrowInternalNull(project, nameof(project));
-            ErrorUtilities.VerifyThrowArgumentLength(itemType, nameof(itemType));
+            VerifyThrowInternalNull(project, nameof(project));
+            VerifyThrowArgumentLength(itemType, nameof(itemType));
 
             _project = project;
             _itemType = itemType;
@@ -103,7 +103,7 @@ namespace Microsoft.Build.Evaluation
         }
 
         /// <summary>
-        /// Implementation of IKeyed exposing the item type, so these 
+        /// Implementation of IKeyed exposing the item type, so these
         /// can be put in a dictionary conveniently.
         /// </summary>
         string IKeyed.Key
@@ -149,8 +149,8 @@ namespace Microsoft.Build.Evaluation
             }
 
             XmlUtilities.VerifyThrowArgumentValidElementName(name);
-            ErrorUtilities.VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsItemSpecModifier(name), "ItemSpecModifierCannotBeCustomMetadata", name);
-            ErrorUtilities.VerifyThrowInvalidOperation(!XMakeElements.ReservedItemNames.Contains(name), "CannotModifyReservedItemMetadata", name);
+            VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsItemSpecModifier(name), "ItemSpecModifierCannotBeCustomMetadata", name);
+            VerifyThrowInvalidOperation(!XMakeElements.ReservedItemNames.Contains(name), "CannotModifyReservedItemMetadata", name);
 
             ProjectMetadata metadatum;
 
@@ -166,7 +166,7 @@ namespace Microsoft.Build.Evaluation
                 }
             }
 
-            // We can't use the item definition that this object came from as a root, as it doesn't map directly 
+            // We can't use the item definition that this object came from as a root, as it doesn't map directly
             // to a single XML element. Instead, add a new one to the project. Best we can do.
             ProjectItemDefinitionElement itemDefinition = _project.Xml.AddItemDefinition(_itemType);
 

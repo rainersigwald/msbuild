@@ -120,7 +120,7 @@ namespace Microsoft.Build.Graph
             var isOuterBuild = String.IsNullOrWhiteSpace(GetInnerBuildPropertyValue(project)) && !String.IsNullOrWhiteSpace(GetInnerBuildPropertyValues(project));
             var isInnerBuild = !String.IsNullOrWhiteSpace(GetInnerBuildPropertyValue(project));
 
-            ErrorUtilities.VerifyThrow(!(isOuterBuild && isInnerBuild), $"A project cannot be an outer and inner build at the same time: ${project.FullPath}");
+            VerifyThrow(!(isOuterBuild && isInnerBuild), $"A project cannot be an outer and inner build at the same time: ${project.FullPath}");
 
             return isOuterBuild
                 ? ProjectType.OuterBuild
@@ -159,7 +159,7 @@ namespace Microsoft.Build.Graph
                             {
                                 graphBuilder.Edges.TryGetEdge((outerBuildReferencingProject, innerBuild), out var existingEdge);
 
-                                ErrorUtilities.VerifyThrow(
+                                VerifyThrow(
                                     graphBuilder.Edges[(outerBuildReferencingProject, innerBuild)]
                                         .ItemType.Equals(
                                             TransitiveReferenceItemName,
@@ -183,8 +183,8 @@ namespace Microsoft.Build.Graph
             var globalPropertyName = GetInnerBuildPropertyName(outerBuild);
             var globalPropertyValues = GetInnerBuildPropertyValues(outerBuild);
 
-            ErrorUtilities.VerifyThrow(!String.IsNullOrWhiteSpace(globalPropertyName), "Must have an inner build property");
-            ErrorUtilities.VerifyThrow(!String.IsNullOrWhiteSpace(globalPropertyValues), "Must have values for the inner build property");
+            VerifyThrow(!String.IsNullOrWhiteSpace(globalPropertyName), "Must have an inner build property");
+            VerifyThrow(!String.IsNullOrWhiteSpace(globalPropertyValues), "Must have values for the inner build property");
 
             foreach (var globalPropertyValue in ExpressionShredder.SplitSemiColonSeparatedList(globalPropertyValues))
             {
@@ -280,8 +280,8 @@ namespace Microsoft.Build.Graph
             PropertyDictionary<ProjectPropertyInstance> requesterGlobalProperties,
             IEnumerable<GlobalPropertiesModifier> globalPropertyModifiers = null)
         {
-            ErrorUtilities.VerifyThrowInternalNull(projectReference, nameof(projectReference));
-            ErrorUtilities.VerifyThrowArgumentNull(requesterGlobalProperties, nameof(requesterGlobalProperties));
+            VerifyThrowInternalNull(projectReference, nameof(projectReference));
+            VerifyThrowArgumentNull(requesterGlobalProperties, nameof(requesterGlobalProperties));
 
             var properties = SplitPropertyNameValuePairs(ItemMetadataNames.PropertiesMetadataName, projectReference.GetMetadataValue(ItemMetadataNames.PropertiesMetadataName));
             var additionalProperties = SplitPropertyNameValuePairs(ItemMetadataNames.AdditionalPropertiesMetadataName, projectReference.GetMetadataValue(ItemMetadataNames.AdditionalPropertiesMetadataName));

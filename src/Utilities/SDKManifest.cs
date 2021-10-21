@@ -106,7 +106,7 @@ namespace Microsoft.Build.Utilities
         /// </summary>
         public SDKManifest(string pathToSdk)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(pathToSdk, nameof(pathToSdk));
+            VerifyThrowArgumentLength(pathToSdk, nameof(pathToSdk));
             _pathToSdk = pathToSdk;
             LoadManifestFile();
         }
@@ -255,7 +255,7 @@ namespace Microsoft.Build.Utilities
                     TargetPlatform="UAP"
                     TargetPlatformMinVersion="1.0.0.0"
                     TargetPlatformVersion="1.0.0.0"
-                    SDKType = "Platform" | "Framework" | "External" 
+                    SDKType = "Platform" | "Framework" | "External"
                     DisplayName = ""My SDK""
                     ProductFamilyName = ""UnitTest SDKs""
                     FrameworkIdentity-Debug = ""Name=MySDK.10.Debug, MinVersion=1.0.0.0""
@@ -271,7 +271,7 @@ namespace Microsoft.Build.Utilities
                     AppX-Debug-ARM = "".\AppX\Debug\ARM\Microsoft.MySDK.ARM.Debug.1.0.appx""
                     AppX-Retail-x86 = "".\AppX\Retail\x86\Microsoft.MySDK.x86.1.0.appx""
                     AppX-Retail-x64 = "".\AppX\Retail\x64\Microsoft.MySDK.x64.1.0.appx""
-                    AppX-Retail-ARM = "".\AppX\Retail\ARM\Microsoft.MySDK.ARM.1.0.appx"" 
+                    AppX-Retail-ARM = "".\AppX\Retail\ARM\Microsoft.MySDK.ARM.1.0.appx""
                     CopyRedistToSubDirectory = "".""
                     DependsOn = ""SDKB, version=2.0""
                     MoreInfo = ""http://msdn.microsoft.com/MySDK""
@@ -290,7 +290,7 @@ namespace Microsoft.Build.Utilities
                         <ToolboxItems VSCategory = ""Toolbox.Default"" />
                     </File>
                 </FileList>
-               
+
                Platform SDK Manifest:
                 <FileList
                     DisplayName = ""Windows""
@@ -608,7 +608,7 @@ namespace Microsoft.Build.Utilities
         private static class Elements
         {
             /// <summary>
-            /// Root element 
+            /// Root element
             /// </summary>
             public const string FileList = "FileList";
         }

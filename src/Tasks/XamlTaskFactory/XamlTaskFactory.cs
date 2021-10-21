@@ -83,8 +83,8 @@ namespace Microsoft.Build.Tasks
         /// </summary>
         public bool Initialize(string taskName, IDictionary<string, TaskPropertyInfo> taskParameters, string taskElementContents, IBuildEngine taskFactoryLoggingHost)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(taskName, nameof(taskName));
-            ErrorUtilities.VerifyThrowArgumentNull(taskParameters, nameof(taskParameters));
+            VerifyThrowArgumentNull(taskName, nameof(taskName));
+            VerifyThrowArgumentNull(taskParameters, nameof(taskParameters));
 
             var log = new TaskLoggingHelper(taskFactoryLoggingHost, taskName)
             {
@@ -113,7 +113,7 @@ namespace Microsoft.Build.Tasks
 
             string pathToMSBuildBinaries = ToolLocationHelper.GetPathToBuildTools(ToolLocationHelper.CurrentToolsVersion);
 
-            // create the code generator options    
+            // create the code generator options
             // Since we are running msbuild 12.0 these had better load.
             var compilerParameters = new CompilerParameters
             (
@@ -211,7 +211,7 @@ namespace Microsoft.Build.Tasks
         /// </remarks>
         public void CleanupTask(ITask task)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(task, nameof(task));
+            VerifyThrowArgumentNull(task, nameof(task));
         }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace Microsoft.Build.Tasks
     public sealed class XamlTaskFactory : ITaskFactory
     {
         public string FactoryName => "XamlTaskFactory";
-    
+
         public Type TaskType { get; } = null;
 
         public bool Initialize(string taskName, IDictionary<string, TaskPropertyInfo> parameterGroup, string taskBody, IBuildEngine taskFactoryLoggingHost)
@@ -253,7 +253,7 @@ namespace Microsoft.Build.Tasks
                 TaskResources = AssemblyResources.PrimaryResources,
                 HelpKeywordPrefix = "MSBuild."
             };
-            
+
             log.LogErrorWithCodeFromResources("TaskFactoryNotSupportedFailure", nameof(XamlTaskFactory));
 
             return false;

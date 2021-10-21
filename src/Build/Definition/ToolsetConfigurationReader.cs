@@ -68,7 +68,7 @@ namespace Microsoft.Build.Evaluation
         internal ToolsetConfigurationReader(PropertyDictionary<ProjectPropertyInstance> environmentProperties, PropertyDictionary<ProjectPropertyInstance> globalProperties, Func<Configuration> readApplicationConfiguration)
             : base(environmentProperties, globalProperties)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(readApplicationConfiguration, nameof(readApplicationConfiguration));
+            VerifyThrowArgumentNull(readApplicationConfiguration, nameof(readApplicationConfiguration));
             _readApplicationConfiguration = readApplicationConfiguration;
             _projectImportSearchPathsCache = new Dictionary<string, Dictionary<string, ProjectImportPathMatch>>(StringComparer.OrdinalIgnoreCase);
         }
@@ -135,8 +135,8 @@ namespace Microsoft.Build.Evaluation
                     }
                     catch (ConfigurationException ex)
                     {
-                        // ConfigurationException is obsolete, but we catch it rather than 
-                        // ConfigurationErrorsException (which is what we throw below) because it is more 
+                        // ConfigurationException is obsolete, but we catch it rather than
+                        // ConfigurationErrorsException (which is what we throw below) because it is more
                         // general and we don't want to miss catching some other derived exception.
                         InvalidToolsetDefinitionException.Throw(ex, "ConfigFileReadError", ElementLocation.Create(ex.Source, ex.Line, 0).LocationString, ex.BareMessage);
                     }

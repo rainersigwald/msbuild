@@ -24,7 +24,7 @@ namespace Microsoft.Build.Shared
             // NOTE: the ResourceManager.GetString() method is thread-safe
             string resource = s_sharedResources.GetString(name, CultureInfo.CurrentUICulture);
 
-            ErrorUtilities.VerifyThrow(resource != null, "Missing resource '{0}'", name);
+            VerifyThrow(resource != null, "Missing resource '{0}'", name);
 
             return resource;
         }

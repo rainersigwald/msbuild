@@ -29,7 +29,7 @@ namespace Microsoft.Build.Construction
         internal ProjectMetadataElement(XmlElementWithLocation xmlElement, ProjectElementContainer parent, ProjectRootElement project)
             : base(xmlElement, parent, project)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(parent, nameof(parent));
+            VerifyThrowArgumentNull(parent, nameof(parent));
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Microsoft.Build.Construction
         }
 
         /// <summary>
-        /// Gets or sets the unevaluated value. 
+        /// Gets or sets the unevaluated value.
         /// Returns empty string if it is not present.
         /// </summary>
         public string Value
@@ -87,7 +87,7 @@ namespace Microsoft.Build.Construction
                     return;
                 }
 
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(Value));
+                VerifyThrowArgumentNull(value, nameof(Value));
                 Internal.Utilities.SetXmlNodeInnerContents(XmlElement, value);
                 Parent?.UpdateElementValue(this);
                 MarkDirty("Set metadata Value {0}", value);
@@ -101,8 +101,8 @@ namespace Microsoft.Build.Construction
         internal static ProjectMetadataElement CreateDisconnected(string name, ProjectRootElement containingProject)
         {
             XmlUtilities.VerifyThrowArgumentValidElementName(name);
-            ErrorUtilities.VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsItemSpecModifier(name), "ItemSpecModifierCannotBeCustomMetadata", name);
-            ErrorUtilities.VerifyThrowInvalidOperation(!XMakeElements.ReservedItemNames.Contains(name), "CannotModifyReservedItemMetadata", name);
+            VerifyThrowArgument(!FileUtilities.ItemSpecModifiers.IsItemSpecModifier(name), "ItemSpecModifierCannotBeCustomMetadata", name);
+            VerifyThrowInvalidOperation(!XMakeElements.ReservedItemNames.Contains(name), "CannotModifyReservedItemMetadata", name);
 
             XmlElementWithLocation element = containingProject.CreateElement(name);
 
@@ -117,9 +117,9 @@ namespace Microsoft.Build.Construction
         /// </remarks>
         internal void ChangeName(string newName)
         {
-            ErrorUtilities.VerifyThrowArgumentLength(newName, nameof(newName));
+            VerifyThrowArgumentLength(newName, nameof(newName));
             XmlUtilities.VerifyThrowArgumentValidElementName(newName);
-            ErrorUtilities.VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(newName), "CannotModifyReservedItemMetadata", newName);
+            VerifyThrowArgument(!XMakeElements.ReservedItemNames.Contains(newName), "CannotModifyReservedItemMetadata", newName);
 
             if (Link != null)
             {
@@ -160,7 +160,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         internal override void VerifyThrowInvalidOperationAcceptableLocation(ProjectElementContainer parent, ProjectElement previousSibling, ProjectElement nextSibling)
         {
-            ErrorUtilities.VerifyThrowInvalidOperation(parent is ProjectItemElement || parent is ProjectItemDefinitionElement, "OM_CannotAcceptParent");
+            VerifyThrowInvalidOperation(parent is ProjectItemElement || parent is ProjectItemDefinitionElement, "OM_CannotAcceptParent");
         }
 
         /// <inheritdoc />

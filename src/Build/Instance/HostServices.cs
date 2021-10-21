@@ -65,9 +65,9 @@ namespace Microsoft.Build.Execution
         /// </summary>
         public ITaskHost GetHostObject(string projectFile, string targetName, string taskName)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectFile, nameof(projectFile));
-            ErrorUtilities.VerifyThrowArgumentNull(targetName, nameof(targetName));
-            ErrorUtilities.VerifyThrowArgumentNull(taskName, nameof(taskName));
+            VerifyThrowArgumentNull(projectFile, nameof(projectFile));
+            VerifyThrowArgumentNull(targetName, nameof(targetName));
+            VerifyThrowArgumentNull(taskName, nameof(taskName));
 
             HostObjects hostObjects;
             if (_hostObjectMap == null || !_hostObjectMap.TryGetValue(projectFile, out hostObjects))
@@ -120,23 +120,23 @@ namespace Microsoft.Build.Execution
         public void RegisterHostObject(string projectFile, string targetName, string taskName, ITaskHost hostObject)
         {
 
-/* Unmerged change from project 'Microsoft.Build (netcoreapp2.1)'
-Before:
-            ErrorUtilities.VerifyThrowArgumentNull(projectFile, "projectFile");
-            ErrorUtilities.VerifyThrowArgumentNull(targetName, "targetName");
-After:
-            ErrorUtilities.VerifyThrowArgumentNull(projectFile, "projectFile));
-            ErrorUtilities.VerifyThrowArgumentNull(targetName, "targetName));
-*/
-            ErrorUtilities.VerifyThrowArgumentNull(projectFile, nameof(projectFile));
-            ErrorUtilities.VerifyThrowArgumentNull(targetName, nameof(targetName));
-            ErrorUtilities.VerifyThrowArgumentNull(taskName, nameof(taskName));
+            /* Unmerged change from project 'Microsoft.Build (netcoreapp2.1)'
+            Before:
+                        VerifyThrowArgumentNull(projectFile, "projectFile");
+                        VerifyThrowArgumentNull(targetName, "targetName");
+            After:
+                        VerifyThrowArgumentNull(projectFile, "projectFile));
+                        VerifyThrowArgumentNull(targetName, "targetName));
+            */
+            VerifyThrowArgumentNull(projectFile, nameof(projectFile));
+            VerifyThrowArgumentNull(targetName, nameof(targetName));
+            VerifyThrowArgumentNull(taskName, nameof(taskName));
 
             // We can only set the host object to a non-null value if the affinity for the project is not out of proc, or if it is, it is only implicitly
             // out of proc, in which case it will become in-proc after this call completes.  See GetNodeAffinity.
             bool isExplicit;
             bool hasExplicitOutOfProcAffinity = (GetNodeAffinity(projectFile, out isExplicit) == NodeAffinity.OutOfProc) && isExplicit;
-            ErrorUtilities.VerifyThrowInvalidOperation(!hasExplicitOutOfProcAffinity || hostObject == null, "InvalidHostObjectOnOutOfProcProject");
+            VerifyThrowInvalidOperation(!hasExplicitOutOfProcAffinity || hostObject == null, "InvalidHostObjectOnOutOfProcProject");
             _hostObjectMap ??= new Dictionary<string, HostObjects>(StringComparer.OrdinalIgnoreCase);
 
             HostObjects hostObjects = GetHostObjectsFromMapByKeyOrCreateNew(projectFile);
@@ -161,10 +161,10 @@ After:
         /// <param name="monikerName">the Moniker used to register host object in ROT</param>
         public void RegisterHostObject(string projectFile, string targetName, string taskName, string monikerName)
         {
-            ErrorUtilities.VerifyThrowArgumentNull(projectFile, nameof(projectFile));
-            ErrorUtilities.VerifyThrowArgumentNull(targetName, nameof(targetName));
-            ErrorUtilities.VerifyThrowArgumentNull(taskName, nameof(taskName));
-            ErrorUtilities.VerifyThrowArgumentNull(monikerName, nameof(monikerName));
+            VerifyThrowArgumentNull(projectFile, nameof(projectFile));
+            VerifyThrowArgumentNull(targetName, nameof(targetName));
+            VerifyThrowArgumentNull(taskName, nameof(taskName));
+            VerifyThrowArgumentNull(monikerName, nameof(monikerName));
 
             _hostObjectMap ??= new Dictionary<string, HostObjects>(StringComparer.OrdinalIgnoreCase);
 
@@ -212,7 +212,7 @@ After:
             {
                 if (HasInProcessHostObject(projectFile))
                 {
-                    ErrorUtilities.VerifyThrowInvalidOperation(nodeAffinity == NodeAffinity.InProc, "InvalidAffinityForProjectWithHostObject");
+                    VerifyThrowInvalidOperation(nodeAffinity == NodeAffinity.InProc, "InvalidAffinityForProjectWithHostObject");
                 }
 
                 if (_projectAffinities == null)

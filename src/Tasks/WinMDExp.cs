@@ -27,7 +27,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(References));
+                VerifyThrowArgumentNull(value, nameof(References));
                 Bag[nameof(References)] = value;
             }
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(DisabledWarnings));
+                VerifyThrowArgumentNull(value, nameof(DisabledWarnings));
                 Bag[nameof(DisabledWarnings)] = value;
             }
         }
@@ -55,7 +55,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(InputDocumentationFile));
+                VerifyThrowArgumentNull(value, nameof(InputDocumentationFile));
                 Bag[nameof(InputDocumentationFile)] = value;
             }
         }
@@ -69,7 +69,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(OutputDocumentationFile));
+                VerifyThrowArgumentNull(value, nameof(OutputDocumentationFile));
                 Bag[nameof(OutputDocumentationFile)] = value;
             }
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(InputPDBFile));
+                VerifyThrowArgumentNull(value, nameof(InputPDBFile));
                 Bag[nameof(InputPDBFile)] = value;
             }
         }
@@ -97,7 +97,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(OutputPDBFile));
+                VerifyThrowArgumentNull(value, nameof(OutputPDBFile));
                 Bag[nameof(OutputPDBFile)] = value;
             }
         }
@@ -112,7 +112,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(WinMDModule));
+                VerifyThrowArgumentNull(value, nameof(WinMDModule));
                 Bag[nameof(WinMDModule)] = value;
             }
         }
@@ -127,7 +127,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(OutputWindowsMetadataFile));
+                VerifyThrowArgumentNull(value, nameof(OutputWindowsMetadataFile));
                 Bag[nameof(OutputWindowsMetadataFile)] = value;
             }
         }
@@ -169,7 +169,7 @@ namespace Microsoft.Build.Tasks
 
             set
             {
-                ErrorUtilities.VerifyThrowArgumentNull(value, nameof(AssemblyUnificationPolicy));
+                VerifyThrowArgumentNull(value, nameof(AssemblyUnificationPolicy));
                 Bag[nameof(AssemblyUnificationPolicy)] = value;
             }
         }
@@ -260,7 +260,7 @@ namespace Microsoft.Build.Tasks
                 var outputWriteTime = NativeMethodsShared.GetLastWriteFileUtcTime(OutputWindowsMetadataFile);
                 var winMDModuleWriteTime = NativeMethodsShared.GetLastWriteFileUtcTime(WinMDModule);
 
-                // If the last write time of the input file is less than the last write time of the output file 
+                // If the last write time of the input file is less than the last write time of the output file
                 // then the output is newer then the input so we do not need to re-run the tool.
                 if (outputWriteTime > winMDModuleWriteTime)
                 {
