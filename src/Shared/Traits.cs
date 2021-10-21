@@ -4,6 +4,10 @@
 using System;
 using Microsoft.Build.Shared;
 
+#if SHARED_IS_FRAMEWORK
+using Microsoft.Build.Framework.Utilities;
+#endif
+
 namespace Microsoft.Build.Utilities
 {
     /// <summary>

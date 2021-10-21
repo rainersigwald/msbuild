@@ -6,6 +6,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
+#if SHARED_IS_FRAMEWORK
+using Microsoft.Build.Framework.Utilities;
+#endif
+
+
 // Declare this to get init properties. See https://github.com/dotnet/roslyn/issues/45510#issuecomment-694977239
 namespace System.Runtime.CompilerServices
 {

@@ -668,6 +668,10 @@
       <Link>SharedUtilities\FileDelegates.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="..\Shared\ErrorUtilities.cs">
+      <Link>Errors\ErrorUtilities.cs</Link>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="..\Shared\VersionUtilities.cs">
       <Link>SharedUtilities\VersionUtilities.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
@@ -702,6 +706,10 @@
     </Compile>
     <Compile Include="..\Shared\ProjectWriter.cs">
       <Link>SharedUtilities\ProjectWriter.cs</Link>
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="..\Shared\ResourceUtilities.cs">
+      <Link>SharedUtilities\ResourceUtilities.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="..\Shared\Tracing.cs" />

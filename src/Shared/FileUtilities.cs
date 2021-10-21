@@ -17,6 +17,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+#if SHARED_IS_FRAMEWORK
+using Microsoft.Build.Framework.Utilities;
+#endif
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Shared.FileSystem;
 
