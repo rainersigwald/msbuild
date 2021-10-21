@@ -38,7 +38,7 @@
         SYSLIB0011: Removing binary formatter will happen as part of a larger .NET-wide effort.
     -->
 
-    <NoWarn>$(NoWarn);NU1603;NU5105;1701;1702;SYSLIB0011</NoWarn>
+    <NoWarn>$(NoWarn);CS0436;NU1603;NU5105;1701;1702;SYSLIB0011</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug-MONO'">
@@ -71,11 +71,11 @@
 
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
-  
+
   <Import Project="$(RepositoryEngineeringDir)Analyzers.props" />
 
   <PropertyGroup>
     <EnableAnalyzers>true</EnableAnalyzers>
   </PropertyGroup>
-  
+
 </Project>

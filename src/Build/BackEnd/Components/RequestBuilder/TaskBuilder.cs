@@ -951,9 +951,12 @@ namespace Microsoft.Build.BackEnd
                     }
                     else
                     {
-                        taskLoggingContext.LogError(new BuildEventFileInfo(_targetChildInstance.Location),
-                            "TaskReturnedFalseButDidNotLogError",
-                            _taskNode.Name);
+                        if (!_cancellationToken.IsCancellationRequested)
+                        {
+                            taskLoggingContext.LogError(new BuildEventFileInfo(_targetChildInstance.Location),
+                                "TaskReturnedFalseButDidNotLogError",
+                                _taskNode.Name);
+                        }
                     }
                 }
 

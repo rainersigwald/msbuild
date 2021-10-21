@@ -77,7 +77,7 @@ namespace Microsoft.Build.Shared
 
             if (resource == null)
             {
-                resource = s_sharedResources.GetString(name, CultureInfo.CurrentUICulture);
+                resource = Shared.SharedResources.GetString(name);
             }
 
             ErrorUtilities.VerifyThrow(resource != null, "Missing resource '{0}'", name);
@@ -107,14 +107,7 @@ namespace Microsoft.Build.Shared
             get { return s_resources; }
         }
 
-        internal static ResourceManager SharedResources
-        {
-            get { return s_sharedResources; }
-        }
-
         // assembly resources
         private static readonly ResourceManager s_resources = new ResourceManager("Microsoft.Build.Strings", typeof(AssemblyResources).GetTypeInfo().Assembly);
-        // shared resources
-        private static readonly ResourceManager s_sharedResources = new ResourceManager("Microsoft.Build.Strings.shared", typeof(AssemblyResources).GetTypeInfo().Assembly);
     }
 }
