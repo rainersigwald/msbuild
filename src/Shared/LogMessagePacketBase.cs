@@ -23,6 +23,8 @@ using TaskEngineAssemblyResolver = Microsoft.Build.BackEnd.Logging.TaskEngineAss
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Shared
 {
     #region Enumerations
@@ -1211,76 +1213,39 @@ namespace Microsoft.Build.Shared
             var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
 
             var args = new ProjectEvaluationStartedEventArgs(
+                ResourceUtilities.GetResourceString("EvaluationFinished"), projectFile);
+            args.BuildEventContext = buildEventContext;
+            args.RawTimestamp = timestamp;
+            args.ProjectFile = projectFile;
 
-                /* Unmerged change from project 'MSBuild'
-                Before:
-                                ResourceUtilities.GetResourceString("EvaluationStarted"), projectFile);
+            args.GlobalProperties = ReadProperties(translator);
+            args.Properties = ReadProperties(translator);
+            args.Items = ReadItems(translator);
+            args.ProfilerResult = ReadProfileResult(translator);
 
-                            args.BuildEventContext = buildEventContext;
-                            args.RawTimestamp = timestamp;
-                            args.ProjectFile = projectFile;
+            return args;
+        }
 
-                            return args;
-                        }
+        private (BuildEventContext buildEventContext, DateTime timestamp, string projectFile)
+            ReadEvaluationEvent(ITranslator translator)
+        {
+            BuildEventContext buildEventContext = null;
+            translator.Translate(ref buildEventContext);
 
-                        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
-                        {
-                            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
+            DateTime timestamp = default;
+            translator.Translate(ref timestamp);
 
-                            var args = new ProjectEvaluationFinishedEventArgs(
-                                ResourceUtilities.GetResourceString("EvaluationFinished"), projectFile);
-                After:
-                                GetResourceString("EvaluationStarted"), projectFile);
+            string projectFile = null;
+            translator.Translate(ref projectFile);
 
-                            args.BuildEventContext = buildEventContext;
-                            args.RawTimestamp = timestamp;
-                            args.ProjectFile = projectFile;
+            return (buildEventContext, timestamp, projectFile);
+        }
 
-                            return args;
-                        }
-
-                        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
-                        {
-                            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
-
-                            var args = new ProjectEvaluationFinishedEventArgs(
-                                GetResourceString("EvaluationFinished"), projectFile);
-                */
-
-                /* Unmerged change from project 'MSBuildTaskHost'
-                Before:
-                                ResourceUtilities.GetResourceString("EvaluationStarted"), projectFile);
-
-                            args.BuildEventContext = buildEventContext;
-                            args.RawTimestamp = timestamp;
-                            args.ProjectFile = projectFile;
-
-                            return args;
-                        }
-
-                        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
-                        {
-                            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
-
-                            var args = new ProjectEvaluationFinishedEventArgs(
-                                ResourceUtilities.GetResourceString("EvaluationFinished"), projectFile);
-                After:
-                                GetResourceString("EvaluationStarted"), projectFile);
-
-                            args.BuildEventContext = buildEventContext;
-                            args.RawTimestamp = timestamp;
-                            args.ProjectFile = projectFile;
-
-                            return args;
-                        }
-
-                        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
-                        {
-                            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
-
-                            var args = new ProjectEvaluationFinishedEventArgs(
-                                GetResourceString("EvaluationFinished"), projectFile);
-                */         if (count == 0)
+        private IEnumerable ReadProperties(ITranslator translator)
+        {
+            var reader = translator.Reader;
+            int count = BinaryReaderExtensions.Read7BitEncodedInt(reader);
+            if (count == 0)
             {
                 return Array.Empty<DictionaryEntry>();
             }
