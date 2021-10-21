@@ -776,7 +776,7 @@ namespace Microsoft.Build.Evaluation
 
                     if (n == -1)
                     {
-                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", expressionFunction, AssemblyResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedParenthesis"));
+                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", expressionFunction, EngineResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedParenthesis"));
                     }
 
                     FlushCurrentArgumentToArgumentBuilder(argumentEndIndex: nestedPropertyStart);
@@ -791,7 +791,7 @@ namespace Microsoft.Build.Evaluation
 
                     if (n == -1)
                     {
-                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", expressionFunction, AssemblyResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedQuote"));
+                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", expressionFunction, EngineResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedQuote"));
                     }
 
                     FlushCurrentArgumentToArgumentBuilder(argumentEndIndex: quoteStart);
@@ -1296,7 +1296,7 @@ namespace Microsoft.Build.Evaluation
 
                         if (indexerStart < 0 || indexerEnd < 0)
                         {
-                            ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", propertyBody, AssemblyResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedSquareBrackets"));
+                            ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", propertyBody, EngineResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedSquareBrackets"));
                         }
                         else
                         {
@@ -3275,7 +3275,7 @@ namespace Microsoft.Build.Evaluation
                     if (indexerEndIndex < 1)
                     {
                         // We ended up with something other than a function expression
-                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", expressionFunction, AssemblyResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedSquareBrackets"));
+                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", expressionFunction, EngineResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedSquareBrackets"));
                     }
 
                     var methodStartIndex = indexerEndIndex + 1;
@@ -4792,7 +4792,7 @@ namespace Microsoft.Build.Evaluation
 
                     if (argumentsEndIndex == -1)
                     {
-                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", expressionFunction, AssemblyResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedParenthesis"));
+                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidFunctionPropertyExpression", expressionFunction, EngineResources.GetString("InvalidFunctionPropertyExpressionDetailMismatchedParenthesis"));
                     }
 
                     // We have been asked for a method invocation

@@ -164,7 +164,7 @@ namespace Microsoft.Build.BackEnd.Logging
 
                 if (subcategoryResourceName != null)
                 {
-                    subcategory = AssemblyResources.GetString(subcategoryResourceName);
+                    subcategory = EngineResources.GetString(subcategoryResourceName);
                 }
 
                 BuildErrorEventArgs buildEvent =
@@ -390,7 +390,7 @@ namespace Microsoft.Build.BackEnd.Logging
 
                 if (!string.IsNullOrWhiteSpace(subcategoryResourceName))
                 {
-                    subcategory = AssemblyResources.GetString(subcategoryResourceName);
+                    subcategory = EngineResources.GetString(subcategoryResourceName);
                 }
 
                 BuildWarningEventArgs buildEvent = new BuildWarningEventArgs

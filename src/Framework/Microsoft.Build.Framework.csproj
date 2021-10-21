@@ -50,10 +50,10 @@
       <Link>Errors\ErrorUtilities.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
-    <Compile Include="..\Shared\ResourceUtilities.cs">
+    <!-- <Compile Include="..\Shared\ResourceUtilities.cs">
       <Link>SharedUtilities\ResourceUtilities.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
-    </Compile>
+    </Compile> -->
     <Compile Include="..\Shared\InternalErrorException.cs">
       <Link>Errors\InternalErrorException.cs</Link>
     </Compile>

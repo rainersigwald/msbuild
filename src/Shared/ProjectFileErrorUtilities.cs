@@ -161,7 +161,7 @@ namespace Microsoft.Build.Shared
 
                 if (errorSubCategoryResourceName != null)
                 {
-                    errorSubCategory = AssemblyResources.GetString(errorSubCategoryResourceName);
+                    errorSubCategory = EngineResources.GetString(errorSubCategoryResourceName);
                 }
 
                 string errorCode;

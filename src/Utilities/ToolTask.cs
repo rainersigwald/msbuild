@@ -69,13 +69,13 @@ namespace Microsoft.Build.Utilities
         {
             LogPrivate = new TaskLoggingHelper(this)
             {
-                TaskResources = AssemblyResources.PrimaryResources,
+                TaskResources = UtilitiesResources.PrimaryResources,
                 HelpKeywordPrefix = "MSBuild."
             };
 
             LogShared = new TaskLoggingHelper(this)
             {
-                TaskResources = AssemblyResources.SharedResources,
+                TaskResources = UtilitiesResources.SharedResources,
                 HelpKeywordPrefix = "MSBuild."
             };
 
