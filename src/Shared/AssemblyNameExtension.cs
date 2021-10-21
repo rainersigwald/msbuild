@@ -197,7 +197,7 @@ namespace Microsoft.Build.Shared
             {
                 // Its pretty hard to get here, you need an assembly that contains a valid reference
                 // to a dependent assembly that, in turn, throws a FileLoadException during GetAssemblyName.
-                // Still it happened once, with an older version of the CLR.
+                // Still it happened once, with an older version of the CLR. 
 
                 // ...falling through and relying on the assemblyName == null behavior below...
             }
@@ -522,7 +522,7 @@ namespace Microsoft.Build.Shared
         /// <returns></returns>
         internal new int GetHashCode()
         {
-            // Ok, so this isn't a great hashing algorithm. However, basenames with different
+            // Ok, so this isn't a great hashing algorithm. However, basenames with different 
             // versions or PKTs are relatively uncommon and so collisions should be low.
             // Hashing on FullName is wrong because the order of tuple fields is undefined.
             int hash = StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name);
@@ -1019,7 +1019,7 @@ namespace Microsoft.Build.Shared
             translator.Translate(ref isSimpleName);
             translator.Translate(ref hasProcessorArchitectureInFusionName);
             translator.Translate(ref immutable);
-
+            
             // TODO: consider some kind of protection against infinite loop during serialization, hint: pre serialize check for cycle in graph
             translator.TranslateHashSet(ref remappedFrom,
                 (ITranslator t) => new AssemblyNameExtension(t),

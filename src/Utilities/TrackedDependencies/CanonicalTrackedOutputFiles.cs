@@ -72,7 +72,7 @@ namespace Microsoft.Build.Utilities
             {
                 _log = new TaskLoggingHelper(ownerTask)
                 {
-                    TaskResources = UtilitiesResources.PrimaryResources,
+                    TaskResources = AssemblyResources.PrimaryResources,
                     HelpKeywordPrefix = "MSBuild."
                 };
             }

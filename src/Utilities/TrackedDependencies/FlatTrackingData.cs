@@ -261,7 +261,7 @@ namespace Microsoft.Build.Utilities
             {
                 _log = new TaskLoggingHelper(ownerTask)
                 {
-                    TaskResources = UtilitiesResources.PrimaryResources,
+                    TaskResources = AssemblyResources.PrimaryResources,
                     HelpKeywordPrefix = "MSBuild."
                 };
             }
@@ -723,7 +723,7 @@ namespace Microsoft.Build.Utilities
             // Keep a record of the task resources that was in use before
             ResourceManager taskResources = Log.TaskResources;
 
-            Log.TaskResources = UtilitiesResources.PrimaryResources;
+            Log.TaskResources = AssemblyResources.PrimaryResources;
 
             inputs.UpdateFileEntryDetails();
             outputs.UpdateFileEntryDetails();

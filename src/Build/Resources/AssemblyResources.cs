@@ -10,7 +10,7 @@ namespace Microsoft.Build.Shared
     /// <summary>
     /// This class provides access to the assembly's resources.
     /// </summary>
-    internal static class EngineResources
+    internal static class AssemblyResources
     {
         /// <summary>
         /// A slot for msbuild.exe to add a resource manager over its own resources, that can also be consulted.
@@ -108,6 +108,6 @@ namespace Microsoft.Build.Shared
         }
 
         // assembly resources
-        private static readonly ResourceManager s_resources = new ResourceManager("Microsoft.Build.Strings", typeof(EngineResources).GetTypeInfo().Assembly);
+        private static readonly ResourceManager s_resources = new ResourceManager("Microsoft.Build.Strings", typeof(AssemblyResources).GetTypeInfo().Assembly);
     }
 }

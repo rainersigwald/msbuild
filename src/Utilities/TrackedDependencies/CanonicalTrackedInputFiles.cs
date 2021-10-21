@@ -144,7 +144,7 @@ namespace Microsoft.Build.Utilities
             {
                 _log = new TaskLoggingHelper(ownerTask)
                 {
-                    TaskResources = UtilitiesResources.PrimaryResources,
+                    TaskResources = AssemblyResources.PrimaryResources,
                     HelpKeywordPrefix = "MSBuild."
                 };
             }
@@ -950,8 +950,8 @@ namespace Microsoft.Build.Utilities
         }
 
         /// <summary>
-        /// Remove the entry in the input dependency graph corresponding to the rooting marker
-        /// passed in.
+        /// Remove the entry in the input dependency graph corresponding to the rooting marker 
+        /// passed in. 
         /// </summary>
         /// <param name="rootingMarker">The root to remove</param>
         public void RemoveEntryForSourceRoot(string rootingMarker) => DependencyTable.Remove(rootingMarker);

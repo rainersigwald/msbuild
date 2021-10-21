@@ -55,6 +55,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\BuildEnvironmentHelper.cs">
+      <Link>BuildEnvironmentHelper.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\FxCopExclusions\Microsoft.Build.Shared.Suppressions.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
@@ -83,6 +86,9 @@
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="..\Shared\EscapingUtilities.cs">
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="..\Shared\ErrorUtilities.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="..\Shared\BufferedReadStream.cs" />
@@ -134,6 +140,9 @@
     <Compile Include="..\Shared\TaskParameterTypeVerifier.cs" />
     <Compile Include="..\Shared\TaskEngineAssemblyResolver.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="..\Shared\Traits.cs">
+      <Link>SharedTraits.cs</Link>
     </Compile>
     <Compile Include="..\Shared\AssemblyNameExtension.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>

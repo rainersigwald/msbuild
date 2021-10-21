@@ -400,7 +400,7 @@ namespace Microsoft.Build.Shared
 
             if (errorSubCategoryResourceName != null)
             {
-                errorSubCategory = EngineResources.GetString(errorSubCategoryResourceName);
+                errorSubCategory = AssemblyResources.GetString(errorSubCategoryResourceName);
             }
 
             string errorCode;

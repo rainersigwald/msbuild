@@ -619,7 +619,7 @@
     <Compile Include="ObjectModelRemoting\ConstructionObjectLinks\ProjectTargetElementLink.cs" />
     <Compile Include="ObjectModelRemoting\ConstructionObjectLinks\ProjectTaskElementLink.cs" />
     <Compile Include="ObjectModelRemoting\ConstructionObjectLinks\ProjectUsingTaskBodyElementLink.cs" />
-    <Compile Include="Resources\EngineResources.cs">
+    <Compile Include="Resources\AssemblyResources.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Resources\Constants.cs">
