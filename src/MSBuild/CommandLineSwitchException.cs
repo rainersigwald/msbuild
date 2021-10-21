@@ -76,7 +76,7 @@ namespace Microsoft.Build.CommandLine
                 }
                 else
                 {
-                    return base.Message + Environment.NewLine + ResourceUtilities.FormatResourceStringStripCodeAndKeyword("InvalidSwitchIndicator", commandLineArg);
+                    return base.Message + Environment.NewLine + FormatResourceStringStripCodeAndKeyword("InvalidSwitchIndicator", commandLineArg);
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace Microsoft.Build.CommandLine
 #if DEBUG
             else
             {
-                ResourceUtilities.VerifyResourceStringExists(messageResourceName);
+                VerifyResourceStringExists(messageResourceName);
             }
 #endif
         }
@@ -148,7 +148,7 @@ namespace Microsoft.Build.CommandLine
         /// <param name="messageArgs"></param>
         internal static void Throw(string messageResourceName, string commandLineArg, params string[] messageArgs)
         {
-            string errorMessage = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(messageResourceName, messageArgs);
+            string errorMessage = FormatResourceStringStripCodeAndKeyword(messageResourceName, messageArgs);
 
             VerifyThrow(errorMessage != null, "The resource string must exist.");
 

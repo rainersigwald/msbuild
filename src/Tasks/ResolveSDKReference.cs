@@ -591,7 +591,7 @@ namespace Microsoft.Build.Tasks
                 {
                     foreach (Tuple<string, object[]> message in reference.StatusMessages)
                     {
-                        string formattedMessage = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(message.Item1, message.Item2);
+                        string formattedMessage = FormatResourceStringStripCodeAndKeyword(message.Item1, message.Item2);
                         Log.LogMessage("  " + formattedMessage);
                     }
                 }
@@ -1012,7 +1012,7 @@ namespace Microsoft.Build.Tasks
 
                     if (_sdkManifest.ReadError)
                     {
-                        AddResolutionErrorOrWarning("ResolveSDKReference.ErrorResolvingSDK", ReferenceItem.ItemSpec, ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveSDKReference.ErrorReadingManifest", _sdkManifestPath, _sdkManifest.ReadErrorMessage));
+                        AddResolutionErrorOrWarning("ResolveSDKReference.ErrorResolvingSDK", ReferenceItem.ItemSpec, FormatResourceStringStripCodeAndKeyword("ResolveSDKReference.ErrorReadingManifest", _sdkManifestPath, _sdkManifest.ReadErrorMessage));
                     }
                 }
 

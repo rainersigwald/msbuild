@@ -267,7 +267,7 @@ namespace Microsoft.Build.BackEnd
                                 commandLineArgs
                             );
 
-                        string nodeFailedToLaunchError = ResourceUtilities.GetResourceString("TaskHostNodeFailedToLaunchErrorCodeNet35NotInstalled");
+                        string nodeFailedToLaunchError = GetResourceString("TaskHostNodeFailedToLaunchErrorCodeNet35NotInstalled");
                         throw new NodeFailedToLaunchException(null, nodeFailedToLaunchError);
                     }
                 }
@@ -430,7 +430,7 @@ namespace Microsoft.Build.BackEnd
 
             if (!FileSystems.Default.FileExists(msbuildLocation))
             {
-                throw new BuildAbortedException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("CouldNotFindMSBuildExe", msbuildLocation));
+                throw new BuildAbortedException(FormatResourceStringStripCodeAndKeyword("CouldNotFindMSBuildExe", msbuildLocation));
             }
 
             // Repeat the executable name as the first token of the command line because the command line

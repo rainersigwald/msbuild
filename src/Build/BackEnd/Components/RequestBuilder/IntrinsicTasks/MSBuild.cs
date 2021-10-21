@@ -244,7 +244,7 @@ namespace Microsoft.Build.BackEnd
 
             // Parse the global properties into a hashtable.
             // The behavior of parsing global properties to define and undefine (below) combined with the behavior in Microsoft.Common.CurrentVersion.targets should match the logic in ProjectGraph.
-            if (!PropertyParser.GetTableWithEscaping(Log, ResourceUtilities.GetResourceString("General.GlobalProperties"), "Properties", Properties, out Dictionary<string, string> propertiesTable))
+            if (!PropertyParser.GetTableWithEscaping(Log, GetResourceString("General.GlobalProperties"), "Properties", Properties, out Dictionary<string, string> propertiesTable))
             {
                 return false;
             }
@@ -548,7 +548,7 @@ namespace Microsoft.Build.BackEnd
                         if (!PropertyParser.GetTableWithEscaping
                             (
                                 log,
-                                ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("General.OverridingProperties", projectNames[i]),
+                                FormatResourceStringIgnoreCodeAndKeyword("General.OverridingProperties", projectNames[i]),
                                 ItemMetadataNames.PropertiesMetadataName,
                                 projects[i].GetMetadata(ItemMetadataNames.PropertiesMetadataName).Split(MSBuildConstants.SemicolonChar, StringSplitOptions.RemoveEmptyEntries),
                                 out Dictionary<string, string> preProjectPropertiesTable)
@@ -594,7 +594,7 @@ namespace Microsoft.Build.BackEnd
                         if (!PropertyParser.GetTableWithEscaping
                             (
                                 log,
-                                ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("General.AdditionalProperties", projectNames[i]),
+                                FormatResourceStringIgnoreCodeAndKeyword("General.AdditionalProperties", projectNames[i]),
                                 ItemMetadataNames.AdditionalPropertiesMetadataName,
                                 projects[i].GetMetadata(ItemMetadataNames.AdditionalPropertiesMetadataName).Split(MSBuildConstants.SemicolonChar, StringSplitOptions.RemoveEmptyEntries),
                                 out Dictionary<string, string> additionalProjectPropertiesTable)

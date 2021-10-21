@@ -346,7 +346,7 @@ namespace Microsoft.Build.Tasks
                     }
                     else
                     {
-                        string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ConflictRedistDifferentSDK", winner.TargetPath, winner.SDKReferenceItem.GetMetadata("OriginalItemSpec"), redist.SDKReferenceItem.GetMetadata("OriginalItemSpec"), winner.RedistFile, redist.RedistFile);
+                        string message = FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ConflictRedistDifferentSDK", winner.TargetPath, winner.SDKReferenceItem.GetMetadata("OriginalItemSpec"), redist.SDKReferenceItem.GetMetadata("OriginalItemSpec"), winner.RedistFile, redist.RedistFile);
                         Log.LogWarningWithCodeFromResources("GetSDKReferenceFiles.ConflictBetweenFiles", message);
                     }
                 }
@@ -427,7 +427,7 @@ namespace Microsoft.Build.Tasks
                         }
                         else
                         {
-                            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ConflictReferenceDifferentSDK", winner.SDKReferenceItem.GetMetadata("OriginalItemSpec"), reference.SDKReferenceItem.GetMetadata("OriginalItemSpec"), winner.AssemblyLocation, reference.AssemblyLocation);
+                            string message = FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ConflictReferenceDifferentSDK", winner.SDKReferenceItem.GetMetadata("OriginalItemSpec"), reference.SDKReferenceItem.GetMetadata("OriginalItemSpec"), winner.AssemblyLocation, reference.AssemblyLocation);
                             Log.LogWarningWithCodeFromResources("GetSDKReferenceFiles.ConflictBetweenFiles", message);
                         }
                     }
@@ -599,7 +599,7 @@ namespace Microsoft.Build.Tasks
                         }
                         else
                         {
-                            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ConflictReferenceSameSDK", winner.SDKReferenceItem.GetMetadata("OriginalItemSpec"), winner.AssemblyLocation.Replace(winner.SDKReferenceItem.ItemSpec, String.Empty), resolvedReference.AssemblyLocation.Replace(resolvedReference.SDKReferenceItem.ItemSpec, String.Empty));
+                            string message = FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ConflictReferenceSameSDK", winner.SDKReferenceItem.GetMetadata("OriginalItemSpec"), winner.AssemblyLocation.Replace(winner.SDKReferenceItem.ItemSpec, String.Empty), resolvedReference.AssemblyLocation.Replace(resolvedReference.SDKReferenceItem.ItemSpec, String.Empty));
                             Log.LogWarningWithCodeFromResources("GetSDKReferenceFiles.ConflictBetweenFiles", message);
                         }
                     }
@@ -639,7 +639,7 @@ namespace Microsoft.Build.Tasks
                                 }
                                 else
                                 {
-                                    string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ConflictRedistSameSDK", redistFile.TargetPath, redistFile.SDKReferenceItem.GetMetadata("OriginalItemSpec"), winner.RedistFile.Replace(redistFile.SDKReferenceItem.ItemSpec, String.Empty), redistFile.RedistFile.Replace(redistFile.SDKReferenceItem.ItemSpec, String.Empty));
+                                    string message = FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ConflictRedistSameSDK", redistFile.TargetPath, redistFile.SDKReferenceItem.GetMetadata("OriginalItemSpec"), winner.RedistFile.Replace(redistFile.SDKReferenceItem.ItemSpec, String.Empty), redistFile.RedistFile.Replace(redistFile.SDKReferenceItem.ItemSpec, String.Empty));
                                     Log.LogWarningWithCodeFromResources("GetSDKReferenceFiles.ConflictBetweenFiles", message);
                                 }
                             }
@@ -939,7 +939,7 @@ namespace Microsoft.Build.Tasks
                 catch (Exception e) when (!ExceptionHandling.IsCriticalException(e))
                 {
                     // Queue up for later logging, does not matter if the file is deleted or not
-                    _exceptionMessages.Enqueue(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemReadingCacheFile", cacheFile, e.ToString()));
+                    _exceptionMessages.Enqueue(FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemReadingCacheFile", cacheFile, e.ToString()));
                 }
 
                 return null;
@@ -969,7 +969,7 @@ namespace Microsoft.Build.Tasks
                         catch (Exception e) when (!ExceptionHandling.IsCriticalException(e))
                         {
                             // Queue up for later logging, does not matter if the file is deleted or not
-                            _exceptionMessages.Enqueue(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemDeletingCacheFile", existingCacheFile, e.Message));
+                            _exceptionMessages.Enqueue(FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemDeletingCacheFile", existingCacheFile, e.Message));
                         }
                     }
 
@@ -982,7 +982,7 @@ namespace Microsoft.Build.Tasks
                 catch (Exception e) when (!ExceptionHandling.IsCriticalException(e))
                 {
                     // Queue up for later logging, does not matter if the cache got written
-                    _exceptionMessages.Enqueue(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemWritingCacheFile", referencesCacheFile, e.Message));
+                    _exceptionMessages.Enqueue(FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemWritingCacheFile", referencesCacheFile, e.Message));
                 }
             }
 
@@ -1105,7 +1105,7 @@ namespace Microsoft.Build.Tasks
                     }
 
                     // Queue up for later logging, does not matter if the cache got written
-                    _exceptionMessages.Enqueue(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemGeneratingHash", currentAssembly, ex.Message));
+                    _exceptionMessages.Enqueue(FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemGeneratingHash", currentAssembly, ex.Message));
 
                     // Don't care why the check failed we will just say the cache is not up to date.
                 }
@@ -1144,7 +1144,7 @@ namespace Microsoft.Build.Tasks
                     }
 
                     // Queue up for later logging, does not matter if the cache got written
-                    _exceptionMessages.Enqueue(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemGettingAssemblyMetadata", referencePath, e.Message));
+                    _exceptionMessages.Enqueue(FormatResourceStringStripCodeAndKeyword("GetSDKReferenceFiles.ProblemGettingAssemblyMetadata", referencePath, e.Message));
                 }
 
                 var referenceInfo = new SdkReferenceInfo(fusionName, imageRuntimeVersion, isWinMDFile, isManagedWinMD);

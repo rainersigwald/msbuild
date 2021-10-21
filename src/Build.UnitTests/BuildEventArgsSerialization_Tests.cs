@@ -362,7 +362,7 @@ namespace Microsoft.Build.UnitTests
         {
             var projectFile = @"C:\foo\bar.proj";
             var args = new ProjectEvaluationStartedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationStarted"),
+                GetResourceString("EvaluationStarted"),
                 projectFile)
             {
                 BuildEventContext = BuildEventContext.Invalid,
@@ -379,7 +379,7 @@ namespace Microsoft.Build.UnitTests
         {
             var projectFile = @"C:\foo\bar.proj";
             var args = new ProjectEvaluationFinishedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationFinished"),
+                GetResourceString("EvaluationFinished"),
                 projectFile)
             {
                 BuildEventContext = BuildEventContext.Invalid,
@@ -402,7 +402,7 @@ namespace Microsoft.Build.UnitTests
         {
             var projectFile = @"C:\foo\bar.proj";
             var args = new ProjectEvaluationFinishedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationFinished"),
+                GetResourceString("EvaluationFinished"),
                 projectFile)
             {
                 BuildEventContext = BuildEventContext.Invalid,

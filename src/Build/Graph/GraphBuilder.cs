@@ -246,7 +246,7 @@ namespace Microsoft.Build.Graph
             if (entryPoints.Count != 1)
             {
                 throw new ArgumentException(
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    FormatResourceStringIgnoreCodeAndKeyword(
                         "StaticGraphAcceptsSingleSolutionEntryPoint",
                         string.Join(";", entryPoints.Select(e => e.ProjectFile))));
             }
@@ -264,7 +264,7 @@ namespace Microsoft.Build.Graph
             if (solution.SolutionParserWarnings.Count != 0 || solution.SolutionParserErrorCodes.Count != 0)
             {
                 throw new InvalidProjectFileException(
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    FormatResourceStringIgnoreCodeAndKeyword(
                         "StaticGraphSolutionLoaderEncounteredSolutionWarningsAndErrors",
                         solutionEntryPoint.ProjectFile,
                         string.Join(";", solution.SolutionParserWarnings),
@@ -451,7 +451,7 @@ namespace Microsoft.Build.Graph
                                     FormatCircularDependencyError(new List<string> {node.ProjectInstance.FullPath, node.ProjectInstance.FullPath});
                                 throw new CircularDependencyException(
                                     string.Format(
-                                        ResourceUtilities.GetResourceString("CircularDependencyInProjectGraph"),
+                                        GetResourceString("CircularDependencyInProjectGraph"),
                                         selfReferencingProjectString));
                             }
 
@@ -476,7 +476,7 @@ namespace Microsoft.Build.Graph
                                 var errorMessage = FormatCircularDependencyError(loadReference.projectsInCycle);
                                 throw new CircularDependencyException(
                                     string.Format(
-                                        ResourceUtilities.GetResourceString("CircularDependencyInProjectGraph"),
+                                        GetResourceString("CircularDependencyInProjectGraph"),
                                         errorMessage));
                             }
 
@@ -505,7 +505,7 @@ namespace Microsoft.Build.Graph
 
             if (projectInstance == null)
             {
-                throw new InvalidOperationException(ResourceUtilities.GetResourceString("NullReferenceFromProjectInstanceFactory"));
+                throw new InvalidOperationException(GetResourceString("NullReferenceFromProjectInstanceFactory"));
             }
 
             var graphNode = new ProjectGraphNode(projectInstance);
@@ -549,7 +549,7 @@ namespace Microsoft.Build.Graph
             {
                 if (FileUtilities.IsSolutionFilename(referenceInfo.ReferenceConfiguration.ProjectFullPath))
                 {
-                    throw new InvalidOperationException(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    throw new InvalidOperationException(FormatResourceStringIgnoreCodeAndKeyword(
                         "StaticGraphDoesNotSupportSlnReferences",
                         referenceInfo.ReferenceConfiguration.ProjectFullPath,
                         referenceInfo.ReferenceConfiguration.ProjectFullPath

@@ -1778,7 +1778,7 @@ namespace Microsoft.Build.BackEnd
                             var result = new BuildResult(
                                 request,
                                 new InvalidOperationException(
-                                    ResourceUtilities.FormatResourceStringStripCodeAndKeyword(
+                                    FormatResourceStringStripCodeAndKeyword(
                                         "AffinityConflict",
                                         requestAffinity,
                                         existingRequestAffinity,
@@ -1999,7 +1999,7 @@ namespace Microsoft.Build.BackEnd
                 return true;
             }
 
-            var errorMessage = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+            var errorMessage = FormatResourceStringIgnoreCodeAndKeyword(
                 "CacheMissesNotAllowedInIsolatedGraphBuilds",
                 parentConfig.ProjectFullPath,
                 ConcatenateGlobalProperties(parentConfig),

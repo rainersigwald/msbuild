@@ -372,7 +372,7 @@ namespace Microsoft.Build.Logging
             var projectFile = ReadDeduplicatedString();
 
             var e = new ProjectEvaluationStartedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationStarted"),
+                GetResourceString("EvaluationStarted"),
                 projectFile)
             {
                 ProjectFile = projectFile
@@ -387,7 +387,7 @@ namespace Microsoft.Build.Logging
             var projectFile = ReadDeduplicatedString();
 
             var e = new ProjectEvaluationFinishedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationFinished"),
+                GetResourceString("EvaluationFinished"),
                 projectFile)
             {
                 ProjectFile = projectFile
@@ -1369,7 +1369,7 @@ namespace Microsoft.Build.Logging
                 }
                 catch
                 {
-                    // The StringStorage class is not crucial for other functionality and if 
+                    // The StringStorage class is not crucial for other functionality and if
                     // there are exceptions when closing the temp file, it's too late to do anything about it.
                     // Since we don't want to disrupt anything and the file is in the TEMP directory, it will
                     // get cleaned up at some point anyway.

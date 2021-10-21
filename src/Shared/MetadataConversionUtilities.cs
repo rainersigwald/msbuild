@@ -8,14 +8,14 @@ namespace Microsoft.Build.Shared
 {
     /// <summary>
     /// This class contains only static methods, which are useful throughout many
-    /// of the XMake classes and don't really belong in any specific class.   
+    /// of the XMake classes and don't really belong in any specific class.
     /// </summary>
     internal static class MetadataConversionUtilities
     {
         /// <summary>
         /// Convert a task item metadata to bool. Throw an exception if the string is badly formed and can't
         /// be converted.
-        /// 
+        ///
         /// If the metadata is not found, then set metadataFound to false and then return false.
         /// </summary>
         /// <param name="item">The item that contains the metadata.</param>
@@ -43,14 +43,14 @@ namespace Microsoft.Build.Shared
             }
             catch (System.ArgumentException e)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.InvalidAttributeMetadata", item.ItemSpec, itemMetadataName, metadataValue, "bool"), e);
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("General.InvalidAttributeMetadata", item.ItemSpec, itemMetadataName, metadataValue, "bool"), e);
             }
         }
 
         /// <summary>
         /// Convert a task item metadata to bool. Throw an exception if the string is badly formed and can't
         /// be converted.
-        /// 
+        ///
         /// If the attribute is not found, then return false.
         /// </summary>
         /// <param name="item">The item that contains the metadata.</param>

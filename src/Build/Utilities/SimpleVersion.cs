@@ -182,7 +182,7 @@ namespace Microsoft.Build.Utilities
 
         private static Exception InvalidVersionFormat()
         {
-            return new FormatException(ResourceUtilities.GetResourceString(nameof(InvalidVersionFormat)));
+            return new FormatException(GetResourceString(nameof(InvalidVersionFormat)));
         }
     }
 }

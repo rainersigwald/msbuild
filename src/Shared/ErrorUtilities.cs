@@ -51,36 +51,36 @@ namespace Microsoft.Build.Shared
         {
             if (s_throwExceptions && !condition)
             {
-                throw new InternalErrorException(ResourceUtilities.FormatString(message, args));
+                throw new InternalErrorException(FormatString(message, args));
             }
         }
 
         /// <summary>
-        /// Throws InternalErrorException. 
+        /// Throws InternalErrorException.
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
         internal static void ThrowInternalError(string message, params object[] args)
         {
             if (s_throwExceptions)
             {
-                throw new InternalErrorException(ResourceUtilities.FormatString(message, args));
+                throw new InternalErrorException(FormatString(message, args));
             }
         }
 
         /// <summary>
-        /// Throws InternalErrorException. 
+        /// Throws InternalErrorException.
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
         internal static void ThrowInternalError(string message, Exception innerException, params object[] args)
         {
             if (s_throwExceptions)
             {
-                throw new InternalErrorException(ResourceUtilities.FormatString(message, args), innerException);
+                throw new InternalErrorException(FormatString(message, args), innerException);
             }
         }
 
         /// <summary>
-        /// Throws InternalErrorException. 
+        /// Throws InternalErrorException.
         /// Indicates the code path followed should not have been possible.
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
@@ -93,7 +93,7 @@ namespace Microsoft.Build.Shared
         }
 
         /// <summary>
-        /// Throws InternalErrorException. 
+        /// Throws InternalErrorException.
         /// Indicates the code path followed should not have been possible.
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
@@ -106,7 +106,7 @@ namespace Microsoft.Build.Shared
         }
 
         /// <summary>
-        /// Throws InternalErrorException. 
+        /// Throws InternalErrorException.
         /// Indicates the code path followed should not have been possible.
         /// This is only for situations that would mean that there is a bug in MSBuild itself.
         /// </summary>
@@ -328,11 +328,11 @@ namespace Microsoft.Build.Shared
         internal static void ThrowInvalidOperation(string resourceName, params object[] args)
         {
 #if DEBUG
-            ResourceUtilities.VerifyResourceStringExists(resourceName);
+            VerifyResourceStringExists(resourceName);
 #endif
             if (s_throwExceptions)
             {
-                throw new InvalidOperationException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword(resourceName, args));
+                throw new InvalidOperationException(FormatResourceStringStripCodeAndKeyword(resourceName, args));
             }
         }
 
@@ -461,7 +461,7 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// Throws an ArgumentException that can include an inner exception.
-        /// 
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments
         /// is expensive, because memory is allocated for the array of arguments -- do
         /// not call this method repeatedly in performance-critical scenarios
@@ -477,7 +477,7 @@ namespace Microsoft.Build.Shared
 
         /// <summary>
         /// Throws an ArgumentException that can include an inner exception.
-        /// 
+        ///
         /// PERF WARNING: calling a method that takes a variable number of arguments
         /// is expensive, because memory is allocated for the array of arguments -- do
         /// not call this method repeatedly in performance-critical scenarios
@@ -496,11 +496,11 @@ namespace Microsoft.Build.Shared
         )
         {
 #if DEBUG
-            ResourceUtilities.VerifyResourceStringExists(resourceName);
+            VerifyResourceStringExists(resourceName);
 #endif
             if (s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword(resourceName, args), innerException);
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword(resourceName, args), innerException);
             }
         }
 
@@ -749,7 +749,7 @@ namespace Microsoft.Build.Shared
 
             if (parameter.Length == 0 && s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
             }
         }
 
@@ -766,7 +766,7 @@ namespace Microsoft.Build.Shared
 
             if (parameter.Count == 0 && s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
             }
         }
 
@@ -779,11 +779,11 @@ namespace Microsoft.Build.Shared
         {
             if (parameter?.Count == 0 && s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
             }
         }
 #endif
-        
+
         /// <summary>
         /// Throws an ArgumentNullException if the given string parameter is null
         /// and ArgumentException if it has zero length.
@@ -796,19 +796,19 @@ namespace Microsoft.Build.Shared
 
             if (FileUtilities.PathIsInvalid(parameter) && s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveInvalidPathChars", parameterName, parameter));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveInvalidPathChars", parameterName, parameter));
             }
         }
 
         /// <summary>
-        /// Throws an ArgumentException if the string has zero length, unless it is 
+        /// Throws an ArgumentException if the string has zero length, unless it is
         /// null, in which case no exception is thrown.
         /// </summary>
         internal static void VerifyThrowArgumentLengthIfNotNull(string parameter, string parameterName)
         {
             if (parameter?.Length == 0 && s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
             }
         }
 
@@ -831,10 +831,10 @@ namespace Microsoft.Build.Shared
         {
             if (parameter == null && s_throwExceptions)
             {
-                // Most ArgumentNullException overloads append its own rather clunky multi-line message. 
+                // Most ArgumentNullException overloads append its own rather clunky multi-line message.
                 // So use the one overload that doesn't.
                 throw new ArgumentNullException(
-                    ResourceUtilities.FormatResourceStringStripCodeAndKeyword(resourceName, parameterName),
+                    FormatResourceStringStripCodeAndKeyword(resourceName, parameterName),
                     (Exception)null);
             }
         }
@@ -853,7 +853,7 @@ namespace Microsoft.Build.Shared
 
             if (parameter1.Length != parameter2.Length && s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Shared.ParametersMustHaveTheSameLength", parameter1Name, parameter2Name));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Shared.ParametersMustHaveTheSameLength", parameter1Name, parameter2Name));
             }
         }
 

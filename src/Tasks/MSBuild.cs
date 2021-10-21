@@ -209,7 +209,7 @@ namespace Microsoft.Build.Tasks
             }
 
             // Parse the global properties into a hashtable.
-            if (!PropertyParser.GetTableWithEscaping(Log, ResourceUtilities.GetResourceString("General.GlobalProperties"), "Properties", Properties, out Dictionary<string, string> propertiesTable))
+            if (!PropertyParser.GetTableWithEscaping(Log, GetResourceString("General.GlobalProperties"), "Properties", Properties, out Dictionary<string, string> propertiesTable))
             {
                 return false;
             }
@@ -508,7 +508,7 @@ namespace Microsoft.Build.Tasks
                     if (!String.IsNullOrEmpty(projects[i].GetMetadata("Properties")))
                     {
                         if (!PropertyParser.GetTableWithEscaping
-                             (log, ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("General.OverridingProperties", projectNames[i]), "Properties", projects[i].GetMetadata("Properties").Split(MSBuildConstants.SemicolonChar),
+                             (log, FormatResourceStringIgnoreCodeAndKeyword("General.OverridingProperties", projectNames[i]), "Properties", projects[i].GetMetadata("Properties").Split(MSBuildConstants.SemicolonChar),
                               out Dictionary<string, string> preProjectPropertiesTable)
                            )
                         {
@@ -549,7 +549,7 @@ namespace Microsoft.Build.Tasks
                     if (!String.IsNullOrEmpty(projects[i].GetMetadata("AdditionalProperties")))
                     {
                         if (!PropertyParser.GetTableWithEscaping
-                             (log, ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("General.AdditionalProperties", projectNames[i]), "AdditionalProperties", projects[i].GetMetadata("AdditionalProperties").Split(MSBuildConstants.SemicolonChar),
+                             (log, FormatResourceStringIgnoreCodeAndKeyword("General.AdditionalProperties", projectNames[i]), "AdditionalProperties", projects[i].GetMetadata("AdditionalProperties").Split(MSBuildConstants.SemicolonChar),
                               out Dictionary<string, string> additionalProjectPropertiesTable)
                            )
                         {

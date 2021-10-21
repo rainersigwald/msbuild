@@ -1944,7 +1944,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
             _buildManager.EndBuild();
 
             // We should have built the same instance, with the same results, so the target will be skipped.
-            string skippedMessage = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteSuccess", "test");
+            string skippedMessage = FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteSuccess", "test");
             Assert.Contains(skippedMessage, _logger.FullLog);
 
             ProjectInstance instance2 = _buildManager.GetProjectInstanceForBuild(project);
@@ -2717,7 +2717,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
 
             // We should, however, end up skipping Error1 on the second call to B.
             string skippedMessage =
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Error1");
+                FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Error1");
             _logger.AssertLogContains(skippedMessage);
             _buildManager.EndBuild();
         }
@@ -2824,20 +2824,20 @@ namespace Microsoft.Build.UnitTests.BackEnd
 
             // We should end up skipping Error1 on the second call to B.
             string skippedMessage1 =
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Error1");
+                FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Error1");
             _logger.AssertLogContains(skippedMessage1);
 
             // We shouldn't, however, see skip messages for the OnError targets
             string skippedMessage2 =
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Target2");
+                FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Target2");
             _logger.AssertLogDoesntContain(skippedMessage2);
 
             string skippedMessage3 =
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteSuccess", "Target3");
+                FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteSuccess", "Target3");
             _logger.AssertLogDoesntContain(skippedMessage3);
 
             string skippedMessage4 =
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteSuccess", "Target4");
+                FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteSuccess", "Target4");
             _logger.AssertLogDoesntContain(skippedMessage4);
             _buildManager.EndBuild();
         }
@@ -2923,11 +2923,11 @@ namespace Microsoft.Build.UnitTests.BackEnd
 
             // We should also end up skipping them both.
             string skippedMessage1 =
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Error1");
+                FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Error1");
             _logger.AssertLogContains(skippedMessage1);
 
             string skippedMessage2 =
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Error2");
+                FormatResourceStringStripCodeAndKeyword("TargetAlreadyCompleteFailure", "Error2");
             _logger.AssertLogContains(skippedMessage2);
 
             _buildManager.EndBuild();

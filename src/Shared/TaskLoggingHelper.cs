@@ -181,7 +181,7 @@ namespace Microsoft.Build.Utilities
         {
             VerifyThrowArgumentNull(message, nameof(message));
 
-            messageWithoutCodePrefix = ResourceUtilities.ExtractMessageCode(false /* any code */, message, out string code);
+            messageWithoutCodePrefix = ExtractMessageCode(false /* any code */, message, out string code);
 
             return code;
         }
@@ -225,7 +225,7 @@ namespace Microsoft.Build.Utilities
         {
             VerifyThrowArgumentNull(unformatted, nameof(unformatted));
 
-            return ResourceUtilities.FormatString(unformatted, args);
+            return FormatString(unformatted, args);
         }
 
         /// <summary>
@@ -297,7 +297,7 @@ namespace Microsoft.Build.Utilities
             if (messageArgs?.Length > 0)
             {
                 // Verify that message can be formatted using given arguments
-                ResourceUtilities.FormatString(message, messageArgs);
+                FormatString(message, messageArgs);
             }
 #endif
             if (!LogsMessagesOfImportance(importance))
@@ -329,7 +329,7 @@ namespace Microsoft.Build.Utilities
             // Assert that the message does not contain an error code.  Only errors and warnings
             // should have error codes.
             string errorCode;
-            ResourceUtilities.ExtractMessageCode(true /* only msbuild codes */, message, out errorCode);
+            ExtractMessageCode(true /* only msbuild codes */, message, out errorCode);
             VerifyThrow(errorCode == null, "This message contains an error code (" + errorCode + "), yet it was logged as a regular message: " + message);
 #endif
         }
@@ -510,7 +510,7 @@ namespace Microsoft.Build.Utilities
             // Assert that the message does not contain an error code.  Only errors and warnings
             // should have error codes.
             string errorCode;
-            ResourceUtilities.ExtractMessageCode(true /* only msbuild codes */, FormatResourceString(messageResourceName, messageArgs), out errorCode);
+            ExtractMessageCode(true /* only msbuild codes */, FormatResourceString(messageResourceName, messageArgs), out errorCode);
             VerifyThrow(errorCode == null, errorCode, FormatResourceString(messageResourceName, messageArgs));
 #endif
         }
@@ -781,7 +781,7 @@ namespace Microsoft.Build.Utilities
             // Check this only in debug, to avoid the cost of attempting to extract a
             // message code when there probably isn't one.
             string messageCode;
-            string throwAwayMessageBody = ResourceUtilities.ExtractMessageCode(true /* only msbuild codes */, FormatResourceString(messageResourceName, messageArgs), out messageCode);
+            string throwAwayMessageBody = ExtractMessageCode(true /* only msbuild codes */, FormatResourceString(messageResourceName, messageArgs), out messageCode);
 
             VerifyThrow(string.IsNullOrEmpty(messageCode), "Called LogErrorFromResources instead of LogErrorWithCodeFromResources, but message '" + throwAwayMessageBody + "' does have an error code '" + messageCode + "'");
 #endif
@@ -862,7 +862,7 @@ namespace Microsoft.Build.Utilities
                 subcategory = FormatResourceString(subcategoryResourceName);
             }
 
-            string message = ResourceUtilities.ExtractMessageCode(false /* all codes */, FormatResourceString(messageResourceName, messageArgs), out string errorCode);
+            string message = ExtractMessageCode(false /* all codes */, FormatResourceString(messageResourceName, messageArgs), out string errorCode);
 
             string helpKeyword = null;
 
@@ -1155,7 +1155,7 @@ namespace Microsoft.Build.Utilities
             // should have been called instead, so that the errorCode field gets populated.
             // Check this only in debug, to avoid the cost of attempting to extract a
             // message code when there probably isn't one.
-            string throwAwayMessageBody = ResourceUtilities.ExtractMessageCode(true /* only msbuild codes */, FormatResourceString(messageResourceName, messageArgs), out string messageCode);
+            string throwAwayMessageBody = ExtractMessageCode(true /* only msbuild codes */, FormatResourceString(messageResourceName, messageArgs), out string messageCode);
             VerifyThrow(string.IsNullOrEmpty(messageCode), "Called LogWarningFromResources instead of LogWarningWithCodeFromResources, but message '" + throwAwayMessageBody + "' does have an error code '" + messageCode + "'");
 #endif
 
@@ -1235,7 +1235,7 @@ namespace Microsoft.Build.Utilities
                 subcategory = FormatResourceString(subcategoryResourceName);
             }
 
-            string message = ResourceUtilities.ExtractMessageCode(false /* all codes */, FormatResourceString(messageResourceName, messageArgs), out string warningCode);
+            string message = ExtractMessageCode(false /* all codes */, FormatResourceString(messageResourceName, messageArgs), out string warningCode);
 
             string helpKeyword = null;
 

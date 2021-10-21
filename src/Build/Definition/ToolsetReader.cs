@@ -652,7 +652,7 @@ namespace Microsoft.Build.Evaluation
             else if (ReservedPropertyNames.IsReservedProperty(property.Name))
             {
                 // We don't allow toolsets to define reserved properties
-                string baseMessage = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("CannotModifyReservedProperty", property.Name);
+                string baseMessage = FormatResourceStringStripCodeAndKeyword("CannotModifyReservedProperty", property.Name);
                 InvalidToolsetDefinitionException.Throw("InvalidPropertyNameInToolset", property.Name, property.Source.LocationString, baseMessage);
             }
             else

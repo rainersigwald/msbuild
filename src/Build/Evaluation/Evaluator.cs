@@ -1668,14 +1668,14 @@ namespace Microsoft.Build.Evaluation
             return allProjects;
         }
 
-        private static readonly string CouldNotResolveSdk = ResourceUtilities.GetResourceString("CouldNotResolveSdk");
-        private static readonly string ProjectImported = ResourceUtilities.GetResourceString("ProjectImported");
-        private static readonly string ProjectImportSkippedEmptyFile = ResourceUtilities.GetResourceString("ProjectImportSkippedEmptyFile");
-        private static readonly string ProjectImportSkippedExpressionEvaluatedToEmpty = ResourceUtilities.GetResourceString("ProjectImportSkippedExpressionEvaluatedToEmpty");
-        private static readonly string ProjectImportSkippedFalseCondition = ResourceUtilities.GetResourceString("ProjectImportSkippedFalseCondition");
-        private static readonly string ProjectImportSkippedInvalidFile = ResourceUtilities.GetResourceString("ProjectImportSkippedInvalidFile");
-        private static readonly string ProjectImportSkippedMissingFile = ResourceUtilities.GetResourceString("ProjectImportSkippedMissingFile");
-        private static readonly string ProjectImportSkippedNoMatches = ResourceUtilities.GetResourceString("ProjectImportSkippedNoMatches");
+        private static readonly string CouldNotResolveSdk = GetResourceString("CouldNotResolveSdk");
+        private static readonly string ProjectImported = GetResourceString("ProjectImported");
+        private static readonly string ProjectImportSkippedEmptyFile = GetResourceString("ProjectImportSkippedEmptyFile");
+        private static readonly string ProjectImportSkippedExpressionEvaluatedToEmpty = GetResourceString("ProjectImportSkippedExpressionEvaluatedToEmpty");
+        private static readonly string ProjectImportSkippedFalseCondition = GetResourceString("ProjectImportSkippedFalseCondition");
+        private static readonly string ProjectImportSkippedInvalidFile = GetResourceString("ProjectImportSkippedInvalidFile");
+        private static readonly string ProjectImportSkippedMissingFile = GetResourceString("ProjectImportSkippedMissingFile");
+        private static readonly string ProjectImportSkippedNoMatches = GetResourceString("ProjectImportSkippedNoMatches");
 
         /// <summary>
         /// Load and parse the specified project import, which may have wildcards,

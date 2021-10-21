@@ -391,7 +391,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         </Compile>
     </ItemGroup>
 
-    <Target Name=`Build`>      
+    <Target Name=`Build`>
         <Message Text=`DirChain0: @(Compile->'%(SomeMeta)'->'%(Directory)'->Distinct())`/>
         <Message Text=`DirChain1: @(Compile->'%(SomeMeta)'->'%(Directory)'->Distinct(), '%(A)')`/>
         <Message Text=`DirChain2: @(Compile->'%(SomeMeta)'->'%(Directory)'->Distinct(), '%(A)%(B)')`/>
@@ -415,7 +415,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`foo;bar`/>
@@ -437,7 +437,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`foo;bar`/>
@@ -460,7 +460,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`foo;bar`/>
@@ -482,7 +482,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`foo;bar`/>
@@ -505,7 +505,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`foo;bar`/>
@@ -527,7 +527,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`foo;bar`/>
@@ -549,7 +549,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`foo;bar;foo;bar;foo`/>
@@ -571,7 +571,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`foo;bar;foo;bar;foo`/>
@@ -594,7 +594,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo`/>
@@ -620,7 +620,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
 
             string content = @"
  <Project DefaultTargets=`t` xmlns=`http://schemas.microsoft.com/developer/msbuild/2003`>
- 
+
         <Target Name=`t`>
             <ItemGroup>
                 <I Include=`aaa|||bbb\ccc.txt`/>
@@ -1147,7 +1147,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
                   <Target Name=`Build`>
                     <Message Importance=`high` Text=`QualifiedNotMatchCase %(Foo.FileName)=%(Foo.sensitive)`/>
                     <Message Importance=`high` Text=`QualifiedMatchCase %(Foo.FileName)=%(Foo.SENSITIVE)`/>
-                    
+
                     <Message Importance=`high` Text=`UnqualifiedNotMatchCase %(Foo.FileName)=%(sensitive)`/>
                     <Message Importance=`high` Text=`UnqualifiedMatchCase %(Foo.FileName)=%(SENSITIVE)`/>
                   </Target>
@@ -1176,7 +1176,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
                   <Target Name=`Build`>
                     <Message Importance=`high` Text=`QualifiedNotMatchCase %(Foo.FileName)=%(Foo.sensitive)`/>
                     <Message Importance=`high` Text=`QualifiedMatchCase %(Foo.FileName)=%(Foo.SENSITIVE)`/>
-                    
+
                     <Message Importance=`high` Text=`UnqualifiedNotMatchCase %(Foo.FileName)=%(sensitive)`/>
                     <Message Importance=`high` Text=`UnqualifiedMatchCase %(Foo.FileName)=%(SENSITIVE)`/>
                   </Target>
@@ -1200,7 +1200,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
                   <Target Name=`Build`>
                     <Message Importance=`high` Text=`QualifiedNotMatchCase %(Foo.Identity)=%(Foo.FILENAME)`/>
                     <Message Importance=`high` Text=`QualifiedMatchCase %(Foo.Identity)=%(Foo.FileName)`/>
-                    
+
                     <Message Importance=`high` Text=`UnqualifiedNotMatchCase %(Foo.Identity)=%(FILENAME)`/>
                     <Message Importance=`high` Text=`UnqualifiedMatchCase %(Foo.Identity)=%(FileName)`/>
                   </Target>
@@ -2880,7 +2880,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
         {
             var pg = new PropertyDictionary<ProjectPropertyInstance>();
             var expander = new Expander<ProjectPropertyInstance, ProjectItemInstance>(pg, FileSystems.Default);
-            string expectedMessage = ResourceUtilities.GetResourceString("InvalidVersionFormat");
+            string expectedMessage = GetResourceString("InvalidVersionFormat");
 
             AssertThrows(expander, $"$([MSBuild]::VersionGreaterThan('{badVersion}', '1.0.0'))", expectedMessage);
             AssertThrows(expander, $"$([MSBuild]::VersionGreaterThan('1.0.0', '{badVersion}'))", expectedMessage);
@@ -3133,7 +3133,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
                 expander.ExpandIntoStringLeaveEscaped(@"$([MSBuild]::GetPathOfFileAbove($(FileWithPath)))", ExpanderOptions.ExpandProperties, MockElementLocation.Instance);
             });
 
-            Assert.Contains(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("InvalidGetPathOfFileAboveParameter", fileWithPath), exception.Message);
+            Assert.Contains(FormatResourceStringStripCodeAndKeyword("InvalidGetPathOfFileAboveParameter", fileWithPath), exception.Message);
         }
 
         /// <summary>
@@ -3738,25 +3738,25 @@ namespace Microsoft.Build.UnitTests.Evaluation
             "$(listofthings.Split(';')[-1])",
             "$([]::())",
                                                       @"
- 
+
 $(
- 
+
 $(
- 
+
 [System.IO]::Path.GetDirectory('c:\foo\bar\baz.txt')
- 
+
 ).Substring(
- 
+
 '$([System.IO]::Path.GetPathRoot(
- 
+
 '$([System.IO]::Path.GetDirectory('c:\foo\bar\baz.txt'))'
- 
+
 ).Length)'
- 
- 
- 
+
+
+
 )
- 
+
 ",
                 "$([Microsoft.VisualBasic.FileIO.FileSystem]::CurrentDirectory)", // not allowed
                 "$(e.Length..ToString())",

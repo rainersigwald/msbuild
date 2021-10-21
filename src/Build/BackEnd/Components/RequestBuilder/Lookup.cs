@@ -218,7 +218,7 @@ namespace Microsoft.Build.BackEnd
                         {
                             errorMessages = new List<string>();
                         }
-                        errorMessages.Add(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("PropertyOutputOverridden", propertyName, EscapingUtilities.UnescapeAll(propertyValue), property.EvaluatedValue));
+                        errorMessages.Add(FormatResourceStringIgnoreCodeAndKeyword("PropertyOutputOverridden", propertyName, EscapingUtilities.UnescapeAll(propertyValue), property.EvaluatedValue));
                     }
 
                     // Set the value of the hash to the new property value

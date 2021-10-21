@@ -1181,7 +1181,7 @@ namespace Microsoft.Build.CommandLine
             // Using the CLR 2 build event because this class is shared between MSBuildTaskHost.exe (CLR2) and MSBuild.exe (CLR4+)
             BuildMessageEventArgs message = new BuildMessageEventArgs
                                                 (
-                                                    ResourceUtilities.FormatString(AssemblyResources.GetString(messageResource), messageArgs),
+                                                    FormatString(AssemblyResources.GetString(messageResource), messageArgs),
                                                     null,
                                                     _currentConfiguration.TaskName,
                                                     importance
@@ -1207,7 +1207,7 @@ namespace Microsoft.Build.CommandLine
                                                     ColumnNumberOfTaskNode,
                                                     0,
                                                     0,
-                                                    ResourceUtilities.FormatString(AssemblyResources.GetString(messageResource), messageArgs),
+                                                    FormatString(AssemblyResources.GetString(messageResource), messageArgs),
                                                     null,
                                                     _currentConfiguration.TaskName
                                                 );

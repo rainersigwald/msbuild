@@ -40,7 +40,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 {
                     VerifyThrow(!string.IsNullOrEmpty(messageResourceName), "Need resource string for comment message.");
 
-                    LogCommentFromText(buildEventContext, importance, ResourceUtilities.GetResourceString(messageResourceName), messageArgs);
+                    LogCommentFromText(buildEventContext, importance, GetResourceString(messageResourceName), messageArgs);
                 }
             }
         }
@@ -137,7 +137,7 @@ namespace Microsoft.Build.BackEnd.Logging
 
                 string errorCode;
                 string helpKeyword;
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, messageResourceName, messageArgs);
+                string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, messageResourceName, messageArgs);
 
                 LogErrorFromText(buildEventContext, subcategoryResourceName, errorCode, helpKeyword, file, message);
             }
@@ -297,7 +297,7 @@ namespace Microsoft.Build.BackEnd.Logging
 
                 string errorCode;
                 string helpKeyword;
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, messageResourceName, messageArgs);
+                string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, messageResourceName, messageArgs);
 #if DEBUG
                 message += Environment.NewLine + "This is an unhandled exception from a task -- PLEASE OPEN A BUG AGAINST THE TASK OWNER.";
 #endif
@@ -336,7 +336,7 @@ namespace Microsoft.Build.BackEnd.Logging
 
                 string warningCode;
                 string helpKeyword;
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, "FatalTaskError", taskName);
+                string message = FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, "FatalTaskError", taskName);
 #if DEBUG
                 message += Environment.NewLine + "This is an unhandled exception from a task -- PLEASE OPEN A BUG AGAINST THE TASK OWNER.";
 #endif
@@ -366,7 +366,7 @@ namespace Microsoft.Build.BackEnd.Logging
 
                 string warningCode;
                 string helpKeyword;
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, messageResourceName, messageArgs);
+                string message = FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, messageResourceName, messageArgs);
                 LogWarningFromText(buildEventContext, subcategoryResourceName, warningCode, helpKeyword, file, message);
             }
         }
@@ -438,7 +438,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 string message = String.Empty;
                 if (!OnlyLogCriticalEvents)
                 {
-                    message = ResourceUtilities.GetResourceString("BuildStarted");
+                    message = GetResourceString("BuildStarted");
                 }
 
                 IDictionary<string, string> environmentProperties = null;
@@ -471,7 +471,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 string message = String.Empty;
                 if (!OnlyLogCriticalEvents)
                 {
-                    message = ResourceUtilities.GetResourceString(success ? "BuildFinishedSuccess" : "BuildFinishedFailure");
+                    message = GetResourceString(success ? "BuildFinishedSuccess" : "BuildFinishedFailure");
                 }
 
                 BuildFinishedEventArgs buildEvent = new BuildFinishedEventArgs(message, null /* no help keyword */, success);
@@ -495,7 +495,7 @@ namespace Microsoft.Build.BackEnd.Logging
             lock (_lockObject)
             {
                 ProjectEvaluationStartedEventArgs evaluationEvent =
-                    new ProjectEvaluationStartedEventArgs(ResourceUtilities.GetResourceString("EvaluationStarted"),
+                    new ProjectEvaluationStartedEventArgs(GetResourceString("EvaluationStarted"),
                         projectFile)
                     {
                         BuildEventContext = projectEvaluationEventContext,
@@ -529,7 +529,7 @@ namespace Microsoft.Build.BackEnd.Logging
                 VerifyThrow(projectEvaluationEventContext != null, "projectBuildEventContext");
 
                 ProjectEvaluationFinishedEventArgs buildEvent =
-                    new ProjectEvaluationFinishedEventArgs(ResourceUtilities.GetResourceString("EvaluationFinished"), projectFile)
+                    new ProjectEvaluationFinishedEventArgs(GetResourceString("EvaluationFinished"), projectFile)
                     {
                         BuildEventContext = projectEvaluationEventContext,
                         ProjectFile = projectFile,

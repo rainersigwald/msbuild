@@ -25,9 +25,9 @@ namespace Microsoft.Build.Exceptions
         /// Constructs a standard BuildAbortedException.
         /// </summary>
         public BuildAbortedException()
-            : base(ResourceUtilities.GetResourceString("BuildAborted"))
+            : base(GetResourceString("BuildAborted"))
         {
-            ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out string errorCode, out _, "BuildAborted");
+            FormatResourceStringStripCodeAndKeyword(out string errorCode, out _, "BuildAborted");
 
             ErrorCode = errorCode;
         }
@@ -36,9 +36,9 @@ namespace Microsoft.Build.Exceptions
         /// Constructs a BuildAbortedException with an additional message attached.
         /// </summary>
         public BuildAbortedException(string message)
-            : base(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("BuildAbortedWithMessage", message))
+            : base(FormatResourceStringStripCodeAndKeyword("BuildAbortedWithMessage", message))
         {
-            ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out string errorCode, out _, "BuildAbortedWithMessage", message);
+            FormatResourceStringStripCodeAndKeyword(out string errorCode, out _, "BuildAbortedWithMessage", message);
 
             ErrorCode = errorCode;
         }
@@ -47,15 +47,15 @@ namespace Microsoft.Build.Exceptions
         /// Constructs a BuildAbortedException with an additional message attached and an inner exception.
         /// </summary>
         public BuildAbortedException(string message, Exception innerException)
-            : base(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("BuildAbortedWithMessage", message), innerException)
+            : base(FormatResourceStringStripCodeAndKeyword("BuildAbortedWithMessage", message), innerException)
         {
-            ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out string errorCode, out _, "BuildAbortedWithMessage", message);
+            FormatResourceStringStripCodeAndKeyword(out string errorCode, out _, "BuildAbortedWithMessage", message);
 
             ErrorCode = errorCode;
         }
 
         /// <summary>
-        /// Protected constructor used for (de)serialization. 
+        /// Protected constructor used for (de)serialization.
         /// If we ever add new members to this class, we'll need to update this.
         /// </summary>
         protected BuildAbortedException(SerializationInfo info, StreamingContext context)

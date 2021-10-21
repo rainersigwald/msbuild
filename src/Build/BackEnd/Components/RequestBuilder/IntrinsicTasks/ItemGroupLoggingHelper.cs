@@ -31,12 +31,12 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         internal static int parameterLimit = 200;
 
-        internal static string ItemGroupIncludeLogMessagePrefix = ResourceUtilities.GetResourceString("ItemGroupIncludeLogMessagePrefix");
-        internal static string ItemGroupRemoveLogMessage = ResourceUtilities.GetResourceString("ItemGroupRemoveLogMessage");
-        internal static string OutputItemParameterMessagePrefix = ResourceUtilities.GetResourceString("OutputItemParameterMessagePrefix");
-        internal static string TaskParameterPrefix = ResourceUtilities.GetResourceString("TaskParameterPrefix");
-        internal static string SkipTargetUpToDateInputs = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("SkipTargetUpToDateInputs", string.Empty);
-        internal static string SkipTargetUpToDateOutputs = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("SkipTargetUpToDateOutputs", string.Empty);
+        internal static string ItemGroupIncludeLogMessagePrefix = GetResourceString("ItemGroupIncludeLogMessagePrefix");
+        internal static string ItemGroupRemoveLogMessage = GetResourceString("ItemGroupRemoveLogMessage");
+        internal static string OutputItemParameterMessagePrefix = GetResourceString("OutputItemParameterMessagePrefix");
+        internal static string TaskParameterPrefix = GetResourceString("TaskParameterPrefix");
+        internal static string SkipTargetUpToDateInputs = FormatResourceStringIgnoreCodeAndKeyword("SkipTargetUpToDateInputs", string.Empty);
+        internal static string SkipTargetUpToDateOutputs = FormatResourceStringIgnoreCodeAndKeyword("SkipTargetUpToDateOutputs", string.Empty);
 
         /// <summary>
         /// <see cref="TaskParameterEventArgs"/> by itself doesn't have the implementation
@@ -45,7 +45,7 @@ namespace Microsoft.Build.BackEnd
         /// </summary>
         static ItemGroupLoggingHelper()
         {
-            BuildEventArgs.ResourceStringFormatter = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword;
+            BuildEventArgs.ResourceStringFormatter = FormatResourceStringIgnoreCodeAndKeyword;
             TaskParameterEventArgs.MessageGetter = GetTaskParameterText;
             TaskParameterEventArgs.DictionaryFactory = ArrayDictionary<string, string>.Create;
         }
@@ -139,7 +139,7 @@ namespace Microsoft.Build.BackEnd
 
                     if (truncateTaskInputs && (sb.Length >= parameterCharacterLimit || i > parameterLimit))
                     {
-                        sb.Append(ResourceUtilities.GetResourceString("LogTaskInputs.Truncated"));
+                        sb.Append(GetResourceString("LogTaskInputs.Truncated"));
                         break;
                     }
                 }

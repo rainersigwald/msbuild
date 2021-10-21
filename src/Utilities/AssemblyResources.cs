@@ -55,7 +55,7 @@ namespace Microsoft.Build.Shared
         {
             VerifyThrowArgumentNull(unformatted, nameof(unformatted));
 
-            return ResourceUtilities.FormatString(unformatted, args);
+            return FormatString(unformatted, args);
         }
 
         /// <summary>

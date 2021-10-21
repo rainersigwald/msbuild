@@ -38,13 +38,13 @@ namespace Microsoft.Build.UnitTests
         }
 
         /// <summary>
-        /// Helper for invalid name error location test 
+        /// Helper for invalid name error location test
         /// </summary>
         /// <param name="name"></param>
         /// <param name="badChar"></param>
         private void InvalidNameErrorLocationHelper(string name, string badChar)
         {
-            string expected = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("OM_NameInvalid", name, badChar);
+            string expected = FormatResourceStringStripCodeAndKeyword("OM_NameInvalid", name, badChar);
             string actual = String.Empty;
 
             try

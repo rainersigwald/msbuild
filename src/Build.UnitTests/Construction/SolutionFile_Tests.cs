@@ -79,7 +79,7 @@ namespace Microsoft.Build.UnitTests.Construction
                 sp.ProjectShouldBuild(Path.Combine("src", Path.GetFileName(microsoftBuild.Path)!)).ShouldBeTrue();
                 sp.ProjectShouldBuild(Path.Combine("src", Path.GetFileName(tasksUnitTests.Path)!)).ShouldBeTrue();
 
-                
+
                 (sp.ProjectShouldBuild(Path.Combine("src", Path.GetFileName(commandLineUnitTests.Path)!))
                  || sp.ProjectShouldBuild(Path.Combine("src", Path.GetFileName(msbuild.Path)!))
                  || sp.ProjectShouldBuild(Path.Combine("src", "notAProject.csproj")))
@@ -494,7 +494,7 @@ namespace Microsoft.Build.UnitTests.Construction
             string solutionFileContentsDev12Corrupted2 =
                @"
                     Microsoft Visual Studio Solution File, Format Version 11.00
-                        VisualStudioVersion = 
+                        VisualStudioVersion =
                         MinimumVisualStudioVersion = 10.0.40219.1
                         Project('{FE3BBBB6-72D5-11D2-9ACE-00C04F79A2A4}') = 'someproj', 'someproj.etp', '{AD0F3D02-9925-4D57-9DAF-E0A9D936ABDB}'
                             ProjectSection(ProjectDependencies) = postProject
@@ -700,7 +700,7 @@ namespace Microsoft.Build.UnitTests.Construction
                         EndProject";
                 SolutionFile solution = ParseSolutionHelper(solutionFileContents);
                 string errCode;
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errCode, out _, "Shared.InvalidProjectFile",
+                FormatResourceStringStripCodeAndKeyword(out errCode, out _, "Shared.InvalidProjectFile",
                    "someproj.etp", String.Empty);
                 foreach (string warningString in solution.SolutionParserWarnings)
                 {
@@ -735,7 +735,7 @@ namespace Microsoft.Build.UnitTests.Construction
             File.Delete(proj1Path);
             SolutionFile solution = ParseSolutionHelper(solutionFileContents);
             string errCode;
-            ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errCode, out _, "Shared.ProjectFileCouldNotBeLoaded",
+            FormatResourceStringStripCodeAndKeyword(out errCode, out _, "Shared.ProjectFileCouldNotBeLoaded",
                   "someproj.etp", String.Empty);
             solution.SolutionParserErrorCodes[0].ShouldContain(errCode);
         }
@@ -862,7 +862,7 @@ namespace Microsoft.Build.UnitTests.Construction
 
             SolutionFile solution = ParseSolutionHelper(solutionFileContents);
             solution.SolutionParserComments.ShouldHaveSingleItem(); // "Expected the solution parser to contain one comment"
-            solution.SolutionParserComments[0].ShouldBe(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("UnrecognizedSolutionComment", "999"));
+            solution.SolutionParserComments[0].ShouldBe(FormatResourceStringStripCodeAndKeyword("UnrecognizedSolutionComment", "999"));
         }
 
         [Fact]
@@ -1128,20 +1128,20 @@ namespace Microsoft.Build.UnitTests.Construction
                     GlobalSection(SolutionConfigurationPlatforms) = preSolution
 
                         Debug|Any CPU = Debug|Any CPU
-                        
+
                         Release|Any CPU = Release|Any CPU
- 
-    
+
+
                     EndGlobalSection
                     GlobalSection(ProjectConfigurationPlatforms) = postSolution
 
                         {34E0D07D-CF8F-459D-9449-C4188D8C5564}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
                         {34E0D07D-CF8F-459D-9449-C4188D8C5564}.Debug|Any CPU.Build.0 = Debug|Any CPU
-                        
+
                         {34E0D07D-CF8F-459D-9449-C4188D8C5564}.Release|Any CPU.ActiveCfg = Release|Any CPU
                         {34E0D07D-CF8F-459D-9449-C4188D8C5564}.Release|Any CPU.Build.0 = Release|Any CPU
- 
-  
+
+
                         {A5EE8128-B08E-4533-86C5-E46714981680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
                         {A5EE8128-B08E-4533-86C5-E46714981680}.Debug|Any CPU.Build.0 = Debug|Any CPU
                         {A5EE8128-B08E-4533-86C5-E46714981680}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -1150,17 +1150,17 @@ namespace Microsoft.Build.UnitTests.Construction
                         {6DB98C35-FDCC-4818-B5D4-1F0A385FDFD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
                         {6DB98C35-FDCC-4818-B5D4-1F0A385FDFD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
                         {6DB98C35-FDCC-4818-B5D4-1F0A385FDFD4}.Release|Any CPU.Build.0 = Release|Any CPU
-    
+
                     EndGlobalSection
                     GlobalSection(SolutionProperties) = preSolution
                         HideSolutionNode = FALSE
                     EndGlobalSection
                     GlobalSection(NestedProjects) = preSolution
-                        
+
                         {A5EE8128-B08E-4533-86C5-E46714981680} = {E0F97730-25D2-418A-A7BD-02CAFDC6E470}
                         {2AE8D6C4-FB43-430C-8AEB-15E5EEDAAE4B} = {E0F97730-25D2-418A-A7BD-02CAFDC6E470}
                         {6DB98C35-FDCC-4818-B5D4-1F0A385FDFD4} = {2AE8D6C4-FB43-430C-8AEB-15E5EEDAAE4B}
-                        
+
 
                     EndGlobalSection
                 EndGlobal
@@ -2305,7 +2305,7 @@ EndGlobal
             Action parseSolution = () => ParseSolutionHelper(solutionFileContents);
             var exception = Should.Throw<InvalidProjectFileException>(parseSolution);
 
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out _, out _, "SolutionParseDuplicateProject", "Project.Named.With.Dots");
+            string message = FormatResourceStringStripCodeAndKeyword(out _, out _, "SolutionParseDuplicateProject", "Project.Named.With.Dots");
 
             exception.Message.ShouldStartWith(message);
         }
@@ -2349,7 +2349,7 @@ EndGlobal
             Action parseSolution = () => ParseSolutionHelper(solutionFileContents);
             var exception = Should.Throw<InvalidProjectFileException>(parseSolution);
 
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out _, out _, "SolutionParseDuplicateProject", "Project_Named_With_Dots");
+            string message = FormatResourceStringStripCodeAndKeyword(out _, out _, "SolutionParseDuplicateProject", "Project_Named_With_Dots");
 
             exception.Message.ShouldStartWith(message);
         }
@@ -2395,7 +2395,7 @@ EndGlobal
             Action parseSolution = () => ParseSolutionHelper(solutionFileContents);
             var exception = Should.Throw<InvalidProjectFileException>(parseSolution);
 
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out _, out _, "SolutionParseDuplicateProject", "Project_Named_With_Dots");
+            string message = FormatResourceStringStripCodeAndKeyword(out _, out _, "SolutionParseDuplicateProject", "Project_Named_With_Dots");
 
             exception.Message.ShouldStartWith(message);
         }

@@ -20,7 +20,7 @@ namespace Microsoft.Build.Execution
             {
                 if (string.IsNullOrWhiteSpace(outputCacheFile))
                 {
-                    return ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("EmptyOutputCacheFile");
+                    return FormatResourceStringIgnoreCodeAndKeyword("EmptyOutputCacheFile");
                 }
 
                 var fullPath = FileUtilities.NormalizePath(outputCacheFile);
@@ -66,7 +66,7 @@ namespace Microsoft.Build.Execution
             }
             catch (Exception e)
             {
-                return ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ErrorWritingCacheFile", outputCacheFile, e.Message);
+                return FormatResourceStringIgnoreCodeAndKeyword("ErrorWritingCacheFile", outputCacheFile, e.Message);
             }
 
             return null;

@@ -14,7 +14,7 @@ using Xunit;
 namespace Microsoft.Build.UnitTests.BackEnd
 {
     /// <summary>
-    /// Each packet is split up into a region, the region contains the tests for 
+    /// Each packet is split up into a region, the region contains the tests for
     /// a given packet type.
     /// </summary>
     public class NodePackets_Tests
@@ -87,7 +87,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
         {
             string projectFile = "test.csproj";
             var result = new ProjectEvaluationStartedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationStarted"),
+                GetResourceString("EvaluationStarted"),
                 projectFile)
             {
                 ProjectFile = projectFile
@@ -101,7 +101,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
         {
             string projectFile = "test.csproj";
             var result = new ProjectEvaluationFinishedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationFinished"),
+                GetResourceString("EvaluationFinished"),
                 projectFile)
             {
                 ProjectFile = projectFile,
@@ -256,7 +256,7 @@ namespace Microsoft.Build.UnitTests.BackEnd
         }
 
         /// <summary>
-        /// Verify the LoggingMessagePacket is properly created from a build event. 
+        /// Verify the LoggingMessagePacket is properly created from a build event.
         /// This includes the packet type and the event type depending on which build event arg is passed in.
         /// </summary>
         /// <param name="buildEvent">Build event to put into a packet, and verify after packet creation</param>

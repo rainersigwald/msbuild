@@ -85,7 +85,7 @@ namespace Microsoft.Build.Logging
 
             if (!SkipProjectStartedText && Verbosity >= LoggerVerbosity.Normal)
             {
-                eventSource.BuildStarted += (obj, args) => WriteHandler(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("LogLoggerVerbosity", Verbosity));
+                eventSource.BuildStarted += (obj, args) => WriteHandler(FormatResourceStringStripCodeAndKeyword("LogLoggerVerbosity", Verbosity));
             }
 
             try
@@ -114,7 +114,7 @@ namespace Microsoft.Build.Logging
             {
                 string errorCode;
                 string helpKeyword;
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "InvalidFileLoggerFile", _logFileName, e.Message);
+                string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "InvalidFileLoggerFile", _logFileName, e.Message);
                 _fileWriter?.Dispose();
 
                 throw new LoggerException(message, e.InnerException, errorCode, helpKeyword);
@@ -143,7 +143,7 @@ namespace Microsoft.Build.Logging
             {
                 string errorCode;
                 string helpKeyword;
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "InvalidFileLoggerFile", _logFileName, ex.Message);
+                string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "InvalidFileLoggerFile", _logFileName, ex.Message);
                 _fileWriter?.Dispose();
 
                 throw new LoggerException(message, ex.InnerException, errorCode, helpKeyword);

@@ -221,7 +221,7 @@ namespace Microsoft.Build.Tasks
             }
             catch (XmlException xe)
             {
-                throw new ArgumentException(ResourceUtilities.GetResourceString("XmlPeek.NamespacesParameterNotWellFormed"), xe);
+                throw new ArgumentException(GetResourceString("XmlPeek.NamespacesParameterNotWellFormed"), xe);
             }
 
             XmlNodeList xnl = doc.SelectNodes("/Namespaces/*[local-name() = 'Namespace']");
@@ -233,14 +233,14 @@ namespace Microsoft.Build.Tasks
                 XmlAttribute prefix = xn.Attributes?[prefixAttr];
                 if (prefix == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("XmlPeek.NamespacesParameterNoAttribute", prefixAttr));
+                    throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("XmlPeek.NamespacesParameterNoAttribute", prefixAttr));
                 }
 
                 const string uriAttr = "Uri";
                 XmlAttribute uri = xn.Attributes[uriAttr];
                 if (uri == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("XmlPeek.NamespacesParameterNoAttribute", uriAttr));
+                    throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("XmlPeek.NamespacesParameterNoAttribute", uriAttr));
                 }
 
                 namespaceManager.AddNamespace(prefix.Value, uri.Value);
@@ -272,11 +272,11 @@ namespace Microsoft.Build.Tasks
             {
                 if (xmlInputPath != null && xmlContent != null)
                 {
-                    throw new ArgumentException(ResourceUtilities.GetResourceString("XmlPeek.XmlInput.TooMany"));
+                    throw new ArgumentException(GetResourceString("XmlPeek.XmlInput.TooMany"));
                 }
                 else if (xmlInputPath == null && xmlContent == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.GetResourceString("XmlPeek.XmlInput.TooFew"));
+                    throw new ArgumentException(GetResourceString("XmlPeek.XmlInput.TooFew"));
                 }
 
                 if (xmlInputPath != null)

@@ -773,7 +773,7 @@ namespace Microsoft.Build.BackEnd
                                 taskHost.ColumnNumberOfTaskNode,
                                 0,
                                 0,
-                                ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                                FormatResourceStringIgnoreCodeAndKeyword(
                                     "UndeclaredMSBuildTasksNotAllowedInIsolatedGraphBuilds",
                                     string.Join(";", undeclaredProjects.Select(p => $"\"{p}\"")),
                                     taskExecutionHost.ProjectInstance.FullPath),

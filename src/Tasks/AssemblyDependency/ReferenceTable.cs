@@ -471,7 +471,7 @@ namespace Microsoft.Build.Tasks
                     (
                         new ReferenceResolutionException
                         (
-                            ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("General.ExpectedFileGotDirectory", reference.FullPath),
+                            FormatResourceStringIgnoreCodeAndKeyword("General.ExpectedFileGotDirectory", reference.FullPath),
                             null
                         )
                     );
@@ -482,7 +482,7 @@ namespace Microsoft.Build.Tasks
                 {
                     reference.AddError
                     (
-                        new DependencyResolutionException(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("General.ExpectedFileMissing", reference.FullPath), null)
+                        new DependencyResolutionException(FormatResourceStringIgnoreCodeAndKeyword("General.ExpectedFileMissing", reference.FullPath), null)
                     );
                 }
             }
@@ -1124,7 +1124,7 @@ namespace Microsoft.Build.Tasks
             {
                 reference.AddError
                       (
-                          new DependencyResolutionException(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("General.ExpectedFileMissing", reference.FullPath), null)
+                          new DependencyResolutionException(FormatResourceStringIgnoreCodeAndKeyword("General.ExpectedFileMissing", reference.FullPath), null)
                       );
 
                 return;
@@ -1366,7 +1366,7 @@ namespace Microsoft.Build.Tasks
                     (
                         new ReferenceResolutionException
                         (
-                            ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("General.CouldNotLocateAssembly", assemblyName.FullName),
+                            FormatResourceStringIgnoreCodeAndKeyword("General.CouldNotLocateAssembly", assemblyName.FullName),
                             null
                         )
                     );
@@ -2931,7 +2931,7 @@ namespace Microsoft.Build.Tasks
 
                 if (machineType == NativeMethods.IMAGE_FILE_MACHINE_INVALID)
                 {
-                    throw new BadImageFormatException(ResourceUtilities.GetResourceString("ResolveAssemblyReference.ImplementationDllHasInvalidPEHeader"));
+                    throw new BadImageFormatException(GetResourceString("ResolveAssemblyReference.ImplementationDllHasInvalidPEHeader"));
                 }
 
                 switch (machineType)

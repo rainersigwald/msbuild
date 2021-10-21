@@ -164,7 +164,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             Assert.False(succeeded);
             Assert.Equal(1, engine.Errors);
             Assert.Equal(0, engine.Warnings);
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.InvalidParameter", "TargetFrameworkMoniker", t.TargetFrameworkMoniker, String.Empty);
+            string message = FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.InvalidParameter", "TargetFrameworkMoniker", t.TargetFrameworkMoniker, String.Empty);
             engine.AssertLogContains(message);
         }
 
@@ -1362,7 +1362,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             Execute(t);
 
             Assert.Empty(t.ResolvedFiles);
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.TargetedProcessorArchitectureDoesNotMatch", @"C:\Regress714052\X86\A.dll", "X86", "AMD64");
+            string message = FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.TargetedProcessorArchitectureDoesNotMatch", @"C:\Regress714052\X86\A.dll", "X86", "AMD64");
             mockEngine.AssertLogContains(message);
         }
 
@@ -3305,7 +3305,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
             Assert.Single(parentReferenceFolders);
             Assert.Equal(reference2.ResolvedSearchPath, parentReferenceFolders[0]);
         }
-        
+
         /// <summary>
         /// Generate a fake reference which has been resolved from the gac. We will use it to verify the creation of the exclusion list.
         /// </summary>
@@ -3651,7 +3651,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
         ///   References - D, version 1
         ///
         /// Both D1 and D2 are CopyLocal. This is a warning because D1 is a lower version
-        /// than both D2 so that can't unify. These means that eventually when 
+        /// than both D2 so that can't unify. These means that eventually when
         /// they're copied to the output directory they'll conflict.
         /// </summary>
         [Fact]
@@ -3681,9 +3681,9 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
 
             // Check that we have a message identifying conflicts with "D"
             string warningMessage = e.WarningEvents[0].Message;
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.FoundConflicts", "D", string.Empty));
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictFound", "D, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", "D, Version=2.0.0.0, Culture=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa"));
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.FourSpaceIndent", ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ReferenceDependsOn", "D, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", Path.Combine(s_myLibraries_V1Path, "D.dll"))));
+            warningMessage.ShouldContain(FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.FoundConflicts", "D", string.Empty));
+            warningMessage.ShouldContain(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictFound", "D, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", "D, Version=2.0.0.0, Culture=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa"));
+            warningMessage.ShouldContain(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.FourSpaceIndent", FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ReferenceDependsOn", "D, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", Path.Combine(s_myLibraries_V1Path, "D.dll"))));
         }
 
         [Fact]
@@ -3757,14 +3757,14 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
 
             // Check that we have both the expected messages
             string warningMessage = e.WarningEvents[0].Message;
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.FoundConflicts", "D", string.Empty));
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictFound", "D, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", "D, Version=2.0.0.0, Culture=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa"));
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.FourSpaceIndent", ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ReferenceDependsOn", "D, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", Path.Combine(s_myLibraries_V1Path, "D.dll"))));
+            warningMessage.ShouldContain(FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.FoundConflicts", "D", string.Empty));
+            warningMessage.ShouldContain(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictFound", "D, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", "D, Version=2.0.0.0, Culture=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa"));
+            warningMessage.ShouldContain(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.FourSpaceIndent", FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ReferenceDependsOn", "D, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", Path.Combine(s_myLibraries_V1Path, "D.dll"))));
 
             warningMessage = e.WarningEvents[1].Message;
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.FoundConflicts", "G", string.Empty));
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictFound", "G, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", "G, Version=2.0.0.0, Culture=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa"));
-            warningMessage.ShouldContain(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.FourSpaceIndent", ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ReferenceDependsOn", "G, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", Path.Combine(s_myLibraries_V1Path, "G.dll"))));
+            warningMessage.ShouldContain(FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.FoundConflicts", "G", string.Empty));
+            warningMessage.ShouldContain(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictFound", "G, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", "G, Version=2.0.0.0, Culture=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa"));
+            warningMessage.ShouldContain(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.FourSpaceIndent", FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ReferenceDependsOn", "G, Version=1.0.0.0, CulTUre=neutral, PublicKeyToken=aaaaaaaaaaaaaaaa", Path.Combine(s_myLibraries_V1Path, "G.dll"))));
         }
 
         /// <summary>
@@ -5777,7 +5777,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
                 Assert.Empty(blackList); // "Expected to have no assembly in the black list"
                 Assert.Single(whiteListErrors); // "Expected there to be one error in the whiteListErrors"
                 Assert.Single(whiteListErrorFileNames); // "Expected there to be one error in the whiteListErrorFileNames"
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.NoSubSetRedistListName", subsetFile);
+                string message = FormatResourceStringStripCodeAndKeyword("ResolveAssemblyReference.NoSubSetRedistListName", subsetFile);
                 Assert.Contains(message, ((Exception)whiteListErrors[0]).Message); // "Expected assertion to contain correct error code"
             }
             finally
@@ -5981,7 +5981,7 @@ namespace Microsoft.Build.UnitTests.ResolveAssemblyReference_Tests
         [Fact]
         public void RedistListGenerateBlackListGoodListsSubsetIsSubsetOfRedist()
         {
-            string redistFile = CreateGenericRedistList(); 
+            string redistFile = CreateGenericRedistList();
             string goodSubsetFile = FileUtilities.GetTemporaryFile();
             try
             {

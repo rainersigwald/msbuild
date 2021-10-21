@@ -18,7 +18,7 @@ namespace Microsoft.Build.BackEnd.SdkResolution
         public SdkReference Sdk { get; private set; }
 
         public SdkResolverException(string resourceName, SdkResolver resolver, SdkReference sdk, Exception innerException, params string[] args)
-            : base(string.Format(ResourceUtilities.GetResourceString(resourceName), args), innerException)
+            : base(string.Format(GetResourceString(resourceName), args), innerException)
         {
             Resolver = resolver;
             Sdk = sdk;

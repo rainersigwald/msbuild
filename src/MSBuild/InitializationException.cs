@@ -81,7 +81,7 @@ namespace Microsoft.Build.CommandLine
                 }
                 else
                 {
-                    return base.Message + Environment.NewLine + ResourceUtilities.FormatResourceStringStripCodeAndKeyword("InvalidSwitchIndicator", invalidSwitch);
+                    return base.Message + Environment.NewLine + FormatResourceStringStripCodeAndKeyword("InvalidSwitchIndicator", invalidSwitch);
                 }
             }
         }
@@ -127,7 +127,7 @@ namespace Microsoft.Build.CommandLine
 #if DEBUG
             else
             {
-                ResourceUtilities.VerifyResourceStringExists(messageResourceName);
+                VerifyResourceStringExists(messageResourceName);
             }
 #endif
         }
@@ -152,7 +152,7 @@ namespace Microsoft.Build.CommandLine
             else
             {
                 // the exception message can contain a format item i.e. "{0}" to hold the given exception's message
-                errorMessage = ResourceUtilities.FormatString(errorMessage, (e == null) ? String.Empty : e.Message);
+                errorMessage = FormatString(errorMessage, (e == null) ? String.Empty : e.Message);
             }
 
             InitializationException.Throw(errorMessage, invalidSwitch);
@@ -169,7 +169,7 @@ namespace Microsoft.Build.CommandLine
 
                 VerifyThrow(errorMessage != null, "The resource string must exist.");
 
-                errorMessage = ResourceUtilities.FormatString(errorMessage, args);
+                errorMessage = FormatString(errorMessage, args);
 
                 InitializationException.Throw(errorMessage, invalidSwitch);
             }

@@ -37,7 +37,7 @@ namespace Microsoft.Build.BackEnd.SdkResolution
                     }
                     else
                     {
-                        throw new XmlException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("UnrecognizedElement", reader.Name));
+                        throw new XmlException(FormatResourceStringStripCodeAndKeyword("UnrecognizedElement", reader.Name));
                     }
                 }
             }
@@ -58,13 +58,13 @@ namespace Microsoft.Build.BackEnd.SdkResolution
                             manifest.Path = reader.Name switch
                             {
                                 "Path" => reader.ReadElementContentAsString(),
-                                _ => throw new XmlException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("UnrecognizedElement", reader.Name)),
+                                _ => throw new XmlException(FormatResourceStringStripCodeAndKeyword("UnrecognizedElement", reader.Name)),
                             };
                         }
                         break;
 
                     default:
-                        throw new XmlException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("UnrecognizedElement", reader.Name));
+                        throw new XmlException(FormatResourceStringStripCodeAndKeyword("UnrecognizedElement", reader.Name));
                 }
             }
 

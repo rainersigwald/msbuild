@@ -213,7 +213,7 @@ namespace Microsoft.Build.Construction
             string locationString;
             if (line != 0 && column != 0)
             {
-                locationString = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("FileLocation", file, line, column);
+                locationString = FormatResourceStringIgnoreCodeAndKeyword("FileLocation", file, line, column);
             }
             else if (line != 0)
             {

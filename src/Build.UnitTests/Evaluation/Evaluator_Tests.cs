@@ -4510,7 +4510,7 @@ namespace Microsoft.Build.UnitTests.Evaluation
 
             project.Build(logger);
             logger.AssertLogContains(
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("OM_GlobalProperty", "Foo"));
+                FormatResourceStringStripCodeAndKeyword("OM_GlobalProperty", "Foo"));
         }
 
         [Fact]

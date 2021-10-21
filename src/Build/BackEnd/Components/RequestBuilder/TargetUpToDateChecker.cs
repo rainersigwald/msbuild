@@ -303,17 +303,17 @@ namespace Microsoft.Build.BackEnd
             if (logDetail.Reason == OutofdateReason.NewerInput)
             {
                 // One of the inputs was newer than all of the outputs
-                reason = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("BuildTargetCompletelyInputNewer", logDetail.Input, logDetail.Output);
+                reason = FormatResourceStringIgnoreCodeAndKeyword("BuildTargetCompletelyInputNewer", logDetail.Input, logDetail.Output);
             }
             else if (logDetail.Reason == OutofdateReason.MissingOutput)
             {
                 // One of the outputs was missing
-                reason = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("BuildTargetCompletelyOutputDoesntExist", logDetail.Output);
+                reason = FormatResourceStringIgnoreCodeAndKeyword("BuildTargetCompletelyOutputDoesntExist", logDetail.Output);
             }
             else if (logDetail.Reason == OutofdateReason.MissingInput)
             {
                 // One of the inputs was missing
-                reason = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("BuildTargetCompletelyInputDoesntExist", logDetail.Input);
+                reason = FormatResourceStringIgnoreCodeAndKeyword("BuildTargetCompletelyInputDoesntExist", logDetail.Input);
             }
 
             return reason;
@@ -329,17 +329,17 @@ namespace Microsoft.Build.BackEnd
             if (logDetail.Reason == OutofdateReason.NewerInput)
             {
                 // One of the inputs was newer than its corresponding output
-                reason = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("BuildTargetPartiallyInputNewer", logDetail.InputItemName, logDetail.Input, logDetail.Output);
+                reason = FormatResourceStringIgnoreCodeAndKeyword("BuildTargetPartiallyInputNewer", logDetail.InputItemName, logDetail.Input, logDetail.Output);
             }
             else if (logDetail.Reason == OutofdateReason.MissingOutput)
             {
                 // One of the outputs was missing
-                reason = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("BuildTargetPartiallyOutputDoesntExist", logDetail.OutputItemName, logDetail.Input, logDetail.Output);
+                reason = FormatResourceStringIgnoreCodeAndKeyword("BuildTargetPartiallyOutputDoesntExist", logDetail.OutputItemName, logDetail.Input, logDetail.Output);
             }
             else if (logDetail.Reason == OutofdateReason.MissingInput)
             {
                 // One of the inputs was missing
-                reason = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("BuildTargetPartiallyInputDoesntExist", logDetail.InputItemName, logDetail.Input, logDetail.Output);
+                reason = FormatResourceStringIgnoreCodeAndKeyword("BuildTargetPartiallyInputDoesntExist", logDetail.InputItemName, logDetail.Input, logDetail.Output);
             }
 
             return reason;

@@ -287,7 +287,7 @@ namespace Microsoft.Build.UnitTests
             <ItemGroup>
                 <P Include='$(MSBuildThisFileFullPath)' AdditionalProperties='Number=1' />
                 <P Include='$(MSBuildThisFileFullPath)' AdditionalProperties='Number=2' />
-    
+
                 <ProjectConfigurationDescription Include='Number=$(Number)' />
                 <ProjectConfigurationDescription Include='TargetFramework=$(TargetFramework)' />
             </ItemGroup>
@@ -392,7 +392,7 @@ namespace Microsoft.Build.UnitTests
 
                 ObjectModelHelpers.BuildTempProjectFileWithTargets(tempProjectPath, null, null, logger);
 
-                string targetStartedMessage = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetStartedProjectEntry", "YYY", tempProjectPath);
+                string targetStartedMessage = FormatResourceStringStripCodeAndKeyword("TargetStartedProjectEntry", "YYY", tempProjectPath);
 
                 sc.ToString().ShouldContain(targetStartedMessage);
             }
@@ -618,12 +618,12 @@ namespace Microsoft.Build.UnitTests
 
                 if (i == 2 && loggerVerbosity == LoggerVerbosity.Diagnostic)
                 {
-                    string context = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("BuildEventContext", LogFormatter.FormatLogTimeStamp(be.Timestamp), 0) + ">";
-                    message = context + ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TaskMessageWithId", "my 1337 message", be.BuildEventContext.TaskId);
+                    string context = FormatResourceStringStripCodeAndKeyword("BuildEventContext", LogFormatter.FormatLogTimeStamp(be.Timestamp), 0) + ">";
+                    message = context + FormatResourceStringStripCodeAndKeyword("TaskMessageWithId", "my 1337 message", be.BuildEventContext.TaskId);
                 }
                 else if (i == 2 && loggerVerbosity == LoggerVerbosity.Detailed)
                 {
-                    string context = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("BuildEventContext", string.Empty, 0) + ">";
+                    string context = FormatResourceStringStripCodeAndKeyword("BuildEventContext", string.Empty, 0) + ">";
                     message = context + "my 1337 message";
                 }
                 else if (i == 2)
@@ -824,7 +824,7 @@ namespace Microsoft.Build.UnitTests
                 {
                     sc.ToString().ShouldBe(
                             "<cyan>" + BaseConsoleLogger.projectSeparatorLine + Environment.NewLine +
-                            ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
+                            FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
                             "<reset color><red>file.vb(42): VBC error 31415: Some long message" + Environment.NewLine +
                             "<reset color><cyan>pf" + Environment.NewLine +
                             "<reset color>");
@@ -901,7 +901,7 @@ namespace Microsoft.Build.UnitTests
                 {
                     sc.ToString().ShouldBe(
                             "<cyan>" + BaseConsoleLogger.projectSeparatorLine + Environment.NewLine +
-                            ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
+                            FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
                             "<reset color><yellow>file.vb(42): VBC warning 31415: Some long message" + Environment.NewLine +
                             "<reset color><cyan>pf" + Environment.NewLine +
                             "<reset color>");
@@ -1033,7 +1033,7 @@ namespace Microsoft.Build.UnitTests
                 {
                     sc.ToString().ShouldBe(
                             "<cyan>" + BaseConsoleLogger.projectSeparatorLine + Environment.NewLine +
-                            ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
+                            FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
                             "<reset color><red>file.vb(42): VBC error 31415: Some long message" + Environment.NewLine +
                             "<reset color><cyan>pf" + Environment.NewLine +
                             "<reset color>");
@@ -1109,7 +1109,7 @@ namespace Microsoft.Build.UnitTests
                 {
                     sc.ToString().ShouldBe(
                             "<cyan>" + BaseConsoleLogger.projectSeparatorLine + Environment.NewLine +
-                            ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
+                            FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
                             "<reset color><yellow>file.vb(42): VBC warning 31415: Some long message" + Environment.NewLine +
                             "<reset color><cyan>pf" + Environment.NewLine +
                             "<reset color>");
@@ -1185,7 +1185,7 @@ namespace Microsoft.Build.UnitTests
                 {
                     sc.ToString().ShouldBe(
                             "<cyan>" + BaseConsoleLogger.projectSeparatorLine + Environment.NewLine +
-                            ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
+                            FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname") + Environment.NewLine + Environment.NewLine +
                             "<reset color><yellow>file.vb(42): VBC warning 31415: Some long message" + Environment.NewLine +
                             "<reset color><cyan>pf" + Environment.NewLine +
                             "<reset color>");
@@ -1280,10 +1280,10 @@ namespace Microsoft.Build.UnitTests
 
             sc.ToString().ShouldBe(
                 "<cyan>" + BaseConsoleLogger.projectSeparatorLine + Environment.NewLine +
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname1") + Environment.NewLine +
+                FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname1") + Environment.NewLine +
                                         Environment.NewLine + "<reset color>" +
                 "<cyan>" + BaseConsoleLogger.projectSeparatorLine + Environment.NewLine +
-                ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForNestedProjectWithDefaultTargets", "fname1", "fname2") + Environment.NewLine +
+                FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForNestedProjectWithDefaultTargets", "fname1", "fname2") + Environment.NewLine +
                                                       Environment.NewLine + "<reset color>" +
                 "<red>" + "file.vb(42): VBC error 31415: Some long message" +
                                                       Environment.NewLine + "<reset color>");
@@ -1307,7 +1307,7 @@ namespace Microsoft.Build.UnitTests
             es.Consume(new ProjectStartedEventArgs("ps1", null, "fname1", "", null, null));
 
             sc.ToString().ShouldBe("<cyan>" + BaseConsoleLogger.projectSeparatorLine + Environment.NewLine +
-                                   ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname1") + Environment.NewLine +
+                                   FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", "fname1") + Environment.NewLine +
                                    Environment.NewLine + "<reset color>");
 
             sc.Clear();
@@ -1322,10 +1322,10 @@ namespace Microsoft.Build.UnitTests
             es.Consume(new ProjectStartedEventArgs("ps2", null, "fname2", "", null, null));
 
             sc.ToString().ShouldBe(
-                "<cyan>" + ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetStartedPrefix", "tarname") + Environment.NewLine + "<reset color>"
+                "<cyan>" + FormatResourceStringStripCodeAndKeyword("TargetStartedPrefix", "tarname") + Environment.NewLine + "<reset color>"
                 + "<cyan>" + "    " + BaseConsoleLogger.projectSeparatorLine
                                           + Environment.NewLine +
-                "    " + ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForNestedProjectWithDefaultTargets", "fname1", "fname2") + Environment.NewLine +
+                "    " + FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForNestedProjectWithDefaultTargets", "fname1", "fname2") + Environment.NewLine +
                 Environment.NewLine + "<reset color>");
 
             sc.Clear();
@@ -1353,14 +1353,14 @@ namespace Microsoft.Build.UnitTests
 
             sc.ToString().ShouldStartWith("<green>" + Environment.NewLine + "bf" +
                         Environment.NewLine + "<reset color>" +
-                "    " + ResourceUtilities.FormatResourceStringStripCodeAndKeyword("WarningCount", 0) +
+                "    " + FormatResourceStringStripCodeAndKeyword("WarningCount", 0) +
                         Environment.NewLine + "<reset color>" +
-                "    " + ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ErrorCount", 0) +
+                "    " + FormatResourceStringStripCodeAndKeyword("ErrorCount", 0) +
                         Environment.NewLine + "<reset color>" +
                         Environment.NewLine);
 
             // Would like to add...
-            //    + ResourceUtilities.FormatResourceString("TimeElapsed", String.Empty);
+            //    + FormatResourceString("TimeElapsed", String.Empty);
             // ...but this assumes that the time goes on the far right in every locale.
 
             sc.Clear();
@@ -1935,8 +1935,8 @@ namespace Microsoft.Build.UnitTests
             // error and warning string for 1 error and 1 warning
             // errorString = 1 Error(s)
             // warningString = 1 Warning(s)
-            string errorString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ErrorCount", 1);
-            string warningString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("WarningCount", 1);
+            string errorString = FormatResourceStringStripCodeAndKeyword("ErrorCount", 1);
+            string warningString = FormatResourceStringStripCodeAndKeyword("WarningCount", 1);
 
             // Create a ConsoleLogger with Normal verbosity
             ConsoleLogger L = new ConsoleLogger(LoggerVerbosity.Normal,
@@ -2003,8 +2003,8 @@ namespace Microsoft.Build.UnitTests
 
             // errorString = 0 Error(s)
             // warningString = 0 Warning(s)
-            errorString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ErrorCount", 0);
-            warningString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("WarningCount", 0);
+            errorString = FormatResourceStringStripCodeAndKeyword("ErrorCount", 0);
+            warningString = FormatResourceStringStripCodeAndKeyword("WarningCount", 0);
 
             // Verify that the log has correct error and warning string
             actualLog.ShouldContain(errorString);
@@ -2025,8 +2025,8 @@ namespace Microsoft.Build.UnitTests
             // error and warning string for 1 error and 1 warning
             // errorString = 1 Error(s)
             // warningString = 1 Warning(s)
-            string errorString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ErrorCount", 1);
-            string warningString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("WarningCount", 1);
+            string errorString = FormatResourceStringStripCodeAndKeyword("ErrorCount", 1);
+            string warningString = FormatResourceStringStripCodeAndKeyword("WarningCount", 1);
 
             // Create a ConsoleLogger with Normal verbosity
             ConsoleLogger L = new ConsoleLogger(LoggerVerbosity.Normal,
@@ -2091,9 +2091,9 @@ namespace Microsoft.Build.UnitTests
             actualLog.ShouldNotContain("<yellow>");
 
             // errorString = 0 Error(s)
-            errorString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ErrorCount", 0);
+            errorString = FormatResourceStringStripCodeAndKeyword("ErrorCount", 0);
             // warningString = 0 Warning(s)
-            warningString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("WarningCount", 0);
+            warningString = FormatResourceStringStripCodeAndKeyword("WarningCount", 0);
 
             // Verify that the log has correct error and warning string
             actualLog.ShouldContain(errorString);
@@ -2117,11 +2117,11 @@ namespace Microsoft.Build.UnitTests
                 L.Parameters = "Performancesummary";
                 L.Initialize(es, i);
                 // prjPerfString = Project Performance Summary:
-                string prjPerfString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectPerformanceSummary", null);
+                string prjPerfString = FormatResourceStringStripCodeAndKeyword("ProjectPerformanceSummary", null);
                 // targetPerfString = Target Performance Summary:
-                string targetPerfString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetPerformanceSummary", null);
+                string targetPerfString = FormatResourceStringStripCodeAndKeyword("TargetPerformanceSummary", null);
                 // taskPerfString = Task Performance Summary:
-                string taskPerfString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TaskPerformanceSummary", null);
+                string taskPerfString = FormatResourceStringStripCodeAndKeyword("TaskPerformanceSummary", null);
 
                 // BuildStarted Event
                 es.Consume(new BuildStartedEventArgs("bs", null));
@@ -2246,7 +2246,7 @@ namespace Microsoft.Build.UnitTests
             es.Consume(messsage1);
             es.Consume(new BuildFinishedEventArgs("bf", null, true));
             string actualLog = sc.ToString();
-            actualLog.ShouldContain(ResourceUtilities.GetResourceString("DeferredMessages"));
+            actualLog.ShouldContain(GetResourceString("DeferredMessages"));
 
             es = new EventSourceSink();
             sc = new SimulatedConsole();
@@ -2260,7 +2260,7 @@ namespace Microsoft.Build.UnitTests
             es.Consume(messsage2);
             es.Consume(new BuildFinishedEventArgs("bf", null, true));
             actualLog = sc.ToString();
-            actualLog.ShouldContain(ResourceUtilities.GetResourceString("DeferredMessages"));
+            actualLog.ShouldContain(GetResourceString("DeferredMessages"));
 
             es = new EventSourceSink();
             sc = new SimulatedConsole();
@@ -2316,7 +2316,7 @@ namespace Microsoft.Build.UnitTests
                 messsage1.BuildEventContext = context;
                 es.Consume(messsage1);
                 string actualLog = sc.ToString();
-                string resourceString = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedTopLevelProjectWithTargetNames", "None", 1, "Build");
+                string resourceString = FormatResourceStringStripCodeAndKeyword("ProjectStartedTopLevelProjectWithTargetNames", "None", 1, "Build");
                 actualLog.ShouldContain(resourceString);
             }
         }
@@ -2428,18 +2428,18 @@ namespace Microsoft.Build.UnitTests
                         break;
                     // We are in single proc but logging with multiproc logging add an extra new line to make the log more readable.
                     case 1:
-                        actualLog.ShouldContain(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectFinishedPrefixWithTargetNamesMultiProc", "None", "Build") + Environment.NewLine);
+                        actualLog.ShouldContain(FormatResourceStringStripCodeAndKeyword("ProjectFinishedPrefixWithTargetNamesMultiProc", "None", "Build") + Environment.NewLine);
                         if (runningWithCharDevice)
                         {
-                            actualLog.ShouldContain(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectFinishedPrefixWithTargetNamesMultiProc", "None", "Build") + Environment.NewLine + Environment.NewLine);
+                            actualLog.ShouldContain(FormatResourceStringStripCodeAndKeyword("ProjectFinishedPrefixWithTargetNamesMultiProc", "None", "Build") + Environment.NewLine + Environment.NewLine);
                         }
                         else
                         {
-                            actualLog.ShouldNotContain(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectFinishedPrefixWithTargetNamesMultiProc", "None", "Build") + Environment.NewLine + Environment.NewLine);
+                            actualLog.ShouldNotContain(FormatResourceStringStripCodeAndKeyword("ProjectFinishedPrefixWithTargetNamesMultiProc", "None", "Build") + Environment.NewLine + Environment.NewLine);
                         }
                         break;
                     case 2:
-                        actualLog.ShouldNotContain(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectFinishedPrefixWithTargetNamesMultiProc", "None", "Build") + Environment.NewLine + Environment.NewLine);
+                        actualLog.ShouldNotContain(FormatResourceStringStripCodeAndKeyword("ProjectFinishedPrefixWithTargetNamesMultiProc", "None", "Build") + Environment.NewLine + Environment.NewLine);
                         break;
                 }
             }

@@ -195,7 +195,7 @@ namespace Microsoft.Build.CommandLine
             }
             while (exception != null);
 
-            Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("InvalidConfigurationFile", builder.ToString()));
+            Console.WriteLine(FormatResourceStringStripCodeAndKeyword("InvalidConfigurationFile", builder.ToString()));
 
             s_initialized = false;
         }
@@ -617,7 +617,7 @@ namespace Microsoft.Build.CommandLine
                         && switchesNotFromAutoResponseFile[CommandLineSwitches.ParameterizedSwitch.MaxCPUCount].Length == 0
                         && switchesFromAutoResponseFile[CommandLineSwitches.ParameterizedSwitch.MaxCPUCount].Length == 0)
                     {
-                        Console.WriteLine(ResourceUtilities.GetResourceString("PossiblyOmittedMaxCPUSwitch"));
+                        Console.WriteLine(GetResourceString("PossiblyOmittedMaxCPUSwitch"));
                     }
                     if (preprocessWriter != null && !BuildEnvironmentHelper.Instance.RunningTests)
                     {
@@ -734,7 +734,7 @@ namespace Microsoft.Build.CommandLine
             catch (InvalidToolsetDefinitionException e)
             {
                 // Brief prefix to indicate that it's a configuration failure, and provide the "error" indication
-                Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ConfigurationFailurePrefixNoErrorCode", e.ErrorCode, e.Message));
+                Console.WriteLine(FormatResourceStringStripCodeAndKeyword("ConfigurationFailurePrefixNoErrorCode", e.ErrorCode, e.Message));
 
                 exitType = ExitType.InitializationError;
             }
@@ -752,13 +752,13 @@ namespace Microsoft.Build.CommandLine
                 if (e.ErrorCode != null)
                 {
                     // Brief prefix to indicate that it's a logger failure, and provide the "error" indication
-                    Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("LoggerFailurePrefixNoErrorCode", e.ErrorCode, e.Message));
+                    Console.WriteLine(FormatResourceStringStripCodeAndKeyword("LoggerFailurePrefixNoErrorCode", e.ErrorCode, e.Message));
                 }
                 else
                 {
                     // Brief prefix to indicate that it's a logger failure, adding a generic error code to make sure
                     // there's something for the user to look up in the documentation
-                    Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("LoggerFailurePrefixWithErrorCode", e.Message));
+                    Console.WriteLine(FormatResourceStringStripCodeAndKeyword("LoggerFailurePrefixWithErrorCode", e.Message));
                 }
 
                 if (e.InnerException != null)
@@ -907,7 +907,7 @@ namespace Microsoft.Build.CommandLine
 
             s_buildCancellationSource.Cancel();
 
-            Console.WriteLine(ResourceUtilities.GetResourceString("AbortingBuild"));
+            Console.WriteLine(GetResourceString("AbortingBuild"));
 
             // The OS takes a lock in
             // kernel32.dll!_SetConsoleCtrlHandler, so if a task
@@ -1015,7 +1015,7 @@ namespace Microsoft.Build.CommandLine
         {
             if (FileUtilities.IsVCProjFilename(projectFile) || FileUtilities.IsDspFilename(projectFile))
             {
-                InitializationException.Throw(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectUpgradeNeededToVcxProj", projectFile), null);
+                InitializationException.Throw(FormatResourceStringStripCodeAndKeyword("ProjectUpgradeNeededToVcxProj", projectFile), null);
             }
 
             bool success = false;
@@ -1353,7 +1353,7 @@ namespace Microsoft.Build.CommandLine
             }
             catch (Exception ex)
             {
-                var message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetsCouldNotBePrinted", ex);
+                var message = FormatResourceStringStripCodeAndKeyword("TargetsCouldNotBePrinted", ex);
                 Console.Error.WriteLine(message);
                 return false;
             }
@@ -1364,27 +1364,27 @@ namespace Microsoft.Build.CommandLine
             return new[]
             {
                 new BuildManager.DeferredBuildMessage(
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    FormatResourceStringIgnoreCodeAndKeyword(
                         "Process",
                         Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty),
                     MessageImportance.Low),
                 new BuildManager.DeferredBuildMessage(
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    FormatResourceStringIgnoreCodeAndKeyword(
                         "MSBExePath",
                         BuildEnvironmentHelper.Instance.CurrentMSBuildExePath),
                     MessageImportance.Low),
                 new BuildManager.DeferredBuildMessage(
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    FormatResourceStringIgnoreCodeAndKeyword(
                         "CommandLine",
                         Environment.CommandLine),
                     MessageImportance.Low),
                 new BuildManager.DeferredBuildMessage(
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    FormatResourceStringIgnoreCodeAndKeyword(
                         "CurrentDirectory",
                         Environment.CurrentDirectory),
                     MessageImportance.Low),
                 new BuildManager.DeferredBuildMessage(
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    FormatResourceStringIgnoreCodeAndKeyword(
                         "MSBVersion",
                         ProjectCollection.DisplayVersion),
                     MessageImportance.Low)
@@ -2342,7 +2342,7 @@ namespace Microsoft.Build.CommandLine
                     // the Engine, and we don't want to do that.
                     if (usingSwitchesFromAutoResponseFile && LoggerVerbosity.Diagnostic == verbosity)
                     {
-                        Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("PickedUpSwitchesFromAutoResponse", autoResponseFileName));
+                        Console.WriteLine(FormatResourceStringStripCodeAndKeyword("PickedUpSwitchesFromAutoResponse", autoResponseFileName));
                     }
 
                     if (verbosity == LoggerVerbosity.Diagnostic)
@@ -3599,7 +3599,7 @@ namespace Microsoft.Build.CommandLine
             }
             catch (Exception e) when (loggerDescription.IsOptional)
             {
-                Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("OptionalLoggerCreationMessage", e.Message));
+                Console.WriteLine(FormatResourceStringStripCodeAndKeyword("OptionalLoggerCreationMessage", e.Message));
                 return false;
             }
 
@@ -3668,7 +3668,7 @@ namespace Microsoft.Build.CommandLine
             }
             catch (Exception ex)
             {
-                var message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("InvalidLogFileFormat", ex.Message);
+                var message = FormatResourceStringStripCodeAndKeyword("InvalidLogFileFormat", ex.Message);
                 Console.WriteLine(message);
             }
 
@@ -3722,13 +3722,13 @@ namespace Microsoft.Build.CommandLine
                 toolsVersionList = toolsVersionList.Substring(0, toolsVersionList.Length - 2);
             }
 
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword
+            string message = FormatResourceStringStripCodeAndKeyword
                 (
                 "UnrecognizedToolsVersion",
                 toolsVersion,
                 toolsVersionList
                 );
-            message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("InvalidToolsVersionError", message);
+            message = FormatResourceStringStripCodeAndKeyword("InvalidToolsVersionError", message);
 
             InitializationException.Throw(message, toolsVersion);
         }
@@ -3746,7 +3746,7 @@ namespace Microsoft.Build.CommandLine
             const string frameworkName = ".NET Framework";
 #endif
 
-            Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("CopyrightMessage", ProjectCollection.DisplayVersion, frameworkName));
+            Console.WriteLine(FormatResourceStringStripCodeAndKeyword("CopyrightMessage", ProjectCollection.DisplayVersion, frameworkName));
         }
 
         /// <summary>

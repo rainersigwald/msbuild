@@ -152,11 +152,11 @@ namespace Microsoft.Build.BackEnd.Logging
             {
                 if (!string.IsNullOrEmpty(projectStartedEvent.TargetNames))
                 {
-                    stackTrace.Add(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStackWithTargetNames", projectStartedEvent.ProjectFile, projectStartedEvent.TargetNames, projectStartedEvent.FullProjectKey));
+                    stackTrace.Add(FormatResourceStringStripCodeAndKeyword("ProjectStackWithTargetNames", projectStartedEvent.ProjectFile, projectStartedEvent.TargetNames, projectStartedEvent.FullProjectKey));
                 }
                 else
                 {
-                    stackTrace.Add(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStackWithDefaultTargets", projectStartedEvent.ProjectFile, projectStartedEvent.FullProjectKey));
+                    stackTrace.Add(FormatResourceStringStripCodeAndKeyword("ProjectStackWithDefaultTargets", projectStartedEvent.ProjectFile, projectStartedEvent.FullProjectKey));
                 }
             }
             stackTrace.Reverse();
@@ -270,7 +270,7 @@ namespace Microsoft.Build.BackEnd.Logging
     }
 
     /// <summary>
-    /// This class stands in for a full project started event because it contains only the 
+    /// This class stands in for a full project started event because it contains only the
     /// minimum amount of inforomation needed for the logger
     /// </summary>
     internal class ProjectStartedEventMinimumFields
@@ -408,7 +408,7 @@ namespace Microsoft.Build.BackEnd.Logging
     }
 
     /// <summary>
-    /// This class stands in for a full target started event because it contains only the 
+    /// This class stands in for a full target started event because it contains only the
     /// minimum amount of inforomation needed for the logger
     /// </summary>
     internal class TargetStartedEventMinimumFields
@@ -528,7 +528,7 @@ namespace Microsoft.Build.BackEnd.Logging
     }
 
     /// <summary>
-    /// This class is used as a key to group warnings and errors by the project entry point and the target they 
+    /// This class is used as a key to group warnings and errors by the project entry point and the target they
     /// error or warning was in
     /// </summary>
     internal class ErrorWarningSummaryDictionaryKey

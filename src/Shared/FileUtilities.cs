@@ -394,7 +394,7 @@ namespace Microsoft.Build.Shared
 
                 if (IsPathTooLong(uncheckedFullPath))
                 {
-                    string message = ResourceUtilities.FormatString(SharedResources.GetString("Shared.PathTooLong"), path, NativeMethodsShared.MaxPath);
+                    string message = FormatString(SharedResources.GetString("Shared.PathTooLong"), path, NativeMethodsShared.MaxPath);
                     throw new PathTooLongException(message);
                 }
 

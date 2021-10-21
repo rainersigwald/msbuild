@@ -86,7 +86,7 @@ namespace Microsoft.Build.Graph
                     throw new InvalidOperationException(
                         String.Format(
                             CultureInfo.InvariantCulture,
-                            ResourceUtilities.GetResourceString(
+                            GetResourceString(
                                 "ProjectGraphDoesNotSupportProjectReferenceWithToolset"),
                             projectReferenceItem.EvaluatedInclude,
                             requesterInstance.FullPath));
@@ -339,7 +339,7 @@ namespace Microsoft.Build.Graph
             throw new InvalidProjectFileException(
                 String.Format(
                     CultureInfo.InvariantCulture,
-                    ResourceUtilities.GetResourceString("General.InvalidPropertyError"),
+                    GetResourceString("General.InvalidPropertyError"),
                     syntaxName,
                     propertyNameAndValuesString));
         }

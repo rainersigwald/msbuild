@@ -393,10 +393,10 @@ namespace Microsoft.Build.Shared
 #if DEBUG
             if (errorSubCategoryResourceName != null)
             {
-                ResourceUtilities.VerifyResourceStringExists(errorSubCategoryResourceName);
+                VerifyResourceStringExists(errorSubCategoryResourceName);
             }
 
-            ResourceUtilities.VerifyResourceStringExists(resourceName);
+            VerifyResourceStringExists(resourceName);
 #endif
             string errorSubCategory = null;
 
@@ -407,7 +407,7 @@ namespace Microsoft.Build.Shared
 
             string errorCode;
             string helpKeyword;
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, resourceName, args);
+            string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, resourceName, args);
 
             throw new InvalidProjectFileException(elementLocation.File, elementLocation.Line, elementLocation.Column, 0 /* Unknown end line */, 0 /* Unknown end column */, message, errorSubCategory, errorCode, helpKeyword);
         }

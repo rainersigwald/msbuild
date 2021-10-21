@@ -17,7 +17,7 @@ namespace Microsoft.Build.Logging
     /// <remarks>The logger is public so that it can be instantiated from MSBuild.exe via command-line switch.</remarks>
     public sealed class BinaryLogger : ILogger
     {
-        // version 2: 
+        // version 2:
         //   - new BuildEventContext.EvaluationId
         //   - new record kinds: ProjectEvaluationStarted, ProjectEvaluationFinished
         // version 3:
@@ -96,7 +96,7 @@ namespace Microsoft.Build.Logging
         public LoggerVerbosity Verbosity { get; set; } = LoggerVerbosity.Diagnostic;
 
         /// <summary>
-        /// The only supported parameter is the output log file path (e.g. "msbuild.binlog") 
+        /// The only supported parameter is the output log file path (e.g. "msbuild.binlog")
         /// </summary>
         public string Parameters { get; set; }
 
@@ -154,7 +154,7 @@ namespace Microsoft.Build.Logging
             {
                 string errorCode;
                 string helpKeyword;
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "InvalidFileLoggerFile", FilePath, e.Message);
+                string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "InvalidFileLoggerFile", FilePath, e.Message);
                 throw new LoggerException(message, e, errorCode, helpKeyword);
             }
 
@@ -278,7 +278,7 @@ namespace Microsoft.Build.Logging
         {
             if (Parameters == null)
             {
-                throw new LoggerException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("InvalidBinaryLoggerParameters", ""));
+                throw new LoggerException(FormatResourceStringStripCodeAndKeyword("InvalidBinaryLoggerParameters", ""));
             }
 
             var parameters = Parameters.Split(MSBuildConstants.SemicolonChar, StringSplitOptions.RemoveEmptyEntries);
@@ -308,7 +308,7 @@ namespace Microsoft.Build.Logging
                 }
                 else
                 {
-                    throw new LoggerException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("InvalidBinaryLoggerParameters", parameter));
+                    throw new LoggerException(FormatResourceStringStripCodeAndKeyword("InvalidBinaryLoggerParameters", parameter));
                 }
             }
 
@@ -325,7 +325,7 @@ namespace Microsoft.Build.Logging
             {
                 string errorCode;
                 string helpKeyword;
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "InvalidFileLoggerFile", FilePath, e.Message);
+                string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "InvalidFileLoggerFile", FilePath, e.Message);
                 throw new LoggerException(message, e, errorCode, helpKeyword);
             }
         }

@@ -229,7 +229,7 @@ namespace Microsoft.Build.Tasks
             }
             catch (XmlException xe)
             {
-                throw new ArgumentException(ResourceUtilities.GetResourceString("XmlPoke.NamespacesParameterNotWellFormed"), xe);
+                throw new ArgumentException(GetResourceString("XmlPoke.NamespacesParameterNotWellFormed"), xe);
             }
 
             XmlNodeList xnl = doc.SelectNodes("/Namespaces/*[local-name() = 'Namespace']");
@@ -242,14 +242,14 @@ namespace Microsoft.Build.Tasks
                 XmlAttribute prefix = xn.Attributes?[prefixAttr];
                 if (prefix == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("XmlPoke.NamespacesParameterNoAttribute", prefixAttr));
+                    throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("XmlPoke.NamespacesParameterNoAttribute", prefixAttr));
                 }
 
                 const string uriAttr = "Uri";
                 XmlAttribute uri = xn.Attributes[uriAttr];
                 if (uri == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("XmlPoke.NamespacesParameterNoAttribute", uriAttr));
+                    throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("XmlPoke.NamespacesParameterNoAttribute", uriAttr));
                 }
 
                 namespaceManager.AddNamespace(prefix.Value, uri.Value);

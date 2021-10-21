@@ -55,7 +55,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
         {
             VerifyThrow(messageResourceName != null, "Need error message.");
 
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out var errorCode, out _, messageResourceName, messageArgs);
+            string message = FormatResourceStringStripCodeAndKeyword(out var errorCode, out _, messageResourceName, messageArgs);
 
             throw new ProjectCacheException(message, innerException, hasBeenLoggedByProjectCache: false, errorCode);
         }
@@ -68,7 +68,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
         {
             VerifyThrow(messageResourceName != null, "Need error message.");
 
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out var errorCode, out _, messageResourceName, messageArgs);
+            string message = FormatResourceStringStripCodeAndKeyword(out var errorCode, out _, messageResourceName, messageArgs);
 
             throw new ProjectCacheException(message: message, innerException: null, hasBeenLoggedByProjectCache: true, errorCode: errorCode);
         }
@@ -81,7 +81,7 @@ namespace Microsoft.Build.Experimental.ProjectCache
         {
             VerifyThrow(messageResourceName != null, "Need error message.");
 
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out var errorCode, out _, messageResourceName, messageArgs);
+            string message = FormatResourceStringStripCodeAndKeyword(out var errorCode, out _, messageResourceName, messageArgs);
 
             throw new ProjectCacheException(message: message, innerException: null, hasBeenLoggedByProjectCache: false, errorCode: errorCode);
         }

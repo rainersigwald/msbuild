@@ -227,7 +227,7 @@ namespace Microsoft.Build.Tasks
             }
             catch (XmlException xe)
             {
-                throw new ArgumentException(ResourceUtilities.GetResourceString("XslTransform.XsltParameterNotWellFormed"), xe);
+                throw new ArgumentException(GetResourceString("XslTransform.XsltParameterNotWellFormed"), xe);
             }
 
             XmlNodeList xnl = doc.SelectNodes("/XsltParameters/*[local-name() = 'Parameter']");
@@ -238,12 +238,12 @@ namespace Microsoft.Build.Tasks
 
                 if (xn.Attributes["Name"] == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("XslTransform.XsltParameterNoAttribute", "Name"));
+                    throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("XslTransform.XsltParameterNoAttribute", "Name"));
                 }
 
                 if (xn.Attributes["Value"] == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("XslTransform.XsltParameterNoAttribute", "Value"));
+                    throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("XslTransform.XsltParameterNoAttribute", "Value"));
                 }
 
                 string ns = String.Empty;
@@ -279,11 +279,11 @@ namespace Microsoft.Build.Tasks
             {
                 if (xmlFile != null && xml != null)
                 {
-                    throw new ArgumentException(ResourceUtilities.GetResourceString("XslTransform.XmlInput.TooMany"));
+                    throw new ArgumentException(GetResourceString("XslTransform.XmlInput.TooMany"));
                 }
                 else if (xmlFile == null && xml == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.GetResourceString("XslTransform.XmlInput.TooFew"));
+                    throw new ArgumentException(GetResourceString("XslTransform.XmlInput.TooFew"));
                 }
 
                 if (xmlFile != null)
@@ -382,11 +382,11 @@ namespace Microsoft.Build.Tasks
                     (xsltFile != null && xsltCompiledDll != null) ||
                     (xslt != null && xsltCompiledDll != null))
                 {
-                    throw new ArgumentException(ResourceUtilities.GetResourceString("XslTransform.XsltInput.TooMany"));
+                    throw new ArgumentException(GetResourceString("XslTransform.XsltInput.TooMany"));
                 }
                 else if (xsltFile == null && xslt == null && xsltCompiledDll == null)
                 {
-                    throw new ArgumentException(ResourceUtilities.GetResourceString("XslTransform.XsltInput.TooFew"));
+                    throw new ArgumentException(GetResourceString("XslTransform.XsltInput.TooFew"));
                 }
 
                 if (xsltFile != null)
@@ -515,7 +515,7 @@ namespace Microsoft.Build.Tasks
                         return types[0];
                     }
 
-                    throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("XslTransform.MustSpecifyType", assemblyPath));
+                    throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("XslTransform.MustSpecifyType", assemblyPath));
                 }
             }
         }

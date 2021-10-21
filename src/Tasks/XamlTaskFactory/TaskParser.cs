@@ -102,7 +102,7 @@ namespace Microsoft.Build.Tasks.Xaml
                     parseErrors.AppendLine(error);
                 }
 
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Xaml.RuleParseFailed", parseErrors.ToString()));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Xaml.RuleParseFailed", parseErrors.ToString()));
             }
 
             return parseSuccessful;
@@ -143,7 +143,7 @@ namespace Microsoft.Build.Tasks.Xaml
                 // valid *absolute* file path
 
                 if (!FileSystems.Default.FileExists(contentOrFile))
-                    throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Xaml.RuleFileNotFound", contentOrFile));
+                    throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Xaml.RuleFileNotFound", contentOrFile));
 
                 return ParseXamlDocument(new StreamReader(contentOrFile), desiredRule);
             }
@@ -165,7 +165,7 @@ namespace Microsoft.Build.Tasks.Xaml
             //
             // On Windows, this means that @contentOrFile is really a non-existant file name
             if (NativeMethodsShared.IsWindows)
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Xaml.RuleFileNotFound", maybeFullPath));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Xaml.RuleFileNotFound", maybeFullPath));
             else // On !Windows, try parsing as XML
                 return ParseXamlDocument(new StringReader(contentOrFile), desiredRule);
         }
@@ -196,11 +196,11 @@ namespace Microsoft.Build.Tasks.Xaml
                         }
                     }
 
-                    throw new XamlParseException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Xaml.RuleNotFound", desiredRule));
+                    throw new XamlParseException(FormatResourceStringStripCodeAndKeyword("Xaml.RuleNotFound", desiredRule));
                 }
                 else
                 {
-                    throw new XamlParseException(ResourceUtilities.GetResourceString("Xaml.InvalidRootObject"));
+                    throw new XamlParseException(GetResourceString("Xaml.InvalidRootObject"));
                 }
             }
 
@@ -308,7 +308,7 @@ namespace Microsoft.Build.Tasks.Xaml
             }
             else
             {
-                throw new XamlParseException(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("Xaml.DuplicatePropertyName", propertyToAdd.Name));
+                throw new XamlParseException(FormatResourceStringIgnoreCodeAndKeyword("Xaml.DuplicatePropertyName", propertyToAdd.Name));
             }
 
             // Inherit the Prefix from the Tool

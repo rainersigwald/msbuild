@@ -142,7 +142,7 @@ namespace Microsoft.Build.Tasks.AssemblyFoldersFromConfig
                         }
                         catch (SerializationException e)
                         {
-                            _taskLogger.LogError(ResourceUtilities.GetResourceString("ResolveAssemblyReference.AssemblyFoldersConfigFileMalformed"), _assemblyFolderConfigFile, e.Message);
+                            _taskLogger.LogError(GetResourceString("ResolveAssemblyReference.AssemblyFoldersConfigFileMalformed"), _assemblyFolderConfigFile, e.Message);
                             return;
                         }
                     }

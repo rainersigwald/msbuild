@@ -1300,7 +1300,7 @@ namespace Microsoft.Build.Tasks
         {
             VerifyThrowInternalNull(conflictCandidate, nameof(conflictCandidate));
             log.Append(Strings.FourSpaces);
-            log.Append(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ReferenceDependsOn", fusionName, conflictCandidate.FullPath));
+            log.Append(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ReferenceDependsOn", fusionName, conflictCandidate.FullPath));
 
             if (conflictCandidate.IsPrimary)
             {
@@ -1313,7 +1313,7 @@ namespace Microsoft.Build.Tasks
                     log
                         .AppendLine()
                         .Append(Strings.EightSpaces)
-                        .Append(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.UnResolvedPrimaryItemSpec", conflictCandidate.PrimarySourceItem));
+                        .Append(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.UnResolvedPrimaryItemSpec", conflictCandidate.PrimarySourceItem));
                 }
             }
 
@@ -1333,7 +1333,7 @@ namespace Microsoft.Build.Tasks
         {
             log.AppendLine().Append(Strings.EightSpaces).AppendLine(dependeeReference.FullPath);
 
-            log.Append(Strings.TenSpaces).Append(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.PrimarySourceItemsForReference", dependeeReference.FullPath));
+            log.Append(Strings.TenSpaces).Append(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.PrimarySourceItemsForReference", dependeeReference.FullPath));
             foreach (ITaskItem sourceItem in dependeeReference.GetSourceItems())
             {
                 log.AppendLine().Append(Strings.TwelveSpaces).Append(sourceItem.ItemSpec);
@@ -1961,7 +1961,7 @@ namespace Microsoft.Build.Tasks
         /// <param name="log">StringBuilder holding information to be logged.</param>
         private void LogConflict(Reference reference, string fusionName, StringBuilder log)
         {
-            log.Append(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictFound", reference.ConflictVictorName, fusionName));
+            log.Append(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictFound", reference.ConflictVictorName, fusionName));
             switch (reference.ConflictLossExplanation)
             {
                 case ConflictLossReason.HadLowerVersion:
@@ -1990,7 +1990,7 @@ namespace Microsoft.Build.Tasks
                     {
                         // For dependencies, adding an app.config entry could help. Log a comment, there will be
                         // a summary warning later on.
-                        log.AppendLine().Append(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictUnsolvable", reference.ConflictVictorName, fusionName));
+                        log.AppendLine().Append(FormatResourceStringIgnoreCodeAndKeyword("ResolveAssemblyReference.ConflictUnsolvable", reference.ConflictVictorName, fusionName));
                     }
                     break;
                 // Can happen if one of the references has a dependency with the same simplename, and version but no publickeytoken and the other does.

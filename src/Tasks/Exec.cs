@@ -543,7 +543,7 @@ namespace Microsoft.Build.Tasks
             // So verify it's valid here.
             if (!FileSystems.Default.DirectoryExists(_workingDirectory))
             {
-                throw new DirectoryNotFoundException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Exec.InvalidWorkingDirectory", _workingDirectory));
+                throw new DirectoryNotFoundException(FormatResourceStringStripCodeAndKeyword("Exec.InvalidWorkingDirectory", _workingDirectory));
             }
 
             if (workingDirectoryIsUNC)

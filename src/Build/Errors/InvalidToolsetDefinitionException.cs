@@ -151,11 +151,11 @@ namespace Microsoft.Build.Exceptions
         )
         {
 #if DEBUG
-            ResourceUtilities.VerifyResourceStringExists(resourceName);
+            VerifyResourceStringExists(resourceName);
 #endif
             string errorCode;
             string helpKeyword;
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, resourceName, (object[])args);
+            string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, resourceName, (object[])args);
 
             throw new InvalidToolsetDefinitionException(message, errorCode, innerException);
         }

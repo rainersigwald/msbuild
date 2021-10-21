@@ -905,7 +905,7 @@ namespace Microsoft.Build.Tasks
             {
                 var processes = LockCheck.GetProcessesLockingFile(file);
                 message = !string.IsNullOrEmpty(processes)
-                    ? ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("Copy.FileLocked", processes)
+                    ? FormatResourceStringIgnoreCodeAndKeyword("Copy.FileLocked", processes)
                     : String.Empty;
             }
             catch (Exception)

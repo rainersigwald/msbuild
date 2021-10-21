@@ -566,7 +566,7 @@ namespace Microsoft.Build.Tasks.Xaml
         /// </summary>
         private void LogError(string messageResourceName, params object[] messageArgs)
         {
-            ErrorLog.AddLast(ResourceUtilities.FormatResourceStringStripCodeAndKeyword(messageResourceName, messageArgs));
+            ErrorLog.AddLast(FormatResourceStringStripCodeAndKeyword(messageResourceName, messageArgs));
             ErrorCount++;
         }
 

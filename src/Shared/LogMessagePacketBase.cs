@@ -1211,76 +1211,76 @@ namespace Microsoft.Build.Shared
             var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
 
             var args = new ProjectEvaluationStartedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationStarted"), projectFile);
 
-            args.BuildEventContext = buildEventContext;
-            args.RawTimestamp = timestamp;
-            args.ProjectFile = projectFile;
+                /* Unmerged change from project 'MSBuild'
+                Before:
+                                ResourceUtilities.GetResourceString("EvaluationStarted"), projectFile);
 
-            return args;
-        }
+                            args.BuildEventContext = buildEventContext;
+                            args.RawTimestamp = timestamp;
+                            args.ProjectFile = projectFile;
 
-        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
-        {
-            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
+                            return args;
+                        }
 
-            var args = new ProjectEvaluationFinishedEventArgs(
-                ResourceUtilities.GetResourceString("EvaluationFinished"), projectFile);
+                        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
+                        {
+                            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
 
-            args.BuildEventContext = buildEventContext;
-            args.RawTimestamp = timestamp;
-            args.ProjectFile = projectFile;
+                            var args = new ProjectEvaluationFinishedEventArgs(
+                                ResourceUtilities.GetResourceString("EvaluationFinished"), projectFile);
+                After:
+                                GetResourceString("EvaluationStarted"), projectFile);
 
-            args.GlobalProperties = ReadProperties(translator);
-            args.Properties = ReadProperties(translator);
-            args.Items = ReadItems(translator);
-            args.ProfilerResult = ReadProfileResult(translator);
+                            args.BuildEventContext = buildEventContext;
+                            args.RawTimestamp = timestamp;
+                            args.ProjectFile = projectFile;
 
-            return args;
-        }
+                            return args;
+                        }
 
-        private (BuildEventContext buildEventContext, DateTime timestamp, string projectFile)
-            ReadEvaluationEvent(ITranslator translator)
-        {
-            BuildEventContext buildEventContext = null;
-            translator.Translate(ref buildEventContext);
+                        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
+                        {
+                            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
 
-            DateTime timestamp = default;
-            translator.Translate(ref timestamp);
+                            var args = new ProjectEvaluationFinishedEventArgs(
+                                GetResourceString("EvaluationFinished"), projectFile);
+                */
 
-            string projectFile = null;
-            translator.Translate(ref projectFile);
+                /* Unmerged change from project 'MSBuildTaskHost'
+                Before:
+                                ResourceUtilities.GetResourceString("EvaluationStarted"), projectFile);
 
-            return (buildEventContext, timestamp, projectFile);
-        }
+                            args.BuildEventContext = buildEventContext;
+                            args.RawTimestamp = timestamp;
+                            args.ProjectFile = projectFile;
 
-        private IEnumerable ReadProperties(ITranslator translator)
-        {
-            var reader = translator.Reader;
-            int count = BinaryReaderExtensions.Read7BitEncodedInt(reader);
-            if (count == 0)
-            {
-                return Array.Empty<DictionaryEntry>();
-            }
+                            return args;
+                        }
 
-            var list = new ArrayList(count);
-            for (int i = 0; i < count; i++)
-            {
-                string key = reader.ReadString();
-                string value = reader.ReadString();
-                var entry = new DictionaryEntry(key, value);
-                list.Add(entry);
-            }
+                        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
+                        {
+                            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
 
-            return list;
-        }
+                            var args = new ProjectEvaluationFinishedEventArgs(
+                                ResourceUtilities.GetResourceString("EvaluationFinished"), projectFile);
+                After:
+                                GetResourceString("EvaluationStarted"), projectFile);
 
-        private IEnumerable ReadItems(ITranslator translator)
-        {
-            var reader = translator.Reader;
+                            args.BuildEventContext = buildEventContext;
+                            args.RawTimestamp = timestamp;
+                            args.ProjectFile = projectFile;
 
-            int count = BinaryReaderExtensions.Read7BitEncodedInt(reader);
-            if (count == 0)
+                            return args;
+                        }
+
+                        private ProjectEvaluationFinishedEventArgs ReadProjectEvaluationFinishedEventFromStream(ITranslator translator)
+                        {
+                            var (buildEventContext, timestamp, projectFile) = ReadEvaluationEvent(translator);
+
+                            var args = new ProjectEvaluationFinishedEventArgs(
+                                GetResourceString("EvaluationFinished"), projectFile);
+                */         if (count == 0)
             {
                 return Array.Empty<DictionaryEntry>();
             }

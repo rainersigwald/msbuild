@@ -44,11 +44,11 @@ namespace Microsoft.Build.UnitTests
             string toolPath = SdkToolsPathUtility.GeneratePathToTool(_mockExists.MockFileExistsOnlyInX86, ProcessorArchitecture.X86, null, _toolName, _log, true);
             Assert.Null(toolPath);
 
-            string comment = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathNotSpecifiedOrToolDoesNotExist", _toolName, null);
+            string comment = FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathNotSpecifiedOrToolDoesNotExist", _toolName, null);
             _mockEngine.AssertLogContains(comment);
             Assert.Equal(0, _mockEngine.Warnings);
 
-            comment = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathToolDoesNotExist", _toolName, null, ToolLocationHelper.GetDotNetFrameworkSdkRootRegistryKey(TargetDotNetFrameworkVersion.Latest));
+            comment = FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathToolDoesNotExist", _toolName, null, ToolLocationHelper.GetDotNetFrameworkSdkRootRegistryKey(TargetDotNetFrameworkVersion.Latest));
             _mockEngine.AssertLogContains(comment);
             Assert.Equal(1, _mockEngine.Errors);
         }
@@ -62,11 +62,11 @@ namespace Microsoft.Build.UnitTests
             string toolPath = SdkToolsPathUtility.GeneratePathToTool(_mockExists.MockFileExistsOnlyInX86, ProcessorArchitecture.X86, null, _toolName, _log, false);
             Assert.Null(toolPath);
 
-            string comment = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathNotSpecifiedOrToolDoesNotExist", _toolName, null);
+            string comment = FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathNotSpecifiedOrToolDoesNotExist", _toolName, null);
             _mockEngine.AssertLogDoesntContain(comment);
             Assert.Equal(0, _mockEngine.Warnings);
 
-            comment = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathToolDoesNotExist", _toolName, null, ToolLocationHelper.GetDotNetFrameworkSdkRootRegistryKey(TargetDotNetFrameworkVersion.Version45));
+            comment = FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathToolDoesNotExist", _toolName, null, ToolLocationHelper.GetDotNetFrameworkSdkRootRegistryKey(TargetDotNetFrameworkVersion.Version45));
             _mockEngine.AssertLogDoesntContain(comment);
             Assert.Equal(0, _mockEngine.Errors);
         }
@@ -168,10 +168,10 @@ namespace Microsoft.Build.UnitTests
             string toolPath = SdkToolsPathUtility.GeneratePathToTool(_mockExists.MockFileDoesNotExist, ProcessorArchitecture.X86, _defaultSdkToolsPath, _toolName, _log, true);
             Assert.Null(toolPath);
 
-            string comment = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.PlatformSDKFileNotFoundSdkToolsPath", _toolName, _defaultSdkToolsPath, _defaultSdkToolsPath);
+            string comment = FormatResourceStringStripCodeAndKeyword("General.PlatformSDKFileNotFoundSdkToolsPath", _toolName, _defaultSdkToolsPath, _defaultSdkToolsPath);
             _mockEngine.AssertLogContains(comment);
 
-            comment = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathToolDoesNotExist", _toolName, _defaultSdkToolsPath, ToolLocationHelper.GetDotNetFrameworkSdkRootRegistryKey(TargetDotNetFrameworkVersion.Latest));
+            comment = FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathToolDoesNotExist", _toolName, _defaultSdkToolsPath, ToolLocationHelper.GetDotNetFrameworkSdkRootRegistryKey(TargetDotNetFrameworkVersion.Latest));
             _mockEngine.AssertLogContains(comment);
             Assert.Equal(1, _mockEngine.Errors);
         }
@@ -202,10 +202,10 @@ namespace Microsoft.Build.UnitTests
             string toolPath = SdkToolsPathUtility.GeneratePathToTool(_mockExists.MockFileDoesNotExist, ProcessorArchitecture.X86, _defaultSdkToolsPath, _toolName, _log, false);
             Assert.Null(toolPath);
 
-            string comment = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.PlatformSDKFileNotFoundSdkToolsPath", _toolName, _defaultSdkToolsPath, _defaultSdkToolsPath);
+            string comment = FormatResourceStringStripCodeAndKeyword("General.PlatformSDKFileNotFoundSdkToolsPath", _toolName, _defaultSdkToolsPath, _defaultSdkToolsPath);
             _mockEngine.AssertLogDoesntContain(comment);
 
-            comment = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathToolDoesNotExist", _toolName, _defaultSdkToolsPath, ToolLocationHelper.GetDotNetFrameworkSdkRootRegistryKey(TargetDotNetFrameworkVersion.Version45));
+            comment = FormatResourceStringStripCodeAndKeyword("General.SdkToolsPathToolDoesNotExist", _toolName, _defaultSdkToolsPath, ToolLocationHelper.GetDotNetFrameworkSdkRootRegistryKey(TargetDotNetFrameworkVersion.Version45));
             _mockEngine.AssertLogDoesntContain(comment);
             Assert.Equal(0, _mockEngine.Errors);
         }

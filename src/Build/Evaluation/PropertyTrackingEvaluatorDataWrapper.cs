@@ -189,7 +189,7 @@ namespace Microsoft.Build.Evaluation
 
             var args = new EnvironmentVariableReadEventArgs(
                 name,
-                ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("EnvironmentVariableRead", name));
+                FormatResourceStringIgnoreCodeAndKeyword("EnvironmentVariableRead", name));
             args.BuildEventContext = _evaluationLoggingContext.BuildEventContext;
 
             _evaluationLoggingContext.LogBuildEvent(args);
@@ -205,7 +205,7 @@ namespace Microsoft.Build.Evaluation
 
             var args = new UninitializedPropertyReadEventArgs(
                 name,
-                ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("UninitializedPropertyRead", name));
+                FormatResourceStringIgnoreCodeAndKeyword("UninitializedPropertyRead", name));
             args.BuildEventContext = _evaluationLoggingContext.BuildEventContext;
 
             _evaluationLoggingContext.LogBuildEvent(args);
@@ -246,7 +246,7 @@ namespace Microsoft.Build.Evaluation
                     property.Name,
                     property.EvaluatedValue,
                     source.ToString(),
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("PropertyAssignment", property.Name, property.EvaluatedValue, source)
+                    FormatResourceStringIgnoreCodeAndKeyword("PropertyAssignment", property.Name, property.EvaluatedValue, source)
                 );
             args.BuildEventContext = _evaluationLoggingContext.BuildEventContext;
 

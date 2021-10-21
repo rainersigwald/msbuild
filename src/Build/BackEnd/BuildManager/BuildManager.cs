@@ -620,7 +620,7 @@ namespace Microsoft.Build.Execution
                 ThrowInternalError("Only one project cache plugin may be set on the BuildManager during a begin / end build session");
             }
 
-            LogMessage(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("LoadingProjectCachePlugin", pluginDescriptor.GetDetailedDescription()));
+            LogMessage(FormatResourceStringIgnoreCodeAndKeyword("LoadingProjectCachePlugin", pluginDescriptor.GetDetailedDescription()));
 
             _projectCacheService = ProjectCacheService.FromDescriptorAsync(
                 pluginDescriptor,
@@ -1814,7 +1814,7 @@ namespace Microsoft.Build.Execution
                 }
 
                 LogMessage(
-                    ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
+                    FormatResourceStringIgnoreCodeAndKeyword(
                         "StaticGraphConstructionMetrics",
                         Math.Round(projectGraph.ConstructionMetrics.ConstructionTime.TotalSeconds, 3),
                         projectGraph.ConstructionMetrics.NodeCount,
@@ -2621,7 +2621,7 @@ namespace Microsoft.Build.Execution
                                 BuildEventContext buildEventContext = new BuildEventContext(0, Scheduler.VirtualNode, BuildEventContext.InvalidProjectInstanceId, BuildEventContext.InvalidProjectContextId, BuildEventContext.InvalidTargetId, BuildEventContext.InvalidTaskId);
                                 ((IBuildComponentHost)this).LoggingService.LogError(buildEventContext, new BuildEventFileInfo(String.Empty), "UnableToCreateNode", response.RequiredNodeType.ToString("G"));
 
-                                throw new BuildAbortedException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("UnableToCreateNode", response.RequiredNodeType.ToString("G")));
+                                throw new BuildAbortedException(FormatResourceStringStripCodeAndKeyword("UnableToCreateNode", response.RequiredNodeType.ToString("G")));
                             }
                         }
 
@@ -3126,7 +3126,7 @@ namespace Microsoft.Build.Execution
 
                 if (inputCacheFiles.Any(f => !File.Exists(f)))
                 {
-                    LogErrorAndShutdown(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("InputCacheFilesDoNotExist", string.Join(";", inputCacheFiles.Where(f => !File.Exists(f)))));
+                    LogErrorAndShutdown(FormatResourceStringIgnoreCodeAndKeyword("InputCacheFilesDoNotExist", string.Join(";", inputCacheFiles.Where(f => !File.Exists(f)))));
                     return false;
                 }
 
@@ -3138,7 +3138,7 @@ namespace Microsoft.Build.Execution
 
                     if (exception != null)
                     {
-                        LogErrorAndShutdown(ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("ErrorReadingCacheFile", inputCacheFile, exception.Message));
+                        LogErrorAndShutdown(FormatResourceStringIgnoreCodeAndKeyword("ErrorReadingCacheFile", inputCacheFile, exception.Message));
                         return false;
                     }
 

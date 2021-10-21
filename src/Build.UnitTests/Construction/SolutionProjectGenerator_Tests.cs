@@ -89,7 +89,7 @@ namespace Microsoft.Build.UnitTests.Construction
         {
             using (TestEnvironment testEnvironment = TestEnvironment.Create())
             {
-                TransientTestFolder folder = testEnvironment.CreateFolder(createFolder: true);              
+                TransientTestFolder folder = testEnvironment.CreateFolder(createFolder: true);
                 TransientTestFolder classLibFolder = testEnvironment.CreateFolder(Path.Combine(folder.Path, "ClassLibrary"), createFolder: true);
                 TransientTestFolder classLibSubFolder = testEnvironment.CreateFolder(Path.Combine(classLibFolder.Path, "ClassLibrary"), createFolder: true);
                 TransientTestFile classLibrary = testEnvironment.CreateFile(classLibSubFolder, "ClassLibrary.csproj",
@@ -244,7 +244,7 @@ EndProject
             project.Build(logger);
             string code;
             string keyword;
-            string text = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out code, out keyword, "SolutionParseUnknownProjectType", "proj1.csproj");
+            string text = FormatResourceStringStripCodeAndKeyword(out code, out keyword, "SolutionParseUnknownProjectType", "proj1.csproj");
 
             // check the error event
             Assert.Single(logger.Warnings);
@@ -253,7 +253,7 @@ EndProject
             Assert.Equal(text, warning.Message);
             Assert.Equal(code, warning.Code);
             Assert.Equal(keyword, warning.HelpKeyword);
-            text = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out code, out keyword, "SolutionInvalidSolutionConfiguration");
+            text = FormatResourceStringStripCodeAndKeyword(out code, out keyword, "SolutionInvalidSolutionConfiguration");
 
             // check the warning event
             Assert.Single(logger.Errors);
@@ -262,7 +262,7 @@ EndProject
             Assert.Equal(text, error.Message);
             Assert.Equal(code, error.Code);
             Assert.Equal(keyword, error.HelpKeyword);
-            text = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out code, out keyword, "SolutionVenusProjectNoClean");
+            text = FormatResourceStringStripCodeAndKeyword(out code, out keyword, "SolutionVenusProjectNoClean");
 
             // check the message event
             Assert.Contains(text, logger.FullLog); // "Log should contain the regular message"
@@ -341,8 +341,8 @@ EndProject
         }
 
         /// <summary>
-        /// Test to make sure that if the solution file version doesn't map to a sub-toolset version, we won't try 
-        /// to force it to be used.  
+        /// Test to make sure that if the solution file version doesn't map to a sub-toolset version, we won't try
+        /// to force it to be used.
         /// </summary>
         [Fact(Skip = "Needs investigation")]
         public void DefaultSubToolsetIfSolutionVersionSubToolsetDoesntExist()
@@ -383,8 +383,8 @@ EndProject
         }
 
         /// <summary>
-        /// Test to make sure that if the solution version corresponds to an existing sub-toolset version, 
-        /// barring other factors that might override, the sub-toolset will be based on the solution version. 
+        /// Test to make sure that if the solution version corresponds to an existing sub-toolset version,
+        /// barring other factors that might override, the sub-toolset will be based on the solution version.
         /// </summary>
         [Fact]
         public void SubToolsetSetBySolutionVersion()
@@ -419,7 +419,7 @@ EndProject
         }
 
         /// <summary>
-        /// Test to make sure that even if the solution version corresponds to an existing sub-toolset version, 
+        /// Test to make sure that even if the solution version corresponds to an existing sub-toolset version,
         /// </summary>
         [Fact]
         [Trait("Category", "mono-osx-failing")]
@@ -595,7 +595,7 @@ EndProject
 
         /// <summary>
         /// Test to make sure that, when we're not TV 4.0 -- which even for Dev11 solutions we are not by default -- that we
-        /// do not pass VisualStudioVersion down to the child projects.  
+        /// do not pass VisualStudioVersion down to the child projects.
         /// </summary>
         [Fact(Skip = "Needs investigation")]
         public void SolutionDoesntPassSubToolsetToChildProjects()
@@ -660,7 +660,7 @@ EndProject
         }
 
         /// <summary>
-        /// Verify that we throw the appropriate error if the solution declares a dependency 
+        /// Verify that we throw the appropriate error if the solution declares a dependency
         /// on a project that doesn't exist.
         /// </summary>
         [Fact]
@@ -1284,7 +1284,7 @@ EndGlobal
 
 #if FEATURE_MULTIPLE_TOOLSETS
         /// <summary>
-        /// Make sure that whatever the solution ToolsVersion is, it gets mapped to all its metaprojs, too. 
+        /// Make sure that whatever the solution ToolsVersion is, it gets mapped to all its metaprojs, too.
         /// </summary>
         [Fact]
         public void SolutionWithDependenciesHasCorrectToolsVersionInMetaprojs()
@@ -1331,22 +1331,22 @@ EndGlobal
 
                 Assert.Equal(2, instances.Length);
 
-                // Solution metaproj 
+                // Solution metaproj
                 Assert.Equal(solutionToolsVersion, instances[0].ToolsVersion);
 
                 ICollection<ProjectItemInstance> projectReferences = instances[0].GetItems("ProjectReference");
 
                 foreach (ProjectItemInstance projectReference in projectReferences)
                 {
-                    // If this is the reference to the metaproj, its ToolsVersion metadata needs to match 
-                    // the solution ToolsVersion -- that's how the build knows which ToolsVersion to use. 
+                    // If this is the reference to the metaproj, its ToolsVersion metadata needs to match
+                    // the solution ToolsVersion -- that's how the build knows which ToolsVersion to use.
                     if (projectReference.EvaluatedInclude.EndsWith(".metaproj", StringComparison.OrdinalIgnoreCase))
                     {
                         Assert.Equal(solutionToolsVersion, projectReference.GetMetadataValue("ToolsVersion"));
                     }
                 }
 
-                // Project metaproj for project with dependencies 
+                // Project metaproj for project with dependencies
                 Assert.Equal(solutionToolsVersion, instances[1].ToolsVersion);
             }
         }
@@ -1385,7 +1385,7 @@ EndGlobal
 
             try
             {
-                // SolutionProjectGenerator.Generate() is used at build-time, and creates evaluation- and 
+                // SolutionProjectGenerator.Generate() is used at build-time, and creates evaluation- and
                 // execution-model projects; as such it will throw if fed an explicitly invalid toolsversion
                 ProjectInstance[] instances = SolutionProjectGenerator.Generate(solution, null, "invalid", _buildEventContext, CreateMockLoggingService());
             }
@@ -1617,7 +1617,7 @@ EndGlobal
             msbuildProject = CreateVenusSolutionProject("2.0");
             Assert.Equal("v2.0", msbuildProject.GetPropertyValue("TargetFrameworkVersion"));
 
-            // may be user defined 
+            // may be user defined
             IDictionary<string, string> globalProperties = new Dictionary<string, string>();
             globalProperties.Add("TargetFrameworkVersion", "userdefined");
             msbuildProject = CreateVenusSolutionProject(globalProperties);
@@ -2007,7 +2007,7 @@ EndGlobal
 
             try
             {
-                // Since we're creating our own BuildManager, we need to make sure that the default 
+                // Since we're creating our own BuildManager, we need to make sure that the default
                 // one has properly relinquished the inproc node
                 NodeProviderInProc nodeProviderInProc = ((IBuildComponentHost)BuildManager.DefaultBuildManager).GetComponent(BuildComponentType.InProcNodeProvider) as NodeProviderInProc;
                 nodeProviderInProc?.Dispose();
@@ -2095,7 +2095,7 @@ EndGlobal
 
             try
             {
-                // Since we're creating our own BuildManager, we need to make sure that the default 
+                // Since we're creating our own BuildManager, we need to make sure that the default
                 // one has properly relinquished the inproc node
                 NodeProviderInProc nodeProviderInProc = ((IBuildComponentHost)BuildManager.DefaultBuildManager).GetComponent(BuildComponentType.InProcNodeProvider) as NodeProviderInProc;
                 nodeProviderInProc?.Dispose();
@@ -2202,7 +2202,7 @@ EndGlobal
 
 #if FEATURE_ASPNET_COMPILER
                 Version ver = new Version("4.34");
-                string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("AspNetCompiler.TargetingHigherFrameworksDefaultsTo40", solution.ProjectsInOrder[0].ProjectName, ver.ToString());
+                string message = FormatResourceStringStripCodeAndKeyword("AspNetCompiler.TargetingHigherFrameworksDefaultsTo40", solution.ProjectsInOrder[0].ProjectName, ver.ToString());
                 logger.AssertLogContains(message);
 #endif
             }
@@ -2540,7 +2540,7 @@ EndGlobal
                 var solutionFile = SolutionFile.Parse(solutionFilePath);
 
                 ProjectInstance projectInstance = SolutionProjectGenerator.Generate(solutionFile, globalProperties, null, BuildEventContext.Invalid, CreateMockLoggingService(), new[] { "Build" }).FirstOrDefault();
-                
+
                 Assert.NotNull(projectInstance);
 
                 Assert.Equal(enable ? expectedPropertyValue : string.Empty, projectInstance.GetPropertyValue("PropertyA"));
@@ -2662,7 +2662,7 @@ EndProject";
 
         /// <summary>
         /// Checks the provided project for a matching itemtype and include value.  If it
-        /// does not exist, asserts. 
+        /// does not exist, asserts.
         /// </summary>
         private void AssertProjectContainsItem(ProjectInstance msbuildProject, string itemType, string include)
         {
@@ -2681,7 +2681,7 @@ EndProject";
         }
 
         /// <summary>
-        /// Counts the number of items with a particular itemtype in the provided project, and 
+        /// Counts the number of items with a particular itemtype in the provided project, and
         /// asserts if it doesn't match the provided count.
         /// </summary>
         private void AssertProjectItemNameCount(ProjectInstance msbuildProject, string itemType, int count)

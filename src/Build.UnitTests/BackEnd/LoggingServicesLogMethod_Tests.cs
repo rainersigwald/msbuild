@@ -128,7 +128,7 @@ namespace Microsoft.Build.UnitTests.Logging
             string helpKeyword;
             string taskName = "TaskName";
             string subcategoryKey = "SubCategoryForSolutionParsingErrors";
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "FatalTaskError", taskName);
+            string message = FormatResourceStringStripCodeAndKeyword(out errorCode, out helpKeyword, "FatalTaskError", taskName);
             string subcategory = AssemblyResources.GetString(subcategoryKey);
 
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
@@ -409,7 +409,7 @@ namespace Microsoft.Build.UnitTests.Logging
             string warningCode;
             string helpKeyword;
             string subcategoryKey = "SubCategoryForSolutionParsingErrors";
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, "FatalTaskError", "MyTask");
+            string message = FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, "FatalTaskError", "MyTask");
 
             // Test ErrorCode
             TestLogErrorFromText(null, helpKeyword, subcategoryKey, message);
@@ -450,7 +450,7 @@ namespace Microsoft.Build.UnitTests.Logging
 
             string targetsfileContent = @"
                  <Project DefaultTargets='Build' xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>
-                   <UsingTask TaskName='RandomTask' AssemblyName='NotARealTaskLocaiton'/>    
+                   <UsingTask TaskName='RandomTask' AssemblyName='NotARealTaskLocaiton'/>
                    <Target Name='Build'>
                        <RandomTask/>
                    </Target>
@@ -641,7 +641,7 @@ namespace Microsoft.Build.UnitTests.Logging
             string warningCode;
             string helpKeyword;
             string subcategoryKey = "SubCategoryForSolutionParsingErrors";
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, "FatalTaskError", "MyTask");
+            string message = FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, "FatalTaskError", "MyTask");
 
             TestLogWarningFromText(null, helpKeyword, subcategoryKey, message);
             TestLogWarningFromText(String.Empty, helpKeyword, subcategoryKey, message);
@@ -697,7 +697,7 @@ namespace Microsoft.Build.UnitTests.Logging
         public void LogCommentGoodMessage()
         {
             MessageImportance messageImportance = MessageImportance.Normal;
-            string message = ResourceUtilities.GetResourceString("BuildFinishedSuccess");
+            string message = GetResourceString("BuildFinishedSuccess");
 
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
 
@@ -759,15 +759,15 @@ namespace Microsoft.Build.UnitTests.Logging
         public void LogCommentFromTextGoodMessage()
         {
             MessageImportance messageImportance = MessageImportance.Normal;
-            string message = ResourceUtilities.GetResourceString("BuildFinishedSuccess");
+            string message = GetResourceString("BuildFinishedSuccess");
 
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
-            service.LogCommentFromText(s_buildEventContext, messageImportance, ResourceUtilities.GetResourceString("BuildFinishedSuccess"));
+            service.LogCommentFromText(s_buildEventContext, messageImportance, GetResourceString("BuildFinishedSuccess"));
             VerityBuildMessageEventArgs(service, messageImportance, message);
 
             service.ResetProcessedBuildEvent();
             service.OnlyLogCriticalEvents = true;
-            service.LogCommentFromText(s_buildEventContext, MessageImportance.Normal, ResourceUtilities.GetResourceString("BuildFinishedSuccess"));
+            service.LogCommentFromText(s_buildEventContext, MessageImportance.Normal, GetResourceString("BuildFinishedSuccess"));
             Assert.Null(service.ProcessedBuildEvent);
         }
         #endregion
@@ -880,7 +880,7 @@ namespace Microsoft.Build.UnitTests.Logging
 
             BuildStartedEventArgs buildEvent =
                 new BuildStartedEventArgs(
-                    ResourceUtilities.GetResourceString("BuildStarted"),
+                    GetResourceString("BuildStarted"),
                     null /* no help keyword */,
                     service.ProcessedBuildEvent.Timestamp);
 
@@ -919,12 +919,12 @@ namespace Microsoft.Build.UnitTests.Logging
         {
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
             service.LogBuildFinished(true);
-            BuildFinishedEventArgs buildEvent = new BuildFinishedEventArgs(ResourceUtilities.GetResourceString("BuildFinishedSuccess"), null /* no help keyword */, true, service.ProcessedBuildEvent.Timestamp);
+            BuildFinishedEventArgs buildEvent = new BuildFinishedEventArgs(GetResourceString("BuildFinishedSuccess"), null /* no help keyword */, true, service.ProcessedBuildEvent.Timestamp);
             Assert.True(((BuildFinishedEventArgs)service.ProcessedBuildEvent).IsEquivalent(buildEvent));
 
             service.ResetProcessedBuildEvent();
             service.LogBuildFinished(false);
-            buildEvent = new BuildFinishedEventArgs(ResourceUtilities.GetResourceString("BuildFinishedFailure"), null /* no help keyword */, false, service.ProcessedBuildEvent.Timestamp);
+            buildEvent = new BuildFinishedEventArgs(GetResourceString("BuildFinishedFailure"), null /* no help keyword */, false, service.ProcessedBuildEvent.Timestamp);
             Assert.True(((BuildFinishedEventArgs)service.ProcessedBuildEvent).IsEquivalent(buildEvent));
 
             service.ResetProcessedBuildEvent();
@@ -1189,7 +1189,7 @@ namespace Microsoft.Build.UnitTests.Logging
         /// <param name="parameters">parameters to use in format resource string</param>
         private void GenerateMessageFromExceptionAndResource(Exception exception, string resourceName, out string code, out string helpKeyword, out string message, params string[] parameters)
         {
-            message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out code, out helpKeyword, resourceName, parameters);
+            message = FormatResourceStringStripCodeAndKeyword(out code, out helpKeyword, resourceName, parameters);
 #if DEBUG
             message += Environment.NewLine + "This is an unhandled exception from a task -- PLEASE OPEN A BUG AGAINST THE TASK OWNER.";
 #endif
@@ -1252,7 +1252,7 @@ namespace Microsoft.Build.UnitTests.Logging
             BuildEventFileInfo fileInfo = new BuildEventFileInfo("foo.cs", 1, 2, 3, 4);
             string warningCode;
             string helpKeyword;
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, "FatalTaskError", taskName);
+            string message = FormatResourceStringStripCodeAndKeyword(out warningCode, out helpKeyword, "FatalTaskError", taskName);
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
 
             service.LogWarning(s_buildEventContext, subCategoryKey, fileInfo, "FatalTaskError", taskName);
@@ -1266,7 +1266,7 @@ namespace Microsoft.Build.UnitTests.Logging
         /// <param name="success">Success value to test</param>
         private void TestProjectFinishedEvent(string projectFile, bool success)
         {
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(success ? "ProjectFinishedSuccess" : "ProjectFinishedFailure", Path.GetFileName(projectFile));
+            string message = FormatResourceStringStripCodeAndKeyword(success ? "ProjectFinishedSuccess" : "ProjectFinishedFailure", Path.GetFileName(projectFile));
             MockHost componentHost = new MockHost();
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1, componentHost);
             try
@@ -1316,7 +1316,7 @@ namespace Microsoft.Build.UnitTests.Logging
         /// <param name="projectFileOfTask">ProjectFileOfTask to test</param>
         private void TestTaskStartedEvent(string taskName, string projectFile, string projectFileOfTask)
         {
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TaskStarted", taskName);
+            string message = FormatResourceStringStripCodeAndKeyword("TaskStarted", taskName);
 
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
             service.LogTaskStarted(s_buildEventContext, taskName, projectFile, projectFileOfTask);
@@ -1337,7 +1337,7 @@ namespace Microsoft.Build.UnitTests.Logging
         /// <param name="succeeded">Succeeded value to test</param>
         private void TestTaskFinished(string taskName, string projectFile, string projectFileOfTask, bool succeeded)
         {
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(succeeded ? "TaskFinishedSuccess" : "TaskFinishedFailure", taskName);
+            string message = FormatResourceStringStripCodeAndKeyword(succeeded ? "TaskFinishedSuccess" : "TaskFinishedFailure", taskName);
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
             service.LogTaskFinished(s_buildEventContext, taskName, projectFile, projectFileOfTask, succeeded);
             VerifyTaskFinishedEvent(taskName, projectFile, projectFileOfTask, succeeded, message, service);
@@ -1357,7 +1357,7 @@ namespace Microsoft.Build.UnitTests.Logging
         /// <param name="succeeded">Succeeded value to test</param>
         private void TestTargetFinished(string targetName, string projectFile, string projectFileOfTarget, bool succeeded)
         {
-            string message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword(succeeded ? "TargetFinishedSuccess" : "TargetFinishedFailure", targetName, Path.GetFileName(projectFile));
+            string message = FormatResourceStringStripCodeAndKeyword(succeeded ? "TargetFinishedSuccess" : "TargetFinishedFailure", targetName, Path.GetFileName(projectFile));
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
             List<TaskItem> outputs = new List<TaskItem>();
             outputs.Add(new TaskItem("ItemInclude", projectFile));
@@ -1382,11 +1382,11 @@ namespace Microsoft.Build.UnitTests.Logging
             string message;
             if (String.Equals(projectFile, projectFileOfTarget, StringComparison.OrdinalIgnoreCase))
             {
-                message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetStartedProjectEntry", targetName, projectFile);
+                message = FormatResourceStringStripCodeAndKeyword("TargetStartedProjectEntry", targetName, projectFile);
             }
             else
             {
-                message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetStartedFileProjectEntry", targetName, projectFileOfTarget, projectFile);
+                message = FormatResourceStringStripCodeAndKeyword("TargetStartedFileProjectEntry", targetName, projectFileOfTarget, projectFile);
             }
 
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
@@ -1409,11 +1409,11 @@ namespace Microsoft.Build.UnitTests.Logging
             string message;
             if (String.Equals(projectFile, projectFileOfTarget, StringComparison.OrdinalIgnoreCase))
             {
-                message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetStartedProjectDepends", targetName, projectFile, parentTargetName);
+                message = FormatResourceStringStripCodeAndKeyword("TargetStartedProjectDepends", targetName, projectFile, parentTargetName);
             }
             else
             {
-                message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("TargetStartedFileProjectDepends", targetName, projectFileOfTarget, projectFile, parentTargetName);
+                message = FormatResourceStringStripCodeAndKeyword("TargetStartedFileProjectDepends", targetName, projectFileOfTarget, projectFile, parentTargetName);
             }
 
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
@@ -1435,11 +1435,11 @@ namespace Microsoft.Build.UnitTests.Logging
             string message;
             if (!String.IsNullOrEmpty(targetNames))
             {
-                message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithTargetNames", Path.GetFileName(projectFile), targetNames);
+                message = FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithTargetNames", Path.GetFileName(projectFile), targetNames);
             }
             else
             {
-                message = ResourceUtilities.FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", Path.GetFileName(projectFile));
+                message = FormatResourceStringStripCodeAndKeyword("ProjectStartedPrefixForTopLevelProjectWithDefaultTargets", Path.GetFileName(projectFile));
             }
 
             MockHost componentHost = new MockHost();
