@@ -32,4 +32,12 @@ namespace Microsoft.Build.Shared
             return resource;
         }
     }
+
+    internal static class SharedResources
+    {
+        internal static string GetString(string name)
+        {
+            return AssemblyResources.GetString(name);
+        }
+    }
 }

@@ -392,7 +392,7 @@ namespace Microsoft.Build.Shared
 
                 if (IsPathTooLong(uncheckedFullPath))
                 {
-                    string message = ResourceUtilities.FormatString(AssemblyResources.GetString("Shared.PathTooLong"), path, NativeMethodsShared.MaxPath);
+                    string message = ResourceUtilities.FormatString(SharedResources.GetString("Shared.PathTooLong"), path, NativeMethodsShared.MaxPath);
                     throw new PathTooLongException(message);
                 }
 
@@ -1061,7 +1061,7 @@ namespace Microsoft.Build.Shared
             {
                 return ".";
             }
-            
+
             // If the paths have no component in common, the only valid relative path is the full path.
             if (index == 0)
             {
