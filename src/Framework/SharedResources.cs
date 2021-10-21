@@ -4,7 +4,6 @@
 using System.Resources;
 using System.Reflection;
 using System.Globalization;
-using Microsoft.Build.Framework.Utilities;
 
 namespace Microsoft.Build.Shared
 {

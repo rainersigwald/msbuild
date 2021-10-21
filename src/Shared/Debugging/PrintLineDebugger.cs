@@ -9,10 +9,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
-#if SHARED_IS_FRAMEWORK
-using Microsoft.Build.Framework.Utilities;
-#endif
-
 using CommonWriterType = System.Action<string, string, System.Collections.Generic.IEnumerable<string>>;
 
 namespace Microsoft.Build.Shared.Debugging

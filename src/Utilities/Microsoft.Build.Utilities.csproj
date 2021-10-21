@@ -70,9 +70,6 @@
     <Compile Include="..\Shared\EncodingUtilities.cs">
       <Link>Shared\EncodingUtilities.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\ErrorUtilities.cs">
-      <Link>Shared\ErrorUtilities.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\EventArgsFormatting.cs">
       <Link>Shared\EventArgsFormatting.cs</Link>
     </Compile>
@@ -117,9 +114,6 @@
     </Compile>
     <Compile Include="..\Shared\RegistryHelper.cs">
       <Link>Shared\RegistryHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\ResourceUtilities.cs">
-      <Link>Shared\ResourceUtilities.cs</Link>
     </Compile>
     <Compile Include="..\Shared\ReuseableStringBuilder.cs">
       <Link>Shared\ReuseableStringBuilder.cs</Link>

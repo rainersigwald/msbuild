@@ -4,9 +4,6 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-#if SHARED_IS_FRAMEWORK
-using Microsoft.Build.Framework.Utilities;
-#endif
 using Microsoft.Build.Shared.FileSystem;
 
 namespace Microsoft.Build.Shared

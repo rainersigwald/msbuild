@@ -1,5 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\Shared\FileSystemSources.proj" />
+  <Import Project="..\Shared\DebuggingSources.proj" />
+
   <PropertyGroup>
     <TargetFrameworks>$(RuntimeOutputTargetFrameworks)</TargetFrameworks>
     <PlatformTarget>$(RuntimeOutputPlatformTarget)</PlatformTarget>
@@ -29,8 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\ErrorUtilities.cs" />
-    <Compile Include="..\Shared\ResourceUtilities.cs" />
     <Compile Include="..\Shared\UnitTests\TestEnvironment.cs" />
     <Compile Include="..\Shared\UnitTests\AssemblyResources.cs" />
   </ItemGroup>
