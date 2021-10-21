@@ -5,6 +5,8 @@ using System.Resources;
 using System.Reflection;
 using System.Globalization;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

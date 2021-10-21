@@ -6,6 +6,8 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.ObjectModelRemoting;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Construction
 {
     /// <summary>

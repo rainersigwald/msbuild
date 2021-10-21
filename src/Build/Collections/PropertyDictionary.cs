@@ -8,6 +8,8 @@ using System.Diagnostics;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Evaluation;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Collections
 {
     /// <summary>

@@ -14,6 +14,8 @@ using Microsoft.Build.Utilities;
 using CodeDomProvider = System.CodeDom.Compiler.CodeDomProvider;
 using MSBuildProcessorArchitecture = Microsoft.Build.Utilities.ProcessorArchitecture;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Tasks
 {
     /// <summary>

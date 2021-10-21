@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Evaluation
 {
     using ILoggingService = Microsoft.Build.BackEnd.Logging.ILoggingService;

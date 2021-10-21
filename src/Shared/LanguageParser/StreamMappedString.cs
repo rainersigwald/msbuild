@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using System.Text;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared.LanguageParser
 {
     /// <summary>

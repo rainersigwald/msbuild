@@ -10,6 +10,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd.SdkResolution
 {
     /// <summary>

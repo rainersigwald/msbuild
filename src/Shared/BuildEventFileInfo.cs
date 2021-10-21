@@ -5,6 +5,8 @@ using System;
 using System.Xml;
 using Microsoft.Build.Construction;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

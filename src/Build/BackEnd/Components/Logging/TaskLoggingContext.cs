@@ -7,6 +7,8 @@ using Microsoft.Build.Execution;
 using System;
 using System.Collections.Generic;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd.Logging
 {
     /// <summary>

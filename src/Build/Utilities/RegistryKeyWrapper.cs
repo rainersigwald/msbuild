@@ -8,6 +8,8 @@ using Microsoft.Build.Shared;
 using Microsoft.Win32;
 using RegistryException = Microsoft.Build.Exceptions.RegistryException;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Internal
 {
     /// <summary>

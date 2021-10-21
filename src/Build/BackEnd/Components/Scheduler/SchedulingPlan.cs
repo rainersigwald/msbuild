@@ -12,6 +12,8 @@ using Microsoft.Build.BackEnd.Logging;
 using Microsoft.Build.Shared.FileSystem;
 using Microsoft.Build.Utilities;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

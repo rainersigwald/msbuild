@@ -20,6 +20,8 @@ using Microsoft.Build.Utilities;
 using System.Runtime.Remoting;
 #endif
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.CommandLine
 {
     /// <summary>

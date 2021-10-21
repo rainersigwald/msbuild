@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Collections
 {
     /// <summary>

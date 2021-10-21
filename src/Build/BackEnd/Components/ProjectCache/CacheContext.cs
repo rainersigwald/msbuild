@@ -7,6 +7,8 @@ using Microsoft.Build.FileSystem;
 using Microsoft.Build.Graph;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Experimental.ProjectCache
 {
     /// <summary>

@@ -17,8 +17,12 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 
 #if BUILD_ENGINE
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 #else
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Utilities
 #endif
 {

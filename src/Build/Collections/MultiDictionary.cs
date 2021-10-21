@@ -7,6 +7,8 @@ using System.Collections;
 using Microsoft.Build.Shared;
 using System.Diagnostics;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Collections
 {
     /// <summary>

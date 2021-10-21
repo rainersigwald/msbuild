@@ -4,6 +4,8 @@
 using System;
 using System.Text;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     internal static class StringExtensions

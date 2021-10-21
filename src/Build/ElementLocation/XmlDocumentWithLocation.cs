@@ -7,6 +7,8 @@ using System.Xml;
 using Microsoft.Build.Internal;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Construction
 {
     /// <summary>

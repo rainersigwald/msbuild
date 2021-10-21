@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Tasks
 {
     /// <summary>

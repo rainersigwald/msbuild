@@ -24,6 +24,8 @@ using System.Reflection;
 using Microsoft.Build.Eventing;
 using Microsoft.Build.Utilities;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

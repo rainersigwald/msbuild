@@ -1,8 +1,10 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using Microsoft.Build.Exceptions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
+
+using static Microsoft.Build.Shared.ErrorUtilities;
 
 namespace Microsoft.Build.BackEnd.Logging
 {

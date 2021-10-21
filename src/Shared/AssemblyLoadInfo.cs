@@ -6,6 +6,8 @@ using System.IO;
 using Microsoft.Build.BackEnd;
 using System.Diagnostics;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

@@ -6,6 +6,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Tasks
 {
     /// <summary>

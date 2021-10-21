@@ -9,6 +9,8 @@ using System.CodeDom;
 
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Tasks.Xaml
 {
     /// <summary>

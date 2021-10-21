@@ -6,6 +6,8 @@ using Microsoft.Build.Shared;
 
 using BuildResult = Microsoft.Build.Execution.BuildResult;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

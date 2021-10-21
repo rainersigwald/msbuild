@@ -9,6 +9,8 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 #endif
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Exceptions
 {
     /// <summary>

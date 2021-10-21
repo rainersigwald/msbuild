@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System;
 using Microsoft.Build.BackEnd;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

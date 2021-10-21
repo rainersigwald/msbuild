@@ -18,6 +18,8 @@ using System.Security.Permissions;
 using System.Runtime.Versioning;
 #endif
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

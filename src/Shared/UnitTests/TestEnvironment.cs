@@ -19,6 +19,8 @@ using TempPaths = System.Collections.Generic.Dictionary<string, string>;
 using CommonWriterType = System.Action<string, string, System.Collections.Generic.IEnumerable<string>>;
 using Microsoft.Build.Utilities;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.UnitTests
 {
     public partial class TestEnvironment : IDisposable

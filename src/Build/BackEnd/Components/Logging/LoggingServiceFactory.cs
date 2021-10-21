@@ -3,6 +3,8 @@
 
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd.Logging
 {
     /// <summary>

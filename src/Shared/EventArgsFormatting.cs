@@ -7,6 +7,8 @@ using System.Text;
 
 using Microsoft.Build.Framework;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

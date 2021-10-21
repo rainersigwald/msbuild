@@ -22,6 +22,8 @@ using Microsoft.Build.Shared.Debugging;
 using System.Threading.Tasks;
 #endif
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Internal
 {
     /// <summary>

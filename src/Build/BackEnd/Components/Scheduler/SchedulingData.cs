@@ -7,6 +7,8 @@ using System.Linq;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Collections;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

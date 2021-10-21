@@ -39,6 +39,8 @@ using Microsoft.Build.Internal;
     ==================================================================================================================
 */
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Collections
 {
     /// <summary>

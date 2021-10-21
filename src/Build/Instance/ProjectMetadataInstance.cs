@@ -8,6 +8,8 @@ using Microsoft.Build.Shared;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.BackEnd;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

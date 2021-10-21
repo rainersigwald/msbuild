@@ -12,6 +12,8 @@ using TaskItem = Microsoft.Build.Execution.ProjectItemInstance.TaskItem;
 using Microsoft.Build.Shared.FileSystem;
 using Microsoft.Build.Collections;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

@@ -5,6 +5,8 @@ using ElementLocation = Microsoft.Build.Construction.ElementLocation;
 using Microsoft.Build.Shared;
 using System.Diagnostics;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

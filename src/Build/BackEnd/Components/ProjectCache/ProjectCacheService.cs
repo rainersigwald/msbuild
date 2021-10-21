@@ -22,6 +22,8 @@ using Microsoft.Build.Internal;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Shared.FileSystem;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Experimental.ProjectCache
 {
     internal record CacheRequest(BuildSubmission Submission, BuildRequestConfiguration Configuration);

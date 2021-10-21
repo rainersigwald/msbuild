@@ -11,6 +11,8 @@ using Microsoft.Build.BackEnd;
 
 using ReservedPropertyNames = Microsoft.Build.Internal.ReservedPropertyNames;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

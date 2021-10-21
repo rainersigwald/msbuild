@@ -6,6 +6,8 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Build.Shared.FileSystem;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

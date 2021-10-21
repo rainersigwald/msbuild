@@ -7,6 +7,8 @@ using Microsoft.Build.BackEnd;
 using Microsoft.Build.Shared;
 using System.Globalization;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

@@ -22,6 +22,8 @@ using TaskItem = Microsoft.Build.Execution.ProjectItemInstance.TaskItem;
 #if MSBUILDENABLEVSPROFILING
 using Microsoft.VisualStudio.Profiler;
 #endif
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

@@ -12,6 +12,8 @@ using Microsoft.Build.Collections;
 
 using ReservedPropertyNames = Microsoft.Build.Internal.ReservedPropertyNames;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     using ItemsMetadataUpdateDictionary = Dictionary<ProjectItemInstance, Lookup.MetadataModifications>;

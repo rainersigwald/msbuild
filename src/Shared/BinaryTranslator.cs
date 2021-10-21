@@ -11,6 +11,8 @@ using Microsoft.Build.Shared;
 using System.Globalization;
 using System.Reflection;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

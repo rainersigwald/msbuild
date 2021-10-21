@@ -15,6 +15,8 @@ using ErrorUtilities = Microsoft.Build.Shared.ErrorUtilities;
 
 using Microsoft.NET.StringTools;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build
 {
     /// <summary>

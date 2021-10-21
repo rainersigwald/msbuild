@@ -15,8 +15,12 @@ using Microsoft.Build.Utilities;
 //This is in the Tasks namespace because that's where it was before and it is public.
 
 #if BUILD_ENGINE
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 #else
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Tasks
 #endif
 {

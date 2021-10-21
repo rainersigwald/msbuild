@@ -13,6 +13,8 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 using SdkResult = Microsoft.Build.BackEnd.SdkResolution.SdkResult;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>

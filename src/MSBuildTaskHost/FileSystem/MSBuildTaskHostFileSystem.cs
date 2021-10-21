@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared.FileSystem
 {
     /// <summary>

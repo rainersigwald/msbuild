@@ -40,6 +40,8 @@ using Microsoft.Build.Utilities;
 using Microsoft.Win32;
 #endif
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Tasks
 {
     /// <summary>

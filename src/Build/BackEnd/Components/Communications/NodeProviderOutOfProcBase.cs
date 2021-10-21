@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -29,6 +29,8 @@ using BackendNativeMethods = Microsoft.Build.BackEnd.NativeMethods;
 using Task = System.Threading.Tasks.Task;
 using Microsoft.Build.Framework;
 using Microsoft.Build.BackEnd.Logging;
+
+using static Microsoft.Build.Shared.ErrorUtilities;
 
 namespace Microsoft.Build.BackEnd
 {

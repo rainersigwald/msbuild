@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -17,6 +17,8 @@ using Microsoft.Build.Construction;
 using Microsoft.Build.BackEnd;
 using Microsoft.Build.Internal;
 using Microsoft.Build.Shared.FileSystem;
+
+using static Microsoft.Build.Shared.ErrorUtilities;
 
 namespace Microsoft.Build.Execution
 {

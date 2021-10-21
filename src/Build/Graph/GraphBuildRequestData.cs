@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Graph
 {
     public record GraphBuildOptions

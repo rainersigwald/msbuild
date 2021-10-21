@@ -23,6 +23,8 @@ using Microsoft.Build.Shared.FileSystem;
 
 using Microsoft.NET.StringTools;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -26,6 +26,8 @@ using InternalLoggerException = Microsoft.Build.Exceptions.InternalLoggerExcepti
 using InvalidProjectFileException = Microsoft.Build.Exceptions.InvalidProjectFileException;
 using LoggerMode = Microsoft.Build.BackEnd.Logging.LoggerMode;
 using ObjectModel = System.Collections.ObjectModel;
+
+using static Microsoft.Build.Shared.ErrorUtilities;
 
 namespace Microsoft.Build.Evaluation
 {

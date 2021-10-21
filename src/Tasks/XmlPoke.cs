@@ -9,6 +9,8 @@ using System.Xml.XPath;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Tasks
 {
     /// <summary>

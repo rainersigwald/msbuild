@@ -9,6 +9,8 @@ using Microsoft.Build.Shared;
 using BuildParameters = Microsoft.Build.Execution.BuildParameters;
 using System.Globalization;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

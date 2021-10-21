@@ -12,6 +12,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Build.Shared.FileSystem;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>

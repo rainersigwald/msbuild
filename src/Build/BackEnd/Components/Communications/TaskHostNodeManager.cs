@@ -5,6 +5,8 @@ using System;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Execution;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.BackEnd
 {
     /// <summary>

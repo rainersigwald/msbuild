@@ -11,6 +11,8 @@ using Microsoft.Build.Construction;
 using Microsoft.Build.Shared;
 using ObjectModel = System.Collections.ObjectModel;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

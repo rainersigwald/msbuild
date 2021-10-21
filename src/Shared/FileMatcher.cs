@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using Microsoft.Build.Shared.FileSystem;
 using Microsoft.Build.Utilities;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

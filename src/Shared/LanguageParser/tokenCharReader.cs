@@ -4,6 +4,8 @@
 using System;
 using System.IO;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared.LanguageParser
 {
     /*

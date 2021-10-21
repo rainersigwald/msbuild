@@ -3,6 +3,8 @@
 
 using ErrorUtilities = Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>

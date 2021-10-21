@@ -17,6 +17,8 @@ using ErrorUtilities = Microsoft.Build.Shared.ErrorUtilities;
 using System.Collections.ObjectModel;
 using System.Linq;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Construction
 {
     /// <remarks>

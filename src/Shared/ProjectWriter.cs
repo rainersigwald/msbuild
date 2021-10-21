@@ -7,6 +7,8 @@ using System.Xml;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

@@ -7,6 +7,8 @@ using Microsoft.Build.Collections;
 using System;
 using System.Diagnostics;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Construction
 {
     /// <summary>

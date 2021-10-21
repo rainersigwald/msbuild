@@ -9,8 +9,12 @@ using System.Globalization;
 using System.ComponentModel;
 
 #if BUILDINGAPPXTASKS
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.AppxPackage.Shared
 #else
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Shared
 #endif
 {

@@ -10,6 +10,8 @@ using System.Security.Permissions;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Framework;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Exceptions
 {
     /// <summary>

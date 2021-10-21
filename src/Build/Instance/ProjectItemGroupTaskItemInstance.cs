@@ -9,6 +9,8 @@ using Microsoft.Build.Shared;
 
 using Microsoft.Build.Construction;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Execution
 {
     /// <summary>

@@ -11,6 +11,8 @@ using Microsoft.Build.Shared;
 
 #if FEATURE_FILE_TRACKER
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.Utilities
 {
     /// <summary>
