@@ -55,9 +55,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\BuildEnvironmentHelper.cs">
-      <Link>BuildEnvironmentHelper.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\FxCopExclusions\Microsoft.Build.Shared.Suppressions.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
@@ -140,9 +137,6 @@
     <Compile Include="..\Shared\TaskParameterTypeVerifier.cs" />
     <Compile Include="..\Shared\TaskEngineAssemblyResolver.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
-    </Compile>
-    <Compile Include="..\Shared\Traits.cs">
-      <Link>SharedTraits.cs</Link>
     </Compile>
     <Compile Include="..\Shared\AssemblyNameExtension.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
