@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #pragma warning disable 436
@@ -12,6 +12,8 @@ using Microsoft.Build.Shared;
 using EventSourceSink = Microsoft.Build.BackEnd.Logging.EventSourceSink;
 using Project = Microsoft.Build.Evaluation.Project;
 using Xunit;
+
+using static Microsoft.Build.Shared.ResourceUtilities;
 
 namespace Microsoft.Build.UnitTests
 {

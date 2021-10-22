@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +11,8 @@ using Microsoft.Build.Logging;
 using Microsoft.Build.Shared;
 using Microsoft.Build.UnitTests.BackEnd;
 using Xunit;
+
+using static Microsoft.Build.Shared.ResourceUtilities;
 
 namespace Microsoft.Build.UnitTests
 {

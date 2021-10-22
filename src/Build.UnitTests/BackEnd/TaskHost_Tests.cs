@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -16,6 +16,8 @@ using TaskItem = Microsoft.Build.Execution.ProjectItemInstance.TaskItem;
 using System.Threading.Tasks;
 using Xunit;
 using Shouldly;
+
+using static Microsoft.Build.Shared.ResourceUtilities;
 
 namespace Microsoft.Build.UnitTests.BackEnd
 {
