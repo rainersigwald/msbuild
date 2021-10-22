@@ -13,6 +13,8 @@ using Microsoft.Build.Utilities;
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Tasks
 {
     /// <summary>

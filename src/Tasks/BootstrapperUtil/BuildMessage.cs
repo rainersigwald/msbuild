@@ -6,6 +6,8 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Shared;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Tasks.Deployment.Bootstrapper
 {
     /// <summary>

@@ -4,6 +4,8 @@
 using System;
 using Microsoft.Build.Framework;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Shared
 {
     /// <summary>

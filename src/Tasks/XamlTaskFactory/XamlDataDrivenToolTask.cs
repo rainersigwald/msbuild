@@ -11,6 +11,8 @@ using System.Resources;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Utilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Tasks.Xaml
 {
     /// <summary>

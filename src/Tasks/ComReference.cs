@@ -11,6 +11,8 @@ using Microsoft.Build.Utilities;
 using Marshal = System.Runtime.InteropServices.Marshal;
 using COMException = System.Runtime.InteropServices.COMException;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.Tasks
 {
     /// <summary>
