@@ -152,7 +152,7 @@ namespace Microsoft.Build.CommandLine
         {
             string errorMessage = FormatResourceStringStripCodeAndKeyword(messageResourceName, messageArgs);
 
-            VerifyThrow(errorMessage != null, "The resource string must exist.");
+            ErrorUtilities.VerifyThrow(errorMessage != null, "The resource string must exist.");
 
             throw new CommandLineSwitchException(errorMessage, commandLineArg);
         }
