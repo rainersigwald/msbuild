@@ -42,6 +42,8 @@ using BinaryLogger = Microsoft.Build.Logging.BinaryLogger;
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.CommandLine
 {
     /// <summary>

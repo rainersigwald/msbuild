@@ -12,6 +12,8 @@ using Microsoft.Build.Shared;
 
 using static Microsoft.Build.Shared.ErrorUtilities;
 
+using static Microsoft.Build.Shared.ResourceUtilities;
+
 namespace Microsoft.Build.CommandLine
 {
     /// <summary>
