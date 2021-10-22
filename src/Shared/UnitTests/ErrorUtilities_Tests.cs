@@ -5,6 +5,8 @@ using System;
 using Microsoft.Build.Shared;
 using Xunit;
 
+using static Microsoft.Build.Shared.ErrorUtilities;
+
 namespace Microsoft.Build.UnitTests
 {
     public sealed class ErrorUtilities_Tests
@@ -14,7 +16,7 @@ namespace Microsoft.Build.UnitTests
         {
             try
             {
-                ErrorUtilities.VerifyThrow(false, "msbuild rules");
+                VerifyThrow(false, "msbuild rules");
             }
             catch (InternalErrorException e)
             {
@@ -29,42 +31,42 @@ namespace Microsoft.Build.UnitTests
         public void VerifyThrowTrue()
         {
             // This shouldn't throw.
-            ErrorUtilities.VerifyThrow(true, "msbuild rules");
+            VerifyThrow(true, "msbuild rules");
         }
 
         [Fact]
         public void VerifyThrow0True()
         {
             // This shouldn't throw.
-            ErrorUtilities.VerifyThrow(true, "blah");
+            VerifyThrow(true, "blah");
         }
 
         [Fact]
         public void VerifyThrow1True()
         {
             // This shouldn't throw.
-            ErrorUtilities.VerifyThrow(true, "{0}", "a");
+            VerifyThrow(true, "{0}", "a");
         }
 
         [Fact]
         public void VerifyThrow2True()
         {
             // This shouldn't throw.
-            ErrorUtilities.VerifyThrow(true, "{0}{1}", "a", "b");
+            VerifyThrow(true, "{0}{1}", "a", "b");
         }
 
         [Fact]
         public void VerifyThrow3True()
         {
             // This shouldn't throw.
-            ErrorUtilities.VerifyThrow(true, "{0}{1}{2}", "a", "b", "c");
+            VerifyThrow(true, "{0}{1}{2}", "a", "b", "c");
         }
 
         [Fact]
         public void VerifyThrow4True()
         {
             // This shouldn't throw.
-            ErrorUtilities.VerifyThrow(true, "{0}{1}{2}{3}", "a", "b", "c", "d");
+            VerifyThrow(true, "{0}{1}{2}{3}", "a", "b", "c", "d");
         }
 
         [Fact]
@@ -72,7 +74,7 @@ namespace Microsoft.Build.UnitTests
         {
             Assert.Throws<ArgumentNullException>(() =>
             {
-                ErrorUtilities.VerifyThrowArgumentArraysSameLength(null, new string[1], string.Empty, string.Empty);
+                VerifyThrowArgumentArraysSameLength(null, new string[1], string.Empty, string.Empty);
             }
            );
         }
@@ -82,7 +84,7 @@ namespace Microsoft.Build.UnitTests
         {
             Assert.Throws<ArgumentNullException>(() =>
             {
-                ErrorUtilities.VerifyThrowArgumentArraysSameLength(new string[1], null, string.Empty, string.Empty);
+                VerifyThrowArgumentArraysSameLength(new string[1], null, string.Empty, string.Empty);
             }
            );
         }
@@ -92,7 +94,7 @@ namespace Microsoft.Build.UnitTests
         {
             Assert.Throws<ArgumentException>(() =>
             {
-                ErrorUtilities.VerifyThrowArgumentArraysSameLength(new string[1], new string[2], string.Empty, string.Empty);
+                VerifyThrowArgumentArraysSameLength(new string[1], new string[2], string.Empty, string.Empty);
             }
            );
         }
@@ -100,7 +102,7 @@ namespace Microsoft.Build.UnitTests
         [Fact]
         public void VerifyThrowArgumentArraysSameLength4()
         {
-            ErrorUtilities.VerifyThrowArgumentArraysSameLength(new string[1], new string[1], string.Empty, string.Empty);
+            VerifyThrowArgumentArraysSameLength(new string[1], new string[1], string.Empty, string.Empty);
         }
     }
 }
