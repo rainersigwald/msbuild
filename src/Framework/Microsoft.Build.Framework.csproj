@@ -50,6 +50,8 @@
       <Link>Errors\ErrorUtilities.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="..\Shared\ThisAssemblyErrorUtilities.cs" />
+    <Compile Include="..\Shared\ThisAssemblyResourceUtilities.cs" />
     <Compile Include="..\Shared\ResourceUtilities.cs">
       <Link>SharedUtilities\ResourceUtilities.cs</Link>
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>

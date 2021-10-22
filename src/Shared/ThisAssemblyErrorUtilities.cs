@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 
+using static Microsoft.Build.Shared.ThisAssemblyResourceUtilities;
+
 #if BUILDINGAPPXTASKS
 namespace Microsoft.Build.AppxPackage.Shared
 #else
@@ -17,7 +19,7 @@ namespace Microsoft.Build.Shared
     /// <summary>
     /// This class contains methods that are useful for error checking and validation.
     /// </summary>
-    internal static class ErrorUtilities
+    internal static class ThisAssemblyErrorUtilities
     {
         /// <summary>
         /// Emergency escape hatch. If a customer hits a bug in the shipped product causing an internal exception,
@@ -51,7 +53,7 @@ namespace Microsoft.Build.Shared
         {
             if (s_throwExceptions && !condition)
             {
-                throw new InternalErrorException(ResourceUtilities.FormatString(message, args));
+                throw new InternalErrorException(FormatString(message, args));
             }
         }
 
@@ -63,7 +65,7 @@ namespace Microsoft.Build.Shared
         {
             if (s_throwExceptions)
             {
-                throw new InternalErrorException(ResourceUtilities.FormatString(message, args));
+                throw new InternalErrorException(FormatString(message, args));
             }
         }
 
@@ -75,7 +77,7 @@ namespace Microsoft.Build.Shared
         {
             if (s_throwExceptions)
             {
-                throw new InternalErrorException(ResourceUtilities.FormatString(message, args), innerException);
+                throw new InternalErrorException(FormatString(message, args), innerException);
             }
         }
 
@@ -319,6 +321,22 @@ namespace Microsoft.Build.Shared
         #endregion
 
         #region VerifyThrowInvalidOperation
+
+        /// <summary>
+        /// Throws an InvalidOperationException with the specified resource string
+        /// </summary>
+        /// <param name="resourceName">Resource to use in the exception</param>
+        /// <param name="args">Formatting args.</param>
+        internal static void ThrowInvalidOperation(string resourceName, params object[] args)
+        {
+#if DEBUG
+            VerifyResourceStringExists(resourceName);
+#endif
+            if (s_throwExceptions)
+            {
+                throw new InvalidOperationException(FormatResourceStringStripCodeAndKeyword(resourceName, args));
+            }
+        }
 
         /// <summary>
         /// Throws an InvalidOperationException if the given condition is false.
@@ -733,7 +751,7 @@ namespace Microsoft.Build.Shared
 
             if (parameter.Length == 0 && s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
             }
         }
 
@@ -750,7 +768,7 @@ namespace Microsoft.Build.Shared
 
             if (parameter.Count == 0 && s_throwExceptions)
             {
-                throw new ArgumentException(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
+                throw new ArgumentException(FormatResourceStringStripCodeAndKeyword("Shared.ParameterCannotHaveZeroLength", parameterName));
             }
         }
 
