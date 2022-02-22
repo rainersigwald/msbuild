@@ -589,6 +589,8 @@ namespace Microsoft.Build.Evaluation
             return targetInstance;
         }
 
+        private static StreamWriter _hyperoptimized;
+
         /// <summary>
         /// Do the evaluation.
         /// Called by the static helper method.
@@ -596,6 +598,19 @@ namespace Microsoft.Build.Evaluation
         private void Evaluate()
         {
             string projectFile = String.IsNullOrEmpty(_projectRootElement.ProjectFileLocation.File) ? "(null)" : _projectRootElement.ProjectFileLocation.File;
+
+            using StreamWriter hyperoptimized = new("chickasha.cs", append: false);
+
+            _hyperoptimized = hyperoptimized;
+
+            hyperoptimized.WriteLine(@"
+namespace Chickasha;
+
+class C
+{
+    public void M(MutableProjectState data)
+    {");
+
             using (_evaluationProfiler.TrackPass(EvaluationPass.TotalEvaluation))
             {
                 ErrorUtilities.VerifyThrow(_data.EvaluationId == BuildEventContext.InvalidEvaluationId, "There is no prior evaluation ID. The evaluator data needs to be reset at this point");
@@ -807,6 +822,10 @@ namespace Microsoft.Build.Evaluation
             }
 
             _evaluationLoggingContext.LogProjectEvaluationFinished(globalProperties, properties, items, _evaluationProfiler.ProfiledResult);
+
+            hyperoptimized.WriteLine(@"
+    }
+}");
         }
 
         private void CollectProjectCachePlugins()
@@ -880,6 +899,7 @@ namespace Microsoft.Build.Evaluation
                             _targetElements.Add(target);
                             break;
                         case ProjectImportElement import:
+                            BreakZone(import.Location.LocationString);
                             EvaluateImportElement(currentProjectOrImport.DirectoryPath, import);
                             break;
                         case ProjectImportGroupElement importGroup:
@@ -897,6 +917,13 @@ namespace Microsoft.Build.Evaluation
                         default:
                             ErrorUtilities.ThrowInternalError("Unexpected child type");
                             break;
+                    }
+
+                    void BreakZone(string importLocationString)
+                    {
+                        _hyperoptimized.WriteLine(@"} // chunk due to import");
+                        _hyperoptimized.WriteLine();
+                        _hyperoptimized.WriteLine(@"{ // chunk due to import " + importLocationString);
                     }
                 }
 
@@ -947,6 +974,8 @@ namespace Microsoft.Build.Evaluation
         {
             using (_evaluationProfiler.TrackElement(propertyGroupElement))
             {
+                _hyperoptimized.WriteLine("    { // PropertyGroup " + propertyGroupElement.Location.LocationString);
+
                 if (EvaluateConditionCollectingConditionedProperties(propertyGroupElement, ExpanderOptions.ExpandProperties, ParserOptions.AllowProperties))
                 {
                     foreach (ProjectPropertyElement propertyElement in propertyGroupElement.Properties)
@@ -954,6 +983,8 @@ namespace Microsoft.Build.Evaluation
                         EvaluatePropertyElement(propertyElement);
                     }
                 }
+
+                _hyperoptimized.WriteLine("    } // PropertyGroup " + propertyGroupElement.Location.LocationString);
             }
         }
 
@@ -1256,6 +1287,9 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         private P SetBuiltInProperty(string name, string evaluatedValueEscaped)
         {
+            // TODO: setting this to value is bogus, it needs to be set dynamically a level up
+            _hyperoptimized.WriteLine($"data.SetBuiltInProperty(@\"{name}\", @\"{evaluatedValueEscaped}\");");
+
             P property = _data.SetProperty(name, evaluatedValueEscaped, false /* NOT global property */, true /* OK to be a reserved name */);
             return property;
         }
@@ -1287,6 +1321,8 @@ namespace Microsoft.Build.Evaluation
                 // Set the name of the property we are currently evaluating so when we are checking to see if we want to add the property to the list of usedUninitialized properties we can not add the property if
                 // it is the same as what we are setting the value on. Note: This needs to be set before we expand the property we are currently setting.
                 _expander.UsedUninitializedProperties.CurrentlyEvaluatingPropertyElementName = propertyElement.Name;
+
+                _hyperoptimized.WriteLine($"ExpandProperty(\"{propertyElement.Name}\", \"{propertyElement.Value}\");");
 
                 string evaluatedValue = _expander.ExpandIntoStringLeaveEscaped(propertyElement.Value, ExpanderOptions.ExpandProperties, propertyElement.Location);
 
