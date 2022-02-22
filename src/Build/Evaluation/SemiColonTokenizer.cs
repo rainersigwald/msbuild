@@ -7,8 +7,6 @@ using System.Collections.Generic;
 
 using Microsoft.NET.StringTools;
 
-#nullable disable
-
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>
@@ -41,7 +39,7 @@ namespace Microsoft.Build.Evaluation
         internal struct Enumerator : IEnumerator<string>
         {
             private readonly string _expression;
-            private string _current;
+            private string? _current;
             private int _index;
 
             public Enumerator(string expression)
@@ -53,7 +51,7 @@ namespace Microsoft.Build.Evaluation
 
             public string Current
             {
-                get { return _current; }
+                get { return _current!; }
             }
 
             object IEnumerator.Current => Current;
@@ -67,7 +65,7 @@ namespace Microsoft.Build.Evaluation
                 int segmentStart = _index;
                 bool insideItemList = false;
                 bool insideQuotedPart = false;
-                string segment;
+                string? segment;
 
                 // Walk along the string, keeping track of whether we are in an item list expression.
                 // If we hit a semi-colon or the end of the string and we aren't in an item list, 
@@ -127,7 +125,7 @@ namespace Microsoft.Build.Evaluation
 
             public void Reset()
             {
-                _current = default(string);
+                _current = default(string)!;
                 _index = 0;
             }
 
@@ -137,7 +135,7 @@ namespace Microsoft.Build.Evaluation
             /// <param name="startIndex">Start index of the substring.</param>
             /// <param name="length">Length of the substring.</param>
             /// <returns>Equivalent to _expression.Substring(startIndex, length).Trim() or null if the trimmed substring is empty.</returns>
-            private string GetExpressionSubstring(int startIndex, int length)
+            private string? GetExpressionSubstring(int startIndex, int length)
             {
                 int endIndex = startIndex + length;
                 while (startIndex < endIndex && char.IsWhiteSpace(_expression[startIndex]))

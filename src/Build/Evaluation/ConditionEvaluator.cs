@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-#nullable disable
-
 namespace Microsoft.Build.Evaluation
 {
     using ILoggingService = Microsoft.Build.BackEnd.Logging.ILoggingService;
@@ -96,7 +94,7 @@ namespace Microsoft.Build.Evaluation
                         var propertyName = singlePropertyMatch.Groups[1].ToString();
 
                         // Get the string collection for this property name, if one already exists.
-                        List<string> conditionedPropertyValues;
+                        List<string>? conditionedPropertyValues;
 
                         // If this property is not already represented in the table, add a new entry
                         // for it.
@@ -181,7 +179,7 @@ namespace Microsoft.Build.Evaluation
             ILoggingService loggingServices,
             BuildEventContext buildEventContext,
             IFileSystem fileSystem,
-            ProjectRootElementCacheBase projectRootElementCache = null)
+            ProjectRootElementCacheBase? projectRootElementCache = null)
             where P : class, IProperty
             where I : class, IItem
         {
@@ -212,13 +210,13 @@ namespace Microsoft.Build.Evaluation
             ParserOptions options,
             Expander<P, I> expander,
             ExpanderOptions expanderOptions,
-            Dictionary<string, List<string>> conditionedPropertiesTable,
+            Dictionary<string, List<string>>? conditionedPropertiesTable,
             string evaluationDirectory,
             ElementLocation elementLocation,
             ILoggingService loggingServices,
             BuildEventContext buildEventContext,
             IFileSystem fileSystem,
-            ProjectRootElementCacheBase projectRootElementCache = null
+            ProjectRootElementCacheBase? projectRootElementCache = null
         )
             where P : class, IProperty
             where I : class, IItem
@@ -347,7 +345,7 @@ namespace Microsoft.Build.Evaluation
             ///     If this is null, as it is for command line builds, conditioned properties
             ///     are not recorded.
             /// </summary>
-            Dictionary<string, List<string>> ConditionedPropertiesInProject { get; }
+            Dictionary<string, List<string>>? ConditionedPropertiesInProject { get; }
 
             /// <summary>
             ///     May return null if the expression would expand to non-empty and it broke out early.
@@ -368,7 +366,7 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             ///     PRE cache
             /// </summary>
-            ProjectRootElementCacheBase LoadedProjectsCache { get; }
+            ProjectRootElementCacheBase? LoadedProjectsCache { get; }
 
             IFileSystem FileSystem { get; }
         }
@@ -402,23 +400,23 @@ namespace Microsoft.Build.Evaluation
             /// If this is null, as it is for command line builds, conditioned properties
             /// are not recorded.
             /// </summary>
-            public Dictionary<string, List<string>> ConditionedPropertiesInProject { get; }
+            public Dictionary<string, List<string>>? ConditionedPropertiesInProject { get; }
 
             /// <summary>
             /// PRE collection. 
             /// </summary>
-            public ProjectRootElementCacheBase LoadedProjectsCache { get; }
+            public ProjectRootElementCacheBase? LoadedProjectsCache { get; }
 
             internal ConditionEvaluationState
                 (
-                string condition,
+                string condition!!,
                 Expander<P, I> expander,
                 ExpanderOptions expanderOptions,
-                Dictionary<string, List<string>> conditionedPropertiesInProject,
+                Dictionary<string, List<string>>? conditionedPropertiesInProject,
                 string evaluationDirectory,
                 ElementLocation elementLocation,
                 IFileSystem fileSystem,
-                ProjectRootElementCacheBase projectRootElementCache = null
+                ProjectRootElementCacheBase? projectRootElementCache = null
                 )
             {
                 ErrorUtilities.VerifyThrowArgumentNull(condition, nameof(condition));

@@ -9,8 +9,6 @@ using Microsoft.Build.Shared;
 using System.Collections.Generic;
 using Microsoft.Build.Collections;
 
-#nullable disable
-
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>
@@ -98,7 +96,7 @@ namespace Microsoft.Build.Evaluation
         /// itemName and separator will be null if they are not found
         /// return value will be null if no transform expressions are found
         /// </summary>
-        internal static List<ItemExpressionCapture> GetReferencedItemExpressions(string expression)
+        internal static List<ItemExpressionCapture>? GetReferencedItemExpressions(string expression)
         {
             return GetReferencedItemExpressions(expression, 0, expression.Length);
         }
@@ -108,9 +106,9 @@ namespace Microsoft.Build.Evaluation
         /// itemName and separator will be null if they are not found
         /// return value will be null if no transform expressions are found
         /// </summary>
-        internal static List<ItemExpressionCapture> GetReferencedItemExpressions(string expression, int start, int end)
+        internal static List<ItemExpressionCapture>? GetReferencedItemExpressions(string expression, int start, int end)
         {
-            List<ItemExpressionCapture> subExpressions = null;
+            List<ItemExpressionCapture>? subExpressions = null;
 
             int startIndex = expression.IndexOf('@', start, end - start);
 
@@ -126,8 +124,8 @@ namespace Microsoft.Build.Evaluation
 
                 if (Sink(expression, ref i, end, '@', '('))
                 {
-                    List<ItemExpressionCapture> transformExpressions = null;
-                    string separator = null;
+                    List<ItemExpressionCapture>? transformExpressions = null;
+                    string? separator = null;
                     int separatorStart = -1;
 
                     // Start of a possible item list expression
@@ -188,7 +186,7 @@ namespace Microsoft.Build.Evaluation
                         }
 
                         startTransform = i;
-                        ItemExpressionCapture functionCapture = SinkItemFunctionExpression(expression, startTransform, ref i, end);
+                        ItemExpressionCapture? functionCapture = SinkItemFunctionExpression(expression, startTransform, ref i, end);
                         if (functionCapture != null)
                         {
                             if (transformExpressions == null)
@@ -326,7 +324,7 @@ namespace Microsoft.Build.Evaluation
                             continue;
                         }
 
-                        ItemExpressionCapture functionCapture = SinkItemFunctionExpression(expression, startTransform, ref i, end);
+                        ItemExpressionCapture? functionCapture = SinkItemFunctionExpression(expression, startTransform, ref i, end);
                         if (functionCapture != null)
                         {
                             continue;
@@ -412,7 +410,7 @@ namespace Microsoft.Build.Evaluation
 
                     // Grab this, but we don't know if it's an item or metadata name yet
                     string firstPart = expression.Substring(startOfText, i - startOfText);
-                    string itemName = null;
+                    string? itemName = null;
                     string metadataName;
                     string qualifiedMetadataName;
 
@@ -585,7 +583,7 @@ namespace Microsoft.Build.Evaluation
         /// and ends before the specified end index.
         /// Leaves index one past the end of the closing paren.
         /// </summary>
-        private static ItemExpressionCapture SinkItemFunctionExpression(string expression, int startTransform, ref int i, int end)
+        private static ItemExpressionCapture? SinkItemFunctionExpression(string expression, int startTransform, ref int i, int end)
         {
             if (SinkValidName(expression, ref i, end))
             {
@@ -697,7 +695,7 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             /// Captures within this capture
             /// </summary>
-            private readonly List<ItemExpressionCapture> _captures;
+            private readonly List<ItemExpressionCapture>? _captures;
 
             /// <summary>
             /// The position in the original string where the first character of the captured
@@ -718,12 +716,12 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             /// The type of the item within this expression
             /// </summary>
-            private readonly string _itemType;
+            private readonly string? _itemType;
 
             /// <summary>
             /// The separator, if any, within this expression
             /// </summary>
-            private readonly string _separator;
+            private readonly string? _separator;
 
             /// <summary>
             /// The starting character of the separator within the expression
@@ -733,12 +731,12 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             /// The function name, if any, within this expression
             /// </summary>
-            private string _functionName;
+            private string? _functionName;
 
             /// <summary>
             /// The function arguments, if any, within this expression
             /// </summary>
-            private string _functionArguments;
+            private string? _functionArguments;
 
             /// <summary>
             /// Create an Expression Capture instance
@@ -752,7 +750,7 @@ namespace Microsoft.Build.Evaluation
             /// Create an Expression Capture instance
             /// Represents a sub expression, shredded from a larger expression
             /// </summary>
-            public ItemExpressionCapture(int index, int length, string subExpression, string itemType, string separator, int separatorStart, List<ItemExpressionCapture> captures)
+            public ItemExpressionCapture(int index, int length, string subExpression, string? itemType, string? separator, int separatorStart, List<ItemExpressionCapture>? captures)
             {
                 _index = index;
                 _length = length;
@@ -766,7 +764,7 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             /// Captures within this capture
             /// </summary>
-            public List<ItemExpressionCapture> Captures
+            public List<ItemExpressionCapture>? Captures
             {
                 get { return _captures; }
             }
@@ -799,7 +797,7 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             /// Gets the captured itemtype.
             /// </summary>
-            public string ItemType
+            public string? ItemType
             {
                 get { return _itemType; }
             }
@@ -807,7 +805,7 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             /// Gets the captured itemtype.
             /// </summary>
-            public string Separator
+            public string? Separator
             {
                 get { return _separator; }
             }
@@ -823,7 +821,7 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             /// The function name, if any, within this expression
             /// </summary>
-            public string FunctionName
+            public string? FunctionName
             {
                 get { return _functionName; }
                 set { _functionName = value; }
@@ -832,7 +830,7 @@ namespace Microsoft.Build.Evaluation
             /// <summary>
             /// The function arguments, if any, within this expression
             /// </summary>
-            public string FunctionArguments
+            public string? FunctionArguments
             {
                 get { return _functionArguments; }
                 set { _functionArguments = value; }

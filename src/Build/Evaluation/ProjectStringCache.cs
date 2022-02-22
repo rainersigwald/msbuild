@@ -9,8 +9,6 @@ using Microsoft.Build.Evaluation;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Collections;
 
-#nullable disable
-
 namespace Microsoft.Build.Construction
 {
     /// <summary>
@@ -99,8 +97,8 @@ namespace Microsoft.Build.Construction
             {
                 VerifyState();
 
-                StringCacheEntry entry;
-                HashSet<StringCacheEntry> entries;
+                StringCacheEntry? entry;
+                HashSet<StringCacheEntry>? entries;
 
                 bool seenString = _strings.TryGetValue(key, out entry);
                 bool seenDocument = _documents.TryGetValue(document, out entries);
@@ -117,11 +115,11 @@ namespace Microsoft.Build.Construction
                     _documents.Add(document, entries);
                 }
 
-                bool seenStringInThisDocument = seenString && seenDocument && entries.Contains(entry);
+                bool seenStringInThisDocument = seenString && seenDocument && entries!.Contains(entry);
 
                 if (!seenStringInThisDocument)
                 {
-                    entries.Add(entry);
+                    entries!.Add(entry);
 
                     // We've been referred to by a new document, so increment our ref count.
                     entry.Increment();
@@ -139,7 +137,7 @@ namespace Microsoft.Build.Construction
         /// </summary>
         /// <param name="key">String to find in the cache.</param>
         /// <returns>Existing string in the cache, or null if it is not contained.</returns>
-        public string Get(string key)
+        public string? Get(string key)
         {
             lock (_locker)
             {
@@ -174,7 +172,7 @@ namespace Microsoft.Build.Construction
 
                 VerifyState();
 
-                HashSet<StringCacheEntry> entries;
+                HashSet<StringCacheEntry>? entries;
                 if (_documents.TryGetValue(document, out entries))
                 {
                     foreach (var entry in entries)

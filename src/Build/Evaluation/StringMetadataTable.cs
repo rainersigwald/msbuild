@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace Microsoft.Build.Evaluation
 {
     /// <summary>
@@ -46,7 +44,7 @@ namespace Microsoft.Build.Evaluation
         /// Retrieves any value we have in our metadata table for the metadata name and item type specified.
         /// If no value is available, returns empty string.
         /// </summary>
-        public string GetEscapedValue(string itemType, string name)
+        public string GetEscapedValue(string? itemType, string name)
         {
             return GetEscapedValueIfPresent(itemType, name) ?? String.Empty;
         }
@@ -55,7 +53,7 @@ namespace Microsoft.Build.Evaluation
         /// Retrieves any value we have in our metadata table for the metadata name and item type specified.
         /// If no value is available, returns null.
         /// </summary>
-        public string GetEscapedValueIfPresent(string itemType, string name)
+        public string? GetEscapedValueIfPresent(string? itemType, string name)
         {
             if (_metadata == null)
             {
@@ -72,8 +70,7 @@ namespace Microsoft.Build.Evaluation
                 key = itemType + "." + name;
             }
 
-            string value;
-            _metadata.TryGetValue(key, out value);
+            _metadata.TryGetValue(key, out string? value);
 
             return value;
         }
