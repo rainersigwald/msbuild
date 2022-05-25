@@ -24,7 +24,7 @@
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)eng/Common.Test.globalconfig" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETFramework'">
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
     <!-- Bump this to the latest version despite transitive references to older -->
     <PackageReference Include="System.Runtime" PrivateAssets="all" />
   </ItemGroup>

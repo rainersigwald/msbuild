@@ -8,5 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="xunit.core" />
+    <PackageReference Include="System.Runtime" />
   </ItemGroup>
 </Project>
