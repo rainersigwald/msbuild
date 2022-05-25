@@ -24,6 +24,12 @@
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)eng/Common.Test.globalconfig" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETFramework'">
+    <!-- Bump these to the latest version despite transitive references to older -->
+    <PackageReference Include="System.Private.Uri" PrivateAssets="all" />
+    <PackageReference Include="System.Runtime" PrivateAssets="all" />
+  </ItemGroup>
+
   <PropertyGroup>
     <CentralPackagesFile>$(MSBuildThisFileDirectory)eng/Packages.props</CentralPackagesFile>
   </PropertyGroup>
