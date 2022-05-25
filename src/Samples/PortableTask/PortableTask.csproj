@@ -13,9 +13,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework" Version="15.5.180" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.5.180" />
-
-    <!-- Update the reference to System.Runtime to a recent version that doesn't have known vulnerabilities -->
-    <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
   <Target Name="UpdateXlf" />
 </Project>

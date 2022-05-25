@@ -38,9 +38,6 @@
     <PackageReference Include="Microsoft.Build.Framework" Version="14.3.0" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="14.3.0" />
     <PackageReference Include="Microsoft.Build" Version="14.3.0" />
-
-    <!-- Update the reference to System.Runtime to a recent version that doesn't flag component governance scans -->
-    <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
   <!-- <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), dir.targets))\dir.targets" /> -->
 </Project>

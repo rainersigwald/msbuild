@@ -3,6 +3,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="all"/>
     <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.15" PrivateAssets="All" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" />
+
+    <!-- Update the reference to System.Runtime to a recent version that doesn't flag component governance scans -->
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
 
   <!-- Import parent targets -->
