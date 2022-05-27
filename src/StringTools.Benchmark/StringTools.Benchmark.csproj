@@ -17,6 +17,7 @@
     <!-- Bump these to the latest version despite transitive references to older -->
     <PackageReference Include="System.Private.Uri" />
     <PackageReference Include="System.Runtime" />
+    <PackageReference Include="System.Security.Cryptography.X509Certificates" />
   </ItemGroup>
 
   <ItemGroup>
