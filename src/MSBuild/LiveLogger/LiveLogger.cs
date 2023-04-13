@@ -328,34 +328,34 @@ internal sealed class LiveLogger : INodeLogger
                     EraseNodes();
 
                     double duration = project.Stopwatch.Elapsed.TotalSeconds;
-                    ReadOnlyMemory<char>? outputPath = project.OutputPath;
 
                     Terminal.Write(Indentation);
 
                     if (e.ProjectFile is not null)
                     {
                         ReadOnlySpan<char> projectFile = Path.GetFileNameWithoutExtension(e.ProjectFile.AsSpan());
-                        Terminal.Write(projectFile);
-                        Terminal.Write(" ");
+                        //Terminal.Write(projectFile);
+                        //Terminal.Write(" ");
                     }
                     if (!string.IsNullOrEmpty(project.TargetFramework))
                     {
-                        Terminal.Write($"[{project.TargetFramework}] ");
+                        //Terminal.Write($"[{project.TargetFramework}] ");
                     }
 
                     // Print 'failed', 'succeeded with warnings', or 'succeeded' depending on the build result and diagnostic messages
                     // reported during build.
                     bool haveErrors = project.BuildMessages?.Exists(m => m.Severity == MessageSeverity.Error) == true;
                     bool haveWarnings = project.BuildMessages?.Exists(m => m.Severity == MessageSeverity.Warning) == true;
-                    PrintBuildResult(e.Succeeded, haveErrors, haveWarnings);
+                    //PrintBuildResult(e.Succeeded, haveErrors, haveWarnings);
 
                     _buildHasErrors |= haveErrors;
                     _buildHasWarnings |= haveWarnings;
 
                     // Print the output path as a link if we have it.
-                    if (outputPath is not null)
+                    if (project.OutputPath is ReadOnlyMemory<char> outputPath)
                     {
-                        ReadOnlySpan<char> url = outputPath.Value.Span;
+                        ReadOnlySpan<char> url = outputPath.Span;
+
                         try
                         {
                             // If possible, make the link point to the containing directory of the output.
@@ -365,8 +365,20 @@ internal sealed class LiveLogger : INodeLogger
                         {
                             // Ignore any GetDirectoryName exceptions.
                         }
+
+                        if (project.TargetFramework is string tf)
+                        {
+                            var outputSpan = outputPath.Span;
+                            int tfIndex = outputSpan.IndexOf(tf.AsSpan());
+
+                            if (tfIndex > 0)
+                            {
+                                outputPath = $"{outputSpan.Slice(0, tfIndex).ToString()}{AnsiCodes.CSI}{(int)TerminalColor.Cyan}{AnsiCodes.SetColor}{tf}{AnsiCodes.SetDefaultColor}{outputSpan.Slice(tfIndex + tf.Length, 1).ToString()}{AnsiCodes.CSI}{(int)TerminalColor.Bright}{AnsiCodes.SetColor}{outputSpan.Slice(tfIndex + tf.Length + 1, outputSpan.Length - (tfIndex + tf.Length + 1) - 4).ToString()}{AnsiCodes.SetDefaultColor}{outputSpan.Slice(outputSpan.Length - 4).ToString()}".AsMemory();
+                            }
+                        }
+
 #if NETCOREAPP
-                        Terminal.WriteLine($" ({duration:F1}s) → {AnsiCodes.LinkPrefix}{url}{AnsiCodes.LinkInfix}{outputPath}{AnsiCodes.LinkSuffix}");
+                        Terminal.WriteLine($"{AnsiCodes.LinkPrefix}{url}{AnsiCodes.LinkInfix}{outputPath}{AnsiCodes.LinkSuffix} ({duration:F1}s)");
 #else
                         Terminal.WriteLine($" ({duration:F1}s) → {AnsiCodes.LinkPrefix}{url.ToString()}{AnsiCodes.LinkInfix}{outputPath.ToString()}{AnsiCodes.LinkSuffix}");
 #endif

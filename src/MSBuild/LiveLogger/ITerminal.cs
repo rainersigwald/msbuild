@@ -70,6 +70,7 @@ internal interface ITerminal : IDisposable
 /// </summary>
 internal enum TerminalColor
 {
+    Bright = 1,
     Black = 30,
     Red = 31,
     Green = 32,
