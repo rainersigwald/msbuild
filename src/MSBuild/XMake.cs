@@ -4081,7 +4081,9 @@ namespace Microsoft.Build.CommandLine
         /// </summary>
         private static void DisplayVersionMessage()
         {
-            Console.WriteLine(ResourceUtilities.FormatResourceStringStripCodeAndKeyword("MSBuildVersionMessage", ProjectCollection.DisplayVersion, NativeMethods.FrameworkName));
+            s_globalMessagesToLogInBuildLoggers.Add(
+                new BuildManager.DeferredBuildMessage(
+                    ResourceUtilities.FormatResourceStringStripCodeAndKeyword("MSBuildVersionMessage", ProjectCollection.DisplayVersion, NativeMethods.FrameworkName), MessageImportance.Normal));
         }
 
         /// <summary>
