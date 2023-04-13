@@ -42,9 +42,11 @@ internal sealed class LiveLogger : INodeLogger
     {
         public override string ToString()
         {
+            string elapsed = $"({Stopwatch.Elapsed.TotalSeconds:F1}s)";
+
             return string.IsNullOrEmpty(TargetFramework)
-                ? $"{Indentation}{Project} {Target} ({Stopwatch.Elapsed.TotalSeconds:F1}s)"
-                : $"{Indentation}{Project} [{TargetFramework}] {Target} ({Stopwatch.Elapsed.TotalSeconds:F1}s)";
+                ? $"{Indentation}{Project} {Target} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{elapsed.Length}D{elapsed}"
+                : $"{Indentation}{Project} [{TargetFramework}] {Target} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{elapsed.Length}D{elapsed}";
         }
     }
 
@@ -327,7 +329,7 @@ internal sealed class LiveLogger : INodeLogger
                 {
                     EraseNodes();
 
-                    double duration = project.Stopwatch.Elapsed.TotalSeconds;
+                    string duration = $"({project.Stopwatch.Elapsed.TotalSeconds:F1}s)";
 
                     Terminal.Write(Indentation);
 
@@ -378,14 +380,14 @@ internal sealed class LiveLogger : INodeLogger
                         }
 
 #if NETCOREAPP
-                        Terminal.WriteLine($"{AnsiCodes.LinkPrefix}{url}{AnsiCodes.LinkInfix}{outputPath}{AnsiCodes.LinkSuffix} ({duration:F1}s)");
+                        Terminal.WriteLine($"{AnsiCodes.LinkPrefix}{url}{AnsiCodes.LinkInfix}{outputPath}{AnsiCodes.LinkSuffix} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{duration.Length}D{duration}");
 #else
                         Terminal.WriteLine($" ({duration:F1}s) → {AnsiCodes.LinkPrefix}{url.ToString()}{AnsiCodes.LinkInfix}{outputPath.ToString()}{AnsiCodes.LinkSuffix}");
 #endif
                     }
                     else
                     {
-                        Terminal.WriteLine($" ({duration:F1}s)");
+                        Terminal.WriteLine($" {AnsiCodes.CSI}1I{AnsiCodes.CSI}{duration.Length}D{duration}");
                     }
 
                     // Print diagnostic output under the Project -> Output line.
@@ -554,10 +556,10 @@ internal sealed class LiveLogger : INodeLogger
         NodesFrame newFrame = new NodesFrame(_nodes, width: Terminal.Width, height: Terminal.Height);
 
         // Do not render delta but clear everything if Terminal width or height have changed.
-        if (newFrame.Width != _currentFrame.Width || newFrame.Height != _currentFrame.Height)
-        {
+        //if (newFrame.Width != _currentFrame.Width || newFrame.Height != _currentFrame.Height)
+        //{
             EraseNodes();
-        }
+        //}
 
         string rendered = newFrame.Render(_currentFrame);
 
@@ -567,6 +569,7 @@ internal sealed class LiveLogger : INodeLogger
         {
             // Move cursor back to 1st line of nodes.
             Terminal.WriteLine($"{AnsiCodes.CSI}{_currentFrame.NodesCount + 1}{AnsiCodes.MoveUpToLineStart}");
+            Terminal.Write($"{AnsiCodes.CSI}3g");
             Terminal.Write(rendered);
         }
         finally
