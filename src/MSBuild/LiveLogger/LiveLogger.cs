@@ -42,11 +42,13 @@ internal sealed class LiveLogger : INodeLogger
     {
         public override string ToString()
         {
-            string elapsed = $"({Stopwatch.Elapsed.TotalSeconds:F1}s)";
+            double elapsed = Stopwatch.Elapsed.TotalSeconds;
+            int rightJustifiedLength = $"{Target} ({elapsed:F1}s)".Length;
+            string rightJustified = $"{AnsiCodes.CSI}{(int)TerminalColor.Blue}{AnsiCodes.SetColor}{Target}{AnsiCodes.SetDefaultColor} ({elapsed:F1}s)";
 
             return string.IsNullOrEmpty(TargetFramework)
-                ? $"{Indentation}{Project} {AnsiCodes.CSI}{7}{AnsiCodes.SetColor}{Target}{AnsiCodes.SetDefaultColor} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{elapsed.Length}D{elapsed}"
-                : $"{Indentation}{Project} {AnsiCodes.CSI}{(int)TerminalColor.Cyan}{AnsiCodes.SetColor}{TargetFramework}{AnsiCodes.SetDefaultColor} {AnsiCodes.CSI}{7}{AnsiCodes.SetColor}{Target}{AnsiCodes.SetDefaultColor} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{elapsed.Length}D{elapsed}";
+                ? $"{Indentation}{Project} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{rightJustifiedLength}D{rightJustified}"
+                : $"{Indentation}{Project} {AnsiCodes.CSI}{(int)TerminalColor.Cyan}{AnsiCodes.SetColor}{TargetFramework}{AnsiCodes.SetDefaultColor} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{rightJustifiedLength}D{rightJustified}";
         }
     }
 
