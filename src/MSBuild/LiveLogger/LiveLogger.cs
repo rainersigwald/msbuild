@@ -45,8 +45,8 @@ internal sealed class LiveLogger : INodeLogger
             string elapsed = $"({Stopwatch.Elapsed.TotalSeconds:F1}s)";
 
             return string.IsNullOrEmpty(TargetFramework)
-                ? $"{Indentation}{Project} {Target} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{elapsed.Length}D{elapsed}"
-                : $"{Indentation}{Project} [{TargetFramework}] {Target} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{elapsed.Length}D{elapsed}";
+                ? $"{Indentation}{Project} {AnsiCodes.CSI}{7}{AnsiCodes.SetColor}{Target}{AnsiCodes.SetDefaultColor} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{elapsed.Length}D{elapsed}"
+                : $"{Indentation}{Project} {AnsiCodes.CSI}{(int)TerminalColor.Cyan}{AnsiCodes.SetColor}{TargetFramework}{AnsiCodes.SetDefaultColor} {AnsiCodes.CSI}{7}{AnsiCodes.SetColor}{Target}{AnsiCodes.SetDefaultColor} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{elapsed.Length}D{elapsed}";
         }
     }
 
