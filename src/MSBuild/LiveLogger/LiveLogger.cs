@@ -589,7 +589,7 @@ internal sealed class LiveLogger : INodeLogger
 
         public string NodeString(int index)
         {
-            if (index >= NodesCount)
+            if (index >= NodesCount - 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
@@ -626,7 +626,7 @@ internal sealed class LiveLogger : INodeLogger
                 }
             }
 
-            NodesCount = i;
+            NodesCount = i + 1;
         }
 
         private ReadOnlySpan<char> FitToWidth(ReadOnlySpan<char> input)
@@ -642,13 +642,15 @@ internal sealed class LiveLogger : INodeLogger
             StringBuilder sb = _renderBuilder;
             sb.Clear();
 
+            sb.AppendLine();
+
             int i = 0;
-            for (; i < NodesCount; i++)
+            for (; i < NodesCount - 1; i++)
             {
                 var needed = FitToWidth(NodeString(i).AsSpan());
 
                 // Do we have previous node string to compare with?
-                if (previousFrame.NodesCount > i)
+                if (previousFrame.NodesCount > i + 1)
                 {
                     var previous = FitToWidth(previousFrame.NodeString(i).AsSpan());
 
