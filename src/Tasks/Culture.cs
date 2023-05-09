@@ -31,6 +31,7 @@ namespace Microsoft.Build.Tasks
         internal static ItemCultureInfo GetItemCultureInfo(
             string name,
             string dependentUponFilename,
+            string inputCultureString = null,
             bool treatAsCultureNeutral = false)
         {
             ItemCultureInfo info;
@@ -59,7 +60,15 @@ namespace Microsoft.Build.Tasks
 
                 // See if this is a valid culture name.
                 bool validCulture = false;
-                if ((cultureName?.Length > 1))
+
+                if (!string.IsNullOrEmpty(inputCultureString)) // TODO changewave
+                {
+                    // If the culture was explicitly specified, use that.
+                    cultureName = inputCultureString;
+                    validCulture = true; // May be a custom culture not registered in the build process
+                    // TODO log
+                }
+                else if ((cultureName?.Length > 1))
                 {
                     // ... strip the "." to make "en-US"
                     cultureName = cultureName.Substring(1);

@@ -47,8 +47,8 @@ namespace Microsoft.Build.Tasks
 
             /*
                 Actual implementation is in a static method called CreateManifestNameImpl.
-                The reason is that CreateManifestName can't be static because it is an 
-                override of a method declared in the base class, but its convenient 
+                The reason is that CreateManifestName can't be static because it is an
+                override of a method declared in the base class, but its convenient
                 to expose a static version anyway for unittesting purposes.
             */
             return CreateManifestNameImpl(
@@ -98,9 +98,9 @@ namespace Microsoft.Build.Tasks
                 embeddedFileName = fileName;
             }
 
-            Culture.ItemCultureInfo info = Culture.GetItemCultureInfo(embeddedFileName, dependentUponFileName, treatAsCultureNeutral);
+            Culture.ItemCultureInfo info = Culture.GetItemCultureInfo(embeddedFileName, dependentUponFileName, culture, treatAsCultureNeutral);
 
-            // If the item has a culture override, respect that. 
+            // If the item has a culture override, respect that.
             if (!string.IsNullOrEmpty(culture))
             {
                 info.culture = culture;
@@ -109,7 +109,7 @@ namespace Microsoft.Build.Tasks
             var manifestName = StringBuilderCache.Acquire();
             if (binaryStream != null)
             {
-                // Resource depends on a form. Now, get the form's class name fully 
+                // Resource depends on a form. Now, get the form's class name fully
                 // qualified with a namespace.
                 ExtractedClassName result = VisualBasicParserUtilities.GetFirstClassNameFullyQualified(binaryStream);
 
@@ -128,7 +128,7 @@ namespace Microsoft.Build.Tasks
                     manifestName.Append(result.Name);
 
 
-                    // Append the culture if there is one.        
+                    // Append the culture if there is one.
                     if (!string.IsNullOrEmpty(info.culture))
                     {
                         manifestName.Append('.').Append(info.culture);
@@ -158,7 +158,7 @@ namespace Microsoft.Build.Tasks
                 {
                     manifestName.Append(Path.GetFileNameWithoutExtension(info.cultureNeutralFilename));
 
-                    // Append the culture if there is one.        
+                    // Append the culture if there is one.
                     if (!string.IsNullOrEmpty(info.culture))
                     {
                         manifestName.Append('.').Append(info.culture);
@@ -176,7 +176,7 @@ namespace Microsoft.Build.Tasks
 
                     if (prependCultureAsDirectory)
                     {
-                        // Prepend the culture as a subdirectory if there is one.        
+                        // Prepend the culture as a subdirectory if there is one.
                         if (!string.IsNullOrEmpty(info.culture))
                         {
                             manifestName.Insert(0, Path.DirectorySeparatorChar);
