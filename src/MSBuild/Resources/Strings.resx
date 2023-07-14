@@ -1481,6 +1481,12 @@
       {4}: duration in seconds with 1 decimal point
     </comment>
   </data>
+  <data name="DurationDisplay">
+      <value>({0:F1}s)</value>
+      <comment>
+        {0}: duration in seconds with 1 decimal point
+      </comment>
+  </data>
   <!-- **** LiveLogger strings end **** -->
 
     <!--
