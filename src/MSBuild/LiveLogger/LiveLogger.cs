@@ -183,6 +183,8 @@ internal sealed class LiveLogger : INodeLogger
         eventSource.MessageRaised += MessageRaised;
         eventSource.WarningRaised += WarningRaised;
         eventSource.ErrorRaised += ErrorRaised;
+
+        Terminal.Write($"{AnsiCodes.CSI}3g");
     }
 
     /// <inheritdoc/>

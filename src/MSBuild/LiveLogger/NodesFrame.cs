@@ -15,11 +15,15 @@ namespace Microsoft.Build.Logging.LiveLogger;
 internal sealed class NodesFrame
 {
     private readonly NodeStatus[] _nodes;
+    private string[] _rendered;
+    private DateTime _renderTime;
+
     private readonly StringBuilder _renderBuilder = new();
 
     public int Width { get; }
     public int Height { get; }
     public int NodesCount { get; private set; }
+
 
     public NodesFrame(NodeStatus?[] nodes, int width, int height)
     {
@@ -28,13 +32,15 @@ internal sealed class NodesFrame
 
         _nodes = new NodeStatus[nodes.Length];
 
-            foreach (NodeStatus? status in nodes)
+        foreach (NodeStatus? status in nodes)
+        {
+            if (status is not null)
             {
-                if (status is not null)
-                {
-                    _nodes[NodesCount++] = status;
-                }
+                _nodes[NodesCount++] = status;
             }
+        }
+
+        _rendered = new string[_nodes.Length];
     }
 
     private ReadOnlySpan<char> RenderNodeStatus(NodeStatus status)
@@ -51,7 +57,7 @@ internal sealed class NodesFrame
 
         if (Width > totalWidth)
         {
-            return $"{LiveLogger.Indentation}{status.Project} {status.TargetFramework} {status.Target} {durationString}".AsSpan();
+            return $"{LiveLogger.Indentation}{status.Project}{(status.TargetFramework is null ? string.Empty : " ")}{AnsiCodes.Colorize(status.TargetFramework, LiveLogger.TargetFrameworkColor)} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{status.Target.Length + durationString.Length + 1}D{status.Target} {durationString}".AsSpan();
         }
 
         return string.Empty.AsSpan();
@@ -65,36 +71,28 @@ internal sealed class NodesFrame
         StringBuilder sb = _renderBuilder;
         sb.Clear();
 
+        _renderTime = DateTime.UtcNow; // TODO I think there's a faster way to do this
+
         int i = 0;
         for (; i < NodesCount; i++)
         {
-            var needed = RenderNodeStatus(_nodes[i]);
+            ReadOnlySpan<char> needed = RenderNodeStatus(_nodes[i]);
+            _rendered[i] = needed.ToString();
 
             // Do we have previous node string to compare with?
             if (previousFrame.NodesCount > i)
             {
-                var previous = RenderNodeStatus(previousFrame._nodes[i]);
-
-                if (!previous.SequenceEqual(needed))
+                if (previousFrame._nodes[i] == _nodes[i])
                 {
-                    int commonPrefixLen = previous.CommonPrefixLength(needed);
-
-                    if (commonPrefixLen != 0 && needed.Slice(0, commonPrefixLen).IndexOf('\x1b') == -1)
-                    {
-                        // no escape codes, so can trivially skip substrings
-                        sb.Append($"{AnsiCodes.CSI}{commonPrefixLen}{AnsiCodes.MoveForward}");
-                        sb.Append(needed.Slice(commonPrefixLen));
-                    }
-                    else
-                    {
-                        sb.Append(needed);
-                    }
-
-                    // Shall we clear rest of line
-                    if (needed.Length < previous.Length)
-                    {
-                        sb.Append($"{AnsiCodes.CSI}{AnsiCodes.EraseInLine}");
-                    }
+                    // Same everything except time
+                    string durationString = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("DurationDisplay", _nodes[i].Stopwatch.Elapsed.TotalSeconds);
+                    sb.Append($"{AnsiCodes.CSI}1I{AnsiCodes.CSI}{durationString.Length}D{durationString}");
+                }
+                else
+                {
+                    // TODO: check components to figure out skips and optimize this
+                    sb.Append($"{AnsiCodes.CSI}{AnsiCodes.EraseInLine}");
+                    sb.Append(needed);
                 }
             }
             else
