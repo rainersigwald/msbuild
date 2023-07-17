@@ -57,7 +57,7 @@ internal sealed class NodesFrame
 
         if (Width > totalWidth)
         {
-            return $"{LiveLogger.Indentation}{status.Project}{(status.TargetFramework is null ? string.Empty : " ")}{AnsiCodes.Colorize(status.TargetFramework, LiveLogger.TargetFrameworkColor)} {AnsiCodes.CSI}1I{AnsiCodes.CSI}{status.Target.Length + durationString.Length + 1}D{status.Target} {durationString}".AsSpan();
+            return $"{LiveLogger.Indentation}{status.Project}{(status.TargetFramework is null ? string.Empty : " ")}{AnsiCodes.Colorize(status.TargetFramework, LiveLogger.TargetFrameworkColor)} {AnsiCodes.ForwardOneTabStop}{AnsiCodes.MoveCursorBackward(status.Target.Length + durationString.Length + 1)}{status.Target} {durationString}".AsSpan();
         }
 
         return string.Empty.AsSpan();
@@ -86,7 +86,7 @@ internal sealed class NodesFrame
                 {
                     // Same everything except time
                     string durationString = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("DurationDisplay", _nodes[i].Stopwatch.Elapsed.TotalSeconds);
-                    sb.Append($"{AnsiCodes.CSI}1I{AnsiCodes.CSI}{durationString.Length}D{durationString}");
+                    sb.Append($"{AnsiCodes.ForwardOneTabStop}{AnsiCodes.MoveCursorBackward(durationString.Length)}{durationString}");
                 }
                 else
                 {

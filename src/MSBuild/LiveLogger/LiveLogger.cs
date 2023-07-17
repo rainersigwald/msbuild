@@ -184,7 +184,8 @@ internal sealed class LiveLogger : INodeLogger
         eventSource.WarningRaised += WarningRaised;
         eventSource.ErrorRaised += ErrorRaised;
 
-        Terminal.Write($"{AnsiCodes.CSI}3g");
+        // Clear tabs so later justification can use ForwardOneTabStop as "end of line"
+        Terminal.Write(AnsiCodes.TabClearAll);
     }
 
     /// <inheritdoc/>
@@ -441,8 +442,8 @@ internal sealed class LiveLogger : INodeLogger
                             // finally print the message text.
                             int maxSymbolWidth = 2;
                             int messageStartColumn = Indentation.Length + Indentation.Length + maxSymbolWidth;
-                            Terminal.WriteColorLine(color, $"{Indentation}{Indentation}{symbol}\uFE0E{AnsiCodes.CSI}{messageStartColumn + 1}{AnsiCodes.MoveBackward}" +
-                                $"{AnsiCodes.CSI}{messageStartColumn}{AnsiCodes.MoveForward} {buildMessage.Message}");
+                            Terminal.WriteColorLine(color, $"{Indentation}{Indentation}{symbol}\uFE0E{AnsiCodes.MoveCursorBackward(messageStartColumn + 1)}" +
+                                $"{AnsiCodes.MoveCursorForward(messageStartColumn)} {buildMessage.Message}");
                         }
                     }
 

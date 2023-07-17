@@ -14,6 +14,11 @@ internal static class AnsiCodes
     public const string CSI = "\x1b[";
 
     /// <summary>
+    /// Advance the cursor to the next tab stop, or end of line.
+    /// </summary>
+    public const string ForwardOneTabStop = CSI + "I";
+
+    /// <summary>
     /// Select graphic rendition.
     /// </summary>
     /// <remarks>\
@@ -25,6 +30,11 @@ internal static class AnsiCodes
     /// A shortcut to reset color back to normal.
     /// </summary>
     public const string SetDefaultColor = CSI + "m";
+
+    /// <summary>
+    /// Clear all tab stops, leaving only the default beginning-of-line and end-of-line stops.
+    /// </summary>
+    public const string TabClearAll = CSI + "3g";
 
     /// <summary>
     /// Non-xterm extension to render a hyperlink.
@@ -113,4 +123,8 @@ internal static class AnsiCodes
 
         return $"{CSI}{(int)color}{SetColor}{s}{SetDefaultColor}";
     }
+
+    public static string MoveCursorBackward(int count) => $"{CSI}{count}{MoveBackward}";
+
+    internal static object MoveCursorForward(int count) => $"{CSI}{count}{MoveForward}";
 }
