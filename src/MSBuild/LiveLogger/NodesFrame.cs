@@ -43,24 +43,49 @@ internal sealed class NodesFrame
         _rendered = new string[_nodes.Length];
     }
 
-    private ReadOnlySpan<char> RenderNodeStatus(NodeStatus status)
+    internal ReadOnlySpan<char> RenderNodeStatus(NodeStatus status)
     {
         string durationString = ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword(
             "DurationDisplay",
             status.Stopwatch.Elapsed.TotalSeconds);
 
-        int totalWidth = LiveLogger.Indentation.Length +
-                         status.Project.Length + 1 +
-                         (status.TargetFramework?.Length ?? -1) + 1 +
-                         status.Target.Length + 1 +
-                         durationString.Length;
+        ReadOnlySpan<char> project = status.Project.AsSpan();
+        string? targetFramework = status.TargetFramework;
+        string target = status.Target;
 
-        if (Width > totalWidth)
+        int displayLength = LiveLogger.Indentation.Length +
+            project.Length + 1 +
+            (targetFramework?.Length ?? -1) + 1 +
+            target.Length + 1 +
+            durationString.Length;
+
+        int widthOverflow = displayLength - Width;
+
+        if (widthOverflow > 0)
         {
-            return $"{LiveLogger.Indentation}{status.Project}{(status.TargetFramework is null ? string.Empty : " ")}{AnsiCodes.Colorize(status.TargetFramework, LiveLogger.TargetFrameworkColor)} {AnsiCodes.ForwardOneTabStop}{AnsiCodes.MoveCursorBackward(status.Target.Length + durationString.Length + 1)}{status.Target} {durationString}".AsSpan();
+            if (widthOverflow < target.Length)
+            {
+                target = target.Substring(0, widthOverflow - 1) + "…";
+                widthOverflow = 0;
+            }
+            else
+            {
+                widthOverflow -= target.Length;
+                target = string.Empty;
+            }
+
+            int lastDotInProject = project.LastIndexOf('.');
+            if (lastDotInProject > 0 && lastDotInProject <= widthOverflow)
+            {
+                project = project.Slice(widthOverflow);
+            }
+            else
+            {
+                project = project.Slice(lastDotInProject + 1);
+            }
         }
 
-        return string.Empty.AsSpan();
+        return $"{LiveLogger.Indentation}{project}{(targetFramework is null ? string.Empty : " ")}{AnsiCodes.Colorize(targetFramework, LiveLogger.TargetFrameworkColor)}{AnsiCodes.ForwardOneTabStop}{AnsiCodes.MoveCursorBackward(target.Length + durationString.Length + 1)}{target} {durationString}".AsSpan();
     }
 
     /// <summary>
