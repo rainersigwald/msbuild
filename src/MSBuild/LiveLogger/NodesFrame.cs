@@ -85,7 +85,7 @@ internal sealed class NodesFrame
             }
         }
 
-        return $"{LiveLogger.Indentation}{project}{(targetFramework is null ? string.Empty : " ")}{AnsiCodes.Colorize(targetFramework, LiveLogger.TargetFrameworkColor)}{AnsiCodes.ForwardOneTabStop}{AnsiCodes.MoveCursorBackward(target.Length + durationString.Length + 1)}{target} {durationString}".AsSpan();
+        return $"{LiveLogger.Indentation}{project.ToString()}{(targetFramework is null ? string.Empty : " ")}{AnsiCodes.Colorize(targetFramework, LiveLogger.TargetFrameworkColor)}{AnsiCodes.ForwardOneTabStop}{AnsiCodes.MoveCursorBackward(target.Length + durationString.Length + 1)}{target} {durationString}".AsSpan();
     }
 
     /// <summary>
