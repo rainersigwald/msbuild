@@ -65,7 +65,7 @@ internal sealed class NodesFrame
         {
             if (widthOverflow < target.Length)
             {
-                target = target.Substring(0, widthOverflow - 1) + "…";
+                target = target.Substring(0, widthOverflow - 1) + '\u2026';
                 widthOverflow = 0;
             }
             else
