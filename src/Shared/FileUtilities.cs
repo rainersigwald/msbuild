@@ -2,6 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+#if NET8_0_OR_GREATER
+using System.Buffers;
+#endif
 #if !CLR2COMPATIBILITY
 using System.Collections.Concurrent;
 #else
@@ -91,7 +94,13 @@ namespace Microsoft.Build.Shared
         /// Copied from https://github.com/dotnet/corefx/blob/056715ff70e14712419d82d51c8c50c54b9ea795/src/Common/src/System/IO/PathInternal.Windows.cs#L61
         /// MSBuild should support the union of invalid path chars across the supported OSes, so builds can have the same behaviour crossplatform: https://github.com/dotnet/msbuild/issues/781#issuecomment-243942514
         /// </summary>
-        internal static readonly char[] InvalidPathChars = new char[]
+#if NET8_0_OR_GREATER
+        internal static readonly SearchValues<char> InvalidPathChars = SearchValues.Create(InvalidPathCharArray);
+#else
+        internal static readonly char[] InvalidPathChars = InvalidPathCharArray;
+#endif
+
+        private static readonly char[] InvalidPathCharArray = new char[]
         {
             '|', '\0',
             (char)1, (char)2, (char)3, (char)4, (char)5, (char)6, (char)7, (char)8, (char)9, (char)10,
@@ -104,7 +113,13 @@ namespace Microsoft.Build.Shared
         /// Copied from https://github.com/dotnet/corefx/blob/387cf98c410bdca8fd195b28cbe53af578698f94/src/System.Runtime.Extensions/src/System/IO/Path.Windows.cs#L18
         /// MSBuild should support the union of invalid path chars across the supported OSes, so builds can have the same behaviour crossplatform: https://github.com/dotnet/msbuild/issues/781#issuecomment-243942514
         /// </summary>
-        internal static readonly char[] InvalidFileNameChars = new char[]
+#if NET8_0_OR_GREATER
+        internal static readonly SearchValues<char> InvalidFileNameChars = SearchValues.Create(InvalidFileNameCharArray);
+#else
+        internal static readonly char[] InvalidFileNameChars = InvalidFileNameCharArray;
+#endif
+
+        private static readonly char[] InvalidFileNameCharArray = new char[]
         {
             '\"', '<', '>', '|', '\0',
             (char)1, (char)2, (char)3, (char)4, (char)5, (char)6, (char)7, (char)8, (char)9, (char)10,
@@ -838,7 +853,7 @@ namespace Microsoft.Build.Shared
 
         internal static bool PathIsInvalid(string path)
         {
-            if (path.IndexOfAny(InvalidPathChars) >= 0)
+            if (path.AsSpan().IndexOfAny(InvalidPathChars) >= 0)
             {
                 return true;
             }
