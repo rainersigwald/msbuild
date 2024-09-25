@@ -1146,7 +1146,7 @@ namespace Microsoft.Build.CommandLine
             }
 
             s_buildCancellationSource.Cancel();
-            
+
 
             // The OS takes a lock in
             // kernel32.dll!_SetConsoleCtrlHandler, so if a task
@@ -3640,7 +3640,7 @@ namespace Microsoft.Build.CommandLine
                     InitializationException.VerifyThrow(extension?.Length >= 2, "InvalidExtensionToIgnore", extension);
 
                     // There is an invalid char in the extensionToIgnore.
-                    InitializationException.VerifyThrow(extension.IndexOfAny(Path.GetInvalidPathChars()) == -1, "InvalidExtensionToIgnore", extension, null, false);
+                    InitializationException.VerifyThrow(NativeMethodsShared.HasInvalidPathCharacters(extension), "InvalidExtensionToIgnore", extension, null, false);
 
                     // There were characters before the extension.
                     InitializationException.VerifyThrow(string.Equals(extension, Path.GetExtension(extension), StringComparison.OrdinalIgnoreCase), "InvalidExtensionToIgnore", extension, null, false);

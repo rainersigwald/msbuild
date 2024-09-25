@@ -1024,7 +1024,7 @@ namespace Microsoft.Build.Construction
             ErrorUtilities.VerifyThrow(proj.RelativePath != null, "Project relative path cannot be null.");
 
             // Verify the relative path does not contain invalid characters
-            ProjectFileErrorUtilities.VerifyThrowInvalidProjectFile(proj.RelativePath.IndexOfAny(Path.GetInvalidPathChars()) == -1,
+            ProjectFileErrorUtilities.VerifyThrowInvalidProjectFile(NativeMethodsShared.HasInvalidPathCharacters(proj.RelativePath),
               "SubCategoryForSolutionParsingErrors",
               new BuildEventFileInfo(FullPath, _currentLineNumber, 0),
               "SolutionParseInvalidProjectFileNameCharacters",

@@ -1511,6 +1511,11 @@ internal static class NativeMethods
         return Directory.GetCurrentDirectory();
     }
 
+    public static bool HasInvalidPathCharacters(string p)
+    {
+        return p.IndexOfAny(Path.GetInvalidPathChars()) >= 0;
+    }
+
     [SupportedOSPlatform("windows")]
     private static unsafe int GetCurrentDirectoryWin32(int nBufferLength, char* lpBuffer)
     {
