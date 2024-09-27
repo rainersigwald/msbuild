@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -64,7 +65,7 @@ namespace Microsoft.Build.Internal
         /// <summary>
         /// Lookup for reserved property names. Intentionally do not include MSBuildExtensionsPath* or MSBuildUserExtensionsPath in this list.  We need tasks to be able to override those.
         /// </summary>
-        private static readonly HashSet<string> ReservedProperties = new HashSet<string>(MSBuildNameIgnoreCaseComparer.Default)
+        private static readonly FrozenSet<string> ReservedProperties = new HashSet<string>(MSBuildNameIgnoreCaseComparer.Default)
         {
             projectDirectory,
             projectDirectoryNoRoot,
@@ -93,7 +94,7 @@ namespace Microsoft.Build.Internal
             version,
             interactive,
             msbuilddisablefeaturesfromversion,
-        };
+        }.ToFrozenSet();
 
         /// <summary>
         /// Indicates if the given property is a reserved property.

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 #if !CLR2COMPATIBILITY
+using System.Collections.Frozen;
 using System.Runtime.InteropServices;
 #endif
 
@@ -101,15 +102,15 @@ namespace Microsoft.Build.Shared
         /////////////////////////////////////////////////////////////////////////////////////////////
         internal const string defaultXmlNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
 
-        private static readonly HashSet<string> KnownSpecialTaskAttributes = new HashSet<string> { condition, continueOnError, msbuildRuntime, msbuildArchitecture, xmlns };
+        private static readonly FrozenSet<string> KnownSpecialTaskAttributes = new HashSet<string> { condition, continueOnError, msbuildRuntime, msbuildArchitecture, xmlns }.ToFrozenSet();
 
-        private static readonly HashSet<string> KnownSpecialTaskAttributesIgnoreCase = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { condition, continueOnError, msbuildRuntime, msbuildArchitecture, xmlns };
+        private static readonly FrozenSet<string> KnownSpecialTaskAttributesIgnoreCase = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { condition, continueOnError, msbuildRuntime, msbuildArchitecture, xmlns }.ToFrozenSet();
 
-        private static readonly HashSet<string> KnownBatchingTargetAttributes = new HashSet<string> { name, condition, dependsOnTargets, beforeTargets, afterTargets };
+        private static readonly FrozenSet<string> KnownBatchingTargetAttributes = new HashSet<string> { name, condition, dependsOnTargets, beforeTargets, afterTargets }.ToFrozenSet();
 
-        private static readonly HashSet<string> ValidMSBuildRuntimeValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { MSBuildRuntimeValues.clr2, MSBuildRuntimeValues.clr4, MSBuildRuntimeValues.currentRuntime, MSBuildRuntimeValues.net, MSBuildRuntimeValues.any };
+        private static readonly FrozenSet<string> ValidMSBuildRuntimeValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { MSBuildRuntimeValues.clr2, MSBuildRuntimeValues.clr4, MSBuildRuntimeValues.currentRuntime, MSBuildRuntimeValues.net, MSBuildRuntimeValues.any }.ToFrozenSet();
 
-        private static readonly HashSet<string> ValidMSBuildArchitectureValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { MSBuildArchitectureValues.x86, MSBuildArchitectureValues.x64, MSBuildArchitectureValues.arm64, MSBuildArchitectureValues.currentArchitecture, MSBuildArchitectureValues.any };
+        private static readonly FrozenSet<string> ValidMSBuildArchitectureValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { MSBuildArchitectureValues.x86, MSBuildArchitectureValues.x64, MSBuildArchitectureValues.arm64, MSBuildArchitectureValues.currentArchitecture, MSBuildArchitectureValues.any }.ToFrozenSet();
 
         /// <summary>
         /// Returns true if and only if the specified attribute is one of the attributes that the engine specifically recognizes

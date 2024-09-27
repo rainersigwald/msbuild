@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Xml;
 using Microsoft.Build.Eventing;
@@ -28,52 +29,52 @@ namespace Microsoft.Build.Construction
         /// <summary>
         /// Valid attribute list when only Condition and Label are valid
         /// </summary>
-        private static readonly HashSet<string> ValidAttributesOnlyConditionAndLabel = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label };
+        private static readonly FrozenSet<string> ValidAttributesOnlyConditionAndLabel = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label }.ToFrozenSet();
 
         /// <summary>
         /// Valid attribute list for item
         /// </summary>
-        private static readonly HashSet<string> KnownAttributesOnItem = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.include, XMakeAttributes.exclude, XMakeAttributes.remove, XMakeAttributes.keepMetadata, XMakeAttributes.removeMetadata, XMakeAttributes.keepDuplicates, XMakeAttributes.update, XMakeAttributes.matchOnMetadata, XMakeAttributes.matchOnMetadataOptions };
+        private static readonly FrozenSet<string> KnownAttributesOnItem = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.include, XMakeAttributes.exclude, XMakeAttributes.remove, XMakeAttributes.keepMetadata, XMakeAttributes.removeMetadata, XMakeAttributes.keepDuplicates, XMakeAttributes.update, XMakeAttributes.matchOnMetadata, XMakeAttributes.matchOnMetadataOptions }.ToFrozenSet();
 
         /// <summary>
         /// Valid attributes list for item which is case-insensitive.
         /// </summary>
-        private static readonly HashSet<string> KnownAttributesOnItemIgnoreCase = new HashSet<string>(KnownAttributesOnItem, StringComparer.OrdinalIgnoreCase);
+        private static readonly FrozenSet<string> KnownAttributesOnItemIgnoreCase = new HashSet<string>(KnownAttributesOnItem, StringComparer.OrdinalIgnoreCase).ToFrozenSet();
 
         /// <summary>
         /// Valid attributes on import element
         /// </summary>
-        private static readonly HashSet<string> ValidAttributesOnImport = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.project, XMakeAttributes.sdk, XMakeAttributes.sdkVersion, XMakeAttributes.sdkMinimumVersion };
+        private static readonly FrozenSet<string> ValidAttributesOnImport = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.project, XMakeAttributes.sdk, XMakeAttributes.sdkVersion, XMakeAttributes.sdkMinimumVersion }.ToFrozenSet();
 
         /// <summary>
         /// Valid attributes on usingtask element
         /// </summary>
-        private static readonly HashSet<string> ValidAttributesOnUsingTask = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.taskName, XMakeAttributes.assemblyFile, XMakeAttributes.assemblyName, XMakeAttributes.taskFactory, XMakeAttributes.architecture, XMakeAttributes.runtime, XMakeAttributes.requiredPlatform, XMakeAttributes.requiredRuntime, XMakeAttributes.overrideUsingTask };
+        private static readonly FrozenSet<string> ValidAttributesOnUsingTask = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.taskName, XMakeAttributes.assemblyFile, XMakeAttributes.assemblyName, XMakeAttributes.taskFactory, XMakeAttributes.architecture, XMakeAttributes.runtime, XMakeAttributes.requiredPlatform, XMakeAttributes.requiredRuntime, XMakeAttributes.overrideUsingTask }.ToFrozenSet();
 
         /// <summary>
         /// Valid attributes on target element
         /// </summary>
-        private static readonly HashSet<string> ValidAttributesOnTarget = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.name, XMakeAttributes.inputs, XMakeAttributes.outputs, XMakeAttributes.keepDuplicateOutputs, XMakeAttributes.dependsOnTargets, XMakeAttributes.beforeTargets, XMakeAttributes.afterTargets, XMakeAttributes.returns };
+        private static readonly FrozenSet<string> ValidAttributesOnTarget = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.name, XMakeAttributes.inputs, XMakeAttributes.outputs, XMakeAttributes.keepDuplicateOutputs, XMakeAttributes.dependsOnTargets, XMakeAttributes.beforeTargets, XMakeAttributes.afterTargets, XMakeAttributes.returns }.ToFrozenSet();
 
         /// <summary>
         /// Valid attributes on error element
         /// </summary>
-        private static readonly HashSet<string> ValidAttributesOnOnError = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.executeTargets };
+        private static readonly FrozenSet<string> ValidAttributesOnOnError = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.executeTargets }.ToFrozenSet();
 
         /// <summary>
         /// Valid attributes on output element
         /// </summary>
-        private static readonly HashSet<string> ValidAttributesOnOutput = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.taskParameter, XMakeAttributes.itemName, XMakeAttributes.propertyName };
+        private static readonly FrozenSet<string> ValidAttributesOnOutput = new HashSet<string> { XMakeAttributes.condition, XMakeAttributes.label, XMakeAttributes.taskParameter, XMakeAttributes.itemName, XMakeAttributes.propertyName }.ToFrozenSet();
 
         /// <summary>
         /// Valid attributes on UsingTaskParameter element
         /// </summary>
-        private static readonly HashSet<string> ValidAttributesOnUsingTaskParameter = new HashSet<string> { XMakeAttributes.parameterType, XMakeAttributes.output, XMakeAttributes.required };
+        private static readonly FrozenSet<string> ValidAttributesOnUsingTaskParameter = new HashSet<string> { XMakeAttributes.parameterType, XMakeAttributes.output, XMakeAttributes.required }.ToFrozenSet();
 
         /// <summary>
         /// Valid attributes on UsingTaskTask element
         /// </summary>
-        private static readonly HashSet<string> ValidAttributesOnUsingTaskBody = new HashSet<string> { XMakeAttributes.evaluate };
+        private static readonly FrozenSet<string> ValidAttributesOnUsingTaskBody = new HashSet<string> { XMakeAttributes.evaluate }.ToFrozenSet();
 
         /// <summary>
         /// The ProjectRootElement to parse into

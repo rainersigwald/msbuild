@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -180,7 +181,7 @@ namespace Microsoft.Build.Internal
         /// <summary>
         /// Verify  that all attributes on the element are on the list of legal attributes
         /// </summary>
-        internal static void VerifyThrowProjectAttributes(XmlElementWithLocation element, HashSet<string> validAttributes)
+        internal static void VerifyThrowProjectAttributes(XmlElementWithLocation element, FrozenSet<string> validAttributes)
         {
             foreach (XmlAttributeWithLocation attribute in element.Attributes)
             {
