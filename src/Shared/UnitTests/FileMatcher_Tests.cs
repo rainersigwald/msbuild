@@ -2522,10 +2522,7 @@ namespace Microsoft.Build.UnitTests
             bool shouldBeRecursive,
             bool fileSystemSimulation)
         {
-            if (!IsFileMatchAssertIfIllegal(filespec, fileToMatch, shouldBeRecursive))
-            {
-                Assert.Fail("FileMatcher Regression: Failure while validating that files match.");
-            }
+            IsFileMatchAssertIfIllegal(filespec, fileToMatch, shouldBeRecursive).ShouldBeTrue("FileMatcher Regression: Failure while validating that files match.");
 
             // Now, simulate a filesystem with only fileToMatch. Make sure the file exists that way.
             if (fileSystemSimulation)
@@ -2547,10 +2544,7 @@ namespace Microsoft.Build.UnitTests
             string fileToMatch,
             bool shouldBeRecursive)
         {
-            if (IsFileMatchAssertIfIllegal(filespec, fileToMatch, shouldBeRecursive))
-            {
-                Assert.Fail("FileMatcher Regression: Failure while validating that files don't match.");
-            }
+            IsFileMatchAssertIfIllegal(filespec, fileToMatch, shouldBeRecursive).ShouldBeTrue("FileMatcher Regression: Failure while validating that files don't match.");
 
             // Now, simulate a filesystem with only fileToMatch. Make sure the file doesn't exist that way.
             MatchDriver(
@@ -2575,10 +2569,7 @@ namespace Microsoft.Build.UnitTests
                 out needsRecursion,
                 out isLegalFileSpec);
 
-            if (isLegalFileSpec)
-            {
-                Assert.Fail("FileMatcher Regression: Expected an illegal filespec, but got a legal one.");
-            }
+            isLegalFileSpec.ShouldBeTrue("FileMatcher Regression: Expected an illegal filespec, but got a legal one.");
 
             // Now, FileMatcher is supposed to take any legal file name and just return it immediately.
             // Let's see if it does.
