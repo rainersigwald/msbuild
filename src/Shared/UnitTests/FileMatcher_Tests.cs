@@ -2423,7 +2423,7 @@ namespace Microsoft.Build.UnitTests
                             ++timesFound;
                         }
                     }
-                    Assert.Equal(1, timesFound);
+                    timesFound.ShouldBe(1, $"Expected single {(normalizeAllPaths ? "normalized " : "")}match for {matchingFile} in {string.Join(", ", normalizedFiles)}.");
                 }
             }
 
@@ -2434,20 +2434,12 @@ namespace Microsoft.Build.UnitTests
 
                 foreach (string nonmatchingFile in normalizedNonMatchingFiles)
                 {
-                    int timesFound = 0;
-                    foreach (string file in normalizedFiles)
-                    {
-                        if (String.Equals(file, nonmatchingFile, StringComparison.OrdinalIgnoreCase))
-                        {
-                            ++timesFound;
-                        }
-                    }
-                    Assert.Equal(0, timesFound);
+                    normalizedFiles.ShouldNotContain(nonmatchingFile, StringComparer.OrdinalIgnoreCase);
                 }
             }
 
             // Check untouchable files.
-            Assert.Equal(0, mockFileSystem.FileHits3); // "At least one file that was marked untouchable was referenced."
+            mockFileSystem.FileHits3.ShouldBe(0, "At least one file that was marked untouchable was referenced.");
         }
 
         /// <summary>
