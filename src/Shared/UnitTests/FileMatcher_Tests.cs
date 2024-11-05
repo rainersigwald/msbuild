@@ -2403,8 +2403,8 @@ namespace Microsoft.Build.UnitTests
                 excludeFilespecs?.ToList())
             .FileList;
 
-            Func<string[], string[]> normalizeAllFunc = (paths => normalizeAllPaths ? paths.Select(MockFileSystem.Normalize).ToArray() : paths);
-            Func<string[], string[]> normalizeMatching = (paths => normalizeExpectedMatchingFiles ? paths.Select(MockFileSystem.Normalize).ToArray() : paths);
+            string[] normalizeAllFunc(string[] paths) => normalizeAllPaths ? paths.Select(MockFileSystem.Normalize).ToArray() : paths;
+            string[] normalizeMatching(string[] paths) => normalizeExpectedMatchingFiles ? paths.Select(MockFileSystem.Normalize).ToArray() : paths;
 
             string[] normalizedFiles = normalizeAllFunc(files);
 
