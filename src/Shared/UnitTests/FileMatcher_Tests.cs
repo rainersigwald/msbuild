@@ -2509,7 +2509,7 @@ namespace Microsoft.Build.UnitTests
             string fileToMatch,
             bool shouldBeRecursive)
         {
-            ValidateFileMatch(filespec, fileToMatch, shouldBeRecursive, /* Simulate filesystem? */ true);
+            ValidateFileMatch(filespec, fileToMatch, shouldBeRecursive, fileSystemSimulation: true);
         }
 
         /*************************************************************************************
@@ -2532,9 +2532,9 @@ namespace Microsoft.Build.UnitTests
             {
                 MatchDriver(
                     filespec,
-                    new string[] { fileToMatch },
-                    null,
-                    null);
+                    matchingFiles: [fileToMatch],
+                    nonmatchingFiles: null,
+                    untouchableFiles: null);
             }
         }
 
@@ -2555,9 +2555,9 @@ namespace Microsoft.Build.UnitTests
             // Now, simulate a filesystem with only fileToMatch. Make sure the file doesn't exist that way.
             MatchDriver(
                 filespec,
-                null,
-                new string[] { fileToMatch },
-                null);
+                matchingFiles: null,
+                nonmatchingFiles: [fileToMatch],
+                untouchableFiles: null);
         }
 
         /*************************************************************************************
@@ -2584,9 +2584,9 @@ namespace Microsoft.Build.UnitTests
             // Let's see if it does.
             MatchDriver(
                 filespec,                        // Not legal.
-                new string[] { filespec },        // Should match
-                null,
-                null);
+                matchingFiles: [filespec],        // Should match
+                nonmatchingFiles: null,
+                untouchableFiles: null);
         }
         /*************************************************************************************
         * Given a pattern (filespec) and a candidate filename (fileToMatch) return true if
