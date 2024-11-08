@@ -49,6 +49,35 @@ namespace Microsoft.Build.Shared
             return false;
         }
 
+#if !NET35
+        /// <summary>
+        /// Replaces all instances of %XX in the input string with the character represented
+        /// by the hexadecimal number XX.
+        /// </summary>
+        /// <param name="escapedString">The string to unescape.</param>
+        /// <param name="trim">If the string should be trimmed before being unescaped.</param>
+        /// <returns>unescaped string</returns>
+        internal static ReadOnlySpan<char> UnescapeAll(ReadOnlySpan<char> escapedString, bool trim = false)
+        {
+            // If the string doesn't contain anything, then by definition it doesn't
+            // need unescaping.
+            if (escapedString.IsEmpty)
+            {
+                return escapedString;
+            }
+
+            // If there are no percent signs, just return the original string immediately.
+            // Don't even instantiate the StringBuilder.
+            int indexOfPercent = escapedString.IndexOf('%');
+            if (indexOfPercent == -1)
+            {
+                return trim ? escapedString.Trim() : escapedString;
+            }
+
+            return UnescapeAll(escapedString.ToString(), trim).AsSpan();
+        }
+#endif
+
         /// <summary>
         /// Replaces all instances of %XX in the input string with the character represented
         /// by the hexadecimal number XX.

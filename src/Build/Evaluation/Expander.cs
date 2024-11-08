@@ -705,7 +705,7 @@ namespace Microsoft.Build.Evaluation
         /// Also returns flags to indicate if a propertyfunction or registry property is likely
         /// to be found in the expression.
         /// </summary>
-        private static int ScanForClosingParenthesis(string expression, int index, out bool potentialPropertyFunction, out bool potentialRegistryFunction)
+        private static int ScanForClosingParenthesis(ReadOnlySpan<char> expression, int index, out bool potentialPropertyFunction, out bool potentialRegistryFunction)
         {
             int nestLevel = 1;
             int length = expression.Length;
@@ -716,7 +716,7 @@ namespace Microsoft.Build.Evaluation
             // Scan for our closing ')'
             while (index < length && nestLevel > 0)
             {
-                char character = expression[index];
+                char character = expression.Span[index];
                 switch (character)
                 {
                     case '\'':
@@ -724,7 +724,7 @@ namespace Microsoft.Build.Evaluation
                     case '"':
                         {
                             index++;
-                            index = ScanForClosingQuote(character, expression, index);
+                            index = ScanForClosingQuote(character, expression.Span, index);
 
                             if (index < 0)
                             {
@@ -768,10 +768,10 @@ namespace Microsoft.Build.Evaluation
         /// <summary>
         /// Skip all characters until we find the matching quote character.
         /// </summary>
-        private static int ScanForClosingQuote(char quoteChar, string expression, int index)
+        private static int ScanForClosingQuote(char quoteChar, ReadOnlySpan<char> expression, int index)
         {
             // Scan for our closing quoteChar
-            return expression.IndexOf(quoteChar, index);
+            return expression.Slice(index).IndexOf(quoteChar) + index;
         }
 
         /// <summary>
@@ -856,7 +856,7 @@ namespace Microsoft.Build.Evaluation
                     n += 2; // skip over the opening '$('
 
                     // Scan for the matching closing bracket, skipping any nested ones
-                    n = ScanForClosingParenthesis(argumentsString, n, out _, out _);
+                    n = ScanForClosingParenthesis(argumentsString.AsSpan(), n, out _, out _);
 
                     if (n == -1)
                     {
@@ -871,7 +871,7 @@ namespace Microsoft.Build.Evaluation
                     int quoteStart = n;
                     n++; // skip over the opening quote
 
-                    n = ScanForClosingQuote(argumentsString[quoteStart], argumentsString, n);
+                    n = ScanForClosingQuote(argumentsString[quoteStart], argumentsString.AsSpan(), n);
 
                     if (n == -1)
                     {
@@ -1182,14 +1182,14 @@ namespace Microsoft.Build.Evaluation
             /// This method leaves the result typed and escaped.  Callers may need to convert to string, and unescape on their own as appropriate.
             /// </summary>
             internal static object ExpandPropertiesLeaveTypedAndEscaped(
-                string expression,
+                ReadOnlyMemory<char> expression,
                 IPropertyProvider<T> properties,
                 ExpanderOptions options,
                 IElementLocation elementLocation,
                 PropertiesUseTracker propertiesUseTracker,
                 IFileSystem fileSystem)
             {
-                if (((options & ExpanderOptions.ExpandProperties) == 0) || String.IsNullOrEmpty(expression))
+                if (((options & ExpanderOptions.ExpandProperties) == 0) || expression.IsEmpty)
                 {
                     return expression;
                 }
@@ -1201,7 +1201,7 @@ namespace Microsoft.Build.Evaluation
                 int propertyStartIndex, propertyEndIndex;
 
                 // If there are no substitutions, then just return the string.
-                propertyStartIndex = s_invariantCompareInfo.IndexOf(expression, "$(", CompareOptions.Ordinal);
+                propertyStartIndex = expression.Span.IndexOf("$(".AsSpan(), StringComparison.Ordinal);
                 if (propertyStartIndex == -1)
                 {
                     return expression;
@@ -1225,14 +1225,14 @@ namespace Microsoft.Build.Evaluation
                     // (but not including) the "$(", and advance the sourceIndex pointer.
                     if (propertyStartIndex - sourceIndex > 0)
                     {
-                        results.Add(expression.AsMemory(sourceIndex, propertyStartIndex - sourceIndex));
+                        results.Add(expression.Slice(sourceIndex, propertyStartIndex - sourceIndex));
                     }
 
                     // Following the "$(" we need to locate the matching ')'
                     // Scan for the matching closing bracket, skipping any nested ones
                     // This is a very complete, fast validation of parenthesis matching including for nested
                     // function calls.
-                    propertyEndIndex = ScanForClosingParenthesis(expression, propertyStartIndex + 2, out bool tryExtractPropertyFunction, out bool tryExtractRegistryFunction);
+                    propertyEndIndex = ScanForClosingParenthesis(expression.Span, propertyStartIndex + 2, out bool tryExtractPropertyFunction, out bool tryExtractRegistryFunction);
 
                     if (propertyEndIndex == -1)
                     {
@@ -1240,7 +1240,7 @@ namespace Microsoft.Build.Evaluation
                         // isn't really a well-formed property tag.  Just literally
                         // copy the remainder of the expression (starting with the "$("
                         // that we found) into the result, and quit.
-                        results.Add(expression.AsMemory(propertyStartIndex, expression.Length - propertyStartIndex));
+                        results.Add(expression.Slice(propertyStartIndex, expression.Length - propertyStartIndex));
                         sourceIndex = expression.Length;
                     }
                     else
@@ -1251,7 +1251,7 @@ namespace Microsoft.Build.Evaluation
                         // propertyEndIndex points to the ")".  That's why we have to
                         // add 2 for the start of the substring, and subtract 2 for
                         // the length.
-                        string propertyBody;
+                        ReadOnlySpan<char> propertyBody;
 
                         // A property value of null will indicate that we're calling a static function on a type
                         object propertyValue;
@@ -1263,7 +1263,7 @@ namespace Microsoft.Build.Evaluation
                         }
                         else if ((expression.Length - (propertyStartIndex + 2)) > 9 && tryExtractRegistryFunction && s_invariantCompareInfo.IndexOf(expression, "Registry:", propertyStartIndex + 2, 9, CompareOptions.OrdinalIgnoreCase) == propertyStartIndex + 2)
                         {
-                            propertyBody = expression.Substring(propertyStartIndex + 2, propertyEndIndex - propertyStartIndex - 2);
+                            propertyBody = expression.Span.Slice(propertyStartIndex + 2, propertyEndIndex - propertyStartIndex - 2);
 
                             // If the property body starts with any of our special objects, then deal with them
                             // This is a registry reference, like $(Registry:HKEY_LOCAL_MACHINE\Software\Vendor\Tools@TaskLocation)
@@ -1287,7 +1287,7 @@ namespace Microsoft.Build.Evaluation
                         }
                         else if (tryExtractPropertyFunction)
                         {
-                            propertyBody = expression.Substring(propertyStartIndex + 2, propertyEndIndex - propertyStartIndex - 2);
+                            propertyBody = expression.Span.Slice(propertyStartIndex + 2, propertyEndIndex - propertyStartIndex - 2);
 
                             // This is likely to be a function expression
                             propertyValue = ExpandPropertyBody(
@@ -1323,13 +1323,13 @@ namespace Microsoft.Build.Evaluation
                         sourceIndex = propertyEndIndex + 1;
                     }
 
-                    propertyStartIndex = s_invariantCompareInfo.IndexOf(expression, "$(", sourceIndex, CompareOptions.Ordinal);
+                    propertyStartIndex = expression.Span.Slice(sourceIndex).IndexOf("$(") + sourceIndex;
                 }
 
                 // If we couldn't find any more property tags in the expression just copy the remainder into the result.
                 if (expression.Length - sourceIndex > 0)
                 {
-                    results.Add(expression.AsMemory(sourceIndex, expression.Length - sourceIndex));
+                    results.Add(expression.Slice(sourceIndex, expression.Length - sourceIndex));
                 }
 
                 return results.GetResult();
@@ -1650,7 +1650,7 @@ namespace Microsoft.Build.Evaluation
             /// "TaskLocation" is the name of the value.  The name of the value and the preceding "@" may be omitted if
             /// the default value is desired.
             /// </summary>
-            private static string ExpandRegistryValue(string registryExpression, IElementLocation elementLocation)
+            private static string ExpandRegistryValue(ReadOnlySpan<char> registryExpression, IElementLocation elementLocation)
             {
 #if RUNTIME_TYPE_NETCORE
                 // .NET Core MSBuild used to always return empty, so match that behavior
@@ -1662,24 +1662,24 @@ namespace Microsoft.Build.Evaluation
 #endif
 
                 // Remove "Registry:" prefix
-                string registryLocation = registryExpression.Substring(9);
+                ReadOnlySpan<char> registryLocation = registryExpression.Slice(9);
 
                 // Split off the value name -- the part after the "@" sign. If there's no "@" sign, then it's the default value name
                 // we want.
                 int firstAtSignOffset = registryLocation.IndexOf('@');
                 int lastAtSignOffset = registryLocation.LastIndexOf('@');
 
-                ProjectErrorUtilities.VerifyThrowInvalidProject(firstAtSignOffset == lastAtSignOffset, elementLocation, "InvalidRegistryPropertyExpression", "$(" + registryExpression + ")", String.Empty);
+                ProjectErrorUtilities.VerifyThrowInvalidProject(firstAtSignOffset == lastAtSignOffset, elementLocation, "InvalidRegistryPropertyExpression", $"$({registryExpression.ToString()})", String.Empty);
 
-                string valueName = lastAtSignOffset == -1 || lastAtSignOffset == registryLocation.Length - 1
-                    ? null : registryLocation.Substring(lastAtSignOffset + 1);
+                ReadOnlySpan<char> valueName = lastAtSignOffset == -1 || lastAtSignOffset == registryLocation.Length - 1
+                    ? null : registryLocation.Slice(lastAtSignOffset + 1);
 
                 // If there's no '@', or '@' is first, then we'll use null or String.Empty for the location; otherwise
                 // the location is the part before the '@'
-                string registryKeyName = lastAtSignOffset != -1 ? registryLocation.Substring(0, lastAtSignOffset) : registryLocation;
+                var registryKeyName = lastAtSignOffset != -1 ? registryLocation.Slice(0, lastAtSignOffset) : registryLocation;
 
                 string result = String.Empty;
-                if (registryKeyName != null)
+                if (!registryKeyName.IsEmpty)
                 {
                     // We rely on the '@' character to delimit the key and its value, but the registry
                     // allows this character to be used in the names of keys and the names of values.
@@ -1687,31 +1687,14 @@ namespace Microsoft.Build.Evaluation
                     // and values.
                     registryKeyName = EscapingUtilities.UnescapeAll(registryKeyName);
 
-                    if (valueName != null)
+                    if (!valueName.IsEmpty)
                     {
                         valueName = EscapingUtilities.UnescapeAll(valueName);
                     }
 
                     try
                     {
-                        // Unless we are running under Windows, don't bother with anything but the user keys
-                        if (!NativeMethodsShared.IsWindows && !registryKeyName.StartsWith("HKEY_CURRENT_USER", StringComparison.OrdinalIgnoreCase))
-                        {
-                            // Fake common requests to HKLM that we can resolve
-
-                            // This is the base path of the framework
-                            if (registryKeyName.StartsWith(
-                                @"HKEY_LOCAL_MACHINE\Software\Microsoft\.NETFramework",
-                                StringComparison.OrdinalIgnoreCase) &&
-                                valueName.Equals("InstallRoot", StringComparison.OrdinalIgnoreCase))
-                            {
-                                return NativeMethodsShared.FrameworkBasePath + Path.DirectorySeparatorChar;
-                            }
-
-                            return string.Empty;
-                        }
-
-                        object valueFromRegistry = Registry.GetValue(registryKeyName, valueName, null /* default if key or value name is not found */);
+                        object valueFromRegistry = Registry.GetValue(registryKeyName.ToString(), valueName.ToString(), null /* default if key or value name is not found */);
 
                         if (valueFromRegistry != null)
                         {
@@ -1728,7 +1711,7 @@ namespace Microsoft.Build.Evaluation
                     }
                     catch (Exception ex) when (!ExceptionHandling.NotExpectedRegistryException(ex))
                     {
-                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidRegistryPropertyExpression", "$(" + registryExpression + ")", ex.Message);
+                        ProjectErrorUtilities.ThrowInvalidProject(elementLocation, "InvalidRegistryPropertyExpression", $"$({registryExpression.ToString()})", ex.Message);
                     }
                 }
 
