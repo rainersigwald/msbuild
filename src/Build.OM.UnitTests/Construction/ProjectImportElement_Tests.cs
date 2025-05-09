@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Shared;
+using Shouldly;
 using Xunit;
 using InvalidProjectFileException = Microsoft.Build.Exceptions.InvalidProjectFileException;
 
@@ -275,6 +277,25 @@ namespace Microsoft.Build.UnitTests.OM.Construction
                     File.Delete(targetsFile);
                 }
             }
+        }
+
+        [Theory]
+        [InlineData("import.proj", null, false)]
+        [InlineData("import.proj", "Exists('import.proj')", true)]
+        [InlineData("import.proj", "Exists( 'import.proj' )", true)]
+        [InlineData("import.proj", "Exists('import.proj' ) ", true)]
+        [InlineData("import.proj", "exISts('import.proj') ", true)]
+        [InlineData("$(SomeProperty)import.proj", "Exists('$(SomeProperty)import.proj')", true)]
+        [InlineData("import.proj", "Exists('import.proj') and false", false)]
+        [InlineData("import.proj", "Exists('import.proj') or true", false)]
+        [InlineData("import.proj", "Exists('different.proj')", false)]
+        [InlineData("import.proj", "'$(Prop1)' != null", false)]
+        public void OnlyIfExists_ReturnsExpected(string project, string condition, bool expected)        {
+            string xml = $@"<Project><Import Project='{project}'{(condition != null ? $" Condition=\"{condition}\"" : "")}/></Project>";
+            using ProjectRootElementFromString projectRootElementFromString = new(xml);
+            ProjectRootElement root = projectRootElementFromString.Project;
+            ProjectImportElement import = root.Imports.ShouldHaveSingleItem();
+            import.OnlyIfExists.ShouldBe(expected);
         }
     }
 }
