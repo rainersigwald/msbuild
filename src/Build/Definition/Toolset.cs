@@ -383,14 +383,23 @@ namespace Microsoft.Build.Evaluation
         /// </summary>
         internal ProjectImportPathMatch GetProjectImportSearchPaths(string expression)
         {
-            if (string.IsNullOrEmpty(expression) || ImportPropertySearchPathsTable == null)
+            if (string.IsNullOrEmpty(expression) || _propertySearchPathsTable == null)
             {
                 return ProjectImportPathMatch.None;
             }
 
+            int firstPropertyStart = expression.IndexOf("$(", StringComparison.Ordinal);
+
+            if (firstPropertyStart < 0)
+            {
+                return ProjectImportPathMatch.None;
+            }
+
+            var restOfExpression = expression.AsSpan().Slice(firstPropertyStart);
+
             foreach (var searchPath in _propertySearchPathsTable.Values)
             {
-                if (expression.IndexOf(searchPath.MsBuildPropertyFormat, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (restOfExpression.IndexOf(searchPath.MsBuildPropertyFormat.AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     return searchPath;
                 }
