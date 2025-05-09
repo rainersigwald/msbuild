@@ -247,13 +247,13 @@ namespace Microsoft.Build.Evaluation
             _expander = new Expander<P, I>(data, data, _evaluationContext, _evaluationLoggingContext);
 
             _data = data;
-            _itemGroupElements = new List<ProjectItemGroupElement>();
-            _itemDefinitionGroupElements = new List<ProjectItemDefinitionGroupElement>();
-            _usingTaskElements = new List<KeyValuePair<string, ProjectUsingTaskElement>>();
-            _targetElements = new List<ProjectTargetElement>();
+            _itemGroupElements = [];
+            _itemDefinitionGroupElements = [];
+            _usingTaskElements = [];
+            _targetElements = [];
             _importsSeen = new Dictionary<string, ProjectImportElement>(StringComparer.OrdinalIgnoreCase);
-            _initialTargetsList = new List<string>();
-            _projectSupportsReturnsAttribute = new Dictionary<ProjectRootElement, bool>();
+            _initialTargetsList = [];
+            _projectSupportsReturnsAttribute = [];
             _projectRootElement = projectRootElement;
             _loadSettings = loadSettings;
             _maxNodeCount = maxNodeCount;
@@ -264,20 +264,20 @@ namespace Microsoft.Build.Evaluation
             _sdkResolverService = sdkResolverService;
             _submissionId = submissionId;
             _evaluationProfiler = new EvaluationProfiler(profileEvaluation);
-            _isRunningInVisualStudio = String.Equals("true", _data.GlobalPropertiesDictionary.GetProperty("BuildingInsideVisualStudio")?.EvaluatedValue, StringComparison.OrdinalIgnoreCase);
+            _isRunningInVisualStudio = string.Equals("true", _data.GlobalPropertiesDictionary.GetProperty("BuildingInsideVisualStudio")?.EvaluatedValue, StringComparison.OrdinalIgnoreCase);
 
             // In 15.9 we added support for the global property "NuGetInteractive" to allow SDK resolvers to be interactive.
             // In 16.0 we added the /interactive command-line argument so the line below keeps back-compat
-            _interactive = interactive || String.Equals("true", _data.GlobalPropertiesDictionary.GetProperty("NuGetInteractive")?.EvaluatedValue, StringComparison.OrdinalIgnoreCase);
+            _interactive = interactive || string.Equals("true", _data.GlobalPropertiesDictionary.GetProperty("NuGetInteractive")?.EvaluatedValue, StringComparison.OrdinalIgnoreCase);
 
             // The last modified project is the project itself unless its an in-memory project
             if (projectRootElement.FullPath != null)
             {
                 _lastModifiedProject = projectRootElement;
             }
-            _streamImports = new List<string>();
+
             // When the imports are concatenated with a semicolon, this automatically prepends a semicolon if and only if another element is later added.
-            _streamImports.Add(string.Empty);
+            _streamImports = [string.Empty];
         }
 
         /// <summary>
