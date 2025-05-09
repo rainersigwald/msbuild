@@ -238,29 +238,7 @@ namespace Microsoft.Build.Evaluation
             // If the condition wasn't empty, there must be a location for it
             ErrorUtilities.VerifyThrowArgumentNull(elementLocation);
 
-            // Get the expression tree cache for the current parsing options.
-            var cachedExpressionTreesForCurrentOptions = s_cachedExpressionTrees.GetOrAdd(
-                (int)options,
-                _ => new ExpressionTreeForCurrentOptionsWithSize(new ConcurrentDictionary<string, ConcurrentStack<GenericExpressionNode>>(StringComparer.Ordinal)));
-
-            cachedExpressionTreesForCurrentOptions = FlushCacheIfLargerThanThreshold(options, cachedExpressionTreesForCurrentOptions);
-
-            // Get the pool of expressions for this condition.
-            var expressionPool = cachedExpressionTreesForCurrentOptions.GetOrAdd(condition, _ => new ConcurrentStack<GenericExpressionNode>());
-
-            // Try and see if there's an available expression tree in the pool.
-            // If not, parse a new expression tree and add it back to the pool.
-            if (!expressionPool.TryPop(out var parsedExpression))
-            {
-                var conditionParser = new Parser();
-
-                #region REMOVE_COMPAT_WARNING
-                conditionParser.LoggingServices = loggingContext?.LoggingService;
-                conditionParser.LogBuildEventContext = loggingContext?.BuildEventContext ?? BuildEventContext.Invalid;
-                #endregion
-
-                parsedExpression = conditionParser.Parse(condition, options, elementLocation);
-            }
+            var parsedExpression = GetOrCreateExpressionTree(condition, options, elementLocation, loggingContext, out var expressionPool);
 
             bool result;
 
@@ -296,6 +274,35 @@ namespace Microsoft.Build.Evaluation
             }
 
             return result;
+        }
+
+        internal static GenericExpressionNode GetOrCreateExpressionTree(string condition, ParserOptions options, ElementLocation elementLocation, LoggingContext? loggingContext, out ConcurrentStack<GenericExpressionNode> expressionPool)
+        {
+            // Get the expression tree cache for the current parsing options.
+            var cachedExpressionTreesForCurrentOptions = s_cachedExpressionTrees.GetOrAdd(
+                (int)options,
+                _ => new ExpressionTreeForCurrentOptionsWithSize(new ConcurrentDictionary<string, ConcurrentStack<GenericExpressionNode>>(StringComparer.Ordinal)));
+
+            cachedExpressionTreesForCurrentOptions = FlushCacheIfLargerThanThreshold(options, cachedExpressionTreesForCurrentOptions);
+
+            // Get the pool of expressions for this condition.
+            expressionPool = cachedExpressionTreesForCurrentOptions.GetOrAdd(condition, _ => new ConcurrentStack<GenericExpressionNode>());
+
+            // Try and see if there's an available expression tree in the pool.
+            // If not, parse a new expression tree and add it back to the pool.
+            if (!expressionPool.TryPop(out var parsedExpression))
+            {
+                var conditionParser = new Parser();
+
+                #region REMOVE_COMPAT_WARNING
+                conditionParser.LoggingServices = loggingContext?.LoggingService;
+                conditionParser.LogBuildEventContext = loggingContext?.BuildEventContext ?? BuildEventContext.Invalid;
+                #endregion
+
+                parsedExpression = conditionParser.Parse(condition, options, elementLocation);
+            }
+
+            return parsedExpression;
         }
 
         private static ExpressionTreeForCurrentOptionsWithSize FlushCacheIfLargerThanThreshold(
