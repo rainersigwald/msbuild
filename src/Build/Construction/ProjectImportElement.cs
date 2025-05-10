@@ -1,7 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Diagnostics;
+using Microsoft.Build.Evaluation;
 using Microsoft.Build.Framework;
 using Microsoft.Build.ObjectModelRemoting;
 using Microsoft.Build.Shared;
@@ -130,6 +132,26 @@ namespace Microsoft.Build.Construction
         /// </summary>
         public ProjectElement OriginalElement { get => Link != null ? ImportLink.OriginalElement : _originalElement; internal set => _originalElement = value; }
 
+        /// <summary>
+        /// Returns true if the Condition is an Exists call over the exact Project attribute string.
+        /// </summary>
+        public bool OnlyIfExists
+        {
+            get
+            {
+                string condition = GetAttributeValue(XMakeAttributes.condition, nullIfNotExists: true);
+
+                if (condition is null)
+                {
+                    return false;
+                }
+                
+                GenericExpressionNode conditionExpression = ConditionEvaluator.GetOrCreateExpressionTree(condition, ParserOptions.AllowProperties, Location, loggingContext: null, out var stack);
+
+                return conditionExpression is ExistsCallExpressionNode existsNode &&
+                       string.Equals(existsNode.UnexpandedArgument, GetAttributeValue(XMakeAttributes.project), StringComparison.Ordinal);
+            }
+        }
 
         /// <summary>
         /// <see cref="Framework.SdkReference"/> if applicable to this import element.
