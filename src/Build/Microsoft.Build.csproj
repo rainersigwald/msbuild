@@ -462,10 +462,12 @@
     <Compile Include="Evaluation\Conditionals\AndExpressionNode.cs" />
     <Compile Include="Evaluation\Conditionals\CharacterUtilities.cs" />
     <Compile Include="Evaluation\Conditionals\EqualExpressionNode.cs" />
+    <Compile Include="Evaluation\Conditionals\ExistsCallExpressionNode.cs" />
     <Compile Include="Evaluation\Conditionals\FunctionCallExpressionNode.cs" />
     <Compile Include="Evaluation\Conditionals\GenericExpressionNode.cs" />
     <Compile Include="Evaluation\Conditionals\GreaterThanExpressionNode.cs" />
     <Compile Include="Evaluation\Conditionals\GreaterThanOrEqualExpressionNode.cs" />
+    <Compile Include="Evaluation\Conditionals\HasTrailingSlashExpressionNode.cs" />
     <Compile Include="Evaluation\Conditionals\LessThanExpressionNode.cs" />
     <Compile Include="Evaluation\Conditionals\LessThanOrEqualExpressionNode.cs" />
     <Compile Include="Evaluation\Conditionals\MultipleComparisonExpressionNode.cs" />

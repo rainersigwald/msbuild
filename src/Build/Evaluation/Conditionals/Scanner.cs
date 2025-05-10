@@ -35,6 +35,11 @@ namespace Microsoft.Build.Evaluation
         private string _errorResource = null;
         private static string s_endOfInput = null;
 
+        internal string Expression
+        {
+            get { return _expression; }
+        }
+
         /// <summary>
         /// Lazily format resource string to help avoid (in some perf critical cases) even loading
         /// resources at all.

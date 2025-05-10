@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Build.Construction;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 
 using TaskItem = Microsoft.Build.Execution.ProjectItemInstance.TaskItem;
@@ -15,90 +17,36 @@ namespace Microsoft.Build.Evaluation
     /// <summary>
     /// Evaluates a function expression, such as "Exists('foo')"
     /// </summary>
-    internal sealed class FunctionCallExpressionNode : OperatorExpressionNode
+    internal abstract class FunctionCallExpressionNode : OperatorExpressionNode
     {
-        private readonly List<GenericExpressionNode> _arguments;
-        private readonly string _functionName;
-
-        internal FunctionCallExpressionNode(string functionName, List<GenericExpressionNode> arguments)
-        {
-            _functionName = functionName;
-            _arguments = arguments;
-        }
-
         /// <summary>
-        /// Evaluate node as boolean
+        /// Strongly-typed factory for function call nodes.
         /// </summary>
-        internal override bool BoolEvaluate(ConditionEvaluator.IConditionEvaluationState state)
+        internal static FunctionCallExpressionNode Create(string functionName, List<GenericExpressionNode> arguments, ElementLocation elementLocation, string fullCondition)
         {
-            if (String.Equals(_functionName, "exists", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(functionName, "Exists", StringComparison.OrdinalIgnoreCase))
             {
-                // Check we only have one argument
-                VerifyArgumentCount(1, state);
-
-                try
-                {
-                    // Expand the items and use DefaultIfEmpty in case there is nothing returned
-                    // Then check if everything is not null (because the list was empty), not
-                    // already loaded into the cache, and exists
-                    List<string> list = ExpandArgumentAsFileList(_arguments[0], state);
-                    if (list == null)
-                    {
-                        return false;
-                    }
-
-                    foreach (var item in list)
-                    {
-                        if (item == null || !(state.LoadedProjectsCache?.TryGet(item) != null || FileUtilities.FileOrDirectoryExistsNoThrow(item, state.FileSystem)))
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-                catch (Exception e) when (ExceptionHandling.IsIoRelatedException(e))
-                {
-                    // Ignore invalid characters or path related exceptions
-
-                    // We will ignore the PathTooLong exception caused by GetFullPath because in single proc this code
-                    // is not executed and the condition is just evaluated to false as File.Exists and Directory.Exists does not throw in this situation.
-                    // To be consistant with that we will return a false in this case also.
-                    // DevDiv Bugs: 46035
-
-                    return false;
-                }
+                VerifyArgumentCount(arguments, 1, elementLocation, fullCondition);
+                return new ExistsCallExpressionNode(arguments[0] as StringExpressionNode);
             }
-            else if (String.Equals(_functionName, "HasTrailingSlash", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(functionName, "HasTrailingSlash", StringComparison.OrdinalIgnoreCase))
             {
-                // Check we only have one argument
-                VerifyArgumentCount(1, state);
-
-                // Expand properties and items, and verify the result is an appropriate scalar
-                string expandedValue = ExpandArgumentForScalarParameter("HasTrailingSlash", _arguments[0], state);
-
-                // Is the last character a backslash?
-                if (expandedValue.Length != 0)
+                if (arguments.Count != 1)
                 {
-                    char lastCharacter = expandedValue[expandedValue.Length - 1];
-                    // Either back or forward slashes satisfy the function: this is useful for URL's
-                    return lastCharacter == Path.DirectorySeparatorChar || lastCharacter == Path.AltDirectorySeparatorChar || lastCharacter == '\\';
+                    throw new ArgumentException("HasTrailingSlash() expects exactly one argument.");
                 }
-                else
-                {
-                    return false;
-                }
+                return new HasTrailingSlashExpressionNode(arguments[0] as StringExpressionNode);
             }
             // We haven't implemented any other "functions"
             else
             {
                 ProjectErrorUtilities.ThrowInvalidProject(
-                    state.ElementLocation,
+                    elementLocation,
                     "UndefinedFunctionCall",
-                    state.Condition,
-                    _functionName);
+                    fullCondition,
+                    functionName);
 
-                return false;
+                throw new InternalErrorException();
             }
         }
 
@@ -111,7 +59,7 @@ namespace Microsoft.Build.Evaluation
         /// <param name="state"></param>
         /// <param name="isFilePath">True if this is afile name and the path should be normalized</param>
         /// <returns>Scalar result</returns>
-        private static string ExpandArgumentForScalarParameter(string function, GenericExpressionNode argumentNode, ConditionEvaluator.IConditionEvaluationState state,
+        protected static string ExpandArgumentForScalarParameter(string function, GenericExpressionNode argumentNode, ConditionEvaluator.IConditionEvaluationState state,
             bool isFilePath = true)
         {
             string argument = argumentNode.GetUnexpandedValue(state);
@@ -146,7 +94,7 @@ namespace Microsoft.Build.Evaluation
             return expandedValue;
         }
 
-        private List<string> ExpandArgumentAsFileList(GenericExpressionNode argumentNode, ConditionEvaluator.IConditionEvaluationState state, bool isFilePath = true)
+        protected List<string> ExpandArgumentAsFileList(StringExpressionNode argumentNode, ConditionEvaluator.IConditionEvaluationState state, bool isFilePath = true)
         {
             string argument = argumentNode.GetUnexpandedValue(state);
 
@@ -184,14 +132,14 @@ namespace Microsoft.Build.Evaluation
         /// <summary>
         /// Check that the number of function arguments is correct.
         /// </summary>
-        private void VerifyArgumentCount(int expected, ConditionEvaluator.IConditionEvaluationState state)
+        protected static void VerifyArgumentCount(List<GenericExpressionNode> arguments, int expected, ElementLocation elementLocation, string condition)
         {
             ProjectErrorUtilities.VerifyThrowInvalidProject(
-                _arguments.Count == expected,
-                 state.ElementLocation,
+                arguments.Count == expected,
+                 elementLocation,
                  "IncorrectNumberOfFunctionArguments",
-                 state.Condition,
-                 _arguments.Count,
+                 condition,
+                 arguments.Count,
                  expected);
         }
     }

@@ -297,7 +297,7 @@ namespace Microsoft.Build.Evaluation
                     ProjectErrorUtilities.ThrowInvalidProject(_elementLocation, "UnexpectedTokenInCondition", expression, _lexer.IsNextString(), errorPosition);
                     return null;
                 }
-                return new FunctionCallExpressionNode(current.String, arglist);
+                return FunctionCallExpressionNode.Create(current.String, arglist, _elementLocation, _lexer.Expression);
             }
             else if (Same(expression, Token.TokenType.LeftParenthesis))
             {
