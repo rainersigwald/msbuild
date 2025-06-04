@@ -178,7 +178,7 @@ namespace Microsoft.Build.Internal
         /// <summary>
         /// Locker to protect initialization
         /// </summary>
-        private static Object s_locker = new Object();
+        private static readonly Object s_locker = new Object();
 
         static AvailableStaticMethods()
         {
@@ -319,11 +319,13 @@ namespace Microsoft.Build.Internal
                         availableStaticMethods.TryAdd("System.Environment::Version", environmentType);
                         availableStaticMethods.TryAdd("System.Environment::WorkingSet", environmentType);
 
+                        availableStaticMethods.TryAdd("System.IO.Directory::Exists", directoryType);
                         availableStaticMethods.TryAdd("System.IO.Directory::GetDirectories", directoryType);
                         availableStaticMethods.TryAdd("System.IO.Directory::GetFiles", directoryType);
                         availableStaticMethods.TryAdd("System.IO.Directory::GetLastAccessTime", directoryType);
                         availableStaticMethods.TryAdd("System.IO.Directory::GetLastWriteTime", directoryType);
-                        availableStaticMethods.TryAdd("System.IO.Directory::GetParent", directoryType);
+                        availableStaticMethods.TryAdd("System.IO.Directory::GetParent", directoryType);                      
+
                         availableStaticMethods.TryAdd("System.IO.File::Exists", fileType);
                         availableStaticMethods.TryAdd("System.IO.File::GetCreationTime", fileType);
                         availableStaticMethods.TryAdd("System.IO.File::GetAttributes", fileType);
@@ -365,7 +367,7 @@ namespace Microsoft.Build.Internal
                         availableStaticMethods.TryAdd("Microsoft.Build.Utilities.ToolLocationHelper", new Tuple<string, Type>("Microsoft.Build.Utilities.ToolLocationHelper, Microsoft.Build.Utilities.Core, Version=" + MSBuildConstants.CurrentAssemblyVersion + ", Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", null));
                         availableStaticMethods.TryAdd("System.Runtime.InteropServices.RuntimeInformation", runtimeInformationType);
                         availableStaticMethods.TryAdd("System.Runtime.InteropServices.OSPlatform", osPlatformType);
-#if NET5_0_OR_GREATER
+#if NET
                         var operatingSystemType = new Tuple<string, Type>(null, typeof(OperatingSystem));
                         availableStaticMethods.TryAdd("System.OperatingSystem", operatingSystemType);
 #else
