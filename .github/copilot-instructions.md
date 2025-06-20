@@ -2,7 +2,7 @@ This repo contains the code for the MSBuild build engine, including its public C
 
 Performance is very important--minimize allocations, avoid LINQ, and use the most efficient algorithms possible. The code should be easy to read and understand, but performance is the top priority.
 
-The code is written in C# and should follow the .NET coding conventions. Use the latest C# features where appropriate, including C# 13 features and especially collection expressions--prefer `[]` to `new Type[]`.
+The code is written in C# and should follow the .NET coding conventions. Use the latest C# features where appropriate, including C# 13 features and especially collection expressions--prefer `[]` to `new Type[]`. Never disable nullable warnings in new files, and remove `#nullable disable` from existing files if they will be substantially modified.
 
 You should generally match the style of surrounding code when making edits, but if making a substantial change, you can modernize more aggressively.
 
