@@ -969,17 +969,52 @@ namespace Microsoft.Build.Internal
 
         public int SessionId => sessionId;
 
-        public IEnumerable<KeyValuePair<string, int>> EnumerateComponents()
+        public ComponentEnumerator EnumerateComponents()
         {
-            yield return new KeyValuePair<string, int>(nameof(Options), Options);
-            yield return new KeyValuePair<string, int>(nameof(Salt), Salt);
-            yield return new KeyValuePair<string, int>(nameof(FileVersionMajor), FileVersionMajor);
-            yield return new KeyValuePair<string, int>(nameof(FileVersionMinor), FileVersionMinor);
-            yield return new KeyValuePair<string, int>(nameof(FileVersionBuild), FileVersionBuild);
-            yield return new KeyValuePair<string, int>(nameof(FileVersionPrivate), FileVersionPrivate);
-            yield return new KeyValuePair<string, int>(nameof(SessionId), SessionId);
+            return new ComponentEnumerator(this);
         }
 
         public override string ToString() => $"{options} {salt} {fileVersionMajor} {fileVersionMinor} {fileVersionBuild} {fileVersionPrivate} {sessionId}";
+
+        /// <summary>
+        /// Allocation-free struct enumerator for handshake components.
+        /// </summary>
+        public struct ComponentEnumerator
+        {
+            private readonly HandshakeComponents _components;
+            private int _index;
+
+            internal ComponentEnumerator(HandshakeComponents components)
+            {
+                _components = components;
+                _index = -1;
+            }
+
+            public readonly (string Key, int Value) Current
+            {
+                get
+                {
+                    return _index switch
+                    {
+                        0 => (nameof(Options), _components.Options),
+                        1 => (nameof(Salt), _components.Salt),
+                        2 => (nameof(FileVersionMajor), _components.FileVersionMajor),
+                        3 => (nameof(FileVersionMinor), _components.FileVersionMinor),
+                        4 => (nameof(FileVersionBuild), _components.FileVersionBuild),
+                        5 => (nameof(FileVersionPrivate), _components.FileVersionPrivate),
+                        6 => (nameof(SessionId), _components.SessionId),
+                        _ => throw new InvalidOperationException("Enumerator is not positioned at a valid element.")
+                    };
+                }
+            }
+
+            public bool MoveNext()
+            {
+                _index++;
+                return _index < 7;
+            }
+
+            public ComponentEnumerator GetEnumerator() => this;
+        }
     }
 }
