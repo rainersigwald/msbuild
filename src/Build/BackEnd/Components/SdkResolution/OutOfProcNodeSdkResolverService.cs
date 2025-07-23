@@ -3,16 +3,14 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
-using System.Xml.Linq;
 using Microsoft.Build.BackEnd.Logging;
 using Microsoft.Build.Collections;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Eventing;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
-
-#nullable disable
 
 namespace Microsoft.Build.BackEnd.SdkResolution
 {
@@ -40,7 +38,7 @@ namespace Microsoft.Build.BackEnd.SdkResolution
         /// <summary>
         /// An object used to store the last response from a remote node.  Since evaluation is single threaded, this object is only set one at a time.
         /// </summary>
-        private volatile SdkResult _lastResponse;
+        private volatile SdkResult? _lastResponse;
 
         /// <summary>
         /// Initializes a new instance of the OutOfProcNodeSdkResolverService class.
@@ -59,7 +57,7 @@ namespace Microsoft.Build.BackEnd.SdkResolution
             switch (packet.Type)
             {
                 case NodePacketType.ResolveSdkResponse:
-                    HandleResponse(packet as SdkResult);
+                    HandleResponse((SdkResult)packet);
                     break;
             }
         }
@@ -94,7 +92,7 @@ namespace Microsoft.Build.BackEnd.SdkResolution
                 loggingContext.LogWarning(null, new BuildEventFileInfo(sdkReferenceLocation), "ReferencingMultipleVersionsOfTheSameSdk", sdk.Name, sdkResult.Version, sdkResult.ElementLocation, sdk.Version);
             }
 
-            MSBuildEventSource.Log.OutOfProcSdkResolverServiceRequestSdkPathFromMainNodeStop(submissionId, sdk.Name, solutionPath, projectPath, _lastResponse.Success, wasResultCached);
+            MSBuildEventSource.Log.OutOfProcSdkResolverServiceRequestSdkPathFromMainNodeStop(submissionId, sdk.Name, solutionPath, projectPath, _lastResponse?.Success ?? false, wasResultCached);
 
             return sdkResult;
         }
@@ -132,10 +130,17 @@ namespace Microsoft.Build.BackEnd.SdkResolution
             SendPacket(packet);
 
             // Wait for either the response or a shutdown event.  Either event means this thread should return
-            WaitHandle.WaitAny([_responseReceivedEvent, ShutdownEvent]);
+            int signalIndex = WaitHandle.WaitAny([_responseReceivedEvent, ShutdownEvent]);
+
+            if (signalIndex == 2)
+            {
+                throw new SdkResolverServiceException("Node shut down while waiting for an SDK resolution response.");
+            }
+
+            Debug.Assert(_lastResponse is not null);
 
             // Keep track of the element location of the reference
-            _lastResponse.ElementLocation = sdkReferenceLocation;
+            _lastResponse!.ElementLocation = sdkReferenceLocation;
 
             // Return the response which was set by another thread.  In the case of shutdown, it should be null.
             return _lastResponse;
