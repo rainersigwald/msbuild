@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Build.Framework.BuildException;
-using Microsoft.Build.Shared;
 
 #nullable disable
 
@@ -14,8 +13,8 @@ namespace Microsoft.Build.BackEnd.SdkResolution
     /// </summary>
     public class SdkResolverServiceException : BuildExceptionBase
     {
-        public SdkResolverServiceException(string resourceName, params string[] args)
-            : base(string.Format(ResourceUtilities.GetResourceString(resourceName), args))
+        public SdkResolverServiceException(string message, params string[] args)
+            : base(string.Format(message, args))
         {
         }
 

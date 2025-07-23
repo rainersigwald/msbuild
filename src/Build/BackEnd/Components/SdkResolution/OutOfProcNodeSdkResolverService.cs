@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Xml.Linq;
 using Microsoft.Build.BackEnd.Logging;
 using Microsoft.Build.Collections;
 using Microsoft.Build.Construction;
@@ -68,7 +69,7 @@ namespace Microsoft.Build.BackEnd.SdkResolution
         {
             if (IsNodeShutDown)
             {
-                throw new SdkResolverServiceException("SDKResolverFailedDueToNodeShutDown");
+                throw new SdkResolverServiceException("SDK could not be resolved by the SDK resolver because the worker node was shut down.");
             }
 
             bool wasResultCached = true;
