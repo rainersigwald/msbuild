@@ -1498,15 +1498,15 @@ namespace Microsoft.Build.UnitTests
         {
             // Test ProcessBooleanSwitch behavior for nologo
             // Default value should be true when no parameters are provided
-            MSBuildApp.ProcessBooleanSwitch(Array.Empty<string>(), defaultValue: true, resourceName: "InvalidNoLogoValue").ShouldBeTrue();
-            MSBuildApp.ProcessBooleanSwitch(Array.Empty<string>(), defaultValue: false, resourceName: "InvalidNoLogoValue").ShouldBeFalse();
+            MSBuildApp.ProcessBooleanSwitch([], defaultValue: true, resourceName: "InvalidNoLogoValue").ShouldBeTrue();
+            MSBuildApp.ProcessBooleanSwitch([], defaultValue: false, resourceName: "InvalidNoLogoValue").ShouldBeFalse();
 
             // Test with explicit true/false values
-            MSBuildApp.ProcessBooleanSwitch(new[] { "true" }, defaultValue: false, resourceName: "InvalidNoLogoValue").ShouldBeTrue();
-            MSBuildApp.ProcessBooleanSwitch(new[] { "false" }, defaultValue: true, resourceName: "InvalidNoLogoValue").ShouldBeFalse();
+            MSBuildApp.ProcessBooleanSwitch(["true"], defaultValue: false, resourceName: "InvalidNoLogoValue").ShouldBeTrue();
+            MSBuildApp.ProcessBooleanSwitch(["false"], defaultValue: true, resourceName: "InvalidNoLogoValue").ShouldBeFalse();
 
             // Test invalid value throws exception
-            Should.Throw<CommandLineSwitchException>(() => MSBuildApp.ProcessBooleanSwitch(new[] { "invalid" }, defaultValue: true, resourceName: "InvalidNoLogoValue"));
+            Should.Throw<CommandLineSwitchException>(() => MSBuildApp.ProcessBooleanSwitch(["invalid"], defaultValue: true, resourceName: "InvalidNoLogoValue"));
         }
 
         public static IEnumerable<object[]> ProcessGraphBuildSwitchData()
