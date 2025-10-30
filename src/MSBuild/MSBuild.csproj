@@ -169,6 +169,15 @@
     <None Include="@(XsdsForVS)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+
+    <!-- Template .exe.configs to be modified by VS Shared Assembly Cache -->
+    <None Condition="!('$(Platform)' == 'x64' or '$(Platform)' == 'arm64')"
+          Include="MSBuild.exe.config.template"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Condition="'$(Platform)' == 'x64' or '$(Platform)' == 'arm64'"
+          Include="MSBuild.exe.amd64.config.template"
+          CopyToOutputDirectory="PreserveNewest"
+          TargetPath="MSBuild.exe.config.template" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.BuildXL.Processes" Condition="'$(FeatureReportFileAccesses)' == 'true'" PrivateAssets="all" />
