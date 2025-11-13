@@ -83,23 +83,19 @@ extends:
         additionalTargetsGlobPattern: -|**\bootstrapper\**\vs_enterprise.exe
       credscan:
         suppressionsFile: $(Build.SourcesDirectory)/eng/CredScanSuppressions.json
+    templateContext:
+      outputParentDirectory: $(Build.SourcesDirectory)/artifacts
 
     stages:
     - stage: build
       displayName: Build
       jobs:
-      - job: build_job
-        displayName: Build MSBuild
-        templateContext:
-          # Parent folder that contains all build outputs
-          outputParentDirectory: $(Build.SourcesDirectory)/artifacts
-        steps:
-        - template: /azure-pipelines/.vsts-dotnet-build-jobs.yml@self
-          parameters:
-            isExperimental: true
-            enableComponentGovernance: false
-            signTypeParameter: ${{ parameters.signTypeParameter }}
-            enableOptProf: ${{ parameters.enableOptProf }}
+      - template: /azure-pipelines/.vsts-dotnet-build-jobs.yml@self
+        parameters:
+          isExperimental: true
+          enableComponentGovernance: false
+          signTypeParameter: ${{ parameters.signTypeParameter }}
+          enableOptProf: ${{ parameters.enableOptProf }}
 
     - template: /eng/common/templates-official/post-build/post-build.yml@self
       parameters:
