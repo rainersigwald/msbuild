@@ -83,8 +83,6 @@ extends:
         additionalTargetsGlobPattern: -|**\bootstrapper\**\vs_enterprise.exe
       credscan:
         suppressionsFile: $(Build.SourcesDirectory)/eng/CredScanSuppressions.json
-    templateContext:
-      outputParentDirectory: $(Build.SourcesDirectory)/artifacts
 
     stages:
     - stage: build
