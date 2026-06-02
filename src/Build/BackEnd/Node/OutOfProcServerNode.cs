@@ -401,6 +401,13 @@ namespace Microsoft.Build.Experimental
             // Configure console configuration so Loggers can change their behavior based on Target (client) Console properties.
             ConsoleConfiguration.Provider = command.ConsoleConfiguration;
 
+            // This server node's own Console output is redirected to a pipe that streams back to the client (see below).
+            // Make terminal-capability detection (e.g. Terminal Logger auto-selection) reflect the client's real console
+            // rather than the redirected pipe.
+            NativeMethodsShared.SetTargetConsoleConfiguration(
+                command.ConsoleConfiguration.AcceptAnsiColorCodes,
+                command.ConsoleConfiguration.OutputIsScreen);
+
             // Initiate build telemetry
             if (command.PartialBuildTelemetry != null)
             {
@@ -446,6 +453,9 @@ namespace Microsoft.Build.Experimental
                 Console.SetOut(oldOut);
                 Console.SetError(oldErr);
             }
+
+            // Clear the target console override so it does not leak into the next build this reusable server handles.
+            NativeMethodsShared.ClearTargetConsoleConfiguration();
 
             // On Windows, a process holds a handle to the current directory,
             // so reset it away from a user-requested folder that may get deleted.
