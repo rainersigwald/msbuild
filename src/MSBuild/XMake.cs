@@ -2386,7 +2386,12 @@ namespace Microsoft.Build.CommandLine
         private static bool ProcessTerminalLoggerConfiguration(CommandLineSwitches commandLineSwitches, out string aggregatedParameters)
         {
             aggregatedParameters = AggregateParameters(commandLineSwitches);
+            Console.Error.WriteLine("[TL-DIAG] === Terminal Logger Selection Start ===");
+            Console.Error.WriteLine($"[TL-DIAG] PID={EnvironmentUtilities.CurrentProcessId} ProcessPath=\"{EnvironmentUtilities.ProcessPath ?? ""}\"");
+            Console.Error.WriteLine($"[TL-DIAG] CommandLine=\"{Environment.CommandLine}\"");
+            Console.Error.WriteLine($"[TL-DIAG] Stacktrace:{Environment.NewLine}{new System.Diagnostics.StackTrace(fNeedFileInfo: false)}");
             string defaultValue = FindDefaultValue(aggregatedParameters);
+            Console.Error.WriteLine($"[TL-DIAG] Default from /tlp:default= : \"{defaultValue}\"");
 
             string terminalLoggerArg = null;
             if (!TryFromCommandLine(commandLineSwitches) && !TryFromEnvironmentVariables())
@@ -2395,6 +2400,7 @@ namespace Microsoft.Build.CommandLine
             }
 
             terminalLoggerArg = NormalizeIntoBooleanValues();
+            Console.Error.WriteLine($"[TL-DIAG] After normalization: \"{terminalLoggerArg}\"");
 
             bool useTerminalLogger = false;
             if (!TrueOrFalse())
@@ -2402,6 +2408,7 @@ namespace Microsoft.Build.CommandLine
                 ItMustBeAuto();
             }
 
+            Console.Error.WriteLine($"[TL-DIAG] === Final TL decision: {(useTerminalLogger ? "ENABLED" : "DISABLED")} ===");
             return KnownTelemetry.LoggingConfigurationTelemetry.TerminalLogger = useTerminalLogger;
 
             static bool CheckIfTerminalIsSupportedAndTryEnableAnsiColorCodes()
@@ -2409,15 +2416,18 @@ namespace Microsoft.Build.CommandLine
                 // TerminalLogger is not used in automated environments (CI, GitHub Actions, GitHub Copilot, etc.)
                 if (IsAutomatedEnvironment())
                 {
+                    Console.Error.WriteLine("[TL-DIAG] -> bail: IsAutomatedEnvironment returned true");
                     s_globalMessagesToLogInBuildLoggers.Add(
                         new BuildManager.DeferredBuildMessage(ResourceUtilities.GetResourceString("TerminalLoggerNotUsedAutomated"), MessageImportance.Low));
                     return false;
                 }
 
                 (var acceptAnsiColorCodes, var outputIsScreen, s_originalConsoleMode) = NativeMethodsShared.QueryIsScreenAndTryEnableAnsiColorCodes();
+                Console.Error.WriteLine($"[TL-DIAG] Query result: acceptAnsiColorCodes={acceptAnsiColorCodes} outputIsScreen={outputIsScreen}");
 
                 if (!outputIsScreen)
                 {
+                    Console.Error.WriteLine("[TL-DIAG] -> bail: outputIsScreen is false (redirected)");
                     s_globalMessagesToLogInBuildLoggers.Add(
                         new BuildManager.DeferredBuildMessage(ResourceUtilities.GetResourceString("TerminalLoggerNotUsedRedirected"), MessageImportance.Low));
                     return false;
@@ -2426,6 +2436,7 @@ namespace Microsoft.Build.CommandLine
                 // TerminalLogger is not used if the terminal does not support ANSI/VT100 escape sequences.
                 if (!acceptAnsiColorCodes)
                 {
+                    Console.Error.WriteLine("[TL-DIAG] -> bail: acceptAnsiColorCodes is false (terminal not supported)");
                     s_globalMessagesToLogInBuildLoggers.Add(
                         new BuildManager.DeferredBuildMessage(ResourceUtilities.GetResourceString("TerminalLoggerNotUsedNotSupported"), MessageImportance.Low));
                     return false;
@@ -2433,11 +2444,13 @@ namespace Microsoft.Build.CommandLine
 
                 if (Traits.Instance.EscapeHatches.EnsureStdOutForChildNodesIsPrimaryStdout)
                 {
+                    Console.Error.WriteLine("[TL-DIAG] -> bail: EnsureStdOutForChildNodesIsPrimaryStdout (MSBUILDENSURESTDOUTFORTASKPROCESSES=1)");
                     s_globalMessagesToLogInBuildLoggers.Add(
                         new BuildManager.DeferredBuildMessage(ResourceUtilities.GetResourceString("TerminalLoggerNotUsedDisabled"), MessageImportance.Low));
                     return false;
                 }
 
+                Console.Error.WriteLine("[TL-DIAG] -> auto-detection passed all checks, TL supported");
                 return true;
             }
 
@@ -2481,6 +2494,7 @@ namespace Microsoft.Build.CommandLine
             {
                 if (!commandLineSwitches.IsParameterizedSwitchSet(CommandLineSwitches.ParameterizedSwitch.TerminalLogger))
                 {
+                    Console.Error.WriteLine("[TL-DIAG] No -tl command-line switch set");
                     return false;
                 }
 
@@ -2495,6 +2509,7 @@ namespace Microsoft.Build.CommandLine
                     terminalLoggerArg = "auto";
                 }
 
+                Console.Error.WriteLine($"[TL-DIAG] Source: command-line arg, value=\"{terminalLoggerArg}\"");
                 KnownTelemetry.LoggingConfigurationTelemetry.TerminalLoggerUserIntent = terminalLoggerArg ?? string.Empty;
                 KnownTelemetry.LoggingConfigurationTelemetry.TerminalLoggerUserIntentSource = "arg";
 
@@ -2506,8 +2521,10 @@ namespace Microsoft.Build.CommandLine
                 // Keep MSBUILDLIVELOGGER supporitng existing use. But MSBUILDTERMINALLOGGER takes precedence.
                 string liveLoggerArg = Environment.GetEnvironmentVariable("MSBUILDLIVELOGGER");
                 terminalLoggerArg = Environment.GetEnvironmentVariable("MSBUILDTERMINALLOGGER");
+                Console.Error.WriteLine($"[TL-DIAG] MSBUILDTERMINALLOGGER=\"{terminalLoggerArg ?? ""}\" MSBUILDLIVELOGGER=\"{liveLoggerArg ?? ""}\"");
                 if (!string.IsNullOrEmpty(terminalLoggerArg))
                 {
+                    Console.Error.WriteLine($"[TL-DIAG] Source: MSBUILDTERMINALLOGGER env var, value=\"{terminalLoggerArg}\"");
                     s_globalMessagesToLogInBuildLoggers.Add(
                         new BuildManager.DeferredBuildMessage($"The environment variable MSBUILDTERMINALLOGGER was set to {terminalLoggerArg}.", MessageImportance.Low));
 
@@ -2517,6 +2534,7 @@ namespace Microsoft.Build.CommandLine
                 else if (!string.IsNullOrEmpty(liveLoggerArg))
                 {
                     terminalLoggerArg = liveLoggerArg;
+                    Console.Error.WriteLine($"[TL-DIAG] Source: MSBUILDLIVELOGGER env var, value=\"{terminalLoggerArg}\"");
                     s_globalMessagesToLogInBuildLoggers.Add(
                         new BuildManager.DeferredBuildMessage($"The environment variable MSBUILDLIVELOGGER was set to {liveLoggerArg}.", MessageImportance.Low));
 
@@ -2525,6 +2543,7 @@ namespace Microsoft.Build.CommandLine
                 }
                 else
                 {
+                    Console.Error.WriteLine("[TL-DIAG] No TL env var override found");
                     return false;
                 }
 
@@ -2549,6 +2568,7 @@ namespace Microsoft.Build.CommandLine
             void ApplyDefault()
             {
                 terminalLoggerArg = defaultValue;
+                Console.Error.WriteLine($"[TL-DIAG] Source: default, applying \"{terminalLoggerArg}\"");
             }
 
             string AggregateParameters(CommandLineSwitches switches)
@@ -2562,6 +2582,7 @@ namespace Microsoft.Build.CommandLine
                 if (bool.TryParse(terminalLoggerArg, out bool result))
                 {
                     useTerminalLogger = result;
+                    Console.Error.WriteLine($"[TL-DIAG] Parsed as boolean: {result} -> TL {(result ? "ENABLED (forced)" : "DISABLED")}");
 
                     // Try Enable Ansi Color Codes when terminal logger is enabled/enforced.
                     if (result)
@@ -2584,6 +2605,7 @@ namespace Microsoft.Build.CommandLine
                     CommandLineSwitchException.Throw("InvalidTerminalLoggerValue", terminalLoggerArg);
                 }
 
+                Console.Error.WriteLine("[TL-DIAG] Value is \"auto\", entering auto-detection...");
                 useTerminalLogger = CheckIfTerminalIsSupportedAndTryEnableAnsiColorCodes();
             }
         }
@@ -2595,10 +2617,16 @@ namespace Microsoft.Build.CommandLine
         /// <returns>True if running in an automated environment, false otherwise.</returns>
         private static bool IsAutomatedEnvironment()
         {
+            Console.Error.WriteLine("[TL-DIAG] -- IsAutomatedEnvironment checks --");
+
             // Check for common CI environment indicators that use boolean values
-            if (EnvironmentUtilities.IsValueOneOrTrue("CI") ||
-                EnvironmentUtilities.IsValueOneOrTrue("GITHUB_ACTIONS"))
+            bool ciIsTrue = EnvironmentUtilities.IsValueOneOrTrue("CI");
+            bool ghaIsTrue = EnvironmentUtilities.IsValueOneOrTrue("GITHUB_ACTIONS");
+            Console.Error.WriteLine($"[TL-DIAG]   CI=\"{Environment.GetEnvironmentVariable("CI") ?? ""}\" (isOneOrTrue={ciIsTrue})");
+            Console.Error.WriteLine($"[TL-DIAG]   GITHUB_ACTIONS=\"{Environment.GetEnvironmentVariable("GITHUB_ACTIONS") ?? ""}\" (isOneOrTrue={ghaIsTrue})");
+            if (ciIsTrue || ghaIsTrue)
             {
+                Console.Error.WriteLine("[TL-DIAG]   IsAutomatedEnvironment result: True (CI/GITHUB_ACTIONS)");
                 return true;
             }
 
@@ -2618,7 +2646,21 @@ namespace Microsoft.Build.CommandLine
                 "BAMBOO_BUILD_NUMBER" // Atlassian Bamboo
             };
 
-            return automatedEnvironmentVariables.Any(envVar => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(envVar)));
+            string matched = null;
+            foreach (string envVar in automatedEnvironmentVariables)
+            {
+                string value = Environment.GetEnvironmentVariable(envVar);
+                bool isSet = !string.IsNullOrEmpty(value);
+                Console.Error.WriteLine($"[TL-DIAG]   {envVar}=\"{value ?? ""}\" (set={isSet})");
+                if (isSet && matched is null)
+                {
+                    matched = envVar;
+                }
+            }
+
+            bool result = matched is not null;
+            Console.Error.WriteLine($"[TL-DIAG]   IsAutomatedEnvironment result: {result}{(result ? $" (triggered by {matched})" : "")}");
+            return result;
         }
 
         private static CommandLineSwitches CombineSwitchesRespectingPriority(CommandLineSwitches switchesFromAutoResponseFile, CommandLineSwitches switchesNotFromAutoResponseFile, string commandLine)

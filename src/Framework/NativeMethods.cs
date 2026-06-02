@@ -1245,16 +1245,35 @@ internal static class NativeMethods
 
     internal static (bool acceptAnsiColorCodes, bool outputIsScreen, uint? originalConsoleMode) QueryIsScreenAndTryEnableAnsiColorCodes(bool useStandardError = false)
     {
+        Console.Error.WriteLine($"[TL-DIAG] -- QueryIsScreenAndTryEnableAnsiColorCodes (useStandardError={useStandardError}) --");
+        Console.Error.WriteLine($"[TL-DIAG]   Console.IsOutputRedirected={Console.IsOutputRedirected} Console.IsErrorRedirected={Console.IsErrorRedirected}");
         if (Console.IsOutputRedirected)
         {
             // There's no ANSI terminal support if console output is redirected.
+            Console.Error.WriteLine("[TL-DIAG]   -> return (false, false): output is redirected");
             return (acceptAnsiColorCodes: false, outputIsScreen: false, originalConsoleMode: null);
         }
 
-        if (Console.BufferHeight == 0 || Console.BufferWidth == 0)
+        int bufferHeight;
+        int bufferWidth;
+        try
+        {
+            bufferHeight = Console.BufferHeight;
+            bufferWidth = Console.BufferWidth;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[TL-DIAG]   Console.BufferHeight/Width threw: {ex.GetType().Name}: {ex.Message}");
+            bufferHeight = 0;
+            bufferWidth = 0;
+        }
+
+        Console.Error.WriteLine($"[TL-DIAG]   Console.BufferHeight={bufferHeight} Console.BufferWidth={bufferWidth}");
+        if (bufferHeight == 0 || bufferWidth == 0)
         {
             // The current console doesn't have a valid buffer size, which means it is not a real console. let's default to not using TL
             // in those scenarios.
+            Console.Error.WriteLine("[TL-DIAG]   -> return (false, false): buffer height or width is 0");
             return (acceptAnsiColorCodes: false, outputIsScreen: false, originalConsoleMode: null);
         }
 
@@ -1296,10 +1315,14 @@ internal static class NativeMethods
 #endif
         {
             // On posix OSes detect whether the terminal supports VT100 from the value of the TERM environment variable.
-            acceptAnsiColorCodes = AnsiDetector.IsAnsiSupported(Environment.GetEnvironmentVariable("TERM"));
+            string termValue = Environment.GetEnvironmentVariable("TERM");
+            acceptAnsiColorCodes = AnsiDetector.IsAnsiSupported(termValue);
+            Console.Error.WriteLine($"[TL-DIAG]   POSIX path: TERM=\"{termValue ?? ""}\" AnsiDetector.IsAnsiSupported={acceptAnsiColorCodes}");
             // It wasn't redirected as tested above so we assume output is screen/console
             outputIsScreen = true;
         }
+
+        Console.Error.WriteLine($"[TL-DIAG]   -> return acceptAnsiColorCodes={acceptAnsiColorCodes} outputIsScreen={outputIsScreen} originalConsoleMode={(originalConsoleMode is null ? "null" : originalConsoleMode.ToString())}");
         return (acceptAnsiColorCodes, outputIsScreen, originalConsoleMode);
     }
 
