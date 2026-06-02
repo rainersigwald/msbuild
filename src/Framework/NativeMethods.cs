@@ -1243,8 +1243,42 @@ internal static class NativeMethods
 
 #endif
 
+    /// <summary>
+    /// When set, <see cref="QueryIsScreenAndTryEnableAnsiColorCodes"/> reports the capabilities of a
+    /// target console living in another process instead of querying the current process's Console.
+    /// This is used by the MSBuild Server node, whose own Console output is redirected to a pipe that
+    /// streams back to the client. Without this, terminal-feature detection (e.g. Terminal Logger
+    /// auto-selection) would see the pipe as "redirected / not a screen" rather than the real client terminal.
+    /// </summary>
+    private static (bool acceptAnsiColorCodes, bool outputIsScreen)? s_targetConsoleConfigurationOverride;
+
+    /// <summary>
+    /// Overrides the console capabilities reported by <see cref="QueryIsScreenAndTryEnableAnsiColorCodes"/>
+    /// with those of a target console in another process (the client's real terminal under MSBuild Server).
+    /// </summary>
+    internal static void SetTargetConsoleConfiguration(bool acceptAnsiColorCodes, bool outputIsScreen)
+    {
+        s_targetConsoleConfigurationOverride = (acceptAnsiColorCodes, outputIsScreen);
+    }
+
+    /// <summary>
+    /// Clears any override previously set via <see cref="SetTargetConsoleConfiguration"/>.
+    /// </summary>
+    internal static void ClearTargetConsoleConfiguration()
+    {
+        s_targetConsoleConfigurationOverride = null;
+    }
+
     internal static (bool acceptAnsiColorCodes, bool outputIsScreen, uint? originalConsoleMode) QueryIsScreenAndTryEnableAnsiColorCodes(bool useStandardError = false)
     {
+        // If our Console output is redirected to another process (e.g. the MSBuild Server node streams
+        // its output back to the client), the local Console reflects a pipe, not the real terminal.
+        // In that case honor the target/client console configuration captured on the client.
+        if (s_targetConsoleConfigurationOverride is { } targetConsole)
+        {
+            return (targetConsole.acceptAnsiColorCodes, targetConsole.outputIsScreen, originalConsoleMode: null);
+        }
+
         if (Console.IsOutputRedirected)
         {
             // There's no ANSI terminal support if console output is redirected.
