@@ -512,6 +512,13 @@ namespace Microsoft.Build.UnitTests.BackEnd
         }
 
         /// <summary>
+        /// Logs the registered loggers.
+        /// </summary>
+        public void LogRegisteredLoggers()
+        {
+        }
+
+        /// <summary>
         /// Logs a build finished event
         /// </summary>
         /// <param name="success">Set to true if the build was successful</param>

@@ -1047,18 +1047,31 @@ namespace Microsoft.Build.UnitTests.Logging
             buildEvent = new BuildFinishedEventArgs(string.Empty, null /* no help keyword */, true, service.ProcessedBuildEvent.Timestamp);
             Assert.True(((BuildFinishedEventArgs)service.ProcessedBuildEvent).IsEquivalent(buildEvent));
         }
+
         [Fact]
-        public void LogBuildStartedLogsLoggerNames()
+        public void LogBuildStartedDoesNotLogRegisteredLoggers()
+        {
+            ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
+            service.RegisterLogger(new ConsoleLogger());
+
+            service.LogBuildStarted();
+
+            service.AllProcessedBuildEvents.ShouldHaveSingleItem().ShouldBeOfType<BuildStartedEventArgs>();
+        }
+
+        [Fact]
+        public void LogRegisteredLoggersLogsLoggerNames()
         {
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
             ConsoleLogger consoleLogger = new ConsoleLogger();
             service.RegisterLogger(consoleLogger);
 
-            service.LogBuildStarted();
+            service.LogRegisteredLoggers();
             var enabledLogsEvent = service.AllProcessedBuildEvents
                 .OfType<BuildMessageEventArgs>()
-                .FirstOrDefault(e => e.Message?.Contains("ConsoleLogger") == true);
+                .FirstOrDefault(e => e.Message?.Contains(nameof(ConsoleLogger)) == true);
             enabledLogsEvent.ShouldNotBeNull();
+            service.AllProcessedBuildEvents.OfType<LoggersRegisteredEventArgs>().ShouldHaveSingleItem();
         }
 
         [Fact]

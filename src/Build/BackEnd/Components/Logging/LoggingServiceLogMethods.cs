@@ -361,7 +361,11 @@ namespace Microsoft.Build.BackEnd.Logging
 
             // Make sure we process this event before going any further
             WaitForLoggingToProcessEvents();
+        }
 
+        /// <inheritdoc />
+        public void LogRegisteredLoggers()
+        {
             // Register Loggers and print out all the enabled loggers.
             // Gated behind ChangeWaves.Wave18_8 so that disabling the wave fully suppresses
             // the new "Enabled loggers" message and the new LoggersRegisteredEventArgs,

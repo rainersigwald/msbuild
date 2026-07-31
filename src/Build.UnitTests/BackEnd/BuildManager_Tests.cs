@@ -205,6 +205,14 @@ namespace Microsoft.Build.UnitTests.BackEnd
 
             result.OverallResult.ShouldBe(BuildResultCode.Success);
 
+            string enabledLoggersMessagePrefix =
+                ResourceUtilities.FormatResourceStringIgnoreCodeAndKeyword("LogEnabledLogs", string.Empty);
+            _logger.AllBuildEvents
+                .OfType<BuildMessageEventArgs>()
+                .Count(e => e.Message?.StartsWith(enabledLoggersMessagePrefix, StringComparison.Ordinal) == true)
+                .ShouldBe(1);
+            _logger.AllBuildEvents.OfType<LoggersRegisteredEventArgs>().ShouldHaveSingleItem();
+
             _logger.AllBuildEvents.OfType<ProjectStartedEventArgs>()
                 .Count()
                 .ShouldBe(3);

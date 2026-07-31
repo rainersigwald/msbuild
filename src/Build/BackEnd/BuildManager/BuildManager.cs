@@ -701,6 +701,7 @@ namespace Microsoft.Build.Execution
                 try
                 {
                     loggingService.LogBuildStarted();
+                    loggingService.LogRegisteredLoggers();
 
                     if (_buildParameters.UsesInputCaches())
                     {
