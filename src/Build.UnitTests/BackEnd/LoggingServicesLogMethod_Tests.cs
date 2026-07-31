@@ -1048,30 +1048,27 @@ namespace Microsoft.Build.UnitTests.Logging
             Assert.True(((BuildFinishedEventArgs)service.ProcessedBuildEvent).IsEquivalent(buildEvent));
         }
 
-        [Fact]
-        public void LogBuildStartedDoesNotLogRegisteredLoggers()
-        {
-            ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
-            service.RegisterLogger(new ConsoleLogger());
-
-            service.LogBuildStarted();
-
-            service.AllProcessedBuildEvents.ShouldHaveSingleItem().ShouldBeOfType<BuildStartedEventArgs>();
-        }
-
-        [Fact]
-        public void LogRegisteredLoggersLogsLoggerNames()
+        [Theory]
+        [InlineData(false, 1)]
+        [InlineData(true, 0)]
+        public void LogBuildStartedLogsRegisteredLoggersOnlyOnMainNode(bool runningOnRemoteNode, int expectedRegistrationEventCount)
         {
             ProcessBuildEventHelper service = (ProcessBuildEventHelper)ProcessBuildEventHelper.CreateLoggingService(LoggerMode.Synchronous, 1);
             ConsoleLogger consoleLogger = new ConsoleLogger();
             service.RegisterLogger(consoleLogger);
+            service.RunningOnRemoteNode = runningOnRemoteNode;
 
-            service.LogRegisteredLoggers();
-            var enabledLogsEvent = service.AllProcessedBuildEvents
+            service.LogBuildStarted();
+
+            service.AllProcessedBuildEvents.OfType<BuildStartedEventArgs>().ShouldHaveSingleItem();
+            service.AllProcessedBuildEvents
                 .OfType<BuildMessageEventArgs>()
-                .FirstOrDefault(e => e.Message?.Contains(nameof(ConsoleLogger)) == true);
-            enabledLogsEvent.ShouldNotBeNull();
-            service.AllProcessedBuildEvents.OfType<LoggersRegisteredEventArgs>().ShouldHaveSingleItem();
+                .Count(e => e.Message?.Contains(nameof(ConsoleLogger)) == true)
+                .ShouldBe(expectedRegistrationEventCount);
+            service.AllProcessedBuildEvents
+                .OfType<LoggersRegisteredEventArgs>()
+                .Count()
+                .ShouldBe(expectedRegistrationEventCount);
         }
 
         [Fact]

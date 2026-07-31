@@ -500,11 +500,6 @@ namespace Microsoft.Build.BackEnd.Logging
         void LogBuildStarted();
 
         /// <summary>
-        /// Log the registered loggers and their output paths.
-        /// </summary>
-        void LogRegisteredLoggers();
-
-        /// <summary>
         /// Log the completion of a build
         /// </summary>
         /// <param name="success">Did the build succeed or not</param>
