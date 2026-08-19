@@ -126,6 +126,11 @@ namespace Microsoft.Build.BackEnd
         private Dictionary<string, int> _activelyBuildingTargets;
 
         /// <summary>
+        /// The number of operations currently using the in-memory project state.
+        /// </summary>
+        private int _projectInstanceUsageCount;
+
+        /// <summary>
         /// The node where this configuration's master results are stored.
         /// </summary>
         private int _resultsNodeId = Scheduler.InvalidNodeId;
@@ -148,9 +153,17 @@ namespace Microsoft.Build.BackEnd
         #endregion
 
         /// <summary>
+        /// The target names that were requested to execute. Backed by a field so that it can be
+        /// serialized across nodes; without this, a configuration that crosses a node boundary
+        /// would lose its requested targets, which is needed (for example) to generate the correct
+        /// set of targets in a solution metaproject.
+        /// </summary>
+        private List<string> _requestedTargets = [];
+
+        /// <summary>
         /// The target names that were requested to execute.
         /// </summary>
-        internal IReadOnlyCollection<string> RequestedTargets { get; }
+        internal IReadOnlyCollection<string> RequestedTargets => _requestedTargets;
 
         /// <summary>
         /// Initializes a configuration from a BuildRequestData structure.  Used by the BuildManager.
@@ -182,7 +195,7 @@ namespace Microsoft.Build.BackEnd
             _explicitToolsVersionSpecified = data.ExplicitToolsVersionSpecified;
             _toolsVersion = ResolveToolsVersion(data, defaultToolsVersion);
             _globalProperties = data.GlobalPropertiesDictionary;
-            RequestedTargets = new List<string>(data.TargetNames);
+            _requestedTargets = new List<string>(data.TargetNames);
 
             // The following information only exists when the request is populated with an existing project.
             if (data.ProjectInstance != null)
@@ -253,7 +266,7 @@ namespace Microsoft.Build.BackEnd
             _globalProperties = other._globalProperties;
             IsCacheable = other.IsCacheable;
             _configId = configId;
-            RequestedTargets = other.RequestedTargets;
+            _requestedTargets = other._requestedTargets;
             _projectEvaluationId = other._projectEvaluationId;
         }
 
@@ -632,6 +645,48 @@ namespace Microsoft.Build.BackEnd
                                                                       new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Keeps the <see cref="ProjectInstance"/> in memory while the caller uses it, preventing a concurrent
+        /// memory-pressure cache sweep. Retrieves the project first if it was already cached.
+        /// </summary>
+        /// <remarks>
+        /// The usage count belongs to this configuration. A shallow clone that shares the same
+        /// <see cref="ProjectInstance"/> has independent synchronization and usage tracking.
+        /// </remarks>
+        internal ProjectInstanceUsageScope AcquireProjectInstanceUsage() => new(this);
+
+        /// <summary>
+        /// Tracks one active <see cref="ProjectInstance"/> consumer. Consume with <see langword="using"/>;
+        /// do not dispose copies.
+        /// </summary>
+        internal readonly struct ProjectInstanceUsageScope : IDisposable
+        {
+            private readonly BuildRequestConfiguration _configuration;
+
+            internal ProjectInstanceUsageScope(BuildRequestConfiguration configuration)
+            {
+                _configuration = configuration;
+
+                lock (_configuration._syncLock)
+                {
+                    _configuration.RetrieveFromCache();
+                    Assumed.False(_configuration.IsCached, "Configuration could not be retrieved before accessing the project.");
+                    _configuration._projectInstanceUsageCount++;
+                }
+            }
+
+            public void Dispose()
+            {
+                Assumed.NotNull(_configuration, "ProjectInstance usage scope was not initialized.");
+
+                lock (_configuration._syncLock)
+                {
+                    Assumed.True(_configuration._projectInstanceUsageCount > 0, "No active ProjectInstance usage to complete.");
+                    _configuration._projectInstanceUsageCount--;
+                }
+            }
+        }
+
+        /// <summary>
         /// Holds a snapshot of the environment at the time we blocked.
         /// </summary>
         public FrozenDictionary<string, string> SavedEnvironmentVariables
@@ -717,7 +772,7 @@ namespace Microsoft.Build.BackEnd
         {
             lock (_syncLock)
             {
-                if (IsActivelyBuilding || IsCached || !IsLoaded || !IsCacheable)
+                if (_projectInstanceUsageCount > 0 || IsActivelyBuilding || IsCached || !IsLoaded || !IsCacheable)
                 {
                     return;
                 }
@@ -956,6 +1011,7 @@ namespace Microsoft.Build.BackEnd
             translator.Translate(ref _savedCurrentDirectory);
             translator.TranslateDictionary(ref _savedEnvironmentVariables, CommunicationsUtilities.EnvironmentVariableComparer);
             translator.Translate(ref _projectEvaluationId);
+            translator.Translate(ref _requestedTargets);
 
             // if the  entire state is translated, then the transferred state represents the full evaluation data
             if (translator.Mode == TranslationDirection.ReadFromStream && _transferredState?.TranslateEntireState == true)
