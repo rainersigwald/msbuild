@@ -28,7 +28,7 @@
             ContinueOnError="true"/>
 
   </Target>
-  <Target Name="GatherNuGetDependencies" AfterTargets="ResolvePackageAssets">
+  <Target Name="GatherNuGetDependencies" AfterTargets="ResolvePackageAssets" DependsOnTargets="AcquireSdk">
     <ItemGroup>
         <!-- Collect known NuGet dependencies after resolving packages -->
         <_NuGetRuntimeDependencies Include="%(RuntimeCopyLocalItems.Identity)" Condition="'@(RuntimeCopyLocalItems->Contains('NuGet.'))' == 'true'" />
@@ -43,7 +43,7 @@
         <!-- NuGet.Build.Tasks.Console.exe will be in the None ItemGroup -->
         <_NuGetRuntimeDependencies Include="%(None.Identity)" Condition="'@(None->Contains('NuGet.'))' == 'true'" />
 
-        <_NuGetRuntimeDependencies Include="$(DOTNET_INSTALL_DIR)\sdk\$(DotNetCliVersion)\RuntimeIdentifierGraph.json" />
+        <_NuGetRuntimeDependencies Include="$(BootstrapSdkInstallDir)sdk\$(BootstrapSdkVersion)\RuntimeIdentifierGraph.json" />
     </ItemGroup>
   </Target>
 
@@ -237,14 +237,13 @@
           Condition="!$(TargetFramework.StartsWith('net4'))">
 
     <PropertyGroup>
-      <InstallDir>$(ArtifactsBinDir)bootstrap\core\</InstallDir>
       <!-- The dotnet-install script is just a build tool, so keep it repo-local instead of writing it into
            $(DotNetRoot), which can resolve to a machine-global, possibly non-writable path such as
            "C:\Program Files\dotnet\" (see https://github.com/dotnet/msbuild/issues/13962). -->
       <DotNetInstallScriptRootPath>$(ArtifactsObjDir)bootstrap\</DotNetInstallScriptRootPath>
     </PropertyGroup>
 
-    <InstallDotNetCoreTask DotNetInstallScriptRootPath="$(DotNetInstallScriptRootPath)" InstallDir="$(InstallDir)" Version="$(BootstrapSdkVersion)"/>
+    <InstallDotNetCoreTask DotNetInstallScriptRootPath="$(DotNetInstallScriptRootPath)" InstallDir="$(BootstrapSdkInstallDir)" Version="$(BootstrapSdkVersion)"/>
   </Target>
 
   <Target Name="BootstrapNetCore" DependsOnTargets="AcquireSdk">
@@ -256,15 +255,15 @@
 
     <!-- The copying of these dependencies is required by bootstrap\**\sdk\**\NuGet.RestoreEx.targets. Otherwise NuGet.Build.Tasks.dll can not be found. -->
     <Copy SourceFiles="@(_NuGetRuntimeDependencies)"
-          DestinationFolder="$(InstallDir)sdk\$(BootstrapSdkVersion)\"
+          DestinationFolder="$(BootstrapSdkInstallDir)sdk\$(BootstrapSdkVersion)\"
           SkipUnchangedFiles="true" />
 
     <Copy SourceFiles="@(FreshlyBuiltNetBinaries)"
-          DestinationFiles="@(FreshlyBuiltNetBinaries->'$(InstallDir)sdk\$(BootstrapSdkVersion)\%(RecursiveDir)%(Filename)%(Extension)')" />
+          DestinationFiles="@(FreshlyBuiltNetBinaries->'$(BootstrapSdkInstallDir)sdk\$(BootstrapSdkVersion)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <!-- macOS Gatekeeper kills copied dotnet apphosts that lack a valid local signature.
          Ad-hoc re-sign to prevent SIGKILL (exit code 137) when tests invoke the bootstrap dotnet. -->
-    <Exec Command="codesign --force --sign - &quot;$(InstallDir)dotnet&quot;"
+    <Exec Command="codesign --force --sign - &quot;$(BootstrapSdkInstallDir)dotnet&quot;"
           Condition="$([MSBuild]::IsOSPlatform('osx'))" />
 
   </Target>
