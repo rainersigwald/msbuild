@@ -9,9 +9,7 @@
     <!-- This path is used for Windows Full test run and it points to net472 during execution-->
     <BootstrapDestination>$(BootstrapDestination)$(TargetFramework.ToLowerInvariant())\MSBuild\</BootstrapDestination>
 
-    <!-- Directory the bootstrap .NET Core SDK is installed into by the AcquireSdk target.
-         Defined here (not inside AcquireSdk) so it's available during project evaluation, e.g. for
-         items in MSBuild.Bootstrap.csproj that reference files produced into this directory. -->
+    <!-- Directory the bootstrap .NET Core SDK is installed into by the AcquireSdk target. -->
     <BootstrapSdkInstallDir>$(ArtifactsBinDir)bootstrap\core\</BootstrapSdkInstallDir>
   </PropertyGroup>
 
