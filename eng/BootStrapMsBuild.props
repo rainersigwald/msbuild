@@ -13,11 +13,4 @@
     <BootstrapSdkInstallDir>$(ArtifactsBinDir)bootstrap\core\</BootstrapSdkInstallDir>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(TargetFramework.StartsWith('net4'))">
-    <BootstrapBinaryDestination>$(BootstrapDestination)$(TargetMSBuildToolsVersion)\Bin</BootstrapBinaryDestination>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="!$(TargetFramework.StartsWith('net4'))">
-    <BootstrapBinaryDestination>$(BootstrapDestination)</BootstrapBinaryDestination>
-  </PropertyGroup>
 </Project>
